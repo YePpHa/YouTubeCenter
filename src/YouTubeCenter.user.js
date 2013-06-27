@@ -5334,6 +5334,54 @@
         document.getElementById("page-container").style.left = "";
       }
     };*/
+    ytcenter.guide = {
+      element: null,
+      observer: null,
+      hidden: false,
+      top: null,
+      left: null,
+      update: function() {
+        var guideContainer = document.getElementById("guide-container");
+        if (!ytcenter.guide.hidden) {
+          $RemoveCSS(guideContainer, "hid");
+          if (ytcenter.guide.top !== null) {
+            guideContainer.style.setProperty("top", ytcenter.guide.top + "px", "important");
+          } else {
+            guideContainer.style.setProperty("top", "");
+          }
+          if (ytcenter.guide.left !== null) {
+            guideContainer.style.setProperty("left", ytcenter.guide.left + "px", "important");
+          } else {
+            guideContainer.style.setProperty("left", "");
+          }
+        } else {
+          $AddCSS(guideContainer, "hid");
+        }
+      },
+      checkMutations: function(mutations) {
+        mutations.forEach(function(mutation) {
+          var addedNodes = mutation.addedNodes;
+          for (var index = 0; index < addedNodes.length; ++index) {
+            var addedNode = addedNodes[index];
+            if (addedNode.id === "guide-container") {
+              ytcenter.guide.update();
+              break;
+            }
+          }
+        });
+      },
+      setup: function() {
+        if (ytcenter.guide.element === null || ytcenter.guide.element.id !== "guide") {
+          ytcenter.guide.element = document.getElementById("guide");
+          ytcenter.guide.observer = null;
+          ytcenter.guide.update();
+        }
+        if (!ytcenter.guide.observer) {
+          ytcenter.guide.observer = new MutationObserver(ytcenter.guide.checkMutations);
+        }
+        ytcenter.guide.observer.observe(ytcenter.guide.element, { childList: true });
+      }
+    };
     ytcenter.hideFeedbackButton = function(hide){
       if (document.getElementById("yt-hitchhiker-feedback") && hide) {
         document.getElementById("yt-hitchhiker-feedback").style.display = "none";
@@ -5647,9 +5695,10 @@
     })();
     ytcenter.language = @ant-database-language@;
     con.log("Applied language database");
-    ytcenter.updateLanguage = function(){
+    ytcenter.updateLanguage = function(doNotRecurse){
       con.log("Updating Language...");
-      if (ytcenter.settings.language == 'auto' && yt && yt.config_) {
+      var yt = uw.yt;
+      if (ytcenter.settings.language === 'auto' && yt && yt.getConfig && yt.getConfig("PAGE_NAME")) {
         if (yt.config_.FEEDBACK_LOCALE_LANGUAGE && ytcenter.language.hasOwnProperty(yt.config_.FEEDBACK_LOCALE_LANGUAGE)) {
           ytcenter.locale = ytcenter.language[yt.config_.FEEDBACK_LOCALE_LANGUAGE];
         } else if (yt.config_.SANDBAR_LOCALE && ytcenter.language.hasOwnProperty(yt.config_.SANDBAR_LOCALE)) {
@@ -5659,8 +5708,25 @@
         } else {
           ytcenter.locale = ytcenter.language['en'];
         }
-      } else if (ytcenter.settings.language == 'auto') {
+      } else if (ytcenter.settings.language === 'auto') {
         ytcenter.locale = ytcenter.language['en'];
+        if (doNotRecurse != true) {
+          con.log("Language set to " + ytcenter.locale.LANGUAGE + " because it could not be auto-detected yet");
+          var languageUpdateCounter = 0;
+          var languageUpdateInterval = uw.setInterval((function(){
+            if (uw.yt && uw.yt.getConfig && uw.yt.getConfig("PAGE_NAME")) {
+              uw.clearInterval(languageUpdateInterval);
+              ytcenter.updateLanguage(true);
+              ytcenter.database.applyLanguage(ytcenter.locale);
+            } else if (++languageUpdateCounter >= 100) {
+              uw.clearInterval(languageUpdateInterval);
+              con.log("YouTube configuration data is inaccessible; giving up on language auto-detection.");
+            }
+          }).bind(this), 50);
+        } else {
+          con.log("Language set to " + ytcenter.locale.LANGUAGE + " because auto-detection failed unexpectedly");
+        }
+        return;
       } else {
         if (ytcenter.language.hasOwnProperty(ytcenter.settings.language)) {
           ytcenter.locale = ytcenter.language[ytcenter.settings.language];
@@ -6250,11 +6316,8 @@
             {
               "event": "click",
               "callback": function(){
-                if (ytcenter.settings.watch7playerguidealwayshide) {
-                  $AddCSS(document.getElementById("guide-container"), "hid");
-                } else {
-                  $RemoveCSS(document.getElementById("guide-container"), "hid");
-                }
+                ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
+                ytcenter.guide.update();
                 ytcenter.player._updateResize();
               }
             }
@@ -7693,10 +7756,10 @@
             } else {
               if (ytcenter.player.reference.api.nativeAddEventListener && !ytcenter.player.reference.api.addEventListener) {
                 con.log("listeners -> " + ytListenerNames[i] + " -> API Function -> nativeAddEventListener");
-                ytcenter.player.reference.api.nativeAddEventListener(ytListenerNames[i], "ytcenter." + ytListenerNames[i]);
+                ytcenter.player.reference.api.nativeAddEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
               } else {
                 con.log("listeners -> " + ytListenerNames[i] + " -> API Function -> addEventListener");
-                ytcenter.player.reference.api.addEventListener(ytListenerNames[i], "ytcenter." + ytListenerNames[i]);
+                ytcenter.player.reference.api.addEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
               }
             }
           } catch (e) {
@@ -8174,21 +8237,19 @@
             if (document.getElementById("watch7-creator-bar")) {
               gct += 48;
             }
-            document.getElementById("guide-container").style.setProperty("top", gct + "px", "important");
+            ytcenter.guide.top = gct;
           } else {
             con.log("Moving the guide below player failed!");
           }
         } else {
-          if (document.getElementById("guide-container")) {
-            document.getElementById("guide-container").style.top = "";
-          }
+          ytcenter.guide.top = null;
         }
         if (ytcenter.settings.watch7playerguidehide && !align) {
-          $AddCSS(document.getElementById("guide-container"), "hid");
+          ytcenter.guide.hidden = true;
         } else if (!ytcenter.settings.watch7playerguidealwayshide && ytcenter.settings.watch7playerguidehide && align) {
-          $RemoveCSS(document.getElementById("guide-container"), "hid");
+          ytcenter.guide.hidden = false;
         } else if (!ytcenter.settings.watch7playerguidealwayshide && !ytcenter.settings.watch7playerguidehide) {
-          $RemoveCSS(document.getElementById("guide-container"), "hid");
+          ytcenter.guide.hidden = false;
         }
         
         // Guide + Main Center
@@ -8203,7 +8264,7 @@
             clg = 10;
           }
           document.getElementById("watch7-main").style.setProperty("left", cl + "px", "important");
-          document.getElementById("guide-container").style.setProperty("left", clg + "px", "important");
+          ytcenter.guide.left = clg;
 
           if (clientWidth <= 1325) {
             document.getElementById("page-container").style.width = "100%";
@@ -8214,10 +8275,11 @@
           $AddCSS(document.body, "ytcenter-resize-main");
         } else {
           document.getElementById("watch7-main").style.left = "";
-          document.getElementById("guide-container").style.left = "";
+          ytcenter.guide.left = null;
           document.getElementById("page-container").style.width = "";
           $RemoveCSS(document.body, "ytcenter-resize-main");
         }
+        ytcenter.guide.update();
         
         // Player
         var wp = document.getElementById("player-api");
@@ -8753,11 +8815,8 @@
         return;
       }
       try {
-        if (ytcenter.settings.watch7playerguidealwayshide) {
-          $AddCSS(document.getElementById("guide-container"), "hid");
-        } else {
-          $RemoveCSS(document.getElementById("guide-container"), "hid");
-        }
+        ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
+        ytcenter.guide.setup();
       } catch (e) {
         con.error(e);
       }
@@ -9507,7 +9566,7 @@
         $AddStyle(".resize-options{width: 335px;padding:0 10px;position:absolute;bottom:5px;}");
         $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
         $AddStyle(".ytcenter-settings-header .yt-uix-button-epic-nav-item {border: none;padding: 0 3px 3px 3px;cursor: pointer;} .ytcenter-settings-header a.yt-uix-button.yt-uix-button-epic-nav-item, .ytcenter-settings-header button.yt-uix-button-epic-nav-item, .ytcenter-settings-header .epic-nav-item, .ytcenter-settings-header .epic-nav-item-heading {border: none;padding: 0 3px 3px 3px;cursor: pointer;background: none;color: #9c9c9c;font-size: 11px;font-weight: bold;height: 29px;line-height: 29px;-moz-box-sizing: content-box;-ms-box-sizing: content-box;-webkit-box-sizing: content-box;box-sizing: content-box;-moz-border-radius: 0;-webkit-border-radius: 0;border-radius: 0;} .ytcenter-settings-header .yt-uix-button-epic-nav-item.selected {border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;color: #333;} .ytcenter-settings-header a.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header a.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header button.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header button.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item:hover, .ytcenter-settings-header .epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item-heading {height: 29px;line-height: 29px;vertical-align: bottom;color: #333;border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;display: inline-block;}")
-        $AddStyle(".ytcenter-lights-off #watch7-video, .ytcenter-lights-off #player-api{z-index:5!important;}");
+        $AddStyle(".ytcenter-lights-off #watch7-video, .ytcenter-lights-off #player-api, .ytcenter-lights-off #movie_player{z-index:5!important;}");
         $AddStyle(".ytcenter-branding-remove-background #player {background:none!important;}");
         $AddStyle(".ytcenter-branding-remove-banner #watch7-sidebar {margin-top: -390px} .ytcenter-branding-remove-banner .watch-playlist #watch7-sidebar {margin-top: 0px!important}");
         $AddStyle(".ytcenter-branding-remove-banner #watch7-branded-banner,.ytcenter-branding-remove-banner #player-branded-banner {display:none!important;}");
@@ -9609,9 +9668,9 @@
           if ((document.readyState === "interactive" || document.readyState === "complete") && !__called) {
             __called = true;
             dclcaller();
-            uw.clearInterval(__bodyLoadedInterval);
+            uw.clearInterval(__mainLoadedInterval);
           } else if (__called) {
-            uw.clearInterval(__bodyLoadedInterval);
+            uw.clearInterval(__mainLoadedInterval);
           }
         }, 50);
         document.addEventListener("readystatechange", function(){
