@@ -719,7 +719,7 @@
       ytcenter.database.codeRegister(btn1a, function(){
         stream = $DownloadButtonStream();
         if (stream) {
-          btn1a.href = ytcenter.video.downloadLink(stream);
+          btn1a.setAttribute("href", ytcenter.video.downloadLink(stream));
         }
       });
       
@@ -2955,6 +2955,9 @@
       return __r;
     })();
     ytcenter.embeds = {};
+    ytcenter.embeds.sortList = function(){
+      // Sortable list as in Resize -> Player Sizes
+    };
     ytcenter.embeds.colorPickerField = function(hue, sat, val){
       var bCallback;
       
@@ -5539,6 +5542,12 @@
         },
         registerElement: function(elm, query){
           con.log("Regisering Element to PlacementSystem: " + query);
+          for (var i = 0; i < database.length; i++) {
+            if (database[i][1] === query) {
+              database[i] = [elm, query, []];
+              return;
+            }
+          }
           database.push([elm, query, []]);
         },
         registerNativeElements: function(){
@@ -7726,14 +7735,36 @@
       }
       return ytcenter.player._config;
     };
+    ytcenter.player.getPlayerId = (function(){
+      function verify() {
+        var n = -1;
+        ytcenter.utils.each(uw, function(key, value){
+          if (key.indexOf("ytPlayer") !== 0) return; //  || key.indexOf(("player" + i), key.length - ("player" + i).length) !== -1
+          var __n = key.substr(key.lastIndexOf("player") + "player".length);
+          if (!/^\d+$/.test(__n)) return;
+          var _n = parseInt(__n);
+          if (_n > n)
+            n = _n;
+        });
+        if (n > -1) verified = n;
+      }
+      var verified = 0;
+      return function(){
+        verify();
+        return "player" + verified;
+      };
+    })();
     ytcenter.player.getReference = (function(){
       function doVariableCheck() {
         if (replaceVariable.length === 0) return;
-        for (var i = 0; i < replaceVariable.length; i++) {
-          if (uw[replaceVariable[i]] !== __empty_func && typeof uw[replaceVariable[i]] !== "undefined") {
-            con.log("Removing variable " + replaceVariable[i] + " from unsafeWindow.");
-            if (!ytcenter.unsafe.ytplayer[replaceVariable[i]]) ytcenter.unsafe.ytplayer[replaceVariable[i]] = ytcenter.utils.bind(uw[replaceVariable[i]], ytcenter.unsafe.ytplayer);
-            uw[replaceVariable[i]] = __empty_func;
+        var i, pid, f;
+        for (i = 0; i < replaceVariable.length; i++) {
+          pid = replaceVariable[i][1];
+          f = replaceVariable[i][0];
+          if (uw['ytPlayer' + f + pid] !== __empty_func && typeof uw['ytPlayer' + f + pid] !== "undefined") {
+            con.log("Removing variable ytPlayer" + f + pid + " from unsafeWindow.");
+            if (!ytcenter.unsafe.ytplayer['ytPlayer' + f + pid]) ytcenter.unsafe.ytplayer['ytPlayer' + f + pid] = ytcenter.utils.bind(uw['ytPlayer' + f + pid], ytcenter.unsafe.ytplayer);
+            uw['ytPlayer' + f + pid] = __empty_func;
           }
         }
       }
@@ -7757,7 +7788,11 @@
           ],
           replaceVariable = [],
           initialized = false,
-          __empty_func = function(){};
+          __empty_func = function(){},
+          __verified = 0;
+      var updatePlayerInitialized = function(a){
+        initialized = a;
+      };
       var init = function(){
         if (initialized) return;
         initialized = true;
@@ -7766,7 +7801,7 @@
         ytcenter.unsafe.ytplayer = ytcenter.unsafe.ytplayer || {};
         for (var i = 0; i < ytListenerNames.length; i++) {
           try {
-            var pid = (ytcenter.player.getReference().playerId ? ytcenter.player.getReference().playerId : "player1");
+            var pid = ytcenter.player.getPlayerId();
             if (uw['ytPlayer' + ytListenerNames[i] + pid] && !ytcenter.html5flash) {
               con.log("listeners -> " + ytListenerNames[i] + " -> Variable");
               ytcenter.unsafe.ytplayer['ytPlayer' + ytListenerNames[i] + pid] = ytcenter.utils.bind(uw['ytPlayer' + ytListenerNames[i] + pid], ytcenter.unsafe.ytplayer);
@@ -7775,11 +7810,11 @@
               if (ytcenter.player.reference.api.nativeAddEventListener && !ytcenter.player.reference.api.addEventListener) {
                 con.log("listeners -> " + ytListenerNames[i] + " -> API Function -> nativeAddEventListener");
                 ytcenter.player.reference.api.nativeAddEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
-                replaceVariable.push(ytListenerNames[i]);
+                replaceVariable.push([ytListenerNames[i], ytcenter.player.getPlayerId()]);
               } else {
                 con.log("listeners -> " + ytListenerNames[i] + " -> API Function -> addEventListener");
                 ytcenter.player.reference.api.addEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
-                replaceVariable.push('ytPlayer' + ytListenerNames[i] + pid);
+                replaceVariable.push([ytListenerNames[i], ytcenter.player.getPlayerId()]);
               }
             }
             doVariableCheck();
@@ -7824,7 +7859,7 @@
         ytcenter.unsafe.ytplayer[ytListenerNames[i]] = ytcenter.utils.bind((function(listenerName){
           return function(arg1){
             doVariableCheck();
-            var pid = (ytcenter.player.getReference().playerId ? ytcenter.player.getReference().playerId : "player1");
+            var pid = ytcenter.player.getPlayerId();
             con.log("Player callback -> " + listenerName + " (" + arg1 + ")");
             var original = true;
             for (var i = 0; i < listeners[listenerName].length; i++) {
@@ -7896,6 +7931,7 @@
           
           ytcenter.player.reference.html5 = ytcenter.html5;
         }
+        ytcenter.player.reference.updatePlayerInitialized = updatePlayerInitialized;
         ytcenter.player.reference.listener = {
           addEventListener: add,
           removeEventListener: rem,
@@ -8476,7 +8512,7 @@
       uw.ytcenter = uw.ytcenter || {};
       uw.ytcenter.ytplayer = uw.ytcenter.ytplayer || {};
       uw.ytcenter.ytplayer.onPlayerLoaded = ytcenter.utils.bind(function(playerid){
-        if (!playerid || typeof playerid !== "string") playerid = "player1";
+        if (!playerid || typeof playerid !== "string") playerid = null;
         onplayerloadedCalled = true;
         try {
           con.log("YouTube Player Ready (" + playerid + ")");
@@ -8828,9 +8864,38 @@
         con.error(e);
       }
     };
+    var __spf = true;
     var ytwatchinit = function(){
       yt = uw.yt;
       ytcenter.page = "watch";
+      
+      if (uw && uw.ytspf && uw.ytspf.enabled && __spf) {
+        __spf = false;
+        var __a = [
+          "navigate-error-callback",
+          "navigate-processed-callback",
+          "navigate-received-callback",
+          "navigate-requested-callback"
+        ];
+        for (var i = 0; i < __a.length; i++) {
+          uw.aD.config[__a[i]] = (function(func, func_name){
+            return function(a,b,c){
+              con.log("HTML5 Navigation: " + func_name);
+              var f = func(a,b,c);
+              if (func_name === "navigate-processed-callback") {
+                try {
+                  ytcenter.player.getReference().updatePlayerInitialized(false);
+                } catch (e) {
+                  con.error(e);
+                }
+                ytwatchinit();
+                ytcenter.database.applyLanguage(ytcenter.locale);
+              }
+              return f;
+            };
+          })(uw.aD.config[__a[i]], __a[i]);
+        }
+      }
       
       if (typeof ytcenter.player.getConfig() === "undefined") {
         con.error("ytcenter.player.getConfig() is undefined!");
