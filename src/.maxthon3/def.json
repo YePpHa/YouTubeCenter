@@ -1,0 +1,22 @@
+[
+  {
+    "type": "extension",
+    "frameworkVersion": "1.0.0",
+    "version": "@ant-version@",
+    "guid": "{7c967395-24b1-46b3-a83a-f28a8408c236}",
+    "name": "YouTube Center",
+    "title": {
+      "en": "YouTube Center"
+    },
+    "actions": [
+      {
+        "type": "script",
+        "entryPoints": [ 'doc_start' ],
+        'include': [
+          "*"
+        ],
+        "js": [ "YouTubeCenter.user.js" ]
+      }
+    ]
+  }
+]

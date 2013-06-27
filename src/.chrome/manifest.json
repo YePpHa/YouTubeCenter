@@ -1,0 +1,27 @@
+{
+  "name": "YouTube Center",
+  "version": "@ant-version@",
+  "manifest_version": 2,
+  "description": "YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.",
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.youtube.com/*",
+        "https://*.youtube.com/*",
+        "http://dl.dropbox.com/u/13162258/YouTube%20Center/*",
+        "https://dl.dropbox.com/u/13162258/YouTube%20Center/*",
+        "http://userscripts.org/scripts/source/114002.meta.js"
+      ],
+      "exclude_matches": [
+        "http://apiblog.youtube.com/*",
+        "https://apiblog.youtube.com/*"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "js": [ "YouTubeCenter.user.js" ]
+    }
+  ],
+  "icons": {"16": "assets/icon16.png",
+            "48": "assets/icon48.png",
+            "128": "assets/icon128.png"}
+}

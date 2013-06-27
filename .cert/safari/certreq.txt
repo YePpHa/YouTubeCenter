@@ -1,0 +1,5 @@
+[NewRequest]
+Subject="cn=Safari Developer,o=User"
+RequestType=pkcs10
+KeyLength=2048
+Exportable=TRUE

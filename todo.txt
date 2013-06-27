@@ -1,0 +1,33 @@
+ - YouTubeInAudio.com (320 kbp/s)  doesn't work anymore.
+ - Test if auto quality works if "Slow Connection" box is marked.
+ - Add fullwidth to yt:crop.
+ - Set YouTube icon link to whatever you want.
+ - Set homepage to whatever you want.
+ - Option to remove videos from my subscriptions.
+ - YouTube have added a new feature with playlist. When you sometimes click next video it will use a javascript function to load the new video data, and therefore YouTube Center will not apply. Try to intercept this somehow.
+----
+ - Mouse scroll to change volume
+ - Auto expand 'Guide'
+ - Turn off light by clicking on white space (blank space).
+ - HTML5 doesn't support Auto-Hide Bar (Remember to exclude it from resize functionality).
+ - Add the color picker from v2.
+ - Remove css transition for the recommended sidebar.
+ - Add yt:bgcolor to YouTube Center. yt:bgcolor is a keyword where its value syntax is #[abcdef0-9]{6}.
+ - Keywords are split by a comma.
+ - Two column view for subscription page
+ - Pop out shortcut
+ - Prevent Like button to switch to the share panel
+ - Revamp shortcuts
+ - Revamp download (include direct link to mp3)
+ - Add notification system, when new version installed or first install will give link to guide.
+ - Option to auto expand the guide entires (seperate options).
+ - Add option to disable embed video and featured videos on channels manipulation.
+ - National flag for videos.
+ - Video thumbnail resolution
+ - Video thumbnail ratings
+ - Select search field by default
+ - Keep YouTube header at top.
+ - Change the favicon when the YouTube video is playing.
+ - Download of subtitles
+ - Hide all feeds on the homepage
+ - Option to use classic pagination.

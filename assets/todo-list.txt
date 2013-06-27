@@ -1,0 +1,8 @@
+Add Prevent Tab from auto play/buffer
+Add Prevent auto play/buffer conditions.
+Advance repeat button (start and end time)
+Tutorial for filename (maybe more things too)
+Change the order of the formats in the download menu.
+Priority of Download Format.
+Disable the YouTube playlist.
+...

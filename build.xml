@@ -1,0 +1,201 @@
+<project name="YouTubeCenter" default="all" basedir=".">
+  <description>
+    Compiling script to different browsers.
+  </description>
+  
+  <property name="build.prop" value="${basedir}/build.properties" />
+  <property name="language.db" value="${basedir}/language.json" />
+  <property name="encoding" value="UTF-8" />
+  
+  <property name="name" value="YouTubeCenter" />
+  
+  <property name="build" value="${basedir}/build" />
+  <property name="src" value="${basedir}/src" />
+  <property name="dist" value="${basedir}/dist" />
+  <property name="cert" value="${basedir}/.cert" />
+  
+  <property name="buildDir" value="${build}/${name}" />
+  
+  <property name="cert.chromePath" value="${cert}/chrome" />
+  <property name="cert.chrome" value="${cert.chromePath}/${name}.pem" />
+  
+  <property name="src.chrome" value="${src}/.chrome" />
+  <property name="src.maxthon3" value="${src}/.maxthon3" />
+  <property name="src.firefox" value="${src}/.firefox" />
+  <property name="src.safari" value="${src}/.safari" />
+  <property name="src.opera" value="${src}/.opera" />
+  
+  <property name="sdk.chrome" value="C:/Users/Jeppe Rune Mortensen/AppData/Local/Google/Chrome/Application/chrome.exe" />
+  <property name="sdk.maxthon3" value="${basedir}/SDK/maxthon3.exe" />
+  
+  <target name="all" depends="preinit, userscript, chrome, maxthon3, firefox, safari, opera, clean" />
+  <target name="preinit">
+    <mkdir dir="${cert}" />
+    <mkdir dir="${dist}" />
+    <mkdir dir="${build}" />
+    <mkdir dir="${buildDir}" />
+    <mkdir dir="${src}" />
+    <mkdir dir="${src.chrome}" />
+    <mkdir dir="${src.firefox}" />
+    <mkdir dir="${src.maxthon3}" />
+    <mkdir dir="${cert.chromePath}" />
+  </target>
+  
+  <target name="userscript" depends="preinit, copy-userscript">
+    <move todir="${dist}">
+      <fileset dir="${buildDir}">
+        <include name="*.js" />
+      </fileset>
+    </move>
+    <antcall target="clean" />
+  </target>
+  
+  <target name="dev" depends="preinit, copy-chrome">
+    <copy todir="${dist}/chrome-dev">
+      <fileset dir="${buildDir}" />
+    </copy>
+    <antcall target="clean" />
+  </target>
+  
+  <target name="chrome" depends="preinit, copy-chrome, chrome-keycheck, build-chrome-key, build-chrome-nokey, clean" />
+  <target name="chrome-zip" depends="preinit, copy-chrome">
+    <zip destfile="${dist}/chrome-${name}.zip" basedir="${buildDir}" />
+    <antcall target="clean" />
+  </target>
+  
+  <target name="chrome-keycheck">
+    <condition property="cert.chrome.found">
+      <available file="${cert.chrome}" type="file" />
+    </condition>
+  </target>
+  
+  <target name="build-chrome-key" if="cert.chrome.found">
+    <exec executable="${sdk.chrome}">
+      <arg value="--pack-extension=${buildDir}" />
+      <arg value="--pack-extension-key=${cert.chrome}" />
+      <arg value="--no-message-box" />
+    </exec>
+    <move todir="${dist}">
+      <fileset dir="${build}">
+        <include name="${name}.crx" />
+      </fileset>
+    </move>
+  </target>
+  <target name="build-chrome-nokey" unless="cert.chrome.found">
+    <exec executable="${sdk.chrome}">
+      <arg value="--pack-extension=${buildDir}" />
+      <arg value="--no-message-box" />
+    </exec>
+    <move todir="${dist}">
+      <fileset dir="${build}">
+        <include name="${name}.crx" />
+      </fileset>
+    </move>
+    <move todir="${cert.chromePath}">
+      <fileset dir="${build}">
+        <include name="${name}.pem" />
+      </fileset>
+    </move>
+  </target>
+  
+  <target name="maxthon3" depends="preinit, copy-maxthon3">
+    <exec executable="${sdk.maxthon3}">
+      <arg value="${buildDir}" />
+      <arg value="${dist}/${name}.mxaddon" />
+    </exec>
+    <antcall target="clean" />
+  </target>
+  
+  <target name="firefox" depends="preinit, copy-firefox">
+		<!--<zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
+    <antcall target="clean" />-->
+	</target>
+  
+  <target name="safari" depends="preinit, copy-safari">
+    <mkdir dir="${dist}/${name}.safariextension" />
+		<move todir="${dist}/${name}.safariextension">
+      <fileset dir="${buildDir}/" />
+    </move>
+    <antcall target="clean" />
+	</target>
+  
+  <target name="opera" depends="preinit, copy-opera">
+		<zip destfile="${dist}/${name}.oex" basedir="${buildDir}" />
+    <antcall target="clean" />
+	</target>
+  
+  <target name="copy">
+    <copy todir="${buildDir}">
+      <fileset dir="${src}">
+        <include name="*.*" />
+        <exclude name=".*" />
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="copy-userscript">
+    <antcall target="copy" />
+    <antcall target="tokenreplace" />
+  </target>
+  
+  <target name="copy-chrome">
+    <copy todir="${buildDir}">
+      <fileset dir="${src.chrome}/" />
+    </copy>
+    <antcall target="copy" />
+    <antcall target="tokenreplace" />
+  </target>
+  
+  <target name="copy-maxthon3">
+    <copy todir="${buildDir}">
+      <fileset dir="${src.maxthon3}/" />
+    </copy>
+    <antcall target="copy" />
+    <antcall target="tokenreplace" />
+  </target>
+  
+  <target name="copy-firefox">
+    <antcall target="copy" />
+    <move todir="${buildDir}/data">
+      <fileset dir="${buildDir}" />
+    </move>
+    <copy todir="${buildDir}">
+      <fileset dir="${src.firefox}/" />
+    </copy>
+    <antcall target="tokenreplace" />
+  </target>
+  
+  <target name="copy-safari">
+    <copy todir="${buildDir}">
+      <fileset dir="${src.safari}/" />
+    </copy>
+    <antcall target="copy" />
+    <antcall target="tokenreplace" />
+  </target>
+  
+  <target name="copy-opera">
+    <copy todir="${buildDir}/includes">
+      <fileset dir="${src}">
+        <include name="*.*" />
+        <exclude name=".*" />
+      </fileset>
+      <mapper>
+        <globmapper from="*.user.js" to="*.js" /> 
+      </mapper>
+    </copy>
+    <copy todir="${buildDir}">
+      <fileset dir="${src.opera}/" />
+    </copy>
+    <antcall target="tokenreplace" />
+  </target>
+  
+  <target name="tokenreplace">
+    <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${language.db.content}" token="@ant-database-language@" encoding="${encoding}" />
+    <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />
+  </target>
+  
+  <target name="clean">
+    <delete dir="${buildDir}" />
+  </target>
+</project>

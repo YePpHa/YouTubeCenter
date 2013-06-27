@@ -1,0 +1,16 @@
+resizeEnable
+playersize
+
+aspectEnable
+aspectDefaultValue
+
+repeatSave
+
+
+SETTINGS_RESIZE_ENABLE
+SETTINGS_RESIZE_REMEMBER
+SETTINGS_ASPECT_ENABLE
+
+
+$CreateAspectButton()
+$CreateResizeButton()

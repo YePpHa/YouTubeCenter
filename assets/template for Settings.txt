@@ -1,0 +1,30 @@
+General
+ - Enable Auto Resolution
+ - Enable Download Button
+ - Enable Repeat Button
+ - Enable Shortcuts on Page
+ - Auto Expand Description
+ - []Language [English<default>]
+Video
+ - Auto Resolution
+ - Auto Activate Repeat
+ - Prevent Auto-Play
+ - Prevent Auto-Buffering
+ - []Disable Annotations
+ - []Disable Captions
+ - []Auto Hide Progress Bar and buttons
+Download
+ - Download Quality
+ - Download Format
+ - Show 3D in downloadmenu
+ - Custom Filename
+ - Filename only contains letters from a to z, numbers and space.
+MP3
+ - Enable MP3 in Download List
+ - [Service List for mp3]
+Update
+ - Enable Auto Update
+ - Update Interval
+ - [Button] Check For New Update
+About
+ - Some text

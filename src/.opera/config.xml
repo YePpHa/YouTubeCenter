@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="http://www.facebook.com/YouTubeCenter" version="@ant-version@">
+	<name>YouTube Center</name>
+	<description xml:lang="en">YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.</description>
+  <description xml:lang="pl">YouTube Center zawiera wiele różnych użytecznych narzędzi obracających wizytę na YouTube w czystą rozrywkę.</description>
+	<author href="http://www.facebook.com/YouTubeCenter" email="jepperm@gmail.com">Jeppe Rune Mortensen</author>
+  <icon src="icon-64x64.png" />
+  <icon src="icon-128x128.png" />
+</widget>

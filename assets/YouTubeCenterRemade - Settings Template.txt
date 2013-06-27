@@ -1,0 +1,16 @@
+General - Video - MP3
+
+General:
+ - Enable Auto Resolution
+ - Enable Download Button
+ - Enable Repeat Button
+ - Set Language
+
+Video:
+ - Set Auto Resolution [Low Definition = small, Standard Definition = medium, High Definition = HD Definition, Full HD Definition = hd720, 1080p = hd1080, Original Definition = highres]
+ - Set Download Quality [240p = small, 360p = medium, 480p = large, 720p = hd720, 1080p = hd1080, highres]
+ - Set Download Format [FLV = video/x-flv, MP4 = video/mp4, WebM = video/webm]
+
+MP3
+ - Enable MP3 in Download List
+ - Options for MP3 Site converters, option for self input.
