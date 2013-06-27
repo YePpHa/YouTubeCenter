@@ -4940,7 +4940,7 @@
       }
       return a.join(",");
     };
-    ytcenter.utils.signatureDecipher = function(sig){
+    ytcenter.utils.signatureDecipher = function(signatureCipher){
       function swapHeadAndPosition(array, position) {
         var head = array[0];
         var other = array[position % array.length];
