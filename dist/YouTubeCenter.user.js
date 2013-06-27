@@ -4950,13 +4950,11 @@
       }
       
       var cipherArray = signatureCipher.split("");
-      cipherArray = swapHeadAndPosition(cipherArray, 52);
-      cipherArray = cipherArray.reverse();
-      cipherArray = cipherArray.slice(3);
-      cipherArray = swapHeadAndPosition(cipherArray, 21);
-      cipherArray = cipherArray.reverse();
-      cipherArray = cipherArray.slice(3);
-      cipherArray = cipherArray.reverse();
+      cipherArray = cipherArray.reverse(); // _loc2_=reverse_1588(_loc2_);
+      cipherArray = cipherArray.slice(3); // _loc2_=clone_1588(_loc2_,3);
+      cipherArray = swapHeadAndPosition(cipherArray, 19); // _loc2_=swap_1588(_loc2_,19);
+      cipherArray = cipherArray.reverse(); // _loc2_=reverse_1588(_loc2_);
+      cipherArray = cipherArray.slice(2); // _loc2_=clone_1588(_loc2_,2);
       
       return cipherArray.join("")
     };
