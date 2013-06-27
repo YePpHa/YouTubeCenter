@@ -7729,9 +7729,10 @@
       function doVariableCheck() {
         if (replaceVariable.length === 0) return;
         for (var i = 0; i < replaceVariable.length; i++) {
-          if (uw[replaceVariable[i]] != "function (){}") {
+          if (uw[replaceVariable[i]] !== __empty_func) {
             con.log("Removing variable " + replaceVariable[i] + " from unsafeWindow.");
-            uw[replaceVariable[i]] = function (){};
+            ytcenter.unsafe.ytplayer[replaceVariable[i]] = ytcenter.utils.bind(uw[replaceVariable[i]], ytcenter.unsafe.ytplayer);
+            uw[replaceVariable[i]] = __empty_func;
           }
         }
       }
@@ -7754,7 +7755,8 @@
             'captionschanged'
           ],
           replaceVariable = [],
-          initialized = false;
+          initialized = false,
+          __empty_func = function(){};
       var init = function(){
         if (initialized) return;
         initialized = true;
@@ -8473,7 +8475,7 @@
       uw.ytcenter = uw.ytcenter || {};
       uw.ytcenter.ytplayer = uw.ytcenter.ytplayer || {};
       uw.ytcenter.ytplayer.onPlayerLoaded = ytcenter.utils.bind(function(playerid){
-        if (!playerid) playerid = "player1";
+        if (!playerid || typeof playerid !== "string") playerid = "player1";
         onplayerloadedCalled = true;
         try {
           con.log("YouTube Player Ready (" + playerid + ")");
