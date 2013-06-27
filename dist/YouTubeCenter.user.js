@@ -7748,7 +7748,7 @@
         });
         if (n > -1) verified = n;
       }
-      var verified = 0;
+      var verified = 1;
       return function(){
         verify();
         return "player" + verified;
@@ -7813,7 +7813,11 @@
                 replaceVariable.push([ytListenerNames[i], ytcenter.player.getPlayerId()]);
               } else {
                 con.log("listeners -> " + ytListenerNames[i] + " -> API Function -> addEventListener");
-                ytcenter.player.reference.api.addEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
+                try {
+                  ytcenter.player.reference.api.addEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
+                } catch (e) {
+                  con.error(e);
+                }
                 replaceVariable.push([ytListenerNames[i], ytcenter.player.getPlayerId()]);
               }
             }
@@ -7822,6 +7826,11 @@
             con.error(e);
           }
         }
+        uw['replaceVariable'] = replaceVariable;
+        ytcenter.database.codeRegister(this, function(){
+          doVariableCheck();
+          ytcenter.player.updateResize(); // Quick fix
+        });
       };
       var add = function(event, callback) {
         if (listeners.hasOwnProperty(event)) {
@@ -8723,6 +8732,7 @@
           for (var j = 0; j < d.length; j++) {
             var e = d[j].split("=");
             c[e[0]] = unescape(e[1]);
+            if (e[0] === "type") c[e[0]] = c[e[0]].replace(/\+/g, " ");
           }
           b.push(c);
         }
