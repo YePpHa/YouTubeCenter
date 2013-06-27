@@ -7729,9 +7729,9 @@
       function doVariableCheck() {
         if (replaceVariable.length === 0) return;
         for (var i = 0; i < replaceVariable.length; i++) {
-          if (uw[replaceVariable[i]] !== __empty_func) {
+          if (uw[replaceVariable[i]] !== __empty_func && typeof uw[replaceVariable[i]] !== "undefined") {
             con.log("Removing variable " + replaceVariable[i] + " from unsafeWindow.");
-            ytcenter.unsafe.ytplayer[replaceVariable[i]] = ytcenter.utils.bind(uw[replaceVariable[i]], ytcenter.unsafe.ytplayer);
+            if (!ytcenter.unsafe.ytplayer[replaceVariable[i]]) ytcenter.unsafe.ytplayer[replaceVariable[i]] = ytcenter.utils.bind(uw[replaceVariable[i]], ytcenter.unsafe.ytplayer);
             uw[replaceVariable[i]] = __empty_func;
           }
         }
