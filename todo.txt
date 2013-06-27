@@ -1,3 +1,4 @@
+ - Unify http:// and https:// settings.
  - YouTubeInAudio.com (320 kbp/s)  doesn't work anymore.
  - Test if auto quality works if "Slow Connection" box is marked.
  - Add fullwidth to yt:crop.
