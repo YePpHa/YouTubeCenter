@@ -5379,6 +5379,7 @@
           ytcenter.guide.update();
         }
         if (!ytcenter.guide.observer) {
+          var MutationObserver = MutationObserver || WebKitMutationObserver || MozMutationObserver;
           ytcenter.guide.observer = new MutationObserver(ytcenter.guide.checkMutations);
         }
         ytcenter.guide.observer.observe(ytcenter.guide.element, { childList: true });
