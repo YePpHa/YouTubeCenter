@@ -2557,10 +2557,12 @@
           if (!root.parentNode) document.body.appendChild(root);
           if (!bgOverlay.parentNode) document.body.appendChild(bgOverlay);
           if (document.getElementById("player-api")) document.getElementById("player-api").style.visibility = "hidden";
+          if (document.body) ytcenter.utils.addClass(document.body, "yt-dialog-active");
         } else {
           if (root.parentNode === document.body) document.body.removeChild(root);
           if (bgOverlay.parentNode === document.body) document.body.removeChild(bgOverlay);
           if (document.getElementById("player-api")) document.getElementById("player-api").style.visibility = "";
+          if (document.body) ytcenter.utils.removeClass(document.body, "yt-dialog-active");
         }
       };
       return __r;
