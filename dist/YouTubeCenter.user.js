@@ -7826,11 +7826,6 @@
             con.error(e);
           }
         }
-        uw['replaceVariable'] = replaceVariable;
-        ytcenter.database.codeRegister(this, function(){
-          doVariableCheck();
-          ytcenter.player.updateResize(); // Quick fix
-        });
       };
       var add = function(event, callback) {
         if (listeners.hasOwnProperty(event)) {
