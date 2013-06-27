@@ -36,7 +36,7 @@
       var script = document.createElement("script");
       script.setAttribute("type", "text/javascript");
       if (typeof func === "string") func = "function(){" + func + "}";
-      script.appendChild(document.createTextNode("(" + func + ")();\n//@ sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")();\n//# sourceURL=YouTubeCenter.js"));
       var __p = (document.body || document.head || document.documentElement);
       __p.appendChild(script);
       __p.removeChild(script);
@@ -7726,25 +7726,38 @@
       return ytcenter.player._config;
     };
     ytcenter.player.getReference = (function(){
-      var listeners = {};
-      var ytListenerNames = [
-        'onApiChange',
-        'onCueRangeEnter',
-        'onError',
-        'onNavigate',
-        'onPlaybackQualityChange',
-        'onStateChange',
-        'onTabOrderChange',
-        'onVolumeChange',
-        'onAdStart',
-        'RATE_SENTIMENT',
-        'SHARE_CLICKED',
-        'SIZE_CLICKED',
-        'WATCH_LATER',
-        'AdvertiserVideoView',
-        'captionschanged'
-      ];
+      function doVariableCheck() {
+        if (replaceVariable.length === 0) return;
+        for (var i = 0; i < replaceVariable.length; i++) {
+          if (uw[replaceVariable[i]] != "function (){}") {
+            con.log("Removing variable " + replaceVariable[i] + " from unsafeWindow.");
+            uw[replaceVariable[i]] = function (){};
+          }
+        }
+      }
+      var listeners = {},
+          ytListenerNames = [
+            'onApiChange',
+            'onCueRangeEnter',
+            'onError',
+            'onNavigate',
+            'onPlaybackQualityChange',
+            'onStateChange',
+            'onTabOrderChange',
+            'onVolumeChange',
+            'onAdStart',
+            'RATE_SENTIMENT',
+            'SHARE_CLICKED',
+            'SIZE_CLICKED',
+            'WATCH_LATER',
+            'AdvertiserVideoView',
+            'captionschanged'
+          ],
+          replaceVariable = [],
+          initialized = false;
       var init = function(){
+        if (initialized) return;
+        initialized = true;
         ytcenter.player.getReference();
         ytcenter.unsafe = ytcenter.unsafe || {};
         ytcenter.unsafe.ytplayer = ytcenter.unsafe.ytplayer || {};
@@ -7759,11 +7772,14 @@
               if (ytcenter.player.reference.api.nativeAddEventListener && !ytcenter.player.reference.api.addEventListener) {
                 con.log("listeners -> " + ytListenerNames[i] + " -> API Function -> nativeAddEventListener");
                 ytcenter.player.reference.api.nativeAddEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
+                replaceVariable.push(ytListenerNames[i]);
               } else {
                 con.log("listeners -> " + ytListenerNames[i] + " -> API Function -> addEventListener");
                 ytcenter.player.reference.api.addEventListener(ytListenerNames[i], "ytcenter.ytplayer." + ytListenerNames[i]);
+                replaceVariable.push('ytPlayer' + ytListenerNames[i] + pid);
               }
             }
+            doVariableCheck();
           } catch (e) {
             con.error(e);
           }
@@ -7804,6 +7820,7 @@
         ytcenter.unsafe.ytplayer = ytcenter.unsafe.ytplayer || {};
         ytcenter.unsafe.ytplayer[ytListenerNames[i]] = ytcenter.utils.bind((function(listenerName){
           return function(arg1){
+            doVariableCheck();
             var pid = (ytcenter.player.getReference().playerId ? ytcenter.player.getReference().playerId : "player1");
             con.log("Player callback -> " + listenerName + " (" + arg1 + ")");
             var original = true;
@@ -8896,6 +8913,7 @@
         
         ytcenter.database.applyLanguage(ytcenter.locale);
         document.body.click();
+        
         return false;
       });
       
