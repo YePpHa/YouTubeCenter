@@ -5659,6 +5659,10 @@
             if (database[i][0] == null) continue;
             setParentData(database[i][0], database[i][0].parentNode.id);
           }
+        },
+        clear: function(){
+          database = [];
+          rd.db = database;
         }
       };
       return rd;
@@ -8873,6 +8877,8 @@
     var ytwatchinit = function(){
       yt = uw.yt;
       ytcenter.page = "watch";
+      
+      ytcenter.placementsystem.clear();
       
       if (uw && uw.ytspf && uw.ytspf.enabled && __spf) {
         __spf = false;
