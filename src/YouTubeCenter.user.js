@@ -6079,6 +6079,7 @@
       channel_mute: false,
       channel_experimentalFlashMode: 'clone',
       channel_experimentalHTML5Mode: 'none',
+      embed_enable: true,
       embed_enableAutoVideoQuality: true,
       embed_autoVideoQuality: 'medium',
       embed_autohide: '2',
@@ -6827,6 +6828,10 @@
       ],
       "SETTINGS_TAB_EMBED": [
         {
+          "label": "SETTINGS_EMBEDS_ENABLE",
+          "type": "bool",
+          "defaultSetting": "embed_enabled"
+        }, {
           "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
           "type": "list",
           "list": [
@@ -9457,6 +9462,7 @@
       $UpdateChecker();
     };
     var ytembedinit = function(){
+      if (!ytcenter.settings.embed_enabled) return;
       yt = uw.yt;
       ytcenter.page = "embed";
       var playerConfig = ytcenter.player.getConfig();
@@ -9562,6 +9568,9 @@
       });
     };
     var dclcaller = function(){
+      if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
+        return;
+      }
       if (document.getElementById("watch7-main") || document.getElementById("guide") || document.getElementById("yt-hitchhiker-feedback")) ytcenter.watch7 = true;
       $CreateSettingsUI();
       $UpdateChecker();
@@ -9605,6 +9614,7 @@
             }, 50);
           }
         } else if (loc.href.indexOf(".youtube.com/embed/") !== -1) {
+          if (!ytcenter.settings.embed_enabled) return;
           con.log("YouTube Embed Page Detected");
           if (typeof ytcenter.player.getConfig() !== "undefined") {
             ytembedinit();
@@ -9638,6 +9648,9 @@
       var __fastLoad = function(){
         con.log("Loading Settings");
         ytcenter.loadSettings();
+        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
+          return;
+        }
         ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
@@ -9750,6 +9763,9 @@
         }
       };
       var __bodyLoad = function(){
+        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
+          return;
+        }
         ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
         ytcenter.player.center((ytcenter.settings.watch7playeralign ? true : false));
         
