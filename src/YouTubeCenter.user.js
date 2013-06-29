@@ -212,22 +212,22 @@
     function $CreateAspectButton() {
       var btn = document.createElement("button");
       btn.className = "yt-uix-button yt-uix-tooltip" + (ytcenter.settings.aspectEnable ? "" : " hid") + (!ytcenter.watch7 ? " yt-uix-button-default" : " yt-uix-button-text");
-      btn.setAttribute("title", ytcenter.locale.BUTTON_ASPECT_TOOLTIP);
+      btn.setAttribute("title", ytcenter.language.getLocale("BUTTON_ASPECT_TOOLTIP"));
       btn.setAttribute("type", "button");
       btn.setAttribute("role", "button");
-      ytcenter.database.codeRegister(btn, function(){
-        this.setAttribute("title", ytcenter.locale.BUTTON_ASPECT_TOOLTIP);
+      ytcenter.events.addEvent("ui-refresh", function(){
+        btn.setAttribute("title", ytcenter.language.getLocale("BUTTON_ASPECT_TOOLTIP"));
         if (ytcenter.settings.aspectEnable) {
-          $RemoveCSS(this, "hid");
+          $RemoveCSS(btn, "hid");
         } else {
-          $AddCSS(this, "hid");
+          $AddCSS(btn, "hid");
         }
       });
       
       var btnContent = document.createElement("span");
       btnContent.className = "yt-uix-button-content";
-      btnContent.textContent = ytcenter.locale.BUTTON_ASPECT_TEXT;
-      ytcenter.database.register(btnContent, 'BUTTON_ASPECT_TEXT', 'text');
+      btnContent.textContent = ytcenter.language.getLocale("BUTTON_ASPECT_TEXT");
+      ytcenter.language.addLocaleElement(btnContent, "BUTTON_ASPECT_TEXT", "@textContent");
       
       btn.appendChild(btnContent);
       
@@ -261,8 +261,8 @@
       }
       item.className = "yt-uix-button-menu-item";
       item.setAttribute("onclick", ";return false;");
-      item.textContent = ytcenter.locale['BUTTON_ASPECT_NONE'];
-      ytcenter.database.register(item, 'BUTTON_ASPECT_NONE', 'text');
+      item.textContent = ytcenter.language.getLocale("BUTTON_ASPECT_NONE");
+      ytcenter.language.addLocaleElement(item, "BUTTON_ASPECT_NONE", "@textContent");
       item.addEventListener("click", function(){
         playerAspectTMP = "none";
         if (ytcenter.settings.aspectSave) {
@@ -277,7 +277,6 @@
         ytcenter.saveSettings();
         ytcenter.player.aspect("none");
       }, false);
-      ytcenter.database.register(item, 'BUTTON_ASPECT_NONE', '@text');
       var li = document.createElement("li");
       li.setAttribute("role", "menuitem");
       li.appendChild(item);
@@ -290,7 +289,7 @@
       }
       item.className = "yt-uix-button-menu-item";
       item.setAttribute("onclick", ";return false;");
-      item.textContent = ytcenter.locale['BUTTON_ASPECT_DEFAULT'];
+      item.textContent = ytcenter.language.getLocale("BUTTON_ASPECT_DEFAULT");
       
       item.addEventListener("click", function(){
         playerAspectTMP = "default";
@@ -306,7 +305,7 @@
         ytcenter.saveSettings();
         ytcenter.player.aspect("default");
       }, false);
-      ytcenter.database.register(item, 'BUTTON_ASPECT_DEFAULT', '@text');
+      ytcenter.language.addLocaleElement(item, "BUTTON_ASPECT_DEFAULT", "@textContent");
       li = document.createElement("li");
       li.setAttribute("role", "menuitem");
       li.appendChild(item);
@@ -318,8 +317,8 @@
           item = document.createElement("li");
           item.style.fontWeight = "bold";
           item.style.padding = "6px";
-          item.textContent = ytcenter.locale[groups[group]];
-          ytcenter.database.register(item, groups[group], 'text');
+          item.textContent = ytcenter.language.getLocale(groups[group]);
+          ytcenter.language.addLocaleElement(item, groups[group], "@textContent");
           menu.appendChild(item);
           for (var child in groupChoices) {
             if (groupChoices.hasOwnProperty(child)) {
@@ -332,8 +331,8 @@
               item.className = "yt-uix-button-menu-item";
               item.setAttribute("role", "menuitem");
               item.setAttribute("onclick", ";return false;");
-              item.textContent = ytcenter.locale[groupChoices[child]];
-              ytcenter.database.register(item, groupChoices[child], 'text');
+              item.textContent = ytcenter.language.getLocale(groupChoices[child]);
+              ytcenter.language.addLocaleElement(item, groupChoices[child], "@textContent");
               item.addEventListener("click", (function(val, group, child){
                 return function(){
                   var val = "yt:" + group + "=" + child;
@@ -367,8 +366,8 @@
             item.className = "yt-uix-button-menu-item";
             item.setAttribute("role", "menuitem");
             item.setAttribute("onclick", ";return false;");
-            item.textContent = ytcenter.locale["BUTTON_ASPECT_24:10"];
-            ytcenter.database.register(item, "BUTTON_ASPECT_24:10", 'text');
+            item.textContent = ytcenter.language.getLocale("BUTTON_ASPECT_24:10");
+            ytcenter.language.addLocaleElement(item, "BUTTON_ASPECT_24:10", "@textContent");
             item.addEventListener("click", (function(val, group, child){
               return function(){
                 var val = "yt:" + group + "=24:10";
@@ -399,9 +398,9 @@
       item.style.padding = "7px 9px 0 9px";
       item.style.borderTop = "1px #555 solid";
       var itemLabel = document.createElement("label");
-      var label = document.createTextNode(ytcenter.locale.SETTINGS_ASPECT_REMEMBER);
+      var label = document.createTextNode(ytcenter.language.getLocale("SETTINGS_ASPECT_REMEMBER"));
       itemLabel.appendChild(label);
-      ytcenter.database.register(label, 'SETTINGS_ASPECT_REMEMBER', 'text');
+      ytcenter.language.addLocaleElement(label, "SETTINGS_ASPECT_REMEMBER", "@textContent");
       
       var itemCheckbox = $CreateCheckbox(ytcenter.settings.aspectSave);
       itemCheckbox.style.marginLeft = "3px";
@@ -436,18 +435,18 @@
         if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
           return item.config.customName;
         } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-          return (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']);
-          subtext.textContent = (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+          subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         } else {
           return dim[0] + "×" + dim[1];
-          subtext.textContent = (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         }
       }
       function getItemSubText(item) {
         if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-          return (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.config.scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
-          return (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.config.scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         }
       }
       function setValue(id) {
@@ -475,18 +474,18 @@
           
           var title = document.createElement("span");
           title.textContent = getItemTitle(item);
-          ytcenter.database.codeRegister(title, function(){
+          ytcenter.events.addEvent("ui-refresh", function(){
             title.textContent = getItemTitle(item);
           });
           title.style.display = "block";
           var subtext = document.createElement("span");
           subtext.textContent = getItemSubText(item);
-          ytcenter.database.codeRegister(subtext, function(){
+          ytcenter.events.addEvent("ui-refresh", function(){
             subtext.textContent = getItemSubText(item);
           });
           subtext.style.display = "block";
           
-          ytcenter.listeners.addEvent(li, "click", function(){
+          ytcenter.utils.addEventListener(li, "click", function(){
             try {
               ytcenter.player.currentResizeId = item.id;
               ytcenter.player.updateResize();
@@ -527,14 +526,14 @@
       }
       
       updateItems(ytcenter.settings["resize-playersizes"]);
-      ytcenter.database.codeRegister(btn, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         updateItems(ytcenter.settings["resize-playersizes"]);
       });
       ytcenter.player.resizeCallback.push(function(){
         updateItems(ytcenter.settings["resize-playersizes"]);
       });
       
-      ytcenter.database.codeRegister(null, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.resizeEnable) {
           $RemoveCSS(btn, "hid");
         } else {
@@ -570,20 +569,20 @@
     
     function $CreateLightButton() {
       var btn = document.createElement("button");
-      ytcenter.database.codeRegister(btn, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.lightbulbEnable) {
-          $RemoveCSS(this, "hid");
+          $RemoveCSS(btn, "hid");
         } else {
-          $AddCSS(this, "hid");
+          $AddCSS(btn, "hid");
         }
       });
       btn.setAttribute("onclick", ";return false;");
       btn.setAttribute("type", "button");
       btn.setAttribute("role", "button");
       btn.className = "yt-uix-button yt-uix-tooltip" + (ytcenter.settings.lightbulbEnable ? "" : " hid") + (!ytcenter.watch7 ? " yt-uix-button-default" : " yt-uix-button-text");
-      btn.title = ytcenter.locale['LIGHTBULB_TOOLTIP'];
+      btn.title = ytcenter.language.getLocale("LIGHTBULB_TOOLTIP");
       //btn.style.marginLeft = ".5em";
-      ytcenter.database.register(btn, 'LIGHTBULB_TOOLTIP', '@title');
+      ytcenter.language.addLocaleElement(btn, "LIGHTBULB_TOOLTIP", "title");
       var s = document.createElement("span");
       s.className = "yt-uix-button-content";
       var icon = document.createElement("img");
@@ -601,15 +600,15 @@
     function $CreateRepeatButton() {
       var btn = document.createElement("button");
       btn.style.margin = "0 2px 0 0";
-      ytcenter.database.codeRegister(btn, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.enableRepeat) {
-          $RemoveCSS(this, 'hid');
+          $RemoveCSS(btn, 'hid');
         } else {
-          $AddCSS(this, 'hid');
+          $AddCSS(btn, 'hid');
         }
       });
-      btn.title = ytcenter.locale['BUTTON_REPEAT_TOOLTIP'];
-      ytcenter.database.register(btn, 'BUTTON_REPEAT_TOOLTIP', '@title');
+      btn.title = ytcenter.language.getLocale("BUTTON_REPEAT_TOOLTIP");
+      ytcenter.language.addLocaleElement(btn, "BUTTON_REPEAT_TOOLTIP", "title");
       btn.setAttribute("role", "button");
       btn.setAttribute("type", "button");
       btn.setAttribute("onclick", ";return false;");
@@ -641,11 +640,11 @@
       
       var iconw = document.createElement("span");
       iconw.className = "yt-uix-button-icon-wrapper" + (!ytcenter.settings.repeatShowIcon ? " hid" : "");
-      ytcenter.database.codeRegister(iconw, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.repeatShowIcon) {
-          $RemoveCSS(this, 'hid');
+          $RemoveCSS(iconw, 'hid');
         } else {
-          $AddCSS(this, 'hid');
+          $AddCSS(iconw, 'hid');
         }
       });
       var icon = document.createElement("img");
@@ -666,8 +665,8 @@
       
       var t = document.createElement("span");
       t.className = "yt-uix-button-content";
-      t.textContent = ytcenter.locale['BUTTON_REPEAT_TEXT'];
-      ytcenter.database.register(t, 'BUTTON_REPEAT_TEXT', 'text');
+      t.textContent = ytcenter.language.getLocale("BUTTON_REPEAT_TEXT");
+      ytcenter.language.addLocaleElement(t, "BUTTON_REPEAT_TEXT", "@textContent");
       
       btn.appendChild(t);
       
@@ -683,7 +682,7 @@
             return ytcenter.video.format[i].type;
           }
         }
-        return ytcenter.locale['UNKNOWN'];
+        return ytcenter.language.getLocale("UNKNOWN");
       })();
       for (var i = 0; i < ytcenter.video.stream.length; i++) {
         if ((stream == null || $ArrayIndexOf(priority, ytcenter.video.stream[i].quality) > $ArrayIndexOf(priority, stream.quality)) && $ArrayIndexOf(priority, ytcenter.video.stream[i].quality) <= $ArrayIndexOf(priority, ytcenter.settings.downloadQuality) && ytcenter.video.stream[i].type && ytcenter.video.stream[i].type.indexOf(format) == 0 && ytcenter.video.stream[i].url) {
@@ -695,13 +694,13 @@
     function $CreateDownloadButton() {
       var g = document.createElement("span");
       g.style.margin = "0 2px 0 0";
-      ytcenter.database.codeRegister(g, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.enableDownload) {
-          $RemoveCSS(this, "hid");
-          this.style.display = "";
+          $RemoveCSS(g, "hid");
+          g.style.display = "";
         } else {
-          $AddCSS(this, "hid");
-          this.style.display = "none";
+          $AddCSS(g, "hid");
+          g.style.display = "none";
         }
       });
       g.className = "yt-uix-button-group" + (ytcenter.settings.enableDownload ? "" : " hid");
@@ -716,7 +715,7 @@
         btn1a.setAttribute("href", ytcenter.video.downloadLink(stream));
       }
       btn1a.setAttribute("target", "_blank");
-      ytcenter.database.codeRegister(btn1a, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         stream = $DownloadButtonStream();
         if (stream) {
           btn1a.setAttribute("href", ytcenter.video.downloadLink(stream));
@@ -740,14 +739,14 @@
       
       if (stream != null) {
         var stream_name = {
-          highres: ytcenter.locale['HIGHRES'],
-          hd1080: ytcenter.locale['HD1080'],
-          hd720: ytcenter.locale['HD720'],
-          large: ytcenter.locale['LARGE'],
-          medium: ytcenter.locale['MEDIUM'],
-          small: ytcenter.locale['SMALL']
+          highres: ytcenter.language.getLocale("HIGHRES"),
+          hd1080: ytcenter.language.getLocale("HD1080"),
+          hd720: ytcenter.language.getLocale("HD720"),
+          large: ytcenter.language.getLocale("LARGE"),
+          medium: ytcenter.language.getLocale("MEDIUM"),
+          small: ytcenter.language.getLocale("SMALL")
         }[stream.quality];
-        btn1.title = $TextReplacer(ytcenter.locale['BUTTON_DOWNLOAD_TOOLTIP'], {
+        btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
           stream_name: stream_name,
           stream_resolution: stream.dimension.split("x")[1] + "p",
           stream_dimension: stream.dimension,
@@ -755,37 +754,37 @@
           stream_type: (function(stream){
             for (var i = 0; i < ytcenter.video.format.length; i++) {
               if (stream.type.indexOf(ytcenter.video.format[i].type) == 0) {
-                return ytcenter.locale[ytcenter.video.format[i].name];
+                return ytcenter.language.getLocale(ytcenter.video.format[i].name);
               }
             }
-            return ytcenter.locale['UNKNOWN'];
+            return ytcenter.language.getLocale("UNKNOWN");
           })(stream)
         });
       } else {
-        btn1.title = $TextReplacer(ytcenter.locale['BUTTON_DOWNLOAD_TOOLTIP_NONE'], {
+        btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP_NONE"), {
           type: (function(){
             for (var i = 0; i < ytcenter.video.format.length; i++) {
               if (ytcenter.settings.downloadFormat == ytcenter.video.format[i].key) {
-                return ytcenter.locale[ytcenter.video.format[i].name];
+                return ytcenter.language.getLocale(ytcenter.video.format[i].name);
               }
             }
-            return ytcenter.locale['UNKNOWN'];
+            return ytcenter.language.getLocale("UNKNOWN");
           })()
         });
       }
-      ytcenter.database.codeRegister(btn1, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         var stream = $DownloadButtonStream();
         if (stream != null) {
           var stream_name = {
-            highres: ytcenter.locale['HIGHRES'],
-            hd1080: ytcenter.locale['HD1080'],
-            hd720: ytcenter.locale['HD720'],
-            large: ytcenter.locale['LARGE'],
-            medium: ytcenter.locale['MEDIUM'],
-            small: ytcenter.locale['SMALL']
+            highres: ytcenter.language.getLocale("HIGHRES"),
+            hd1080: ytcenter.language.getLocale("HD1080"),
+            hd720: ytcenter.language.getLocale("HD720"),
+            large: ytcenter.language.getLocale("LARGE"),
+            medium: ytcenter.language.getLocale("MEDIUM"),
+            small: ytcenter.language.getLocale("SMALL")
           }[stream.quality];
           
-          this.title = $TextReplacer(ytcenter.locale['BUTTON_DOWNLOAD_TOOLTIP'], {
+          btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
             stream_name: stream_name,
             stream_resolution: stream.dimension.split("x")[1] + "p",
             stream_dimension: stream.dimension,
@@ -793,21 +792,21 @@
             stream_type: (function(stream){
               for (var i = 0; i < ytcenter.video.format.length; i++) {
                 if (stream.type.indexOf(ytcenter.video.format[i].type) == 0) {
-                  return ytcenter.locale[ytcenter.video.format[i].name];
+                  return ytcenter.language.getLocale(ytcenter.video.format[i].name);
                 }
               }
-              return ytcenter.locale['UNKNOWN'];
+              return ytcenter.language.getLocale("UNKNOWN");
             })(stream)
           });
         } else {
-          this.title = $TextReplacer(ytcenter.locale['BUTTON_DOWNLOAD_TOOLTIP_NONE'], {
+          btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP_NONE"), {
             type: (function(){
               for (var i = 0; i < ytcenter.video.format.length; i++) {
                 if (ytcenter.settings.downloadFormat == ytcenter.video.format[i].key) {
-                  return ytcenter.locale[ytcenter.video.format[i].name];
+                  return ytcenter.language.getLocale(ytcenter.video.format[i].name);
                 }
               }
-              return ytcenter.locale['UNKNOWN'];
+              return ytcenter.language.getLocale("UNKNOWN");
             })()
           });
         }
@@ -815,8 +814,8 @@
       btn1a.appendChild(btn1);
       var btn1_text = document.createElement("span");
       btn1_text.className = "yt-uix-button-content";
-      btn1_text.textContent = ytcenter.locale['BUTTON_DOWNLOAD_TEXT'];
-      ytcenter.database.register(btn1_text, 'BUTTON_DOWNLOAD_TEXT', 'text');
+      btn1_text.textContent = ytcenter.language.getLocale("BUTTON_DOWNLOAD_TEXT");
+      ytcenter.language.addLocaleElement(btn1_text, "BUTTON_DOWNLOAD_TEXT", "@textContent");
       btn1.appendChild(btn1_text);
       g.appendChild(btn1a);
       var btn2 = document.createElement("button");
@@ -824,8 +823,8 @@
       btn2.setAttribute("onclick", ";return false;");
       btn2.setAttribute("type", "button");
       btn2.setAttribute("role", "button");
-      btn2.title = ytcenter.locale['BUTTON_DOWNlOAD2_TOOLTIP'];
-      ytcenter.database.register(btn2, 'BUTTON_DOWNlOAD2_TOOLTIP', '@title');
+      btn2.title = ytcenter.language.getLocale("BUTTON_DOWNlOAD2_TOOLTIP");
+      ytcenter.language.addLocaleElement(btn2, "BUTTON_DOWNlOAD2_TOOLTIP", "title");
       var img = document.createElement("img");
       img.className = "yt-uix-button-arrow";
       img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
@@ -837,7 +836,7 @@
         var groups = (function(){
           var obj = {};
           for (var i = 0; i < ytcenter.video.format.length; i++) {
-            obj[ytcenter.video.format[i].type] = ytcenter.locale[ytcenter.video.format[i].name];
+            obj[ytcenter.video.format[i].type] = ytcenter.language.getLocale(ytcenter.video.format[i].name);
           }
           return obj;
         })();
@@ -864,11 +863,11 @@
       menu.className = "yt-uix-button-menu yt-uix-button-menu-default yt-uix-button-menu-external hid" + (ytcenter.settings.show3DInDownloadMenu ? "" : " ytcenter-menu-3d-hide");
       menu.setAttribute("role", "menu");
       menu.setAttribute("aria-haspopup", "true");
-      ytcenter.database.codeRegister(menu, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.show3DInDownloadMenu) {
-          $RemoveCSS(this, "ytcenter-menu-3d-hide");
+          $RemoveCSS(menu, "ytcenter-menu-3d-hide");
         } else {
-          $AddCSS(this, "ytcenter-menu-3d-hide");
+          $AddCSS(menu, "ytcenter-menu-3d-hide");
         }
       });
       
@@ -884,8 +883,8 @@
             title.className = "ytcenter-downloadmenu-" + key;
           } else {
             title.className = "ytcenter-downloadmenu-unknown";
-            title.textContent = ytcenter.locale['UNKNOWN'];
-            ytcenter.database.register(title, ytcenter.locale['UNKNOWN'], 'text');
+            title.textContent = ytcenter.language.getLocale("UNKNOWN");
+            ytcenter.language.addLocaleElement(title, "UNKNOWN", "@textContent");
           }
           
           menu.appendChild(title);
@@ -914,7 +913,7 @@
                 };
               })(stream_groups[key][i]);
               item.addEventListener("click", downloadStreamListener, false);
-              ytcenter.database.codeRegister(item, (function(__stream, item, _downloadStreamListener){
+              ytcenter.events.addEvent("ui-refresh", (function(__stream, item, _downloadStreamListener){
                 return function(){
                   item.href = ytcenter.video.downloadLink(__stream);
                 };
@@ -922,31 +921,31 @@
             }
             
             var stream_name = {
-              highres: ytcenter.locale['HIGHRES'],
-              hd1080: ytcenter.locale['HD1080'],
-              hd720: ytcenter.locale['HD720'],
-              large: ytcenter.locale['LARGE'],
-              medium: ytcenter.locale['MEDIUM'],
-              small: ytcenter.locale['SMALL']
+              highres: ytcenter.language.getLocale("HIGHRES"),
+              hd1080: ytcenter.language.getLocale("HD1080"),
+              hd720: ytcenter.language.getLocale("HD720"),
+              large: ytcenter.language.getLocale("LARGE"),
+              medium: ytcenter.language.getLocale("MEDIUM"),
+              small: ytcenter.language.getLocale("SMALL")
             }[stream_groups[key][i].quality];
             
-            item.innerHTML = $TextReplacer(ytcenter.locale['BUTTON_DOWNLOAD_MENU_ITEM_TEXT'], {
+            item.innerHTML = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_MENU_ITEM_TEXT"), {
               stream_name: stream_name,
               stream_resolution: (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p",
               stream_dimension: (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : ""),
               stream_3d: (is3D ? "&nbsp;3D" : "")
             });
-            ytcenter.database.codeRegister(item, (function(stream, is3D){
+            ytcenter.events.addEvent("ui-refresh", (function(stream, is3D){
               return function(){
                 var stream_name = {
-                  highres: ytcenter.locale['HIGHRES'],
-                  hd1080: ytcenter.locale['HD1080'],
-                  hd720: ytcenter.locale['HD720'],
-                  large: ytcenter.locale['LARGE'],
-                  medium: ytcenter.locale['MEDIUM'],
-                  small: ytcenter.locale['SMALL']
+                  highres: ytcenter.language.getLocale("HIGHRES"),
+                  hd1080: ytcenter.language.getLocale("HD1080"),
+                  hd720: ytcenter.language.getLocale("HD720"),
+                  large: ytcenter.language.getLocale("LARGE"),
+                  medium: ytcenter.language.getLocale("MEDIUM"),
+                  small: ytcenter.language.getLocale("SMALL")
                 }[stream.quality];
-                this.innerHTML = $TextReplacer(ytcenter.locale['BUTTON_DOWNLOAD_MENU_ITEM_TEXT'], {
+                item.innerHTML = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_MENU_ITEM_TEXT"), {
                   stream_name: stream_name,
                   stream_resolution: stream.dimension.split("x")[1] + "p",
                   stream_dimension: stream.dimension,
@@ -970,15 +969,15 @@
       mp3title.style.color = "#666";
       mp3title.style.fontSize = "0.9166em";
       mp3title.style.paddingLeft = "9px";
-      mp3title.textContent = ytcenter.locale['BUTTON_DOWNLOAD_MENU_MP3SERVICES'];
-      ytcenter.database.register(mp3title, 'BUTTON_DOWNLOAD_MENU_MP3SERVICES', 'text');
-      ytcenter.database.codeRegister(mp3title, function(){
+      mp3title.textContent = ytcenter.language.getLocale("BUTTON_DOWNLOAD_MENU_MP3SERVICES");
+      ytcenter.language.addLocaleElement(mp3title, "BUTTON_DOWNLOAD_MENU_MP3SERVICES", "@textContent");
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.mp3Services === '') {
-          $AddCSS(this, 'hid');
-          this.style.display = "none";
+          $AddCSS(mp3title, 'hid');
+          mp3title.style.display = "none";
         } else {
-          $RemoveCSS(this, 'hid');
-          this.style.display = "";
+          $RemoveCSS(mp3title, 'hid');
+          mp3title.style.display = "";
         }
       });
       menu.appendChild(mp3title);
@@ -1032,8 +1031,7 @@
           };
         })(ytcenter.mp3services[i]);
         item.addEventListener("click", mp3RedirectListener, false);
-        
-        ytcenter.database.codeRegister(li, (function(mp3, li){
+        ytcenter.events.addEvent("ui-refresh", (function(mp3, li){
           return function(){
             var a = ytcenter.settings.mp3Services.split("&");
             var f = false;
@@ -1053,8 +1051,8 @@
           };
         })(ytcenter.mp3services[i], li));
         
-        item.textContent = ytcenter.locale[ytcenter.mp3services[i].label];
-        ytcenter.database.register(item, ytcenter.mp3services[i].label, 'text');
+        item.textContent = ytcenter.language.getLocale(ytcenter.mp3services[i].label);
+        ytcenter.language.addLocaleElement(item, ytcenter.mp3services[i].label, "@textContent");
         li.appendChild(item);
         menu.appendChild(li);
       }
@@ -1077,7 +1075,7 @@
       } else {
         header.setAttribute("style", "width:945px;margin:0 auto;padding:10px 35px 0;font-size:18px;font-weight:bold");
       }
-      header.textContent = ytcenter.locale['SETTINGS_TITLE'];
+      header.textContent = ytcenter.language.getLocale("SETTINGS_TITLE");
       header.className = "ytcenter-settings-title";
       var tabsContainer = document.createElement("div");
       tabsContainer.className = "ytcenter-settings-header";
@@ -1145,8 +1143,8 @@
           //}
           var bc = document.createElement("span");
           bc.className = "yt-uix-button-content";
-          bc.textContent = ytcenter.locale[key];
-          ytcenter.database.register(bc, key, 'text', {});
+          bc.textContent = ytcenter.language.getLocale(key);
+          ytcenter.language.addLocaleElement(bc, key, "@textContent");
           tab.appendChild(bc);
           tab.addEventListener("click", (function(tabs, tc, tabgroups){
             return function(){
@@ -1166,7 +1164,7 @@
                 $AddCSS(this, "yt-uix-button-toggled");
               }*/
               $RemoveCSS(tc, "hid");
-              ytcenter.database.applyLanguage(ytcenter.locale);
+              ytcenter.events.performEvent("ui-refresh");
             };
           })(tabs, tc, tabgroups), false);
           li.appendChild(tab);
@@ -1211,20 +1209,14 @@
       } else if (document.getElementById("masthead-user-expander")) {
         btn.style.verticalAlign = "middle";
       }
-      btn.title = ytcenter.locale['BUTTON_SETTINGS_TITLE'];
-      ytcenter.database.register(btn, 'BUTTON_SETTINGS_TITLE', '@title');
+      btn.title = ytcenter.language.getLocale("BUTTON_SETTINGS_TITLE");
+      ytcenter.language.addLocaleElement(btn, "BUTTON_SETTINGS_TITLE", "title");
       btn.setAttribute("type", "button");
       btn.setAttribute("role", "button");
       btn.setAttribute("onclick", ";return false;");
       btn.className = "yt-uix-tooltip-reverse yt-uix-button " + (ytcenter.watch7 ? "yt-uix-button-text" : "yt-uix-button-text") + " yt-uix-tooltip";
       var btnt = document.createElement("span");
       btnt.className = "yt-uix-button-icon-wrapper";
-      /*btnt.textContent = ytcenter.locale['BUTTON_SETTINGS_CONTENT'];
-      ytcenter.database.register(btnt, 'BUTTON_SETTINGS_CONTENT', 'text');*/
-      /*var arrowicon = document.createElement("span");
-      arrowicon.className = "yt-uix-expander-arrow";
-      arrowicon.style.marginLeft = "2px";
-      btnt.appendChild(arrowicon);*/
       var gearicon = document.createElement("img");
       gearicon.src = ytcenter.icon.gear;
       gearicon.setAttribute("alt", "");
@@ -1276,17 +1268,17 @@
         label.style.display = "inline-block";
         label.style.width = "178px";
         label.style.color = "#555";
-        var ltext = document.createTextNode(ytcenter.locale[recipe.label]);
+        var ltext = document.createTextNode(ytcenter.language.getLocale(recipe.label));
         label.appendChild(ltext);
-        ytcenter.database.register(ltext, recipe.label, 'text', {});
+        ytcenter.language.addLocaleElement(ltext, recipe.label, "@textContent");
         
         if (recipe.tooltip) {
           var tooltip = document.createElement("p");
           tooltip.style.color = "#9E9E9E";
           tooltip.style.fontSize = "11px";
           tooltip.style.width = "170px";
-          tooltip.textContent = ytcenter.locale[recipe.tooltip];
-          ytcenter.database.register(tooltip, recipe.tooltip, 'text', {});
+          tooltip.textContent = ytcenter.language.getLocale(recipe.tooltip);
+          ytcenter.language.addLocaleElement(tooltip, recipe.tooltip, "@textContent");
           label.appendChild(tooltip);
         }
         
@@ -1375,14 +1367,14 @@
             recipe.list = recipe.advlist();
           }
           if (recipe.list) {
-            var defaultLabelText = ytcenter.locale[recipe.list[0].label];
+            var defaultLabelText = ytcenter.language.getLocale(recipe.list[0].label);
             for (var i = 0; i < recipe.list.length; i++) {
               var item = document.createElement("option");
               item.value = recipe.list[i].value;
               
               if (recipe.list[i].label) {
-                item.textContent = ytcenter.locale[recipe.list[i].label];
-                ytcenter.database.register(item, recipe.list[i].label, 'text', {});
+                item.textContent = ytcenter.language.getLocale(recipe.list[i].label);
+                ytcenter.language.addLocaleElement(item, recipe.list[i].label, "@textContent");
               } else if (recipe.list[i].variable) {
                 item.textContent = eval(recipe.list[i].variable);
               }
@@ -1400,11 +1392,11 @@
             sc2.className = "yt-uix-form-input-select-value";
             sc2.textContent = defaultLabelText;
             sc.appendChild(sc2);
-            ytcenter.database.codeRegister(sc2, (function(s){
+            ytcenter.events.addEvent("ui-refresh", (function(__sc2, s){
               return function(){
-                this.textContent = s.options[s.selectedIndex].textContent;
+                __sc2.textContent = s.options[s.selectedIndex].textContent;
               };
-            })(s));
+            })(sc2, s));
           }
           s.addEventListener('change', (function(defaultSetting){
             return function(){
@@ -1419,6 +1411,17 @@
           }
           elm.appendChild(sc);
           elm.appendChild(s);
+          break;
+        case 'colorpicker':
+          var _il = ytcenter.embeds.colorPicker();
+          _il.bind((function(ds){
+            return function(val){
+              ytcenter.settings[ds] = val;
+              ytcenter.saveSettings();
+            };
+          })(recipe.defaultSetting));
+          _il.update(ytcenter.settings[recipe.defaultSetting]);
+          elm = _il.element;
           break;
         case 'bgcolorlist':
           var _il = ytcenter.embeds.bgcolorlist();
@@ -1514,12 +1517,12 @@
           }
           if (recipe.htmllocale) {
             if (recipe.replace) {
-              elm.innerHTML = $TextReplacer(ytcenter.locale[recipe.htmllocale], recipe.replace);
+              elm.innerHTML = $TextReplacer(ytcenter.language.getLocale(recipe.htmllocale), recipe.replace);
             } else {
-              elm.innerHTML = ytcenter.locale[recipe.htmllocale];
+              elm.innerHTML = ytcenter.language.getLocale(recipe.htmllocale);
             }
             
-            ytcenter.database.register(elm, recipe.htmllocale, 'html', recipe.replace || {});
+            ytcenter.language.addLocaleElement(elm, recipe.htmllocale, "@innerHTML", recipe.replace || {});
           }
           if (recipe.listeners) {
             for (var i = 0; i < recipe.listeners.length; i++) {
@@ -1621,8 +1624,8 @@
           var c = document.createElement("span");
           c.className = "yt-uix-button-content";
           if (recipe.text) {
-            c.textContent = ytcenter.locale[recipe.text];
-            ytcenter.database.register(c, recipe.text, "text");
+            c.textContent = ytcenter.language.getLocale(recipe.text);
+            ytcenter.language.addLocaleElement(c, recipe.text, "@textContent");
           }
           if (recipe.listeners) {
             for (var j = 0; j < recipe.listeners.length; j++) {
@@ -2524,6 +2527,22 @@
       
       return _obj;
     })();
+    ytcenter.events = (function(){
+      var db = {},
+          __r = {};
+      __r.addEvent = function(event, callback){
+        if (!db.hasOwnProperty(event)) db[event] = [];
+        db[event].push(callback);
+      };
+      __r.performEvent = function(event){
+        if (!db.hasOwnProperty(event)) return;
+        for (var i = 0; i < db[event].length; i++) {
+          db[event][i]();
+        }
+      };
+      
+      return __r;
+    })();
     ytcenter.dialog = function(titleLabel, content, actions){
       var __r = {};
       var bgOverlay = ytcenter.dialogOverlay();
@@ -2551,8 +2570,8 @@
         header.className = "yt-dialog-header";
         var title = document.createElement("h2");
         title.className = "yt-dialog-title";
-        title.textContent = ytcenter.locale[titleLabel];
-        ytcenter.database.register(title, titleLabel, "text");
+        title.textContent = ytcenter.language.getLocale(titleLabel);
+        ytcenter.language.addLocaleElement(title, titleLabel, "@textContent");
         
         header.appendChild(title);
         fgContent.appendChild(header);
@@ -2571,10 +2590,11 @@
       footer.className = "yt-dialog-footer";
       fgContent.appendChild(footer);
       if (typeof actions !== "undefined") {
-        /*  {
-         *    label: "",
-         *    primary: false,
-         *    callback: function(){}
+        /* Array
+         *   Object
+         *     label: "",
+         *     primary: false, # Should be the primary button.
+         *     callback: Function
          */
         for (var i = 0; i < actions.length; i++) {
           var btn = document.createElement("button");
@@ -2587,8 +2607,8 @@
           }
           var btnContent = document.createElement("span");
           btnContent.className = "yt-uix-button-content";
-          btnContent.textContent = ytcenter.locale[actions[i].label];
-          ytcenter.database.register(btnContent, actions[i].label, "text");
+          btnContent.textContent = ytcenter.language.getLocale(actions[i].label);
+          ytcenter.language.addLocaleElement(btnContent, actions[i].label, "@textContent");
           
           btn.appendChild(btnContent);
           footer.appendChild(btn);
@@ -2606,8 +2626,8 @@
         
         var closeContent = document.createElement("span");
         closeContent.className = "yt-uix-button-content";
-        closeContent.textContent = ytcenter.locale["DIALOG_CLOSE"];
-        ytcenter.database.register(closeContent, "DIALOG_CLOSE", "text");
+        closeContent.textContent = ytcenter.language.getLocale("DIALOG_CLOSE");
+        ytcenter.language.addLocaleElement(closeContent, "DIALOG_CLOSE", "@textContent");
         
         closeBtn.appendChild(closeContent);
         footer.appendChild(closeBtn);
@@ -2639,8 +2659,8 @@
       confirmLabel = confirmLabel || "EMBED_RESIZEITEMLIST_CONFIRM_DISCARD";
       var msgElm = document.createElement("h3");
       msgElm.style.fontWeight = "normal";
-      msgElm.textContent = ytcenter.locale[messageLabel];
-      ytcenter.database.register(msgElm, messageLabel, "text");
+      msgElm.textContent = ytcenter.language.getLocale(messageLabel);
+      ytcenter.language.addLocaleElement(msgElm, messageLabel, "@textContent");
       
       var dialog = ytcenter.dialog(titleLabel, msgElm, [
         {
@@ -2689,7 +2709,7 @@
       
       ytcenter.utils.addClass(list, "ytcenter-dragdrop-notdragging");
       
-      ytcenter.listeners.addEvent(list, "mousedown", function(e){
+      ytcenter.utils.addEventListener(list, "mousedown", function(e){
         if (!ytcenter.utils.hasClass(e.target, "ytcenter-dragdrop-handle")) return;
         if (!ytcenter.utils.hasChild(list, e.target)) return;
         draggingElement = ytcenter.utils.toParent(e.target, "ytcenter-dragdrop-item");
@@ -2714,7 +2734,7 @@
         }
         return false;
       });
-      ytcenter.listeners.addEvent(document, "mousemove", function(e){
+      ytcenter.utils.addEventListener(document, "mousemove", function(e){
         if (!dragging) return;
         var t = ytcenter.utils.toParent(e.target, "ytcenter-dragdrop-item");
         if (t === draggingElement || t === document.body || typeof t === "undefined") return;
@@ -2741,7 +2761,7 @@
         }
         return false;
       });
-      ytcenter.listeners.addEvent(document, "mouseup", function(e){
+      ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!dragging) return;
         
         dragging = false;
@@ -2880,16 +2900,16 @@
     ytcenter.gui.createYouTubeButtonTextLabel = function(label){
       var wrapper = document.createElement("span");
       wrapper.className = "yt-uix-button-content";
-      wrapper.textContent = ytcenter.locale[label];
-      ytcenter.database.register(wrapper, label, 'text');
+      wrapper.textContent = ytcenter.language.getLocale(label);
+      ytcenter.language.addLocaleElement(wrapper, label, "@textContent");
       
       return wrapper;
     };
     ytcenter.gui.createYouTubeButton = function(title, content, styles){
       var btn = document.createElement("button");
       if (title !== "") {
-        btn.setAttribute("title", ytcenter.locale[title]);
-        ytcenter.database.register(btn, title, '@title');
+        btn.setAttribute("title", ytcenter.language.getLocale(title));
+        ytcenter.language.addLocaleElement(btn, title, "title");
       }
       btn.setAttribute("role", "button");
       btn.setAttribute("type", "button");
@@ -2912,10 +2932,8 @@
     ytcenter.gui.createYouTubeDefaultButton = function(title, content, styles){
       var btn = document.createElement("button");
       if (title !== "") {
-        if (ytcenter.locale) {
-          btn.setAttribute("title", ytcenter.locale[title]);
-        }
-        ytcenter.database.register(btn, title, '@title');
+        btn.setAttribute("title", ytcenter.language.getLocale(title));
+        ytcenter.language.addLocaleElement(btn, title, "title");
       }
       btn.setAttribute("role", "button");
       btn.setAttribute("type", "button");
@@ -2938,8 +2956,8 @@
     ytcenter.gui.createYouTubePrimaryButton = function(title, content, styles){
       var btn = document.createElement("button");
       if (title !== "") {
-        btn.setAttribute("title", ytcenter.locale[title]);
-        ytcenter.database.register(btn, title, '@title');
+        btn.setAttribute("title", ytcenter.language.getLocale(title));
+        ytcenter.language.addLocaleElement(btn, title, "title");
       }
       btn.setAttribute("role", "button");
       btn.setAttribute("type", "button");
@@ -3015,6 +3033,23 @@
       return __r;
     })();
     ytcenter.embeds = {};
+    ytcenter.embeds.textInputField = function(){
+      var wrapper = document.createElement("span"),
+          elm = ytcenter.gui.createYouTubeTextInput();
+      wrapper.appendChild(elm);
+      wrapper.className = "ytcenter-embed";
+      return {
+        element: wrapper, // So the element can be appended to an element.
+        bind: function(callback){
+          ytcenter.utils.addEventListener(elm, "change", function(){
+            callback(elm.value);
+          }, false);
+        },
+        update: function(value){
+          elm.value = value;
+        }
+      };
+    };
     ytcenter.embeds.sortList = function(){
       // Sortable list as in Resize -> Player Sizes
     };
@@ -3060,10 +3095,9 @@
       
       var eventToValue = function(e){
         var offset = ytcenter.utils.getOffset(wrapper);
-        var x = Math.max(0, Math.min(e.pageX - offset.left - document.body.scrollLeft, wrapper.clientWidth));
+        var x = Math.max(0, Math.min(e.pageX - offset.left - document.documentElement.scrollLeft, wrapper.clientWidth));
         
-        var v = e.pageY - offset.top - document.body.scrollTop;
-        var y = v + handler.clientHeight;
+        var y = e.pageY - offset.top - document.documentElement.scrollTop;
         if (y < 0) y = 0;
         if (y > wrapper.clientHeight) y = wrapper.clientHeight;
         
@@ -3071,7 +3105,7 @@
         val = 100 - y/wrapper.clientHeight*100;
       };
       
-      ytcenter.listeners.addEvent(wrapper, "mousedown", function(e){
+      ytcenter.utils.addEventListener(wrapper, "mousedown", function(e){
         if (mousedown) return;
         mousedown = true;
         
@@ -3086,7 +3120,7 @@
         }
         return false;
       });
-      ytcenter.listeners.addEvent(document, "mouseup", function(e){
+      ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!mousedown) return;
         mousedown = false;
         if (e && e.preventDefault) {
@@ -3096,7 +3130,7 @@
         }
         return false;
       });
-      ytcenter.listeners.addEvent(document, "mousemove", function(e){
+      ytcenter.utils.addEventListener(document, "mousemove", function(e){
         if (!mousedown) return;
         eventToValue(e);
         update();
@@ -3164,7 +3198,7 @@
       var red = 0;
       var green = 0;
       var blue = 0;
-      var sessionHex = "#000000";
+      var sessionHex = "#000000"; // default is black
       var hsv = ytcenter.utils.getHSV(red, green, blue);
       var _hue = hsv.hue;
       
@@ -3208,15 +3242,15 @@
       });
       
       var rWrapper = document.createElement("div");
-      var rText = ytcenter.embeds.label("SETTINGS_THEATRE_COLOR_RED");
+      var rText = ytcenter.embeds.label("COLORPICKER_COLOR_RED");
       rWrapper.appendChild(rText.element);
       rWrapper.appendChild(redRange.element);
       var gWrapper = document.createElement("div");
-      var gText = ytcenter.embeds.label("SETTINGS_THEATRE_COLOR_GREEN");
+      var gText = ytcenter.embeds.label("COLORPICKER_COLOR_GREEN");
       gWrapper.appendChild(gText.element);
       gWrapper.appendChild(greenRange.element);
       var bWrapper = document.createElement("div");
-      var bText = ytcenter.embeds.label("SETTINGS_THEATRE_COLOR_BLUE");
+      var bText = ytcenter.embeds.label("COLORPICKER_COLOR_BLUE");
       bWrapper.appendChild(bText.element);
       bWrapper.appendChild(blueRange.element);
       
@@ -3254,7 +3288,8 @@
         min: 0,
         max: 360,
         method: "vertical",
-        handle: hueRangeHandle
+        handle: hueRangeHandle,
+        offset: 7
       });
       hueRange.element.style.display = "inline-block";
       hueRange.element.style.border = "0";
@@ -3290,8 +3325,9 @@
       var hWrapper = document.createElement("div");
       hWrapper.style.marginTop = "10px";
       
-      var htmlColorLabel = ytcenter.embeds.label("SETTINGS_THEATRE_COLOR_HTMLCOLOR");
+      var htmlColorLabel = ytcenter.embeds.label("COLORPICKER_COLOR_HTMLCODE");
       htmlColorLabel.element.style.width = "127px";
+      htmlColorLabel.element.style.verticalAlign = "middle";
       
       var htmlColor = ytcenter.embeds.textInputField();
       htmlColor.bind(function(value){
@@ -3311,37 +3347,6 @@
       hWrapper.appendChild(htmlColorLabel.element);
       hWrapper.appendChild(htmlColor.element);
       
-      var saveWrapper = document.createElement("div");
-      saveWrapper.style.position = "absolute";
-      saveWrapper.style.bottom = "0px";
-      saveWrapper.style.right = "0px";
-      
-      var saveBtn = ytcenter.ui.createYouTubeDefaultButton("", [ytcenter.ui.createYouTubeButtonTextLabel("PLUGINS_COLORPICKER_SAVE")]);
-      ytcenter.listeners.addEvent(saveBtn, "click", function(){
-        ytcenter.utils.addClass(ghbox, "hid");
-        ytcenter.events.performEvent("ui-refresh");
-        sessionHex = ytcenter.utils.colorToHex(red, green, blue);
-        if (bCallback) bCallback(sessionHex);
-      }, false);
-      saveWrapper.appendChild(saveBtn);
-      
-      var cancelBtn = ytcenter.ui.createYouTubeDefaultButton("", [ytcenter.ui.createYouTubeButtonTextLabel("PLUGINS_COLORPICKER_CANCEL")], {marginLeft: "6px"});
-      ytcenter.listeners.addEvent(cancelBtn, "click", function(){
-        var rgb = ytcenter.utils.hexToColor(sessionHex);
-        red = rgb.red;
-        green = rgb.green;
-        blue = rgb.blue;
-        
-        update();
-        updateHueRange();
-        updateColorField();
-        
-        ytcenter.utils.addClass(ghbox, "hid");
-        ytcenter.events.performEvent("ui-refresh");
-      }, false);
-      saveWrapper.appendChild(cancelBtn);
-      
-      
       var rgbWrapper = document.createElement("div");
       rgbWrapper.style.display = "inline-block";
       rgbWrapper.style.verticalAlign = "top";
@@ -3353,7 +3358,6 @@
       rgbWrapper.appendChild(bWrapper);
       
       rgbWrapper.appendChild(hWrapper);
-      rgbWrapper.appendChild(saveWrapper);
       
       hueWrapper.appendChild(hueRangeField.element);
       hueWrapper.appendChild(hueRange.element);
@@ -3365,12 +3369,36 @@
       cpWrapper.appendChild(hueWrapper);
       cpWrapper.appendChild(rgbWrapper);
       
-      var ghbox = ytcenter.ui.createYouTubeGuideHelpBox([ytcenter.ui.createYouTubeGuideHelpBoxAfter(), cpWrapper]);
-      var g = ytcenter.ui.createYouTubeGuideHelpBoxGroup(wrapper, ghbox);
-      ytcenter.utils.addClass(ghbox, "hid");
+      var dialog = ytcenter.dialog("COLORPICKER_TITLE", cpWrapper, [
+        {
+          label: "COLORPICKER_CANCEL",
+          primary: false,
+          callback: function(){
+            var rgb = ytcenter.utils.hexToColor(sessionHex);
+            red = rgb.red;
+            green = rgb.green;
+            blue = rgb.blue;
+            update();
+            updateHueRange();
+            updateColorField();
+            ytcenter.events.performEvent("ui-refresh");
+            
+            dialog.setVisibility(false);
+          }
+        }, {
+          label: "COLORPICKER_SAVE",
+          primary: true,
+          callback: function(){
+            ytcenter.events.performEvent("ui-refresh");
+            sessionHex = ytcenter.utils.colorToHex(red, green, blue);
+            if (bCallback) bCallback(sessionHex);
+            dialog.setVisibility(false);
+          }
+        }
+      ]); // titleLabel, content, actions
       
-      ytcenter.listeners.addEvent(wrapper, "click", function(){
-        ytcenter.utils.removeClass(ghbox, "hid");
+      ytcenter.utils.addEventListener(wrapper, "click", function(){
+        dialog.setVisibility(true);
         ytcenter.events.performEvent("ui-refresh");
         update();
       });
@@ -3380,7 +3408,7 @@
       updateColorField();
       
       return {
-        element: g,
+        element: wrapper,
         bind: function(callback){
           bCallback = callback;
         },
@@ -3406,7 +3434,8 @@
         width: "225px",
         height: "14px",
         method: "horizontal", // horizontal, vertical
-        handle: null
+        handle: null,
+        offset: 0
       }, options);
       
       var handle;
@@ -3458,7 +3487,7 @@
       };
       var update = function(){
         if (options.method === "vertical") {
-          handle.style.top = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientHeight)) + "px";
+          handle.style.top = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientHeight - handle.offsetHeight)) + "px";
         } else {
           handle.style.left = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientWidth - handle.offsetWidth)) + "px";
         }
@@ -3467,14 +3496,16 @@
       var eventToValue = function(e){
         var offset = ytcenter.utils.getOffset(wrapper);
         if (options.method === "vertical") {
-          var v = e.pageY - document.body.scrollTop - offset.top;
+          offset.top += options.offset;
+          var v = e.pageY - document.documentElement.scrollTop - offset.top;
           var l = v + parseInt(options.height)/2 - 3;
           if (l < 0) l = 0;
           if (l > wrapper.clientHeight - handle.clientHeight) l = wrapper.clientHeight - handle.clientHeight;
           
           setValue(l/(wrapper.clientHeight - handle.clientHeight)*(options.max - options.min) + options.min);
         } else {
-          var v = e.pageX - document.body.scrollLeft - offset.left;
+          offset.left += options.offset;
+          var v = e.pageX - document.documentElement.scrollLeft - offset.left;
           var l = v - parseInt(options.height)/2;
           if (l < 0) l = 0;
           if (l > wrapper.clientWidth - handle.clientWidth) l = wrapper.clientWidth - handle.clientWidth;
@@ -3491,7 +3522,7 @@
       setValue(options.value);
       update();
       
-      ytcenter.listeners.addEvent(wrapper, "mousedown", function(e){
+      ytcenter.utils.addEventListener(wrapper, "mousedown", function(e){
         if (mousedown) return;
         mousedown = true;
         
@@ -3505,7 +3536,7 @@
         }
         return false;
       });
-      ytcenter.listeners.addEvent(document, "mouseup", function(e){
+      ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!mousedown) return;
         mousedown = false;
         if (e && e.preventDefault) {
@@ -3515,7 +3546,7 @@
         }
         return false;
       });
-      ytcenter.listeners.addEvent(document, "mousemove", function(e){
+      ytcenter.utils.addEventListener(document, "mousemove", function(e){
         if (!mousedown) return;
         eventToValue(e);
         if (bCallback) bCallback(options.value);
@@ -3601,8 +3632,8 @@
       function createItem(label, value) {
         var s = document.createElement("label"),
             cb = ytcenter.embeds.checkbox(isEnabled(value)),
-            text = document.createTextNode(ytcenter.locale[label]);
-        ytcenter.database.register(text, label, 'text');
+            text = document.createTextNode(ytcenter.language.getLocale(label));
+        ytcenter.language.addLocaleElement(text, label, "@textContent");
         cb.bind(function(checked){
           if (checked) {
             settingData = saveItem(value);
@@ -3667,27 +3698,27 @@
         if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
           return item.config.customName;
         } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-          return (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']);
-          //subtext.textContent = (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+          //subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         } else {
           return dim[0] + "×" + dim[1];
-          //subtext.textContent = (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          //subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         }
         }catch(e){con.error(e)}
       }
       function getItemSubText(item) {
         try{
         if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-          return (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.config.scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
-          return (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.config.scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         }
         }catch(e){con.error(e)}
       }
       function setValue(id) {
         selectedId = id;
         if (selectedId === "default") {
-          btnLabel.textContent = ytcenter.locale["SETTINGS_RESIZE_DEFAULTPLAYERSIZE_DEFAULT"];
+          btnLabel.textContent = ytcenter.language.getLocale("SETTINGS_RESIZE_DEFAULTPLAYERSIZE_DEFAULT");
         } else {
           var item;
           ytcenter.utils.each(items, function(i, val){
@@ -3711,11 +3742,11 @@
         
         span.className = "yt-uix-button-menu-item" + ("default" === selectedId ? " ytcenter-resize-dropdown-selected" : "");
         var title = document.createElement("span");
-        title.textContent = ytcenter.locale["SETTINGS_RESIZE_DEFAULTPLAYERSIZE_DEFAULT"];
-        ytcenter.database.register(title, "SETTINGS_RESIZE_DEFAULTPLAYERSIZE_DEFAULT", "text");
+        title.textContent = ytcenter.language.getLocale("SETTINGS_RESIZE_DEFAULTPLAYERSIZE_DEFAULT");
+        ytcenter.language.addLocaleElement(title, "SETTINGS_RESIZE_DEFAULTPLAYERSIZE_DEFAULT", "@textContent");
         title.style.display = "block";
         
-        ytcenter.listeners.addEvent(li, "click", function(){
+        ytcenter.utils.addEventListener(li, "click", function(){
           if ("default" === selectedId) return;
           setValue("default");
           ytcenter.utils.each(db, function(_i, elm){
@@ -3758,7 +3789,7 @@
           subtext.textContent = getItemSubText(item);
           subtext.style.display = "block";
           
-          ytcenter.listeners.addEvent(li, "click", function(){
+          ytcenter.utils.addEventListener(li, "click", function(){
             if (item.id === selectedId) return;
             setValue(item.id);
             ytcenter.utils.each(db, function(_i, elm){
@@ -3803,7 +3834,7 @@
       wrapper.appendChild(btn);
       
       updateItems(ytcenter.settings[option]);
-      ytcenter.database.codeRegister(wrapper, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         var opt = ytcenter.settings[option];
         var found = false;
         for (var i = 0; i < opt.length; i++) {
@@ -3833,18 +3864,18 @@
         if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
           return item.config.customName;
         } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-          return (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']);
-          subtext.textContent = (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+          subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         } else {
           return dim[0] + "×" + dim[1];
-          subtext.textContent = (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         }
       }
       function getItemSubText(item) {
         if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-          return (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.config.scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
-          return (item.config.large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.config.align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.config.scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         }
       }
       function setValue(id) {
@@ -3880,7 +3911,7 @@
           subtext.textContent = getItemSubText(item);
           subtext.style.display = "block";
           
-          ytcenter.listeners.addEvent(li, "click", function(){
+          ytcenter.utils.addEventListener(li, "click", function(){
             if (item.id === selectedId) return;
             setValue(item.id);
             ytcenter.utils.each(db, function(_i, elm){
@@ -3925,7 +3956,7 @@
       wrapper.appendChild(btn);
       
       updateItems(ytcenter.settings[option]);
-      ytcenter.database.codeRegister(wrapper, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         var opt = ytcenter.settings[option];
         var found = false;
         for (var i = 0; i < opt.length; i++) {
@@ -3971,7 +4002,7 @@
       return {
         element: wrapper, // So the element can be appended to an element.
         bind: function(callback){
-          ytcenter.listeners.addEvent(checkbox, "change", function(){
+          ytcenter.utils.addEventListener(checkbox, "change", function(){
             callback(ytcenter.utils.hasClass(cw, "checked"));
           }, false);
         },
@@ -4001,8 +4032,8 @@
           var o = document.createElement("option");
           o.setAttribute("value", i);
           if (typeof item.label !== "undefined") {
-            o.textContent = ytcenter.locale[item.label];
-            ytcenter.database.register(o, item.label, "text");
+            o.textContent = ytcenter.language.getLocale(item.label);
+            ytcenter.language.addLocaleElement(o, item.label, "@textContent");
           } else if (typeof item.text !== "undefined") {
             o.textContent = item.text;
           } else {
@@ -4039,7 +4070,7 @@
       select.style.height = "27px";
       
       updateList();
-      ytcenter.listeners.addEvent(select, "change", function(e){
+      ytcenter.utils.addEventListener(select, "change", function(e){
         selectedText.textContent = select.options[select.selectedIndex].textContent;
         if (saveCallback) saveCallback(list[select.selectedIndex].value);
       });
@@ -4106,7 +4137,7 @@
         li.appendChild(order);
         li.appendChild(content);
         
-        ytcenter.listeners.addEvent(content, "click", function(){
+        ytcenter.utils.addEventListener(content, "click", function(){
           if (selected) return;
           selectSizeItem(item.id);
         });
@@ -4142,7 +4173,7 @@
         };
         
         out.updateItemElement();
-        ytcenter.database.codeRegister(out, function(){
+        ytcenter.events.addEvent("ui-refresh", function(){
           out.updateItemElement();
         });
         return out;
@@ -4242,8 +4273,8 @@
         var customNameWrapper = document.createElement("div");
         customNameWrapper.className = "ytcenter-panel-label";
         var customNameLabel = document.createElement("label");
-        customNameLabel.textContent = ytcenter.locale['EMBED_RESIZEITEMLIST_CUSTOMNAME'];
-        ytcenter.database.register(customNameLabel, "EMBED_RESIZEITEMLIST_CUSTOMNAME", "@text");
+        customNameLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_CUSTOMNAME");
+        ytcenter.language.addLocaleElement(customNameLabel, "EMBED_RESIZEITEMLIST_CUSTOMNAME", "@textContent");
         customNameWrapper.appendChild(customNameLabel);
         var customNameInput = ytcenter.gui.createYouTubeTextInput();
         customNameInput.style.width = "210px";
@@ -4256,18 +4287,18 @@
         var widthWrapper = document.createElement("div");
         widthWrapper.className = "ytcenter-panel-label";
         var widthLabel = document.createElement("label");
-        widthLabel.textContent = ytcenter.locale['EMBED_RESIZEITEMLIST_WIDTH'];
-        ytcenter.database.register(widthLabel, "EMBED_RESIZEITEMLIST_WIDTH", "@text");
+        widthLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_WIDTH");
+        ytcenter.language.addLocaleElement(widthLabel, "EMBED_RESIZEITEMLIST_WIDTH", "@textContent");
         widthWrapper.appendChild(widthLabel);
         var widthInput = ytcenter.gui.createYouTubeTextInput();
         widthInput.style.width = "105px";
         widthWrapper.appendChild(widthInput);
         
-        ytcenter.listeners.addEvent(widthInput, "change", function(){
+        ytcenter.utils.addEventListener(widthInput, "change", function(){
           if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") return;
           aspectRatio = __getAspectRatio();
         });
-        ytcenter.listeners.addEvent(widthInput, "input", function(){
+        ytcenter.utils.addEventListener(widthInput, "input", function(){
           if (isNaN(parseInt(widthInput.value))) widthInput.value = "";
           else widthInput.value = parseInt(widthInput.value);
           if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") return;
@@ -4299,18 +4330,18 @@
         var heightWrapper = document.createElement("div");
         heightWrapper.className = "ytcenter-panel-label";
         var heightLabel = document.createElement("label");
-        heightLabel.textContent = ytcenter.locale['EMBED_RESIZEITEMLIST_HEIGHT'];
-        ytcenter.database.register(heightLabel, "EMBED_RESIZEITEMLIST_HEIGHT", "@text");
+        heightLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_HEIGHT");
+        ytcenter.language.addLocaleElement(heightLabel, "EMBED_RESIZEITEMLIST_HEIGHT", "@textContent");
         heightWrapper.appendChild(heightLabel);
         var heightInput = ytcenter.gui.createYouTubeTextInput();
         heightInput.style.width = "105px";
         heightWrapper.appendChild(heightInput);
         
-        ytcenter.listeners.addEvent(heightInput, "change", function(){
+        ytcenter.utils.addEventListener(heightInput, "change", function(){
           if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") return;
           aspectRatio = __getAspectRatio();
         });
-        ytcenter.listeners.addEvent(heightInput, "input", function(){
+        ytcenter.utils.addEventListener(heightInput, "input", function(){
           if (isNaN(parseInt(heightInput.value))) heightInput.value = "";
           else heightInput.value = parseInt(heightInput.value);
           if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") return;
@@ -4353,7 +4384,7 @@
         ratioIcon.style.marginBottom = "13px";
         ratioIcon.style.marginLeft = "-11px";
         ratioIcon.style.width = "20px";
-        ytcenter.listeners.addEvent(ratioIcon, "click", function(e){
+        ytcenter.utils.addEventListener(ratioIcon, "click", function(e){
           if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") return;
           if (ratioLocked) {
             __setAspectRatioLocked(false);
@@ -4373,8 +4404,8 @@
         var largeWrapper = document.createElement("div");
         largeWrapper.className = "ytcenter-panel-label";
         var largeLabel = document.createElement("label");
-        largeLabel.textContent = ytcenter.locale['EMBED_RESIZEITEMLIST_LARGE'];
-        ytcenter.database.register(largeLabel, "EMBED_RESIZEITEMLIST_LARGE", "@text");
+        largeLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_LARGE");
+        ytcenter.language.addLocaleElement(largeLabel, "EMBED_RESIZEITEMLIST_LARGE", "@textContent");
         largeWrapper.appendChild(largeLabel);
         var largeInput = ytcenter.embeds.checkbox();
         largeInput.element.style.background = "#fff";
@@ -4385,8 +4416,8 @@
         alignWrapper.className = "ytcenter-panel-label";
         var alignLabel = document.createElement("label");
         alignLabel.textContent = "Align";
-        alignLabel.textContent = ytcenter.locale['EMBED_RESIZEITEMLIST_ALIGN'];
-        ytcenter.database.register(alignLabel, "EMBED_RESIZEITEMLIST_ALIGN", "@text");
+        alignLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_ALIGN");
+        ytcenter.language.addLocaleElement(alignLabel, "EMBED_RESIZEITEMLIST_ALIGN", "@textContent");
         alignWrapper.appendChild(alignLabel);
         var alignInput = ytcenter.embeds.checkbox();
         alignInput.element.style.background = "#fff";
@@ -4396,8 +4427,8 @@
         var scrollToPlayerWrapper = document.createElement("div");
         scrollToPlayerWrapper.className = "ytcenter-panel-label";
         var scrollToPlayerLabel = document.createElement("label");
-        scrollToPlayerLabel.textContent = ytcenter.locale['EMBED_RESIZEITEMLIST_SCROLLTOPLAYER'];
-        ytcenter.database.register(scrollToPlayerLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYER", "@text");
+        scrollToPlayerLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_SCROLLTOPLAYER");
+        ytcenter.language.addLocaleElement(scrollToPlayerLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYER", "@textContent");
         scrollToPlayerWrapper.appendChild(scrollToPlayerLabel);
         var scrollToPlayerInput = ytcenter.embeds.checkbox();
         scrollToPlayerInput.element.style.background = "#fff";
@@ -4407,8 +4438,8 @@
         var scrollToPlayerButtonWrapper = document.createElement("div");
         scrollToPlayerButtonWrapper.className = "ytcenter-panel-label";
         var scrollToPlayerButtonLabel = document.createElement("label");
-        scrollToPlayerButtonLabel.textContent = ytcenter.locale['EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON'];
-        ytcenter.database.register(scrollToPlayerButtonLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON", "@text");
+        scrollToPlayerButtonLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON");
+        ytcenter.language.addLocaleElement(scrollToPlayerButtonLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON", "@textContent");
         scrollToPlayerButtonWrapper.appendChild(scrollToPlayerButtonLabel);
         var scrollToPlayerButtonInput = ytcenter.embeds.checkbox();
         scrollToPlayerButtonInput.element.style.background = "#fff";
@@ -4423,7 +4454,7 @@
         saveBtn.style.cssFloat = "right";
         saveBtn.style.marginLeft = "10px";
         saveBtn.style.minWidth = "60px";
-        ytcenter.listeners.addEvent(saveBtn, "click", function(){
+        ytcenter.utils.addEventListener(saveBtn, "click", function(){
           state = 0;
           wrp.style.visibility = "hidden";
           if (typeof saveListener !== "undefined") saveListener();
@@ -4433,7 +4464,7 @@
         cancelBtn.style.cssFloat = "right";
         cancelBtn.style.marginLeft = "10px";
         cancelBtn.style.minWidth = "60px";
-        ytcenter.listeners.addEvent(cancelBtn, "click", function(){
+        ytcenter.utils.addEventListener(cancelBtn, "click", function(){
           if (hasUnsavedChanges()) {
             ytcenter.confirmBox("EMBED_RESIZEITEMLIST_CONFIRM_TITLE", "EMBED_RESIZEITEMLIST_UNSAVED_CONFIRM_MESSAGE", function(accepted){
               if (accepted) {
@@ -4452,7 +4483,7 @@
         var deleteBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonText("Delete")]);
         deleteBtn.style.cssFloat = "left";
         deleteBtn.style.minWidth = "60px";
-        ytcenter.listeners.addEvent(deleteBtn, "click", function(){
+        ytcenter.utils.addEventListener(deleteBtn, "click", function(){
           ytcenter.confirmBox("EMBED_RESIZEITEMLIST_DELETE_CONFIRM_TITLE", "EMBED_RESIZEITEMLIST_DELETE_CONFIRM_MESSAGE", function(del){
             if (del) {
               state = 0;
@@ -4632,18 +4663,18 @@
         if (typeof item.getConfig().customName !== "undefined" && item.getConfig().customName !== "") {
           return item.getConfig().customName;
         } else if (isNaN(parseInt(item.getConfig().width)) && isNaN(parseInt(item.getConfig().height))) {
-          return (item.getConfig().large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']);
-          subtext.textContent = (item.getConfig().align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          return (item.getConfig().large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+          subtext.textContent = (item.getConfig().align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         } else {
           return dim[0] + "×" + dim[1];
-          subtext.textContent = (item.getConfig().large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.getConfig().align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']);
+          subtext.textContent = (item.getConfig().large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.getConfig().align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         }
       }
       function getItemSubText(item) {
         if (isNaN(parseInt(item.getConfig().width)) && isNaN(parseInt(item.getConfig().height))) {
-          return (item.getConfig().align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.getConfig().scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.getConfig().align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.getConfig().scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
-          return (item.getConfig().large ? ytcenter.locale['SETTINGS_RESIZE_LARGE'] : ytcenter.locale['SETTINGS_RESIZE_SMALL']) + " - " + (item.getConfig().align ? ytcenter.locale['SETTINGS_RESIZE_ALIGN'] : ytcenter.locale['SETTINGS_RESIZE_CENTER']) + (item.getConfig().scrollToPlayer ? " - " + ytcenter.locale['SETTINGS_RESIZE_SCROLLTOPLAYER'] : "");
+          return (item.getConfig().large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.getConfig().align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.getConfig().scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         }
       }
       function updateListHeight() {
@@ -4846,7 +4877,7 @@
       var addButton = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonTextLabel("EMBED_RESIZEITEMLIST_ADD_SIZE")]);
       ytcenter.utils.addClass(addButton, "ytcenter-list-header-btn");
       
-      ytcenter.listeners.addEvent(addButton, "click", function(){
+      ytcenter.utils.addEventListener(addButton, "click", function(){
         selectSizeItem();
       });
       
@@ -4877,19 +4908,11 @@
       wrapper.appendChild(headerWrapper);
       wrapper.appendChild(contentWrapper);
       
-      ytcenter.database.codeRegister(null, function(){
-        //var rm = false;
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (!editor) {
           editor = createEditor();
-          //rm = true;
         }
-        //editor.setVisibility(true);
         updateListHeight();
-        //editor.setVisibility(false);
-        /*if (rm) {
-          editor.destroy();
-          editor = undefined;
-        }*/
       });
       
       return {
@@ -4907,6 +4930,13 @@
       };
     }
     ytcenter.utils = {};
+    ytcenter.utils.addEventListener = function(elm, event, callback, useCapture){
+      if (elm.addEventListener) {
+        elm.addEventListener(event, callback, useCapture || false);
+      } else if (elm.attachEvent) {
+        elm.attachEvent("on" + event, callback);
+      }
+    };
     ytcenter.utils.getRGB = function(h, s, v){
       h = h/360 * 6;
       s = s/100;
@@ -5332,10 +5362,10 @@
           ytcenter.utils.each(value, function(_key, _value){
             if (ytcenter.utils.isArray(_value)) {
               ytcenter.utils.each(_value, function(i, __value){
-                ytcenter.listeners.addEvent(elm, _key, __value, false);
+                ytcenter.utils.addEventListener(elm, _key, __value, false);
               });
             } else {
-              ytcenter.listeners.addEvent(elm, _key, _value, false);
+              ytcenter.utils.addEventListener(elm, _key, _value, false);
             }
           });
         } else {
@@ -5728,91 +5758,80 @@
       return rd;
     })();
     con.log("Initializing database");
-    ytcenter.database = (function(){
-      var elements = [];
-      var codeElements = [];
-      
-      var r = {};
-      r.register = function(elm, locale, type, replaceDictionary){
-        elements.push({
-          element: elm,
-          locale: locale,
-          type: (type ? type : "text"),
-          replaceDictionary: (replaceDictionary ? replaceDictionary : {})
-        });
-      };
-      r.codeRegister = function(elm, code){
-        codeElements.push({
-          element: elm,
-          code: code
-        });
-      };
-      r.applyLanguage = function(lang){
-        con.log("Calling Database/Applying Language");
-        for (var i = 0; i < elements.length; i++) {
-          var l = $TextReplacer(lang[elements[i].locale], elements[i].replaceDictionary);
-          var t = elements[i].type;
-          var e = elements[i].element;
-          if (t === "html") {
-            e.innerHTML = l;
-          } else if (t === "text") {
-            e.textContent = l;
-          } else if (t[0] == "@") { // Arguments
-            e.setAttribute(t.substring(1), l);
-          } else {
-            throw "Unknown Type for element!";
-          }
-        }
-        for (var i = 0; i < codeElements.length; i++) {
-          codeElements[i].code.apply(codeElements[i].element, []);
-        }
-      };
-      return r;
-    })();
-    ytcenter.language = @ant-database-language@;
-    con.log("Applied language database");
-    ytcenter.updateLanguage = function(doNotRecurse){
-      con.log("Updating Language...");
-      var yt = uw.yt;
-      if (ytcenter.settings.language === 'auto' && yt && yt.getConfig && yt.getConfig("PAGE_NAME")) {
-        if (yt.config_.FEEDBACK_LOCALE_LANGUAGE && ytcenter.language.hasOwnProperty(yt.config_.FEEDBACK_LOCALE_LANGUAGE)) {
-          ytcenter.locale = ytcenter.language[yt.config_.FEEDBACK_LOCALE_LANGUAGE];
-        } else if (yt.config_.SANDBAR_LOCALE && ytcenter.language.hasOwnProperty(yt.config_.SANDBAR_LOCALE)) {
-          ytcenter.locale = ytcenter.language[yt.config_.SANDBAR_LOCALE];
-        } else if (yt.config_.HL_LOCALE && ytcenter.language.hasOwnProperty(yt.config_.HL_LOCALE)) {
-          ytcenter.locale = ytcenter.language[yt.config_.HL_LOCALE];
+    ytcenter.language = (function(){
+      function __setElementText(lang, elm, name, type, replace) {
+        if (type.indexOf("@") === 0) {
+          elm[type.substring(1)] = $TextReplacer(lang[name], replace);
         } else {
-          ytcenter.locale = ytcenter.language['en'];
-        }
-      } else if (ytcenter.settings.language === 'auto') {
-        ytcenter.locale = ytcenter.language['en'];
-        if (doNotRecurse != true) {
-          con.log("Language set to " + ytcenter.locale.LANGUAGE + " because it could not be auto-detected yet");
-          var languageUpdateCounter = 0;
-          var languageUpdateInterval = uw.setInterval((function(){
-            if (uw.yt && uw.yt.getConfig && uw.yt.getConfig("PAGE_NAME")) {
-              uw.clearInterval(languageUpdateInterval);
-              ytcenter.updateLanguage(true);
-              ytcenter.database.applyLanguage(ytcenter.locale);
-            } else if (++languageUpdateCounter >= 100) {
-              uw.clearInterval(languageUpdateInterval);
-              con.log("YouTube configuration data is inaccessible; giving up on language auto-detection.");
-            }
-          }).bind(this), 50);
-        } else {
-          con.log("Language set to " + ytcenter.locale.LANGUAGE + " because auto-detection failed unexpectedly");
-        }
-        return;
-      } else {
-        if (ytcenter.language.hasOwnProperty(ytcenter.settings.language)) {
-          ytcenter.locale = ytcenter.language[ytcenter.settings.language];
-        } else {
-          ytcenter.locale = ytcenter.language['en'];
+          elm.setAttribute(type, $TextReplacer(lang[name], replace));
         }
       }
-      con.log("Language set to " + ytcenter.locale.LANGUAGE);
-    };
-    con.log("ytcenter.updateLanguage initialized");
+      var db = [];
+      var currentLang = {};
+      
+      var __r = {};
+      /**
+       * Adds an element to the database which will then be updated when the update function is called.
+       * @elm The element which will get the update.
+       * @name The locale name which will be used to update the text.
+       * @type The type of how the element will be manipulated. If there's an @ followed by textContent it will update the textContent or else it's an argument.
+       */
+      __r.addLocaleElement = function(elm, name, type, replace) {
+        replace = replace || {};
+        db.push([elm, name, type, replace]);
+      };
+      /**
+       * Gets the locale for the specific locale name.
+       */
+      __r.getLocale = function(name){
+        return currentLang[name];
+      };
+      /**
+       * Updates all elements added to the database with the given language.
+       * @lang The array with the specific language data.
+       */
+      __r.update = function(lang, doNotRecurse){
+        lang = lang || ytcenter.settings.language;
+        if (lang === "auto") {
+          if (uw.yt && uw.yt.getConfig && yt.getConfig("PAGE_NAME")) {
+            if (uw.yt.config_.FEEDBACK_LOCALE_LANGUAGE && ytcenter.languages.hasOwnProperty(uw.yt.config_.FEEDBACK_LOCALE_LANGUAGE)) {
+              lang = uw.yt.config_.FEEDBACK_LOCALE_LANGUAGE;
+            } else if (uw.yt.config_.SANDBAR_LOCALE && ytcenter.languages.hasOwnProperty(uw.yt.config_.SANDBAR_LOCALE)) {
+              lang = uw.yt.config_.SANDBAR_LOCALE;
+            } else if (uw.yt.config_.HL_LOCALE && ytcenter.languages.hasOwnProperty(uw.yt.config_.HL_LOCALE)) {
+              lang = uw.yt.config_.HL_LOCALE;
+            } else {
+              lang = "en";
+            }
+          } else {
+            lang = "en";
+            if (!doNotRecurse) {
+              con.log("Language set to " + lang + " because it could not be auto-detected yet");
+              var languageUpdateCounter = 0;
+              var languageUpdateInterval = uw.setInterval((function(){
+                if (uw.yt && uw.yt.getConfig && uw.yt.getConfig("PAGE_NAME")) {
+                  uw.clearInterval(languageUpdateInterval);
+                  ytcenter.language.update("auto", true);
+                } else if (++languageUpdateCounter >= 100) {
+                  uw.clearInterval(languageUpdateInterval);
+                  con.log("YouTube configuration data is inaccessible; giving up on language auto-detection.");
+                }
+              }).bind(this), 50);
+            } else {
+              con.log("Language set to " + lang + " because auto-detection failed unexpectedly");
+            }
+          }
+        }
+        currentLang = ytcenter.languages[lang];
+        for (var i = 0; i < db.length; i++) {
+          __setElementText(currentLang, db[i][0], db[i][1], db[i][2], db[i][3]);
+        }
+        ytcenter.events.performEvent("language-refresh");
+      };
+      
+      return __r;
+    })();
+    ytcenter.languages = @ant-database-language@;
     ytcenter.doRepeat = false;
     ytcenter.html5 = false;
     ytcenter.html5flash = false;
@@ -5958,15 +5977,15 @@
                 
                 var cnme = document.createElement("div");
                 cnme.className = "yt-alert-message";
-                cnme.innerHTML = $TextReplacer(ytcenter.locale['UPDATE_HTML'], {
+                cnme.innerHTML = $TextReplacer(ytcenter.language.getLocale("UPDATE_HTML"), {
                   scripturl: 'http://userscripts.org/scripts/source/114002.user.js',
                   version: ver,
                   siteurl: 'http://userscripts.org/scripts/show/114002',
                   site: 'userscripts.org'
                 });
                 
-                ytcenter.database.codeRegister(cnme, function(){
-                  this.innerHTML = $TextReplacer(ytcenter.locale['UPDATE_HTML'], {
+                ytcenter.events.addEvent("ui-refresh", function(){
+                  cnme.innerHTML = $TextReplacer(ytcenter.language.getLocale("UPDATE_HTML"), {
                     scripturl: 'http://userscripts.org/scripts/source/114002.user.js',
                     version: ver,
                     siteurl: 'http://userscripts.org/scripts/show/114002',
@@ -6260,11 +6279,11 @@
               "label": "LANGUAGE_AUTO",
               "value": "auto"
             });
-            for (var key in ytcenter.language) {
-              if (ytcenter.language.hasOwnProperty(key)) {
+            for (var key in ytcenter.languages) {
+              if (ytcenter.languages.hasOwnProperty(key)) {
                 a.push({
                   "value": key,
-                  "variable": "ytcenter.language[\"" + key + "\"].LANGUAGE"
+                  "variable": "ytcenter.languages[\"" + key + "\"].LANGUAGE"
                 });
               }
             }
@@ -6274,8 +6293,7 @@
             {
               "event": "change",
               "callback": function(){
-                ytcenter.updateLanguage();
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.language.update();
               }
             }
           ],
@@ -6295,7 +6313,7 @@
                     ytcenter.site.setPageAlignment("left");
                   }
                 }
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ]
@@ -6344,8 +6362,8 @@
               "callback": function(){
                 var msgElm = document.createElement("h3");
                 msgElm.style.fontWeight = "normal";
-                msgElm.textContent = ytcenter.locale["SETTINGS_RESETSETTINGS_TEXT"];
-                ytcenter.database.register(msgElm, "SETTINGS_RESETSETTINGS_TEXT", "text");
+                msgElm.textContent = ytcenter.language.getLocale("SETTINGS_RESETSETTINGS_TEXT");
+                ytcenter.language.addLocaleElement(msgElm, "SETTINGS_RESETSETTINGS_TEXT", "@textContent");
                 
                 var dialog = ytcenter.dialog("SETTINGS_RESETSETTINGS_LABEL", msgElm, [
                   {
@@ -6380,7 +6398,7 @@
               "event": "click",
               "callback": function(){
                 ytcenter.player.center(ytcenter.settings.watch7playeralign);
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -6555,7 +6573,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -6567,7 +6585,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -6579,7 +6597,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -6640,7 +6658,7 @@
           "defaultSetting": "lightbulbAutoOff"
         }, {
           "label": "SETTINGS_LIGHTBULB_COLOR",
-          "type": "text", // Temporary until created color picker
+          "type": "colorpicker",
           "defaultSetting": "lightbulbBackgroundColor"
         }, {
           "label": "SETTINGS_LIGHTBULB_TRANSPARENCY",
@@ -6972,7 +6990,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -6984,7 +7002,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -6996,7 +7014,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7008,7 +7026,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7020,7 +7038,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7114,7 +7132,7 @@
             {
               "event": "change",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7141,7 +7159,7 @@
             {
               "event": "change",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7153,7 +7171,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7165,7 +7183,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7177,7 +7195,7 @@
             {
               "event": "change",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7189,7 +7207,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7202,7 +7220,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7221,7 +7239,7 @@
             {
               "event": "click",
               "callback": function(){
-                ytcenter.database.applyLanguage(ytcenter.locale);
+                ytcenter.events.performEvent("ui-refresh");
               }
             }
           ],
@@ -7274,16 +7292,16 @@
             {
               "event": "click",
               "callback": function(){
-                this.textContent = ytcenter.locale["SETTINGS_UPDATE_CHECKINGFORNEWUPDATES"];
+                this.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATES");
                 this.disabled = true;
                 ytcenter.checkForUpdates((function(self){
                   return function(){
-                    uw.textContent = ytcenter.locale["SETTINGS_UPDATE_CHECKFORNEWUPDATESSUCCESS"];
+                    uw.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKFORNEWUPDATESSUCCESS");
                     uw.disabled = false;
                   };
                 })(this), (function(self){
                   return function(){
-                    uw.textContent = ytcenter.locale["SETTINGS_UPDATE_CHECKINGFORNEWUPDATESERROR"];
+                    uw.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESERROR");
                     uw.disabled = false;
                   };
                 })(this));
@@ -7478,7 +7496,7 @@
         format: (function(){
           for (var i = 0; i < ytcenter.video.format.length; i++) {
             if (stream.type.indexOf(ytcenter.video.format[i].type) == 0) {
-              return ytcenter.locale[ytcenter.video.format[i].name];
+              return ytcenter.language.getLocale(ytcenter.video.format[i].name);
             }
           }
           return "";
@@ -8945,7 +8963,7 @@
           ytcenter.player.getReference().updatePlayerInitialized(false); // Making it possible to update the player correctly (listener injection).
           con.log("[SPF] Calling ytwatchinit()");
           ytwatchinit(); // Calling ytwatchinit again to ensure that everything is applied to the new loaded part.
-          ytcenter.database.applyLanguage(ytcenter.locale); // Just to be sure everything is updated correctly.
+          ytcenter.events.performEvent("ui-refresh"); // Just to be sure everything is updated correctly.
         });
       }
       
@@ -9031,7 +9049,7 @@
           ytcenter.player.updateResize();
         }
         
-        ytcenter.database.applyLanguage(ytcenter.locale);
+        ytcenter.events.performEvent("ui-refresh");
         document.body.click();
         
         return false;
@@ -9079,7 +9097,7 @@
       }
       
       ytcenter.player.getConfig().args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
-      ytcenter.database.codeRegister(this, function(){
+      ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.removeBrandingBanner) {
           $AddCSS(document.body, "ytcenter-branding-remove-banner");
         } else {
@@ -9285,7 +9303,7 @@
         } catch (e) {
           con.error(e);
         }
-        ytcenter.database.applyLanguage(ytcenter.locale);
+        ytcenter.events.performEvent("ui-refresh");
       };
       $XMLHTTPRequest({
         method: "GET",
@@ -9620,7 +9638,7 @@
       var __fastLoad = function(){
         con.log("Loading Settings");
         ytcenter.loadSettings();
-        ytcenter.updateLanguage();
+        ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
           if (e.origin !== "http://www.youtube.com")
@@ -9677,6 +9695,9 @@
         }, uw.ytcenter.settings);
         
         // Adding Styles
+        $AddStyle(".ytcenter-hue{position:absolute!important;top:0!important;background:-moz-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:-ms-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:-o-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:-webkit-gradient(linear,left top,left bottom,from(#f00),color-stop(0.17,#ff0),color-stop(0.33,#0f0),color-stop(0.5,#0ff),color-stop(0.67,#00f),color-stop(0.83,#f0f),to(#f00))!important;background:-webkit-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important}.ytcenter-hue .ie-1{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0000',endColorstr='#ffff00')}.ytcenter-hue .ie-2{height:16%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffff00',endColorstr='#00ff00')}.ytcenter-hue .ie-3{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ff00',endColorstr='#00ffff')}.ytcenter-hue .ie-4{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffff',endColorstr='#0000ff')}.ytcenter-hue .ie-5{height:16%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#0000ff',endColorstr='#ff00ff')}.ytcenter-hue .ie-6{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff00ff',endColorstr='#ff0000')}.ytcenter-range{position:relative;display:inline-block;overflow:hidden;border:1px solid #eee;outline:0;-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px}.ytcenter-range .ytcenter-range-handle{border-width:1px;border-style:solid;outline:0;font-weight:bold;font-size:11px;white-space:nowrap;word-wrap:normal;vertical-align:middle;border-top:0;border-bottom:0}.ytcenter-hue.ytcenter-range{border-color:#000}.ytcenter-hue.ytcenter-range .ytcenter-range-handle{-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px}.ytcenter-range.ytcenter-hue .ytcenter-range-handle{border:0!important;-moz-border-radius:0!important;-webkit-border-radius:0!important;border-radius:0!important}.ytcenter-range.ytcenter-hue{border:0!important;outline:0;overflow:visible;-moz-border-radius:0!important;-webkit-border-radius:0!important;border-radius:0!important}.ytcenter-range-handle{position:absolute;top:0;left:0;cursor:default!important;margin:0;padding:0;text-shadow:0 1px 0 rgba(255,255,255,.5);border-color:#d3d3d3;background-color:#f8f8f8;filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#fffcfcfc,EndColorStr=#fff8f8f8);background-image:-moz-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:-ms-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:-o-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fcfcfc),color-stop(100%,#f8f8f8));background-image:-webkit-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:linear-gradient(to bottom,#fcfcfc 0,#f8f8f8 100%)}.ytcenter-range-handle .ytcenter-range-handle-left{position:absolute;top:-7px;left:-7px;width:0;height:0;border:solid transparent;border-width:7px;border-left-color:#fff}.ytcenter-range-handle .ytcenter-range-handle-right{position:absolute;top:-7px;left:7px;width:0;height:0;border:solid transparent;border-width:7px;border-right-color:#fff}.ytcenter-range.ytcenter-hue .ytcenter-range-handle .ytcenter-range-handle-right{border-top:7px solid transparent!important;border-bottom:7px solid transparent!important;border-right:7px solid #000!important}.ytcenter-colorpicker{-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px;display:inline-block;width:16px;height:16px;cursor:pointer;border:1px solid #eee}.ytcenter-colorpicker-saturation{position:absolute;width:100%;height:100%;top:0;left:0;background-image:-webkit-gradient(linear,0 0,100% 0,from(#FFF),to(rgba(204,154,129,0)));background-image:-webkit-linear-gradient(left,#FFF,rgba(204,154,129,0));background-image:-moz-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:-o-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:-ms-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:linear-gradient(to right,#fff,rgba(204,154,129,0));-ms-filter:progid:DXImageTransform.Microsoft.gradient(GradientType = 1,startColorstr='#FFFFFFFF, endColorstr=#00CC9A81');filter:progid:DXImageTransform.Microsoft.gradient(GradientType = 1,startColorstr='#FFFFFFFF',endColorstr='#00CC9A81')}.ytcenter-colorpicker-value{position:absolute;width:100%;height:100%;top:0;left:0;background-image:-webkit-gradient(linear,0 100%,0 0,from(#000),to(rgba(204,154,129,0)));background-image:-webkit-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-moz-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-o-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-ms-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:linear-gradient(to top,#000,rgba(204,154,129,0));-ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00CC9A81, endColorstr=#FF000000');filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00CC9A81',endColorstr='#FF000000')}.ytcenter-colorpicker-handler{position:absolute;top:0;left:0;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;width:5px;height:5px;border:1px solid #fff;background:#000}");
+        
+        
         $AddStyle("@media screen and (min-width:1236px){.ytcenter-resize-aligned.site-left-aligned.guide-enabled #player, .ytcenter-resize-aligned.site-left-aligned.guide-enabled #watch7-main-container{padding-left:190px!important}.ytcenter-resize-disaligned.site-left-aligned.guide-enabled #player, .ytcenter-resize-disaligned.site-left-aligned.guide-enabled #watch7-main-container{padding-left:0!important}}");
         $AddStyle("body.ytcenter-branding-remove-banner #page.watch #guide-container.branded{top:0!important}body.ytcenter-branding-remove-background #guide-container.branded{background: none repeat scroll 0% 0% transparent!important}");
         $AddStyle("#watch7-content{clear:both}.ytcenter-resize-main.ytcenter-player-center #watch7-creator-bar{margin:0 auto}");
