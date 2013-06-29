@@ -2464,6 +2464,66 @@
     ytcenter.refreshHomepage = function() {
       // Doing nothing for the moment!
     };
+    ytcenter.spf = (function(){
+      var _obj = {},
+      listeners = {
+        "error": [],
+        "processed": [],
+        "received": [],
+        "requested": []
+      },
+      evnts = ["error", "processed", "received", "requested"],
+      injected = false;
+      
+      _obj.addEventListener = function(evnt, callback){
+        if (!listeners.hasOwnProperty(evnt)) return;
+        listeners[evnt].push(callback);
+      };
+      _obj.isInjected = function(){
+        return injected ? true : false;
+      };
+      _obj.isEnabled = function(){
+        return uw && uw.ytspf && uw.ytspf.enabled ? true : false;
+      };
+      _obj.inject = function(){ // Should only be called once every instance (page reload).
+        if (!_obj.isEnabled() || injected) return; // Should not inject when SPF is not enabled!
+        injected = true;
+        var ytspf = uw.aD,
+            obj_name;
+        con.log("[SPF] Injecting ability to add event listeners to SPF.");
+        for (var i = 0; i < evnts.length; i++) {
+          obj_name = "navigate-" + evnts[i] + "-callback";
+          
+          ytspf.config[obj_name] = (function(original_function, evnt){
+            return function(){
+              try {
+                var r,j;
+                con.log("[SPF] Event called: " + evnt + "; Added listeners: " + listeners[evnt].length + ";");
+                try {
+                  r = original_function.apply(null, arguments);
+                } catch (e) {
+                  con.error(e);
+                }
+                
+                try {
+                  for (j = 0; j < listeners[evnt].length; j++) {
+                    listeners[evnt][j]();
+                  }
+                } catch (e) {
+                  con.error(e);
+                }
+                
+                return r;
+              } catch (e) {
+                con.error(e);
+              }
+            };
+          })(ytspf.config[obj_name], evnts[i]);
+        }
+      };
+      
+      return _obj;
+    })();
     ytcenter.dialog = function(titleLabel, content, actions){
       var __r = {};
       var bgOverlay = ytcenter.dialogOverlay();
@@ -5382,8 +5442,8 @@
           ytcenter.guide.update();
         }
         if (!ytcenter.guide.observer) {
-          var MutationObserver = MutationObserver || WebKitMutationObserver || MozMutationObserver;
-          ytcenter.guide.observer = new MutationObserver(ytcenter.guide.checkMutations);
+          var MuOb = MutationObserver || WebKitMutationObserver || MozMutationObserver;
+          ytcenter.guide.observer = new MuOb(ytcenter.guide.checkMutations);
         }
         ytcenter.guide.observer.observe(ytcenter.guide.element, { childList: true });
       }
@@ -8873,39 +8933,20 @@
         con.error(e);
       }
     };
-    var __spf = true;
     var ytwatchinit = function(){
       yt = uw.yt;
       ytcenter.page = "watch";
+      ytcenter.placementsystem.clear(); // Clearing placement database (we should not have multiple elements - added because of SPF).
       
-      ytcenter.placementsystem.clear();
-      
-      if (uw && uw.ytspf && uw.ytspf.enabled && __spf) {
-        __spf = false;
-        var __a = [
-          "navigate-error-callback",
-          "navigate-processed-callback",
-          "navigate-received-callback",
-          "navigate-requested-callback"
-        ];
-        for (var i = 0; i < __a.length; i++) {
-          uw.aD.config[__a[i]] = (function(func, func_name){
-            return function(a,b,c){
-              con.log("HTML5 Navigation: " + func_name);
-              var f = func(a,b,c);
-              if (func_name === "navigate-processed-callback") {
-                try {
-                  ytcenter.player.getReference().updatePlayerInitialized(false);
-                } catch (e) {
-                  con.error(e);
-                }
-                ytwatchinit();
-                ytcenter.database.applyLanguage(ytcenter.locale);
-              }
-              return f;
-            };
-          })(uw.aD.config[__a[i]], __a[i]);
-        }
+      if (ytcenter.spf.isEnabled() && !ytcenter.spf.isInjected()) {
+        con.log("[SPF] Adding processed event listener to SPF.");
+        ytcenter.spf.inject(); // Adding ability to inject event listeners to YouTube SPF.
+        ytcenter.spf.addEventListener("processed", function(){
+          ytcenter.player.getReference().updatePlayerInitialized(false); // Making it possible to update the player correctly (listener injection).
+          con.log("[SPF] Calling ytwatchinit()");
+          ytwatchinit(); // Calling ytwatchinit again to ensure that everything is applied to the new loaded part.
+          ytcenter.database.applyLanguage(ytcenter.locale); // Just to be sure everything is updated correctly.
+        });
       }
       
       if (typeof ytcenter.player.getConfig() === "undefined") {
@@ -9241,10 +9282,10 @@
           var txt = response.responseText;
           txt = txt.split("<published>")[1].split("</published>")[0];
           ytcenter.video.published = new Date(txt);
-          ytcenter.database.applyLanguage(ytcenter.locale);
         } catch (e) {
           con.error(e);
         }
+        ytcenter.database.applyLanguage(ytcenter.locale);
       };
       $XMLHTTPRequest({
         method: "GET",
