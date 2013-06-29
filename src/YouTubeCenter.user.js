@@ -6079,7 +6079,7 @@
       channel_mute: false,
       channel_experimentalFlashMode: 'clone',
       channel_experimentalHTML5Mode: 'none',
-      embed_enable: true,
+      embed_enabled: true,
       embed_enableAutoVideoQuality: true,
       embed_autoVideoQuality: 'medium',
       embed_autohide: '2',
