@@ -1977,7 +1977,8 @@
         var os = $AbsoluteOffset(et);
         os[0] = (os[0] - window.pageXOffset);
         os[1] = (os[1] - window.pageYOffset);
-        curRelative = [e.pageX - document.body.scrollLeft - os[0], e.pageY - document.body.scrollTop - os[1]];
+        var scrollOffset = ytcenter.utils.getScrollOffset();
+        curRelative = [e.pageX - scrollOffset.left - os[0], e.pageY - scrollOffset.top - os[1]];
         holderElement = et.cloneNode(true);
         holderElement.style.position = "fixed";
         holderElement.style.top = os[1] + "px";
@@ -2037,9 +2038,9 @@
         
         var newX = e.pageX;
         var newY = e.pageY;
-        
-        holderElement.style.top = (e.pageY - document.body.scrollTop - curRelative[1]) + "px";
-        holderElement.style.left = (e.pageX - document.body.scrollLeft - curRelative[0]) + "px";
+        var scrollOffset = ytcenter.utils.getScrollOffset();
+        holderElement.style.top = (e.pageY - scrollOffset.top - curRelative[1]) + "px";
+        holderElement.style.left = (e.pageX - scrollOffset.left - curRelative[0]) + "px";
         
         var p = lastLegalRegion;
         for (var i = 0; i < allowedRegions.length; i++) {
@@ -3095,9 +3096,10 @@
       
       var eventToValue = function(e){
         var offset = ytcenter.utils.getOffset(wrapper);
-        var x = Math.max(0, Math.min(e.pageX - offset.left - document.documentElement.scrollLeft, wrapper.clientWidth));
+        var scrollOffset = ytcenter.utils.getScrollOffset();
+        var x = Math.max(0, Math.min(e.pageX - offset.left - scrollOffset.left, wrapper.clientWidth));
+        var y = e.pageY - offset.top - scrollOffset.top;
         
-        var y = e.pageY - offset.top - document.documentElement.scrollTop;
         if (y < 0) y = 0;
         if (y > wrapper.clientHeight) y = wrapper.clientHeight;
         
@@ -3495,9 +3497,10 @@
       
       var eventToValue = function(e){
         var offset = ytcenter.utils.getOffset(wrapper);
+        var scrollOffset = ytcenter.utils.getScrollOffset();
         if (options.method === "vertical") {
           offset.top += options.offset;
-          var v = e.pageY - document.documentElement.scrollTop - offset.top;
+          var v = e.pageY - scrollOffset.top - offset.top;
           var l = v + parseInt(options.height)/2 - 3;
           if (l < 0) l = 0;
           if (l > wrapper.clientHeight - handle.clientHeight) l = wrapper.clientHeight - handle.clientHeight;
@@ -3505,7 +3508,7 @@
           setValue(l/(wrapper.clientHeight - handle.clientHeight)*(options.max - options.min) + options.min);
         } else {
           offset.left += options.offset;
-          var v = e.pageX - document.documentElement.scrollLeft - offset.left;
+          var v = e.pageX - scrollOffset.left - offset.left;
           var l = v - parseInt(options.height)/2;
           if (l < 0) l = 0;
           if (l > wrapper.clientWidth - handle.clientWidth) l = wrapper.clientWidth - handle.clientWidth;
@@ -4930,6 +4933,11 @@
       };
     }
     ytcenter.utils = {};
+    ytcenter.utils.getScrollOffset = function(){
+      var top = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+      var left = Math.max(document.body.scrollLeft, document.documentElement.scrollLeft);
+      return {top:top,left:left};
+    };
     ytcenter.utils.addEventListener = function(elm, event, callback, useCapture){
       if (elm.addEventListener) {
         elm.addEventListener(event, callback, useCapture || false);
