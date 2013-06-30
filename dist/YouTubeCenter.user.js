@@ -2476,12 +2476,13 @@
         "received": [],
         "requested": []
       },
-      evnts = ["error", "processed", "received", "requested"],
-      injected = false;
+      events = ["error", "processed", "received", "requested"],
+      injected = false,
+      originalCallbacks = {};
       
-      _obj.addEventListener = function(evnt, callback){
-        if (!listeners.hasOwnProperty(evnt)) return;
-        listeners[evnt].push(callback);
+      _obj.addEventListener = function(event, callback){
+        if (!listeners.hasOwnProperty(event)) return;
+        listeners[event].push(callback);
       };
       _obj.isInjected = function(){
         return injected ? true : false;
@@ -2489,29 +2490,71 @@
       _obj.isEnabled = function(){
         return uw && uw.ytspf && uw.ytspf.enabled ? true : false;
       };
+      _obj.isReadyToInject = function(){
+        var obj_name;
+        con.log("[SPF] Checking if SPF is ready...");
+        if (typeof uw.aD !== "object") {
+          con.log("[SPF] Failed... aD object is not initialized yet!");
+          return false;
+        }
+        if (typeof uw.aD.config !== "object") {
+          con.log("[SPF] Failed... aD.config object is not initialized yet!");
+          return false;
+        }
+        for (var i = 0; i < events.length; i++) {
+          obj_name = "navigate-" + events[i] + "-callback";
+          if (typeof uw.aD.config[obj_name] !== "function") {
+            con.log("[SPF] Failed... " + obj_name + " has not been created yet!");
+            return false;
+          }
+        }
+        con.log("[SPF] SPF is ready for manipulation!");
+        return true;
+      };
       _obj.inject = function(){ // Should only be called once every instance (page reload).
         if (!_obj.isEnabled() || injected) return; // Should not inject when SPF is not enabled!
         injected = true;
         var ytspf = uw.aD,
-            obj_name;
+            obj_name,
+            func;
         con.log("[SPF] Injecting ability to add event listeners to SPF.");
-        for (var i = 0; i < evnts.length; i++) {
-          obj_name = "navigate-" + evnts[i] + "-callback";
-          
-          ytspf.config[obj_name] = (function(original_function, evnt){
+        for (var i = 0; i < events.length; i++) {
+          obj_name = "navigate-" + events[i] + "-callback";
+          /*uw.aD.ua.da[obj_name].push([(function(event){
+            return function(){
+              var j;
+              con.log("[SPF] Event called: " + event + "; Added listeners: " + listeners[event].length + ";");
+              con.log(arguments);
+              try {
+                for (j = 0; j < listeners[event].length; j++) {
+                  listeners[event][j].apply(null, arguments);
+                }
+              } catch (e) {
+                con.error(e);
+              }
+            };
+          })(events[i]), undefined]);*/
+          if (typeof originalCallbacks[events[i]] !== "function") originalCallbacks[events[i]] = ytspf.config[obj_name];
+          func = (function(event){
             return function(){
               try {
                 var r,j;
-                con.log("[SPF] Event called: " + evnt + "; Added listeners: " + listeners[evnt].length + ";");
+                con.log("[SPF] Event called: " + event + "; Added listeners: " + listeners[event].length + ";");
+                con.log(arguments);
                 try {
-                  r = original_function.apply(null, arguments);
+                  if (typeof originalCallbacks[event] === "function") {
+                    r = originalCallbacks[event].apply(uw, arguments);
+                    //originalCallbacks[event](arg1, arg2, arg3);
+                  } else {
+                    con.error("[SPF] Wasn't able to call the original callback!");
+                  }
                 } catch (e) {
                   con.error(e);
                 }
                 
                 try {
-                  for (j = 0; j < listeners[evnt].length; j++) {
-                    listeners[evnt][j]();
+                  for (j = 0; j < listeners[event].length; j++) {
+                    listeners[event][j]();
                   }
                 } catch (e) {
                   con.error(e);
@@ -2522,7 +2565,10 @@
                 con.error(e);
               }
             };
-          })(ytspf.config[obj_name], evnts[i]);
+          })(events[i]);
+          
+          ytspf.config[obj_name] = func;
+          uw.ytspf.config[obj_name] = func;
         }
       };
       
@@ -8969,18 +9015,7 @@
       yt = uw.yt;
       ytcenter.page = "watch";
       ytcenter.placementsystem.clear(); // Clearing placement database (we should not have multiple elements - added because of SPF).
-      
-      if (ytcenter.spf.isEnabled() && !ytcenter.spf.isInjected()) {
-        con.log("[SPF] Adding processed event listener to SPF.");
-        ytcenter.spf.inject(); // Adding ability to inject event listeners to YouTube SPF.
-        ytcenter.spf.addEventListener("processed", function(){
-          ytcenter.player.getReference().updatePlayerInitialized(false); // Making it possible to update the player correctly (listener injection).
-          con.log("[SPF] Calling ytwatchinit()");
-          ytwatchinit(); // Calling ytwatchinit again to ensure that everything is applied to the new loaded part.
-          ytcenter.events.performEvent("ui-refresh"); // Just to be sure everything is updated correctly.
-        });
-      }
-      
+            
       if (typeof ytcenter.player.getConfig() === "undefined") {
         con.error("ytcenter.player.getConfig() is undefined!");
         return;
@@ -9576,13 +9611,38 @@
         }
       });
     };
+    var __injectingSPFCounter = 0;
+    var injectingSPF = function(){
+      if (ytcenter.spf.isReadyToInject()) {
+        if (ytcenter.spf.isEnabled() && !ytcenter.spf.isInjected()) {
+          con.log("[SPF] Adding processed event listener to SPF.");
+          ytcenter.spf.inject(); // Adding ability to inject event listeners to YouTube SPF.
+          ytcenter.spf.addEventListener("processed", function(){
+            ytcenter.player.getReference().updatePlayerInitialized(false); // Making it possible to update the player correctly (listener injection).
+            con.log("[SPF] Calling dclcaller()");
+            dclcaller(); // Calling dclcaller again to ensure that everything is applied to the new loaded part.
+            ytcenter.events.performEvent("ui-refresh"); // Just to be sure everything is updated correctly.
+          });
+        } else if (!ytcenter.spf.isEnabled() && !ytcenter.spf.isInjected()) {
+          con.log("[SPF] Not enabled!");
+        }
+      } else {
+        setTimeout(function(){
+          if (__injectingSPFCounter >= 100) return;
+          __injectingSPFCounter++;
+          injectingSPF();
+        }, 50);
+      }
+    };
     var dclcaller = function(){
       if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
         return;
       }
       if (document.getElementById("watch7-main") || document.getElementById("guide") || document.getElementById("yt-hitchhiker-feedback")) ytcenter.watch7 = true;
-      $CreateSettingsUI();
-      $UpdateChecker();
+      if (!ytcenter.spf.isInjected()) {
+        $CreateSettingsUI();
+        $UpdateChecker();
+      }
       
       if (document.getElementById("page")
        && $HasCSS(document.getElementById("page"), "channel")
@@ -9593,30 +9653,18 @@
         document.body.className += " ytcenter-channelv2";
       }
       
-      /*ytcenter.events.addEvent("ui-refresh", function(){
-        var sb = document.getElementById("sb-container"),
-            sbbtn = document.getElementById("sb-button-notify"),
-            msthead = document.getElementById("yt-masthead");
-        if (sb) {
-          var arrOffset = ytcenter.utils.getOffset(sb.getElementsByClassName("sb-card-arrow")[0]),
-              sbbtnOffset = ytcenter.utils.getOffset(sbbtn);
-          
-          var suboff = arrOffset.left - sbbtnOffset.left - 5;
-          
-          sb.style.setProperty("right", "28px", "important");
-        }
-      });*/
-      
       try {
         if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
           con.log("YouTube Watch Page Detected");
           if (uw.ytplayer && uw.ytplayer.config && !document.getElementById("watch7-player-age-gate-content")) {
+            injectingSPF();
             ytwatchinit();
           } else {
             if (!document.getElementById("watch7-player-age-gate-content")) {
               var __ytinterval = uw.setInterval(function(){
                 if (uw.ytplayer && uw.ytplayer.config) {
                   uw.clearInterval(__ytinterval);
+                  injectingSPF();
                   ytwatchinit();
                 }
               }, 50);
@@ -9627,11 +9675,13 @@
                   (ytcenter.player.getConfig() && ytcenter.player.getConfig().args.el === "profilepage")) {
           con.log("YouTube Channel Featured Page Detected");
           if (typeof ytcenter.player.getConfig() !== "undefined") {
+            injectingSPF();
             ytchannelfeatureinit();
           } else {
             var __ytinterval = uw.setInterval(function(){
               if (typeof ytcenter.player.getConfig() !== "undefined") {
                 uw.clearInterval(__ytinterval);
+                injectingSPF();
                 ytchannelfeatureinit();
               }
             }, 50);
@@ -9640,11 +9690,13 @@
           if (!ytcenter.settings.embed_enabled) return;
           con.log("YouTube Embed Page Detected");
           if (typeof ytcenter.player.getConfig() !== "undefined") {
+            injectingSPF();
             ytembedinit();
           } else {
             var __ytinterval = uw.setInterval(function(){
               if (typeof ytcenter.player.getConfig() !== "undefined") {
                 uw.clearInterval(__ytinterval);
+                injectingSPF();
                 ytembedinit();
               }
             }, 50);
@@ -9657,7 +9709,8 @@
           }
           con.log("YouTube Page Detected");
           yt = uw.yt;
-          ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
+          //ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
+          injectingSPF();
         }
       } catch (e) {
         con.error(e);
