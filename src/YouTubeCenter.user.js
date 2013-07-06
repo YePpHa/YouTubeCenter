@@ -6549,11 +6549,11 @@
               }
             }
           ]
-        }, {
+        }/*, {
           "label": "SETTINGS_PLAYERBGCOLOR_LABEL",
           "type": "bgcolorlist",
           "defaultSetting": "bgcolor"
-        }, {
+        }*/, {
           "label": "SETTINGS_WMODE_LABEL",
           "type": "list",
           "list": [
