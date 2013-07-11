@@ -2513,17 +2513,17 @@
       _obj.isReadyToInject = function(){
         var obj_name;
         con.log("[SPF] Checking if SPF is ready...");
-        if (typeof uw.aD !== "object") {
-          con.log("[SPF] Failed... aD object is not initialized yet!");
+        if (typeof uw._spf_state !== "object") {
+          con.log("[SPF] Failed... _spf_state object is not initialized yet!");
           return false;
         }
-        if (typeof uw.aD.config !== "object") {
-          con.log("[SPF] Failed... aD.config object is not initialized yet!");
+        if (typeof uw._spf_state.config !== "object") {
+          con.log("[SPF] Failed... _spf_state.config object is not initialized yet!");
           return false;
         }
         for (var i = 0; i < events.length; i++) {
           obj_name = "navigate-" + events[i] + "-callback";
-          if (typeof uw.aD.config[obj_name] !== "function") {
+          if (typeof uw._spf_state.config[obj_name] !== "function") {
             con.log("[SPF] Failed... " + obj_name + " has not been created yet!");
             return false;
           }
@@ -2534,13 +2534,13 @@
       _obj.inject = function(){ // Should only be called once every instance (page reload).
         if (!_obj.isEnabled() || injected) return; // Should not inject when SPF is not enabled!
         injected = true;
-        var ytspf = uw.aD,
+        var ytspf = uw._spf_state,
             obj_name,
             func;
         con.log("[SPF] Injecting ability to add event listeners to SPF.");
         for (var i = 0; i < events.length; i++) {
           obj_name = "navigate-" + events[i] + "-callback";
-          /*uw.aD.ua.da[obj_name].push([(function(event){
+          /*uw._spf_state.ua.da[obj_name].push([(function(event){
             return function(){
               var j;
               con.log("[SPF] Event called: " + event + "; Added listeners: " + listeners[event].length + ";");
@@ -8462,7 +8462,7 @@
           if (!large && !document.getElementById("watch7-playlist-data")) {
             document.getElementById("watch7-sidebar").style.marginTop = "-" +
               (calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0) +
-              (document.getElementById("watch7-branded-banner") && !ytcenter.settings.removeBrandingBanner ? 70 : 0)) + "px";
+              ((document.getElementById("watch7-branded-banner") || document.getElementById("player-branded-banner")) && !ytcenter.settings.removeBrandingBanner ? 70 : 0)) + "px";
           } else {
             document.getElementById("watch7-sidebar").style.marginTop = "";
           }
@@ -9717,6 +9717,32 @@
           con.log("[SPF] Adding processed event listener to SPF.");
           ytcenter.spf.inject(); // Adding ability to inject event listeners to YouTube SPF.
           ytcenter.spf.addEventListener("processed", function(){
+            
+            ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
+            ytcenter.player.center((ytcenter.settings.watch7playeralign ? true : false));
+            
+            if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
+              if (ytcenter.settings["resize-default-playersize"] === "default") {
+                ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
+                ytcenter.player.updateResize();
+              } else {
+                ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
+                ytcenter.player.updateResize();
+              }
+            }
+            $RemoveCSS(document.body, "ytcenter-site-search");
+            $RemoveCSS(document.body, "ytcenter-site-watch");
+            $RemoveCSS(document.body, "ytcenter-resize-aligned");
+            
+            if (loc.pathname === "/results") {
+              $AddCSS(document.body, "ytcenter-site-search");
+            } else if (loc.pathname === "/watch") {
+              $AddCSS(document.body, "ytcenter-site-watch");
+              $AddCSS(document.body, "ytcenter-resize-aligned");
+            } else {
+              con.log("Pathname not indexed (" + loc.pathname + ")");
+            }
+            
             ytcenter.player.getReference().updatePlayerInitialized(false); // Making it possible to update the player correctly (listener injection).
             con.log("[SPF] Calling dclcaller()");
             dclcaller(); // Calling dclcaller again to ensure that everything is applied to the new loaded part.
@@ -9883,7 +9909,7 @@
         // Adding Styles
         // TODO Merge all these styles and organize them
         $AddStyle(".ytcenter-hue{position:absolute!important;top:0!important;background:-moz-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:-ms-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:-o-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:-webkit-gradient(linear,left top,left bottom,from(#f00),color-stop(0.17,#ff0),color-stop(0.33,#0f0),color-stop(0.5,#0ff),color-stop(0.67,#00f),color-stop(0.83,#f0f),to(#f00))!important;background:-webkit-linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important;background:linear-gradient(top,#f00 0,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)!important}.ytcenter-hue .ie-1{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0000',endColorstr='#ffff00')}.ytcenter-hue .ie-2{height:16%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffff00',endColorstr='#00ff00')}.ytcenter-hue .ie-3{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ff00',endColorstr='#00ffff')}.ytcenter-hue .ie-4{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffff',endColorstr='#0000ff')}.ytcenter-hue .ie-5{height:16%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#0000ff',endColorstr='#ff00ff')}.ytcenter-hue .ie-6{height:17%;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff00ff',endColorstr='#ff0000')}.ytcenter-range{position:relative;display:inline-block;overflow:hidden;border:1px solid #eee;outline:0;-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px}.ytcenter-range .ytcenter-range-handle{border-width:1px;border-style:solid;outline:0;font-weight:bold;font-size:11px;white-space:nowrap;word-wrap:normal;vertical-align:middle;border-top:0;border-bottom:0}.ytcenter-hue.ytcenter-range{border-color:#000}.ytcenter-hue.ytcenter-range .ytcenter-range-handle{-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px}.ytcenter-range.ytcenter-hue .ytcenter-range-handle{border:0!important;-moz-border-radius:0!important;-webkit-border-radius:0!important;border-radius:0!important}.ytcenter-range.ytcenter-hue{border:0!important;outline:0;overflow:visible;-moz-border-radius:0!important;-webkit-border-radius:0!important;border-radius:0!important}.ytcenter-range-handle{position:absolute;top:0;left:0;cursor:default!important;margin:0;padding:0;text-shadow:0 1px 0 rgba(255,255,255,.5);border-color:#d3d3d3;background-color:#f8f8f8;filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#fffcfcfc,EndColorStr=#fff8f8f8);background-image:-moz-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:-ms-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:-o-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fcfcfc),color-stop(100%,#f8f8f8));background-image:-webkit-linear-gradient(top,#fcfcfc 0,#f8f8f8 100%);background-image:linear-gradient(to bottom,#fcfcfc 0,#f8f8f8 100%)}.ytcenter-range-handle .ytcenter-range-handle-left{position:absolute;top:-7px;left:-7px;width:0;height:0;border:solid transparent;border-width:7px;border-left-color:#fff}.ytcenter-range-handle .ytcenter-range-handle-right{position:absolute;top:-7px;left:7px;width:0;height:0;border:solid transparent;border-width:7px;border-right-color:#fff}.ytcenter-range.ytcenter-hue .ytcenter-range-handle .ytcenter-range-handle-right{border-top:7px solid transparent!important;border-bottom:7px solid transparent!important;border-right:7px solid #000!important}.ytcenter-colorpicker{-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px;display:inline-block;width:16px;height:16px;cursor:pointer;border:1px solid #eee}.ytcenter-colorpicker-saturation{position:absolute;width:100%;height:100%;top:0;left:0;background-image:-webkit-gradient(linear,0 0,100% 0,from(#FFF),to(rgba(204,154,129,0)));background-image:-webkit-linear-gradient(left,#FFF,rgba(204,154,129,0));background-image:-moz-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:-o-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:-ms-linear-gradient(left,#fff,rgba(204,154,129,0));background-image:linear-gradient(to right,#fff,rgba(204,154,129,0));-ms-filter:progid:DXImageTransform.Microsoft.gradient(GradientType = 1,startColorstr='#FFFFFFFF, endColorstr=#00CC9A81');filter:progid:DXImageTransform.Microsoft.gradient(GradientType = 1,startColorstr='#FFFFFFFF',endColorstr='#00CC9A81')}.ytcenter-colorpicker-value{position:absolute;width:100%;height:100%;top:0;left:0;background-image:-webkit-gradient(linear,0 100%,0 0,from(#000),to(rgba(204,154,129,0)));background-image:-webkit-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-moz-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-o-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:-ms-linear-gradient(bottom,#000,rgba(204,154,129,0));background-image:linear-gradient(to top,#000,rgba(204,154,129,0));-ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00CC9A81, endColorstr=#FF000000');filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#00CC9A81',endColorstr='#FF000000')}.ytcenter-colorpicker-handler{position:absolute;top:0;left:0;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;width:5px;height:5px;border:1px solid #fff;background:#000}");
-        $AddStyle(".player-disable #player{display:none!important;}");
+        $AddStyle(".player-disable #player{display:none!important;}.ytcenter-site-center #alerts{margin:0 auto!important;}");
         
         $AddStyle("@media screen and (min-width:1236px){.ytcenter-resize-aligned.site-left-aligned.guide-enabled #player, .ytcenter-resize-aligned.site-left-aligned.guide-enabled #watch7-main-container{padding-left:190px!important}.ytcenter-resize-disaligned.site-left-aligned.guide-enabled #player, .ytcenter-resize-disaligned.site-left-aligned.guide-enabled #watch7-main-container{padding-left:0!important}}");
         $AddStyle("body.ytcenter-branding-remove-banner #page.watch #guide-container.branded{top:0!important}body.ytcenter-branding-remove-background #guide-container.branded{background: none repeat scroll 0% 0% transparent!important}");
@@ -9918,7 +9944,7 @@
         $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
         $AddStyle(".ytcenter-settings-header .yt-uix-button-epic-nav-item {border: none;padding: 0 3px 3px 3px;cursor: pointer;} .ytcenter-settings-header a.yt-uix-button.yt-uix-button-epic-nav-item, .ytcenter-settings-header button.yt-uix-button-epic-nav-item, .ytcenter-settings-header .epic-nav-item, .ytcenter-settings-header .epic-nav-item-heading {border: none;padding: 0 3px 3px 3px;cursor: pointer;background: none;color: #9c9c9c;font-size: 11px;font-weight: bold;height: 29px;line-height: 29px;-moz-box-sizing: content-box;-ms-box-sizing: content-box;-webkit-box-sizing: content-box;box-sizing: content-box;-moz-border-radius: 0;-webkit-border-radius: 0;border-radius: 0;} .ytcenter-settings-header .yt-uix-button-epic-nav-item.selected {border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;color: #333;} .ytcenter-settings-header a.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header a.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header button.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header button.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item:hover, .ytcenter-settings-header .epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item-heading {height: 29px;line-height: 29px;vertical-align: bottom;color: #333;border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;display: inline-block;}")
         $AddStyle(".ytcenter-lights-off #watch7-video, .ytcenter-lights-off #player-api, .ytcenter-lights-off #movie_player{z-index:5!important;}");
-        $AddStyle(".ytcenter-branding-remove-background #player {background:none!important;}");
+        $AddStyle(".ytcenter-branding-remove-background #player,.ytcenter-branding-remove-background #watch7-sidebar {background:none!important;}");
         $AddStyle(".ytcenter-branding-remove-banner #watch7-sidebar {margin-top: -390px} .ytcenter-branding-remove-banner .watch-playlist #watch7-sidebar {margin-top: 0px!important}");
         $AddStyle(".ytcenter-branding-remove-banner #watch7-branded-banner,.ytcenter-branding-remove-banner #player-branded-banner {display:none!important;}");
         $AddStyle(".ytcenter-repat-icon{background: no-repeat url(//s.ytimg.com/yts/imgbin/www-hitchhiker-vflMCg1ne.png) -19px -25px;width: 30px;height: 18px;}");

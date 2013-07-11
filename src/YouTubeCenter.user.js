@@ -2513,17 +2513,17 @@
       _obj.isReadyToInject = function(){
         var obj_name;
         con.log("[SPF] Checking if SPF is ready...");
-        if (typeof uw.aD !== "object") {
-          con.log("[SPF] Failed... aD object is not initialized yet!");
+        if (typeof uw._spf_state !== "object") {
+          con.log("[SPF] Failed... _spf_state object is not initialized yet!");
           return false;
         }
-        if (typeof uw.aD.config !== "object") {
-          con.log("[SPF] Failed... aD.config object is not initialized yet!");
+        if (typeof uw._spf_state.config !== "object") {
+          con.log("[SPF] Failed... _spf_state.config object is not initialized yet!");
           return false;
         }
         for (var i = 0; i < events.length; i++) {
           obj_name = "navigate-" + events[i] + "-callback";
-          if (typeof uw.aD.config[obj_name] !== "function") {
+          if (typeof uw._spf_state.config[obj_name] !== "function") {
             con.log("[SPF] Failed... " + obj_name + " has not been created yet!");
             return false;
           }
@@ -2534,13 +2534,13 @@
       _obj.inject = function(){ // Should only be called once every instance (page reload).
         if (!_obj.isEnabled() || injected) return; // Should not inject when SPF is not enabled!
         injected = true;
-        var ytspf = uw.aD,
+        var ytspf = uw._spf_state,
             obj_name,
             func;
         con.log("[SPF] Injecting ability to add event listeners to SPF.");
         for (var i = 0; i < events.length; i++) {
           obj_name = "navigate-" + events[i] + "-callback";
-          /*uw.aD.ua.da[obj_name].push([(function(event){
+          /*uw._spf_state.ua.da[obj_name].push([(function(event){
             return function(){
               var j;
               con.log("[SPF] Event called: " + event + "; Added listeners: " + listeners[event].length + ";");
@@ -8462,7 +8462,7 @@
           if (!large && !document.getElementById("watch7-playlist-data")) {
             document.getElementById("watch7-sidebar").style.marginTop = "-" +
               (calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0) +
-              (document.getElementById("watch7-branded-banner") && !ytcenter.settings.removeBrandingBanner ? 70 : 0)) + "px";
+              ((document.getElementById("watch7-branded-banner") || document.getElementById("player-branded-banner")) && !ytcenter.settings.removeBrandingBanner ? 70 : 0)) + "px";
           } else {
             document.getElementById("watch7-sidebar").style.marginTop = "";
           }
@@ -9717,6 +9717,32 @@
           con.log("[SPF] Adding processed event listener to SPF.");
           ytcenter.spf.inject(); // Adding ability to inject event listeners to YouTube SPF.
           ytcenter.spf.addEventListener("processed", function(){
+            
+            ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
+            ytcenter.player.center((ytcenter.settings.watch7playeralign ? true : false));
+            
+            if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
+              if (ytcenter.settings["resize-default-playersize"] === "default") {
+                ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
+                ytcenter.player.updateResize();
+              } else {
+                ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
+                ytcenter.player.updateResize();
+              }
+            }
+            $RemoveCSS(document.body, "ytcenter-site-search");
+            $RemoveCSS(document.body, "ytcenter-site-watch");
+            $RemoveCSS(document.body, "ytcenter-resize-aligned");
+            
+            if (loc.pathname === "/results") {
+              $AddCSS(document.body, "ytcenter-site-search");
+            } else if (loc.pathname === "/watch") {
+              $AddCSS(document.body, "ytcenter-site-watch");
+              $AddCSS(document.body, "ytcenter-resize-aligned");
+            } else {
+              con.log("Pathname not indexed (" + loc.pathname + ")");
+            }
+            
             ytcenter.player.getReference().updatePlayerInitialized(false); // Making it possible to update the player correctly (listener injection).
             con.log("[SPF] Calling dclcaller()");
             dclcaller(); // Calling dclcaller again to ensure that everything is applied to the new loaded part.
@@ -9918,7 +9944,7 @@
         $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
         $AddStyle(".ytcenter-settings-header .yt-uix-button-epic-nav-item {border: none;padding: 0 3px 3px 3px;cursor: pointer;} .ytcenter-settings-header a.yt-uix-button.yt-uix-button-epic-nav-item, .ytcenter-settings-header button.yt-uix-button-epic-nav-item, .ytcenter-settings-header .epic-nav-item, .ytcenter-settings-header .epic-nav-item-heading {border: none;padding: 0 3px 3px 3px;cursor: pointer;background: none;color: #9c9c9c;font-size: 11px;font-weight: bold;height: 29px;line-height: 29px;-moz-box-sizing: content-box;-ms-box-sizing: content-box;-webkit-box-sizing: content-box;box-sizing: content-box;-moz-border-radius: 0;-webkit-border-radius: 0;border-radius: 0;} .ytcenter-settings-header .yt-uix-button-epic-nav-item.selected {border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;color: #333;} .ytcenter-settings-header a.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header a.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header button.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header button.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item:hover, .ytcenter-settings-header .epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item-heading {height: 29px;line-height: 29px;vertical-align: bottom;color: #333;border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;display: inline-block;}")
         $AddStyle(".ytcenter-lights-off #watch7-video, .ytcenter-lights-off #player-api, .ytcenter-lights-off #movie_player{z-index:5!important;}");
-        $AddStyle(".ytcenter-branding-remove-background #player {background:none!important;}");
+        $AddStyle(".ytcenter-branding-remove-background #player,.ytcenter-branding-remove-background #watch7-sidebar {background:none!important;}");
         $AddStyle(".ytcenter-branding-remove-banner #watch7-sidebar {margin-top: -390px} .ytcenter-branding-remove-banner .watch-playlist #watch7-sidebar {margin-top: 0px!important}");
         $AddStyle(".ytcenter-branding-remove-banner #watch7-branded-banner,.ytcenter-branding-remove-banner #player-branded-banner {display:none!important;}");
         $AddStyle(".ytcenter-repat-icon{background: no-repeat url(//s.ytimg.com/yts/imgbin/www-hitchhiker-vflMCg1ne.png) -19px -25px;width: 30px;height: 18px;}");
