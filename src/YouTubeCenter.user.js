@@ -484,6 +484,7 @@
             subtext.textContent = getItemSubText(item);
           });
           subtext.style.display = "block";
+          subtext.style.fontSize = "11px";
           
           ytcenter.utils.addEventListener(li, "click", function(){
             try {
