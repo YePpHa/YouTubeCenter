@@ -1724,7 +1724,7 @@
     function $AddCSS(elm, css) {
       if (!elm) return;
       var a = elm.className.split(" ");
-      if ($ArrayIndexOf(a, css) != -1) return;
+      if ($ArrayIndexOf(a, css) !== -1) return;
       a.push(css);
       elm.className = a.join(" ");
     }
@@ -5911,7 +5911,7 @@
       __r.update = function(lang, doNotRecurse){
         lang = lang || ytcenter.settings.language;
         if (lang === "auto") {
-          if (uw.yt && uw.yt.getConfig && yt.getConfig("PAGE_NAME")) {
+          if (uw.yt && uw.yt.getConfig && uw.yt.getConfig("PAGE_NAME")) {
             if (uw.yt.config_.FEEDBACK_LOCALE_LANGUAGE && ytcenter.languages.hasOwnProperty(uw.yt.config_.FEEDBACK_LOCALE_LANGUAGE)) {
               lang = uw.yt.config_.FEEDBACK_LOCALE_LANGUAGE;
             } else if (uw.yt.config_.SANDBAR_LOCALE && ytcenter.languages.hasOwnProperty(uw.yt.config_.SANDBAR_LOCALE)) {
@@ -9944,7 +9944,7 @@
         ytcenter.player.center((ytcenter.settings.watch7playeralign ? true : false));
         
         if (ytcenter.settings.removeAdvertisements) {
-          document.body.className += " ytcenter-remove-ads-page";
+          $AddCSS(document.body, "ytcenter-remove-ads-page");
         }
         
         if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
@@ -9991,13 +9991,13 @@
           }
         }, false);
       }
-      if (document && document.body && __fastLoaded && !__bodyLoaded) {
+      if (document && document.body && document.body.className !== "" && __fastLoaded && !__bodyLoaded) {
         __bodyLoaded = true;
         __bodyLoad();
       } else if (!__bodyLoaded) {
         var __bodyLoadedInterval = uw.setInterval(function(){
           if (!__fastLoaded) return;
-          if (document && document.body && !__bodyLoaded) {
+          if (document && document.body && document.body.className !== "" && !__bodyLoaded) {
             __bodyLoaded = true;
             __bodyLoad();
             uw.clearInterval(__bodyLoadedInterval);
@@ -10007,7 +10007,7 @@
         }, 50);
         document.addEventListener("readystatechange", function(){
           if (!__fastLoaded || __bodyLoaded) return;
-          if (document && document.body) {
+          if (document && document.body && document.body.className !== "") {
             __bodyLoaded = true;
             __bodyLoad();
           }
