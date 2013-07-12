@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            YouTube Center
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         1.32.1
+// @version         1.32.2
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/icons/logo-48x48.png
@@ -25,7 +25,7 @@
 // @exclude         https://apiblog.youtube.com/*
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
-// @updateVersion   115
+// @updateVersion   116
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
@@ -467,6 +467,7 @@
           db.push(span);
           
           span.className = "yt-uix-button-menu-item" + (ytcenter.player.currentResizeId === item.id ? " ytcenter-resize-dropdown-selected" : "");
+          span.style.paddingBottom = "12px";
           
           if (ytcenter.player.currentResizeId === item.id) {
             setValue(ytcenter.player.currentResizeId);
@@ -478,6 +479,7 @@
             title.textContent = getItemTitle(item);
           });
           title.style.display = "block";
+          title.style.fontWeight = "bold";
           var subtext = document.createElement("span");
           subtext.textContent = getItemSubText(item);
           ytcenter.events.addEvent("ui-refresh", function(){
@@ -485,6 +487,7 @@
           });
           subtext.style.display = "block";
           subtext.style.fontSize = "11px";
+          subtext.style.lineHeight = "0px";
           
           ytcenter.utils.addEventListener(li, "click", function(){
             try {
@@ -2459,8 +2462,8 @@
     con.log("Initializing Functions");
     
     var yt, ytcenter = {}, self = this;
-    ytcenter.version = "1.32.1";
-    ytcenter.revision = 115;
+    ytcenter.version = "1.32.2";
+    ytcenter.revision = 116;
     ytcenter.icon = {};
     ytcenter.page = "none";
     con.log("Initializing icons");
@@ -3851,12 +3854,16 @@
           db.push(span);
           
           span.className = "yt-uix-button-menu-item" + (item.id === selectedId ? " ytcenter-resize-dropdown-selected" : "");
+          span.style.paddingBottom = "12px";
           var title = document.createElement("span");
           title.textContent = getItemTitle(item);
           title.style.display = "block";
+          title.style.fontWeight = "bold";
           var subtext = document.createElement("span");
           subtext.textContent = getItemSubText(item);
           subtext.style.display = "block";
+          subtext.style.fontSize = "11px";
+          subtext.style.lineHeight = "0px";
           
           ytcenter.utils.addEventListener(li, "click", function(){
             if (item.id === selectedId) return;
@@ -3973,12 +3980,16 @@
           db.push(span);
           
           span.className = "yt-uix-button-menu-item" + (item.id === selectedId ? " ytcenter-resize-dropdown-selected" : "");
+          span.style.paddingBottom = "12px";
           var title = document.createElement("span");
           title.textContent = getItemTitle(item);
           title.style.display = "block";
+          title.style.fontWeight = "bold";
           var subtext = document.createElement("span");
           subtext.textContent = getItemSubText(item);
           subtext.style.display = "block";
+          subtext.style.fontSize = "11px";
+          subtext.style.lineHeight = "0px";
           
           ytcenter.utils.addEventListener(li, "click", function(){
             if (item.id === selectedId) return;
@@ -7491,13 +7502,13 @@
                 this.disabled = true;
                 ytcenter.checkForUpdates((function(self){
                   return function(){
-                    uw.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKFORNEWUPDATESSUCCESS");
-                    uw.disabled = false;
+                    self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKFORNEWUPDATESSUCCESS");
+                    self.disabled = false;
                   };
                 })(this), (function(self){
                   return function(){
-                    uw.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESERROR");
-                    uw.disabled = false;
+                    self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESERROR");
+                    self.disabled = false;
                   };
                 })(this));
               }
@@ -10178,9 +10189,7 @@
     con.log("At Scope End");
   };
   if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1) {
-    if (unsafeWindow !== window && unsafeWindow) {
-      ___main_function(false);
-    } else {
+    if (typeof unsafeWindow === "undefined") {
       window.addEventListener("message", function(e){
         try {
           var d = JSON.parse(e.data);
@@ -10191,6 +10200,8 @@
       }, false);
       
       _inject(___main_function);
+    } else if (unsafeWindow !== window) {
+      ___main_function(false);
     }
   } else {
     ___main_function(false);
