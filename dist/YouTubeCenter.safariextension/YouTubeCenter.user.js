@@ -25,7 +25,7 @@
 // @exclude         https://apiblog.youtube.com/*
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
-// @updateVersion   116
+// @updateVersion   117
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
@@ -2463,7 +2463,7 @@
     
     var yt, ytcenter = {}, self = this;
     ytcenter.version = "1.32.2";
-    ytcenter.revision = 116;
+    ytcenter.revision = 117;
     ytcenter.icon = {};
     ytcenter.page = "none";
     con.log("Initializing icons");
