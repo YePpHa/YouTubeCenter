@@ -32,3 +32,4 @@
  - Download of subtitles
  - Hide all feeds on the homepage
  - Option to use classic pagination.
+ - Make an option to set the topbar on YouTube to be fixed.
