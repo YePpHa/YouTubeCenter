@@ -6177,6 +6177,7 @@
       language: 'auto',
       filename: '{title}',
       fixfilename: false,
+      flexWidthOnPage: false,
       enableAutoVideoQuality: true,
       autoVideoQuality: 'medium',
       removeAdvertisements: true,
@@ -6513,6 +6514,36 @@
           "label": "SETTINGS_ENABLESHORTCUTS_LABEL",
           "type": "bool",
           "defaultSetting": "enableShortcuts"
+        }, {
+          "label": "SETTINGS_FLEXWIDTHONPAGE_LABEL",
+          "type": "bool",
+          "defaultSetting": "flexWidthOnPage",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                if (loc.pathname === "/results") {
+                  if (ytcenter.settings.flexWidthOnPage) {
+                    $AddCSS(document.body, "flex-width-enabled");
+                  } else {
+                    $RemoveCSS(document.body, "flex-width-enabled");
+                  }
+                } else if (loc.pathname === "/") {
+                  if (ytcenter.settings.flexWidthOnPage) {
+                    $AddCSS(document.body, "flex-width-enabled");
+                  } else {
+                    $RemoveCSS(document.body, "flex-width-enabled");
+                  }
+                } else if (loc.pathname.indexOf("/feed/") === 0) {
+                  if (ytcenter.settings.flexWidthOnPage) {
+                    $AddCSS(document.body, "flex-width-enabled");
+                  } else {
+                    $RemoveCSS(document.body, "flex-width-enabled");
+                  }
+                }
+              }
+            }
+          ]
         }, {
           "text": "SETTINGS_RESETSETTINGS_LABEL",
           "type": "button",
@@ -9782,9 +9813,26 @@
             
             if (loc.pathname === "/results") {
               $AddCSS(document.body, "ytcenter-site-search");
+              if (ytcenter.settings.flexWidthOnPage) {
+                $AddCSS(document.body, "flex-width-enabled");
+              } else {
+                $RemoveCSS(document.body, "flex-width-enabled");
+              }
             } else if (loc.pathname === "/watch") {
               $AddCSS(document.body, "ytcenter-site-watch");
               $AddCSS(document.body, "ytcenter-resize-aligned");
+            } else if (loc.pathname === "/") {
+              if (ytcenter.settings.flexWidthOnPage) {
+                $AddCSS(document.body, "flex-width-enabled");
+              } else {
+                $RemoveCSS(document.body, "flex-width-enabled");
+              }
+            } else if (loc.pathname.indexOf("/feed/") === 0) {
+              if (ytcenter.settings.flexWidthOnPage) {
+                $AddCSS(document.body, "flex-width-enabled");
+              } else {
+                $RemoveCSS(document.body, "flex-width-enabled");
+              }
             } else {
               con.log("Pathname not indexed (" + loc.pathname + ")");
             }
@@ -10003,7 +10051,7 @@
         $AddStyle(".ytcenter-range{display:inline-block;cursor:default;position:relative;border:1px solid;outline:0;white-space:nowrap;word-wrap:normal;vertical-align:middle;-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px;border-color:#CCC #CCC #AAA;background:white;padding:0;margin:0;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.ytcenter-range a.ytcenter-range-handle{position:absolute;top:-1px;left:0px;outline:none;margin-left:-.5em;cursor:default;padding:0;margin:0;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}");
         
         
-        if (document && document.body && !__bodyLoaded) {
+        if (document && document.body && document.body.className !== "" && !__bodyLoaded) {
           __bodyLoaded = true;
           __bodyLoad();
         }
@@ -10030,9 +10078,20 @@
         }
         if (loc.pathname === "/results") {
           $AddCSS(document.body, "ytcenter-site-search");
+          if (ytcenter.settings.flexWidthOnPage) {
+            $AddCSS(document.body, "flex-width-enabled");
+          }
         } else if (loc.pathname === "/watch") {
           $AddCSS(document.body, "ytcenter-site-watch");
           $AddCSS(document.body, "ytcenter-resize-aligned");
+        } else if (loc.pathname === "/") {
+          if (ytcenter.settings.flexWidthOnPage) {
+            $AddCSS(document.body, "flex-width-enabled");
+          }
+        } else if (loc.pathname.indexOf("/feed/") === 0) {
+          if (ytcenter.settings.flexWidthOnPage) {
+            $AddCSS(document.body, "flex-width-enabled");
+          }
         } else {
           con.log("Pathname not indexed (" + loc.pathname + ")");
         }
