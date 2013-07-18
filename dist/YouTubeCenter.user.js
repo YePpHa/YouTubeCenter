@@ -7563,6 +7563,17 @@
                   dbg.ytcenter.player.reference = false;
                 }
                 
+                try {
+                  var tests = ["getAvailablePlaybackRates", "getAvailableQualityLevels", "getCurrentTime", "getDebugText", "getDuration", "getPlaybackQuality", "getPlaybackRate", "getPlayerState", "getPlayerType", "getVolume", "isMuted", "isReady"];
+                  dbg.player_test = {};
+                  for (var i = 0; i < tests.length; i++) {
+                    if (ytcenter.player.getReference().api[tests[i]])
+                      dbg.player_test[tests[i]] = ytcenter.player.getReference().api[tests[i]]();
+                  }
+                } catch (e) {
+                  dbg.player_test_error = e;
+                }
+                
                 dbg.console = _console;
                 
                 debugText = JSON.stringify(dbg);

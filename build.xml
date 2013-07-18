@@ -107,8 +107,8 @@
   </target>
   
   <target name="firefox" depends="preinit, copy-firefox">
-		<!--<zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
-    <antcall target="clean" />-->
+		<zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
+    <antcall target="clean" />
 	</target>
   
   <target name="safari" depends="preinit, copy-safari">
