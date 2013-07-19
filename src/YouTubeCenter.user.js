@@ -5174,19 +5174,32 @@
     ytcenter.utils._signatureDecoder = ytcenter.utils.__signatureDecoder;
     ytcenter.utils.updateSignatureDecoder = function(){
       var js = uw.ytplayer.config.assets.js,
-          regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(a=((([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a\.slice\([0-9]+\);))(.*?));return a\.join\(""\)}/g;
+          regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(a=((([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a\.slice\([0-9]+\);)|(a\.reverse\(\);)))*return a\.join\(""\)}/g;
         $XMLHTTPRequest({
           method: "GET",
           url: js,
           onload: function(response) {
-            var a = regex.exec(response.responseText)[1].split(";"), i;
+            var a = regex.exec(response.responseText)[0].split("{")[1].split("}")[0].split(";"), i, b, v;
+            con.log(a);
             ytcenter.utils._signatureDecoder = []; // Clearing signatureDecoder
-            for (i = 0; i < a.length; i++) {
-              if (a[i].indexOf("a=a.slice(") === 0) { // splice
-                var v = a[i].split("(")[1].split(")")[0];
+            for (i = 1; i < a.length-1; i++) {
+              b = a[i];
+              if (b.indexOf("a.slice") !== -1) { // Slice
+                con.log("Slice (" + b + ")");
+                v = b.split("(")[1];
+                con.log("=> " + v);
+                v = v.split(")")[0];
+                con.log("=> " + v);
                 ytcenter.utils._signatureDecoder.push({func: "slice", value: parseInt(v)});
+              } else if (b.indexOf("a.reverse") !== -1) { // Reverse
+                con.log("Reverse (" + a[i] + ")");
+                ytcenter.utils._signatureDecoder.push({func: "reverse", value: null});
               } else { // swapHeadAndPosition
-                var v = a[i].split("(a,")[1].split(")")[0];
+                con.log("swapHeadAndPosition (" + b + ")");
+                v = b.split("(a,")[1];
+                con.log("=> " + v);
+                v = v.split(")")[0];
+                con.log("=> " + v);
                 ytcenter.utils._signatureDecoder.push({func: "swapHeadAndPosition", value: parseInt(v)});
               }
             }
@@ -5218,6 +5231,8 @@
           cipherArray = swapHeadAndPosition(cipherArray, ytcenter.utils._signatureDecoder[i].value);
         } else if (ytcenter.utils._signatureDecoder[i].func === "slice") {
           cipherArray = cipherArray.slice(ytcenter.utils._signatureDecoder[i].value);
+        } else if (ytcenter.utils._signatureDecoder[i].func === "reverse") {
+          cipherArray = cipherArray.reverse();
         }
       }
       
@@ -7550,6 +7565,8 @@
                 dbg.settings = ytcenter.settings;
                 dbg.ytcenter = {};
                 dbg.ytcenter.video = ytcenter.video;
+                dbg.ytcenter.signatureDecoder = ytcenter.utils._signatureDecoder;
+                dbg.ytcenter._signatureDecoder = ytcenter.utils.__signatureDecoder;
                 dbg.ytcenter.player = {};
                 dbg.ytcenter.player.config = ytcenter.player.getReference().config;
                 try {
@@ -9954,6 +9971,8 @@
             ytcenter.saveSettings();
           } else if (d.type === "loadSettings") {
             ytcenter.loadSettings();
+          } else if (d.type === "updateSignatureDecoder") {
+            ytcenter.utils.updateSignatureDecoder();
           }
           if (typeof d.callback === "function") {
             var n = d.callback.split("."), a = uw, i;
@@ -9967,6 +9986,11 @@
         // Settings made public
         uw.ytcenter = uw.ytcenter || {};
         uw.ytcenter.settings = uw.ytcenter.settings || {};
+        uw.ytcenter.updateSignatureDecoder = ytcenter.utils.bind(function(){
+          uw.postMessage("YouTubeCenter" + JSON.stringify({
+            type: "updateSignatureDecoder"
+          }), "http://www.youtube.com");
+        }, uw.ytcenter.settings);
         uw.ytcenter.settings.setOption = ytcenter.utils.bind(function(key, value){
           ytcenter.settings[key] = value;
           uw.postMessage("YouTubeCenter" + JSON.stringify({
