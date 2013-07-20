@@ -10103,6 +10103,7 @@
           // TODO add compatible styles here
           $AddStyle(".ytcenter-settings-content h2{border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
         } else {
+          $AddStyle("#page.search.no-flex .branded-page-v2-container{min-width:0!important}");
           $AddStyle(".ytcenter-settings-content{padding-left:35px;}");
           $AddStyle(".ytcenter-settings-content>div{padding-left:25px}");
           $AddStyle(".player-disable #player{display:none!important;}.ytcenter-site-center #alerts{margin:0 auto!important;}");
