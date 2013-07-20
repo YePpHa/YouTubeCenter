@@ -1071,7 +1071,7 @@
       var container = document.createElement("div");
       container.id = "ytcenter-settings";
       var root = document.createElement("div");
-      root.setAttribute("style", (ytcenter.settings['experimentalFeatureTopGuide'] ? "" : "background:#ededed;") + "padding-top: 7px;border-bottom: 1px solid #e6e6e6;margin-bottom: 10px;");
+      root.setAttribute("style", (ytcenter.settings['experimentalFeatureTopGuide'] ? "margin: -15px -20px 0;" : "background:#ededed;margin-bottom: 10px;") + "padding-top: 7px;border-bottom: 1px solid #e6e6e6;");
       
       if (!ytcenter.settings['experimentalFeatureTopGuide']) {
         var header = document.createElement("div");
@@ -1088,6 +1088,9 @@
       container.className = "hid";
       container.setAttribute("style", "position:relative;width:" + (ytcenter.settings['experimentalFeatureTopGuide'] ? "975px" : "100%") + ";background:#ffffff;" + (ytcenter.settings['experimentalFeatureTopGuide'] ? "" : "border-bottom:1px solid #dbdbdb;"));
       var content = document.createElement("div");
+      if (ytcenter.settings['experimentalFeatureTopGuide']) {
+        content.style.marginTop = "10px";
+      }
       root.appendChild(tabsContainer);
       container.appendChild(root);
       container.appendChild(content);
@@ -1163,10 +1166,25 @@
         liSettings.setAttribute("role", "menuitem");
         
         spanText.className = "yt-uix-button-menu-item upload-menu-link";
-        var dialog = ytcenter.dialog("SETTINGS_TITLE", container, undefined, "top");
+        var dialog = ytcenter.dialog("SETTINGS_TITLE", container, [], "top"),
+            closeButton = document.createElement("div"),
+            closeIcon = document.createElement("img");
+        closeIcon.className = "close";
+        closeIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
+        closeButton.style.position = "absolute";
+        closeButton.style.top = "0";
+        closeButton.style.right = "0";
+        closeButton.style.margin = "0";
+        closeButton.className = "yt-alert";
+        closeButton.appendChild(closeIcon);
+        ytcenter.utils.addEventListener(closeButton, "click", function(){
+          dialog.setVisibility(false);
+        }, false);
+        dialog.getHeader().appendChild(closeButton);
         dialog.getHeader().style.margin = "0 -20px -10px";
         dialog.getHeader().style.borderBottom = "0";
         dialog.getBase().style.overflowY = "scroll";
+        dialog.getFooter().style.display = "none";
         $RemoveCSS(container, "hid");
         ytcenter.utils.addEventListener(spanText, "click", function(){
           dialog.setVisibility(true);
@@ -2252,7 +2270,7 @@
     /* END UTILS */
     
     var console_debug = true; // Disable this to stop YouTube Center from writing in the console log.
-    var _console = {};
+    var _console = [];
     
     var uw, loc, con;
     
@@ -2284,23 +2302,20 @@
           con[key] = (function(key){
             return function(){
               try {
-                if (!_console.hasOwnProperty(key)) {
-                  _console[key] = [];
-                }
                 var args = [];
                 var _args = [];
                 for (var i = 0; i < arguments.length; i++) {
                   args.push(arguments[i]);
                 }
                 if (key === "error" && args[0]) {
-                  var tmp = {args: args};
+                  var tmp = {args: args.length === 1 ? args[0] : args, type: "error"};
                   if (args[0].message) {
                     tmp['message'] = args[0].message;
                   }
                   if (args[0].stack) {
                     tmp['stack'] = args[0].stack;
                   }
-                  _console[key].push(tmp);
+                  _console.push(tmp);
                   if (tmp['stack']) {
                     _args = [args[0].stack];
                   } else if (tmp['message']) {
@@ -2310,7 +2325,7 @@
                   }
                 } else {
                   _args = args;
-                  _console[key].push(_args);
+                  _console.push({args: _args.length === 1 ? _args[0] : _args, type: key});
                 }
                 if (console_debug && console[key].apply) {
                   return console[key].apply(console, _args)
@@ -2330,23 +2345,20 @@
           con[key] = (function(key){
             return function(){
               try {
-                if (!_console.hasOwnProperty(key)) {
-                  _console[key] = [];
-                }
                 var args = [];
                 var _args = [];
                 for (var i = 0; i < arguments.length; i++) {
                   args.push(arguments[i]);
                 }
                 if (key === "error" && args[0]) {
-                  var tmp = {args: args};
+                  var tmp = {args: args.length === 1 ? args[0] : args, type: "error"};
                   if (args[0].message) {
                     tmp['message'] = args[0].message;
                   }
                   if (args[0].stack) {
                     tmp['stack'] = args[0].stack;
                   }
-                  _console[key].push(tmp);
+                  _console.push(tmp);
                   if (tmp['stack']) {
                     _args = [args[0].stack];
                   } else if (tmp['message']) {
@@ -2356,7 +2368,7 @@
                   }
                 } else {
                   _args = args;
-                  _console[key].push(_args);
+                  _console.push({args: _args.length === 1 ? _args[0] : _args, type: key});
                 }
                 if (console_debug && uw.console[key].apply) {
                   return uw.console[key].apply(uw.console, _args);
@@ -2376,23 +2388,20 @@
           con[key] = (function(key){
             return function(msg){
               try {
-                if (!_console.hasOwnProperty(key)) {
-                  _console[key] = [];
-                }
                 var args = [];
                 var _args = [];
                 for (var i = 0; i < arguments.length; i++) {
                   args.push(arguments[i]);
                 }
                 if (key === "error" && args[0]) {
-                  var tmp = {args: args};
+                  var tmp = {args: args.length === 1 ? args[0] : args, type: "error"};
                   if (args[0].message) {
                     tmp['message'] = args[0].message;
                   }
                   if (args[0].stack) {
                     tmp['stack'] = args[0].stack;
                   }
-                  _console[key].push(tmp);
+                  _console.push(tmp);
                   if (tmp['stack']) {
                     _args = [args[0].stack];
                   } else if (tmp['message']) {
@@ -2402,7 +2411,7 @@
                   }
                 } else {
                   _args = args;
-                  _console[key].push(_args);
+                  _console.push({args: _args.length === 1 ? _args[0] : _args, type: key});
                 }
                 if (console_debug && GM_log.apply) {
                   return GM_log.apply(this, _args);
@@ -2687,6 +2696,9 @@
       }
       __r.getBase = function(){
         return base;
+      };
+      __r.getFooter = function(){
+        return footer;
       };
       __r.getHeader = function(){
         return header;
@@ -9373,13 +9385,13 @@
       }
       ytcenter.player.getConfig().args.fs = "1";
       if (ytcenter.playlist) {
-        if (ytcenter.settings.preventPlaylistAutoBuffer) {
+        if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
           ytcenter.player.getConfig().args.autoplay = "0";
         } else {
           ytcenter.player.getConfig().args.autoplay = "1";
         }
       } else {
-        if (ytcenter.settings.preventAutoBuffer) {
+        if (ytcenter.settings.preventAutoBuffer || ytcenter.settings.preventAutoPlay) {
           ytcenter.player.getConfig().args.autoplay = "0";
         } else {
           ytcenter.player.getConfig().args.autoplay = "1";
@@ -9489,19 +9501,25 @@
         } else if (!ytcenter.settings.mute && ytcenter.player.getReference().api.isMuted && ytcenter.player.getReference().api.isMuted()) {
           ytcenter.player.getReference().api.unMute();
         }
+        
+        // Prevent Auto Play/Buffering
         if (ytcenter.playlist) {
           if (ytcenter.settings.preventPlaylistAutoBuffer) {
             ytcenter.player.getReference().api.stopVideo();
           } else if (ytcenter.settings.preventPlaylistAutoPlay) {
+            ytcenter.player.getReference().api.playVideo();
             ytcenter.player.getReference().api.pauseVideo();
           }
         } else {
           if (ytcenter.settings.preventAutoBuffer) {
             ytcenter.player.getReference().api.stopVideo();
           } else if (ytcenter.settings.preventAutoPlay) {
+            ytcenter.player.getReference().api.playVideo();
             ytcenter.player.getReference().api.pauseVideo();
           }
         }
+        
+        // Repeat function
         ytcenter.player.getReference().listener.addEventListener("onStateChange", function(state){
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
             ytcenter.player.getReference().api.playVideo();
