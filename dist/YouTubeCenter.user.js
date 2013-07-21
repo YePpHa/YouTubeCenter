@@ -12,15 +12,11 @@
 // @domain          gdata.youtube.com
 // @match           http://*.youtube.com/*
 // @match           https://*.youtube.com/*
-// @match           http://dl.dropbox.com/u/13162258/YouTube%20Center/*
-// @match           https://dl.dropbox.com/u/13162258/YouTube%20Center/*
 // @match           http://userscripts.org/scripts/source/114002.meta.js
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @include         http://*.youtube.com/*
 // @include         https://*.youtube.com/*
-// @include         http://dl.dropbox.com/u/13162258/YouTube%20Center/*
-// @include         https://dl.dropbox.com/u/13162258/YouTube%20Center/*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
@@ -10366,14 +10362,6 @@
         }, false);
       }
     })();
-    if (loc && loc.href && loc.href.match && loc.href.match(/^(http|https):\/\/dl\.dropbox\.com\/u\/13162258\/YouTube%20Center\/install/)) {
-      con.log("Detected Install Page");
-      uw['ytcenter'] = {
-        installed: true,
-        version: ytcenter.version,
-        revision: ytcenter.revision
-      };
-    }
     con.log("At Scope End");
   };
   if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1) {
