@@ -8,8 +8,6 @@
       "matches": [
         "http://*.youtube.com/*",
         "https://*.youtube.com/*",
-        "http://dl.dropbox.com/u/13162258/YouTube%20Center/*",
-        "https://dl.dropbox.com/u/13162258/YouTube%20Center/*",
         "http://userscripts.org/scripts/source/114002.meta.js"
       ],
       "exclude_matches": [
