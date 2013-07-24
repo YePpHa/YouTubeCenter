@@ -4,8 +4,9 @@
  - Add fullwidth to yt:crop.
  - Set YouTube icon link to whatever you want.
  - Set homepage to whatever you want.
+ - Revamp repeat feature
+ - Revamp download feature
  - Option to remove videos from my subscriptions.
- - YouTube have added a new feature with playlist. When you sometimes click next video it will use a javascript function to load the new video data, and therefore YouTube Center will not apply. Try to intercept this somehow.
 ----
  - Mouse scroll to change volume
  - Auto expand 'Guide'

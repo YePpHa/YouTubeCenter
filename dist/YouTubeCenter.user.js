@@ -10181,7 +10181,6 @@
         $AddStyle(".ytcenter-settings-content{color:rgb(85, 85, 85)}#sb-wrapper #sb-container{right:28px!important}");
         $AddStyle(".ytcenter-embed{display:inline-block;vertical-align:top;}.video-list-item>a{width:100%}");
         $AddStyle(".resize-options{width: 335px;padding:0 10px;position:absolute;bottom:5px;}");
-        $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
         $AddStyle(".ytcenter-settings-header .yt-uix-button-epic-nav-item {border: none;padding: 0 3px 3px 3px;cursor: pointer;} .ytcenter-settings-header a.yt-uix-button.yt-uix-button-epic-nav-item, .ytcenter-settings-header button.yt-uix-button-epic-nav-item, .ytcenter-settings-header .epic-nav-item, .ytcenter-settings-header .epic-nav-item-heading {border: none;padding: 0 3px 3px 3px;cursor: pointer;background: none;color: #9c9c9c;font-size: 11px;font-weight: bold;height: 29px;line-height: 29px;-moz-box-sizing: content-box;-ms-box-sizing: content-box;-webkit-box-sizing: content-box;box-sizing: content-box;-moz-border-radius: 0;-webkit-border-radius: 0;border-radius: 0;} .ytcenter-settings-header .yt-uix-button-epic-nav-item.selected {border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;color: #333;} .ytcenter-settings-header a.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header a.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header button.yt-uix-button-epic-nav-item:hover, .ytcenter-settings-header button.yt-uix-button-epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item:hover, .ytcenter-settings-header .epic-nav-item.selected, .ytcenter-settings-header .epic-nav-item-heading {height: 29px;line-height: 29px;vertical-align: bottom;color: #333;border-bottom: 3px solid;border-color: #b00;padding-bottom: 0;display: inline-block;}")
         $AddStyle(".ytcenter-lights-off #watch7-video, .ytcenter-lights-off #player-api, .ytcenter-lights-off #movie_player{z-index:5!important;}.ytcenter-lights-off #page-container{z-index: inherit!important;}");
         $AddStyle(".ytcenter-branding-remove-background #player,.ytcenter-branding-remove-background #watch7-sidebar {background:none!important;}");
@@ -10199,11 +10198,13 @@
         // Ads
         $AddStyle(".ytcenter-remove-ads-page .ad-div,.ytcenter-remove-ads-page .mastad,.ytcenter-remove-ads-page .masthead-ad-control,.ytcenter-remove-ads-page .masthead-ad-control-lihp,.ytcenter-remove-ads-page #watch-channel-brand-div,.ytcenter-remove-ads-page .watch-pyv-vid,.ytcenter-remove-ads-page #feed-pyv-container,.ytcenter-remove-ads-page #premium-yva,.ytcenter-remove-ads-page .branded-page-v2-top-row{display:none!important}");
         
+        $AddStyle(".watch-sidebar {margin-right: 0!important;}");
         
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           // TODO add compatible styles here
           $AddStyle(".ytcenter-settings-content h2{border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
         } else {
+          $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
           $AddStyle("#page.search.no-flex .branded-page-v2-container{min-width:0!important}");
           $AddStyle(".ytcenter-settings-content{padding-left:35px;}");
           $AddStyle(".ytcenter-settings-content>div{padding-left:25px}");
