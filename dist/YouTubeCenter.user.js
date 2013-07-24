@@ -5193,43 +5193,59 @@
       return a.join(",");
     };
     ytcenter.utils.__signatureDecoder = [
-      {func: "swapHeadAndPosition", value: 24},
-      {func: "swapHeadAndPosition", value: 53},
+      {func: "slice", value: 3},
+      {func: "reverse"},
+      {func: "swapHeadAndPosition", value: 63},
       {func: "slice", value: 2},
-      {func: "swapHeadAndPosition", value: 31},
-      {func: "swapHeadAndPosition", value: 4},
+      {func: "reverse"},
+      {func: "slice", value: 1}
     ];
     ytcenter.utils._signatureDecoder = ytcenter.utils.__signatureDecoder;
     ytcenter.utils.updateSignatureDecoder = function(){
       var js = uw.ytplayer.config.assets.js,
-          regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(a=((([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a\.slice\([0-9]+\);)|(a\.reverse\(\);)))*return a\.join\(""\)}/g;
+          regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(.*?)return a\.join\(""\)}/g,
+          regex2 = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(((a=([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a=a\.slice\([0-9]+\);)|(a=a\.reverse\(\);)|(var b=a\[0\];a\[0\]=a\[[0-9]+%a\.length\];a\[[0-9]+\]=b;)))*return a\.join\(""\)}/g;
         $XMLHTTPRequest({
           method: "GET",
           url: js,
           onload: function(response) {
-            var a = regex.exec(response.responseText)[0].split("{")[1].split("}")[0].split(";"), i, b, v;
-            con.log(a);
+            var a,i,b,v;
             ytcenter.utils._signatureDecoder = []; // Clearing signatureDecoder
-            for (i = 1; i < a.length-1; i++) {
-              b = a[i];
-              if (b.indexOf("a.slice") !== -1) { // Slice
-                con.log("Slice (" + b + ")");
-                v = b.split("(")[1];
-                con.log("=> " + v);
-                v = v.split(")")[0];
-                con.log("=> " + v);
-                ytcenter.utils._signatureDecoder.push({func: "slice", value: parseInt(v)});
-              } else if (b.indexOf("a.reverse") !== -1) { // Reverse
-                con.log("Reverse (" + a[i] + ")");
-                ytcenter.utils._signatureDecoder.push({func: "reverse", value: null});
-              } else { // swapHeadAndPosition
-                con.log("swapHeadAndPosition (" + b + ")");
-                v = b.split("(a,")[1];
-                con.log("=> " + v);
-                v = v.split(")")[0];
-                con.log("=> " + v);
-                ytcenter.utils._signatureDecoder.push({func: "swapHeadAndPosition", value: parseInt(v)});
+            
+            if (response.responseText.match(regex2)) {
+              con.log("[updateSignatureDecoder] First regex");
+              a = regex2.exec(response.responseText)[0].split("{")[1].split("}")[0].split(";");
+              for (i = 1; i < a.length-1; i++) {
+                b = a[i];
+                if (b.indexOf("a.slice") !== -1) { // Slice
+                  con.log("Slice (" + b + ")");
+                  v = b.split("(")[1];
+                  con.log("=> " + v);
+                  v = v.split(")")[0];
+                  con.log("=> " + v);
+                  ytcenter.utils._signatureDecoder.push({func: "slice", value: parseInt(v)});
+                } else if (b.indexOf("a.reverse") !== -1) { // Reverse
+                  con.log("Reverse (" + b + ")");
+                  ytcenter.utils._signatureDecoder.push({func: "reverse", value: null});
+                } else if ((a[i] + ";" + a[i+1] + ";" + a[i+2]).indexOf("var b=a[0];a[0]=a[") !== -1){
+                  con.log("swapHeadAndPosition (" + (a[i] + ";" + a[i+1] + ";" + a[i+2]) + ")");
+                  v = (a[i] + ";" + a[i+1] + ";" + a[i+2]).split("var b=a[0];a[0]=a[")[1].split("%")[0];
+                  con.log("=> " + v);
+                  ytcenter.utils._signatureDecoder.push({func: "swapHeadAndPosition", value: parseInt(v)});
+                  i = i+2;
+                } else { // swapHeadAndPosition
+                  con.log("swapHeadAndPosition (" + b + ")");
+                  v = b.split("(a,")[1];
+                  con.log("=> " + v);
+                  v = v.split(")")[0];
+                  con.log("=> " + v);
+                  ytcenter.utils._signatureDecoder.push({func: "swapHeadAndPosition", value: parseInt(v)});
+                }
               }
+            } else {
+              con.log("[updateSignatureDecoder] Second regex");
+              a = regex.exec(response.responseText)[1];
+              ytcenter.utils._signatureDecoder.push({func: "code", value: a});
             }
             if (ytcenter.utils.__signatureDecoder !== ytcenter.utils._signatureDecoder) {
               con.log("[SignatureDecipher] YouTube updated their signatureDecipher!");
@@ -5255,7 +5271,9 @@
       var cipherArray = signatureCipher.split(""), i;
       
       for (i = 0; i < ytcenter.utils._signatureDecoder.length; i++) {
-        if (ytcenter.utils._signatureDecoder[i].func === "swapHeadAndPosition") {
+        if (ytcenter.utils._signatureDecoder[i].func === "code") {
+          cipherArray = new Function("a", ytcenter.utils._signatureDecoder[i].value + "return a.join(\"\")")(cipherArray);
+        } else if (ytcenter.utils._signatureDecoder[i].func === "swapHeadAndPosition") {
           cipherArray = swapHeadAndPosition(cipherArray, ytcenter.utils._signatureDecoder[i].value);
         } else if (ytcenter.utils._signatureDecoder[i].func === "slice") {
           cipherArray = cipherArray.slice(ytcenter.utils._signatureDecoder[i].value);
@@ -9345,8 +9363,12 @@
       con.log("YouTube Player is " + (ytcenter.html5 ? "HTML5" : "Flash"));
       ytcenter.video.stream = ytcenter.parseStream(ytcenter.player.getConfig().args);
       
-      if (ytcenter.video.stream[0].s) {
+      try {
+      //if (ytcenter.video.stream[0].s) {
         ytcenter.utils.updateSignatureDecoder(); // Only Updating the signature decoder when it's needed!
+      //}
+      } catch (e) {
+        con.error(e);
       }
       
       ytcenter.unsafe.video = {};
