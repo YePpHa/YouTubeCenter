@@ -1,0 +1,569 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <base href="file:///C:/Tools/firefox-addon-sdk-1.14/doc/" >
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shCore.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushCss.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/base.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/header.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/footer.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/sdk-docs.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/api-reference.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shCore.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shThemeDefault.css">
+  <!--[if IE]>
+    <style type="text/css">
+      .package-summary .module,
+      .package-entry .module,
+      .package-detail .module {
+      display: block;
+      }
+    </style>
+  <![endif]-->
+
+  <link rel="shortcut icon" type="image/x-icon" href="static-files/media/favicon.png">
+  <title>Two Types of Scripts - Add-on SDK Documentation</title>
+</head>
+<body>
+
+<div id="global-header">
+  <div class="funnel">
+    <a id="mozilla-tab" href="http://www.mozilla.org/?ref=logo">Mozilla</a>
+    <div class="menu">
+	<!-- Google CSE Search Box Begins  -->
+	<!-- Use of this code assumes agreement with the Google Custom Search Terms of Service. -->
+	<!-- The terms of service are available at http://www.google.com/cse/docs/tos.html -->
+      <form action="dev-guide/search.html" id="cse-search-box">
+        <div>
+          <input type="hidden" name="cx" value="017013284162333743052:rvlazd1zehe" />
+          <input type="hidden" name="cof" value="FORID:10" />
+          <input type="hidden" name="ie" value="UTF-8" />
+          <input type="text" name="q" size="31" id="search-box" />
+        </div>
+      </form>
+      <script type="text/javascript" src="https://www.google.com/cse/brand?form=cse-search-box&lang=en"></script>
+    <!-- Google CSE Search Box Ends -->
+    </div>
+  </div>
+</div>
+
+<div id="site-header">
+  <div class="funnel">
+    <h1>
+      <a href="dev-guide/index.html">Add-on SDK<span></span></a>
+    </h1>
+    <div id="version">Version 1.14</div>
+  </div>
+</div>
+
+  <div id="container">
+
+  <div id="columns">
+
+  <div id="main-content-column" class="column">
+    <div id="toc"></div>
+    <div id="search-results"></div>
+    <div id="main-content"><!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<h1>Two Types of Scripts</h1>
+<p>On the web, JavaScript executes in the context of a web page, and has access to
+that page's DOM content. This enables you to call functions like:</p>
+<pre><code>window.alert("Hello there");
+</code></pre>
+<p>In an add-on's main scripts you can't do that, because the add-on code does
+not execute in the context of a page, and the DOM is therefore not available.
+If you need to access the DOM of a particular page, you need to use a
+content script.</p>
+<p>So there are two distinct sorts of JavaScript scripts you might include
+in your add-on and they have access to different sets of APIs. In the SDK
+documentation we call one sort "add-on code" and the other sort "content
+scripts".</p>
+<h2>Add-on Code</h2>
+<p>This is the place where the main logic of your add-on is implemented.</p>
+<p>Your add-on is implemented as a collection of one or more
+<a href="dev-guide/guides/modules.html">CommonJS modules</a>. Each module
+is supplied as a script stored under the <code>lib</code> directory under your add-on's
+root directory.</p>
+<p>Minimally you'll have a single module implemented by a script called
+"main.js", but you can include additional modules in <code>lib</code>, and import them
+using the <code>require()</code> function. To learn how to implement and import your own
+modules, see the tutorial on
+<a href="dev-guide/tutorials/reusable-modules.html">Implementing Reusable Modules</a>.</p>
+<h2>Content Scripts</h2>
+<p>While your add-on will always have a "main.js" module, you will only need
+to write content scripts if your add-on needs to manipulate web content.
+Content scripts are injected into web pages using APIs defined by some of the
+SDK's modules such as <code>page-mod</code>, <code>panel</code> and <code>widget</code>.</p>
+<p>Content scripts may be supplied as literal strings or maintained in separate
+files and referenced by filename. If they are stored in separate files you
+should store them under the <code>data</code> directory under your add-on's root.</p>
+<p>To learn all about content scripts read the
+<a href="dev-guide/guides/content-scripts/index.html">Working with Content Scripts</a>
+guide.</p>
+<h2>API Access for Add-on Code and Content Scripts</h2>
+<p>The table below summarizes the APIs that are available to each type of
+script.</p>
+<table>
+  <colgroup>
+    <col width="70%">
+    <col width="15%">
+    <col width="15%">
+  </colgroup>
+  <tr>
+    <th>API</th>
+    <th>Add-on code</th>
+    <th>Content script</th>
+  </tr>
+
+<tr>
+    <td>The global objects defined in the core JavaScript language, such as
+<code>Math</code>, <code>Array</code>, and <code>JSON</code>. See the
+<a href= "https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects">reference at MDN</a>.
+    </td>
+    <td class="check">✔</td>
+    <td class="check">✔</td>
+  </tr>
+
+<tr>
+    <td><p>The <code>require()</code> and <code>exports</code> globals defined
+by version 1.0 of the
+<a href="http://wiki.commonjs.org/wiki/Modules/1.0">CommonJS Module Specification</a>.
+You use <code>require()</code> to import functionality from another module,
+and <code>exports</code> to export functionality from your module.</p>
+If <code>require()</code> is available, then so are the modules supplied in the
+SDK.
+    </td>
+    <td class="check">✔</td>
+    <td class="cross">✘</td>
+  </tr>
+
+<tr>
+    <td>The <a href="dev-guide/console.html">console</a>
+global supplied by the SDK.
+    </td>
+    <td class="check">✔</td>
+    <td class="check">✔</td>
+  </tr>
+
+<tr>
+    <td>Globals defined by the
+<a href="http://dev.w3.org/html5/spec/Overview.html">HTML5</a> specification,
+such as <code>window</code>, <code>document</code>, and
+<code>localStorage</code>.
+    </td>
+    <td class="cross">✘</td>
+    <td class="check">✔</td>
+  </tr>
+
+<tr>
+    <td>The <code>self</code> global, used for communicating between content
+scripts and add-on code. See the guide to
+<a href="dev-guide/guides/content-scripts/using-port.html">communicating with content scripts</a>
+for more details.
+    </td>
+    <td class="cross">✘</td>
+    <td class="check">✔</td>
+  </tr>
+
+</table></div>
+  </div>
+
+  <div id="sidebar" class="column">
+    <div class="sidebar-section" id="addon-development">
+      <a href="dev-guide/index.html"><h2 class="sidebar-section-header">Developer Guide</h2></a>
+      <ul class="sidebar-section-contents" id="default-section-contents">
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/installation.html"><h3>Installation</h3></a>
+        </li>
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/index.html"><h3 class="sidebar-subsection-header">Tutorials</h3></a>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/guides/index.html"><h3 class="sidebar-subsection-header">Guides</h3></a>
+        </li>
+
+        <li class="sidebar-subsection" id="third-party-module-subsection">
+          <a href="modules/third-party-modules.html"><h3 class="sidebar-subsection-header">Third-Party APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="third-party-module-summaries"></ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/high-level-modules.html"><h3 class="sidebar-subsection-header">High-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="high-level-module-summaries">
+<li>
+<a href="modules/sdk/addon-page.html">addon-page</a>
+</li>
+
+<li>
+<a href="modules/sdk/base64.html">base64</a>
+</li>
+
+<li>
+<a href="modules/sdk/clipboard.html">clipboard</a>
+</li>
+
+<li>
+<a href="modules/sdk/context-menu.html">context-menu</a>
+</li>
+
+<li>
+<a href="modules/sdk/hotkeys.html">hotkeys</a>
+</li>
+
+<li>
+<a href="modules/sdk/indexed-db.html">indexed-db</a>
+</li>
+
+<li>
+<a href="modules/sdk/l10n.html">l10n</a>
+</li>
+
+<li>
+<a href="modules/sdk/notifications.html">notifications</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod.html">page-mod</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-worker.html">page-worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/panel.html">panel</a>
+</li>
+
+<li>
+<a href="modules/sdk/passwords.html">passwords</a>
+</li>
+
+<li>
+<a href="modules/sdk/private-browsing.html">private-browsing</a>
+</li>
+
+<li>
+<a href="modules/sdk/querystring.html">querystring</a>
+</li>
+
+<li>
+<a href="modules/sdk/request.html">request</a>
+</li>
+
+<li>
+<a href="modules/sdk/selection.html">selection</a>
+</li>
+
+<li>
+<a href="modules/sdk/self.html">self</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-prefs.html">simple-prefs</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-storage.html">simple-storage</a>
+</li>
+
+<li>
+<a href="modules/sdk/system.html">system</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs.html">tabs</a>
+</li>
+
+<li>
+<a href="modules/sdk/timers.html">timers</a>
+</li>
+
+<li>
+<a href="modules/sdk/url.html">url</a>
+</li>
+
+<li>
+<a href="modules/sdk/widget.html">widget</a>
+</li>
+
+<li>
+<a href="modules/sdk/windows.html">windows</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/low-level-modules.html"><h3 class="sidebar-subsection-header">Low-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="low-level-module-summaries">
+<li>
+<a href="modules/toolkit/loader.html">/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/plain-text.html">console/plain-text</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/traceback.html">console/traceback</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/content.html">content/content</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/loader.html">content/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/symbiont.html">content/symbiont</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/worker.html">content/worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/heritage.html">core/heritage</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/namespace.html">core/namespace</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/promise.html">core/promise</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/api-utils.html">deprecated/api-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/app-strings.html">deprecated/app-strings</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/cortex.html">deprecated/cortex</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/errors.html">deprecated/errors</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/events.html">deprecated/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/light-traits.html">deprecated/light-traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/observer-service.html">deprecated/observer-service</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/tab-browser.html">deprecated/tab-browser</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/traits.html">deprecated/traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/window-utils.html">deprecated/window-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/core.html">event/core</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/target.html">event/target</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/hidden-frame.html">frame/hidden-frame</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/utils.html">frame/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/byte-streams.html">io/byte-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/file.html">io/file</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/text-streams.html">io/text-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/cuddlefish.html">loader/cuddlefish</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/sandbox.html">loader/sandbox</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/url.html">net/url</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/xhr.html">net/xhr</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod/match-pattern.html">page-mod/match-pattern</a>
+</li>
+
+<li>
+<a href="modules/sdk/platform/xpcom.html">platform/xpcom</a>
+</li>
+
+<li>
+<a href="modules/sdk/preferences/service.html">preferences/service</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/environment.html">system/environment</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/events.html">system/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/runtime.html">system/runtime</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/unload.html">system/unload</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/xul-app.html">system/xul-app</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs/utils.html">tabs/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/assert.html">test/assert</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/harness.html">test/harness</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/httpd.html">test/httpd</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/runner.html">test/runner</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/collection.html">util/collection</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/deprecate.html">util/deprecate</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/list.html">util/list</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/uuid.html">util/uuid</a>
+</li>
+
+<li>
+<a href="modules/sdk/window/utils.html">window/utils</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <h3 class="sidebar-subsection-header">Tools Reference</h3>
+          <div class="sidebar-subsection-contents">
+            <a href="dev-guide/console.html">console</a>
+            <a href="dev-guide/cfx-tool.html">cfx</a>
+            <a href="dev-guide/package-spec.html">package.json</a>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <ul class="sidebar-section" id="appendices">
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack/Release_Notes"><h3>Release Notes</h3></a></li>
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack"><h3>Jetpack Wiki</h3></a></li>
+        <li><a href="dev-guide/glossary.html"><h3>Glossary</h3></a></li>
+        <li><a href="dev-guide/credits.html"><h3>Credits</h3></a></li>
+
+    </ul>
+<!--end of sidebar column-->
+  </div>
+<!--end of 'columns'-->
+<div class="clearfooter"></div>
+</div>
+</div>
+
+<div id="footer">
+  <div class="section">
+    <img alt="" src="static-files/media/footer-logo-med.png" class="footerlogo">
+    <div id="social-footer">
+      <ul>
+        <li>get to know <b>add-ons</b></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/about">About</a></li>
+        <li><a href="http://blog.mozilla.com/addons">Blog</a></li>
+        <li class="footer-devhub-link"><a href="https://addons.mozilla.org/en-US/developers/">Developer Hub</a></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/faq">FAQ</a></li>
+        <li><a href="https://forums.addons.mozilla.org">Forum</a></li>
+      </ul>
+    </div>
+
+    <div id="copyright">
+      <p id="footer-links">
+        <a href="http://mozilla.com/privacy-policy.html">Privacy Policy</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/about/legal.html">Legal Notices</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/legal/fraud-report/index.html">Report Trademark Abuse</a>
+    &nbsp;|&nbsp;<a href="https://addons.mozilla.org/z/en-US/developers/" class="mobile-link">View Mobile Site</a>
+      </p>
+      <p>
+      Except where otherwise <a href="http://mozilla.com/about/legal.html#site">noted</a>, content on this site is licensed under the <br> <a href="http://creativecommons.org/licenses/by-sa/3.0/"> Creative Commons Attribution Share-Alike License v3.0 </a> or any later version.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="static-files/js/jquery.js"></script>
+<script type="text/javascript" src="static-files/js/main.js"></script>
+
+</body>
+
+</html>

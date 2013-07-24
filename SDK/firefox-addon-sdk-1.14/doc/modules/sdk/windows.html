@@ -1,0 +1,792 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <base href="file:///C:/Tools/firefox-addon-sdk-1.14/doc/" >
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shCore.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushCss.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/base.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/header.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/footer.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/sdk-docs.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/api-reference.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shCore.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shThemeDefault.css">
+  <!--[if IE]>
+    <style type="text/css">
+      .package-summary .module,
+      .package-entry .module,
+      .package-detail .module {
+      display: block;
+      }
+    </style>
+  <![endif]-->
+
+  <link rel="shortcut icon" type="image/x-icon" href="static-files/media/favicon.png">
+  <title>windows - Add-on SDK Documentation</title>
+</head>
+<body>
+
+<div id="global-header">
+  <div class="funnel">
+    <a id="mozilla-tab" href="http://www.mozilla.org/?ref=logo">Mozilla</a>
+    <div class="menu">
+	<!-- Google CSE Search Box Begins  -->
+	<!-- Use of this code assumes agreement with the Google Custom Search Terms of Service. -->
+	<!-- The terms of service are available at http://www.google.com/cse/docs/tos.html -->
+      <form action="dev-guide/search.html" id="cse-search-box">
+        <div>
+          <input type="hidden" name="cx" value="017013284162333743052:rvlazd1zehe" />
+          <input type="hidden" name="cof" value="FORID:10" />
+          <input type="hidden" name="ie" value="UTF-8" />
+          <input type="text" name="q" size="31" id="search-box" />
+        </div>
+      </form>
+      <script type="text/javascript" src="https://www.google.com/cse/brand?form=cse-search-box&lang=en"></script>
+    <!-- Google CSE Search Box Ends -->
+    </div>
+  </div>
+</div>
+
+<div id="site-header">
+  <div class="funnel">
+    <h1>
+      <a href="dev-guide/index.html">Add-on SDK<span></span></a>
+    </h1>
+    <div id="version">Version 1.14</div>
+  </div>
+</div>
+
+  <div id="container">
+
+  <div id="columns">
+
+  <div id="main-content-column" class="column">
+    <div id="toc"></div>
+    <div id="search-results"></div>
+    <div id="main-content">
+<a href="dev-guide/guides/stability.html" class="stability-note stability-stable">stable</a>
+
+<div id="windows_module_api_docs" class="module_api_docs">
+<h1>windows</h1>
+<div class="module_description"><!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!-- contributed by Felipe Gomes [felipc@gmail.com]  -->
+
+<p>The <code>windows</code> module provides basic functions for working with browser
+windows. With this module, you can:</p>
+<ul>
+<li><a href="modules/sdk/windows.html#browserWindows">enumerate the currently opened browser windows</a></li>
+<li><a href="modules/sdk/windows.html#open(options)">open new browser windows</a></li>
+<li><a href="modules/sdk/windows.html#Events">listen for common window events such as open and close</a></li>
+</ul>
+<h2>Private Windows</h2>
+<p>If your add-on has not opted into private browsing, then you won't see any
+private browser windows. Private browser windows won't appear in the
+<a href="modules/sdk/windows.html#browserWindows"><code>browserWindows</code></a> property, you
+won't receive any window events, and you won't be able to open private 
+windows.</p>
+<p>To learn more about private windows, how to opt into private browsing, and how
+to support private browsing, refer to the
+<a href="modules/sdk/private-browsing.html">documentation for the <code>private-browsing</code> module</a>.</p>
+</div>
+
+<div class="api_reference">
+<h2 class="api_header">API Reference</h2>
+
+<div class="api_component_group">
+<h3 class="api_header">Classes</h3>
+
+<div class="api_component">
+<h4 class="api_name">BrowserWindow</h4>
+<p>A <code>BrowserWindow</code> instance represents a single open window. They can be
+retrieved from the <code>browserWindows</code> property exported by this module.</p>
+<pre><code>var windows = require("sdk/windows").browserWindows;
+
+//Print how many tabs the current window has
+console.log("The active window has " +
+            windows.activeWindow.tabs.length +
+            " tabs.");
+
+// Print the title of all browser windows
+for each (var window in windows) {
+  console.log(window.title);
+}
+
+// close the active window
+windows.activeWindow.close(function() {
+  console.log("The active window was closed");
+});
+</code></pre>
+<div class="api_component_group">
+<h5 class="api_header">Methods</h5>
+
+<div class="api_component">
+<h6 class="api_name">activate()</h6>
+<p>Makes window active, which will focus that window and bring it to the
+foreground.</p>
+</div>
+
+<div class="api_component">
+<h6 class="api_name">close(callback)</h6>
+<p>Close the window.</p>
+<div class="parameter_set">
+<div class="api_component">
+<div class="api_name">[ callback : <span class="datatype">function</span> ]</div>
+<p>A function to be called when the window finishes its closing process.
+This is an optional argument.</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="api_component_group">
+<h5 class="api_header">Properties</h5>
+
+<div class="api_component">
+<h6 class="api_name">title : <span class="datatype">string</span></h6>
+<p>The current title of the window. Usually the title of the active tab,
+plus an app identifier.
+This property is read-only.</p>
+</div>
+
+<div class="api_component">
+<h6 class="api_name">tabs : <span class="datatype">TabList</span></h6>
+<p>A live list of tabs in this window. This object has the same interface as the
+<a href="modules/sdk/tabs.html"><code>tabs</code> API</a>, except it contains only the
+tabs in this window, not all tabs in all windows. This property is read-only.</p>
+</div>
+
+<div class="api_component">
+<h6 class="api_name">isPrivateBrowsing : <span class="datatype">boolean</span></h6>
+<p>Returns <code>true</code> if the window is in private browsing mode, and <code>false</code> otherwise.</p>
+<div class="warning">
+  This property is deprecated.
+  From version 1.14, use the <a href="modules/sdk/private-browsing.html#isPrivate()">private-browsing module's <code>isPrivate()</code></a> function instead.
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="api_component_group">
+<h3 class="api_header">Functions</h3>
+
+<div class="api_component">
+<h4 class="api_name">open(options)</h4>
+<p>Open a new window.</p>
+<pre><code>var windows = require("sdk/windows").browserWindows;
+
+// Open a new window.
+windows.open("http://www.example.com");
+
+// Open a new window and set a listener for "open" event.
+windows.open({
+  url: "http://www.example.com",
+  onOpen: function(window) {
+    // do stuff like listen for content
+    // loading.
+  }
+});
+</code></pre>
+<p>Returns the window that was opened:</p>
+<pre><code>var widgets = require("sdk/widget");
+var windows = require("sdk/windows").browserWindows;
+
+var example = windows.open("http://www.example.com");
+
+var widget = widgets.Widget({
+  id: "close-window",
+  label: "Close window",
+  contentURL: "http://www.mozilla.org/favicon.ico",
+  onClick: function() {
+    example.close();
+  }
+});
+</code></pre>
+<div class="parameter_set">
+<div class="api_component">
+<div class="api_name">options : <span class="datatype">object</span></div>
+<p>An object containing configurable options for how this window will be opened,
+as well as a callback for being notified when the window has fully opened.</p>
+<p>If the only option being used is <code>url</code>, then a bare string URL can be passed to
+<code>open</code> instead of specifying it as a property of the <code>options</code> object.</p>
+<div class="api_component">
+<div class="api_name">url : <span class="datatype">string</span></div>
+<p>String URL to be opened in the new window.
+This is a required property.</p>
+</div>
+
+<div class="api_component">
+<div class="api_name">isPrivate : <span class="datatype">boolean</span></div>
+<p>Boolean which will determine whether the new window should be private or not.
+If your add-on does not support private browsing this will have no effect.
+See the <a href="modules/sdk/private-browsing.html">private-browsing</a> documentation for more information.</p>
+</div>
+
+<div class="api_component">
+<div class="api_name">[ onOpen : <span class="datatype">function</span> ]</div>
+<p>A callback function that is called when the window has opened. This does not
+mean that the URL content has loaded, only that the window itself is fully
+functional and its properties can be accessed. This is an optional property.</p>
+</div>
+
+<div class="api_component">
+<div class="api_name">[ onClose : <span class="datatype">function</span> ]</div>
+<p>A callback function that is called when the window will be called.
+This is an optional property.</p>
+</div>
+
+<div class="api_component">
+<div class="api_name">[ onActivate : <span class="datatype">function</span> ]</div>
+<p>A callback function that is called when the window is made active.
+This is an optional property.</p>
+</div>
+
+<div class="api_component">
+<div class="api_name">[ onDeactivate : <span class="datatype">function</span> ]</div>
+<p>A callback function that is called when the window is made inactive.
+This is an optional property.</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="returns">Returns: <span class="datatype">BrowserWindow</span>
+</div>
+
+</div>
+
+</div>
+
+<div class="api_component_group">
+<h3 class="api_header">Properties</h3>
+
+<div class="api_component">
+<h4 class="api_name">browserWindows : <span class="datatype">List</span></h4>
+<p><code>browserWindows</code> provides access to all the currently open browser windows as
+<a href="modules/sdk/windows.html#BrowserWindow">BrowserWindow</a> objects.</p>
+<pre><code>var windows = require("sdk/windows");
+for each (var window in windows.browserWindows) {
+  console.log(window.title);
+}
+
+console.log(windows.browserWindows.length);
+</code></pre>
+<p>This object emits all the events listed under the "Events" section:</p>
+<pre><code>var windows = require("sdk/windows").browserWindows;
+
+// add a listener to the 'open' event
+windows.on('open', function(window) {
+  myOpenWindows.push(window);
+});
+
+// add a listener to the 'close' event
+windows.on('close', function(window) {
+  console.log("A window was closed.");
+});
+
+// add a listener to the 'activate' event
+windows.on('activate', function(window) {
+  console.log("A window was activated.");
+});
+
+// add a listener to the 'deactivate' event
+windows.on('deactivate', function(window) {
+  console.log("A window was deactivated.");
+});
+</code></pre>
+<div class="api_component_group">
+<div class="api_header">Properties</div>
+
+<div class="api_component">
+<div class="api_name">activeWindow : <span class="datatype">BrowserWindow</span></div>
+<p>The currently active window. This property is read-only.</p>
+<p><strong>Example</strong></p>
+<pre><code>// get
+var windows = require("sdk/windows");
+console.log("title of active window is " +
+            windows.browserWindows.activeWindow.title);
+
+anotherWindow.activate();
+// set
+windows.activeWindow == anotherWindow // true
+</code></pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="api_component_group">
+<h3 class="api_header">Events</h3>
+
+<div class="api_component">
+<h4 class="api_name">open</h4>
+<p>Event emitted when a new window is open.
+This does not mean that the content has loaded, only that the browser window
+itself is fully visible to the user.</p>
+<div class="parameter_set">
+<div class="api_component">
+<div class="api_name"><span class="datatype">Window</span></div>
+<p>Listeners are passed the <code>window</code> object that triggered the event.</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="api_component">
+<h4 class="api_name">close</h4>
+<p>Event emitted when a window is closed.</p>
+<div class="parameter_set">
+<div class="api_component">
+<div class="api_name"><span class="datatype">Window</span></div>
+<p>Listeners are passed the <code>window</code> object that triggered the event.</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="api_component">
+<h4 class="api_name">activate</h4>
+<p>Event emitted when an inactive window is made active.</p>
+<div class="parameter_set">
+<div class="api_component">
+<div class="api_name"><span class="datatype">Window</span></div>
+<p>Listeners are passed the <code>window</code> object that has become active.</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="api_component">
+<h4 class="api_name">deactivate</h4>
+<p>Event emitted when the active window is made inactive.</p>
+<div class="parameter_set">
+<div class="api_component">
+<div class="api_name"><span class="datatype">Window</span></div>
+<p>Listeners are passed the <code>window</code> object that has become inactive.</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+  </div>
+
+  <div id="sidebar" class="column">
+    <div class="sidebar-section" id="addon-development">
+      <a href="dev-guide/index.html"><h2 class="sidebar-section-header">Developer Guide</h2></a>
+      <ul class="sidebar-section-contents" id="default-section-contents">
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/installation.html"><h3>Installation</h3></a>
+        </li>
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/index.html"><h3 class="sidebar-subsection-header">Tutorials</h3></a>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/guides/index.html"><h3 class="sidebar-subsection-header">Guides</h3></a>
+        </li>
+
+        <li class="sidebar-subsection" id="third-party-module-subsection">
+          <a href="modules/third-party-modules.html"><h3 class="sidebar-subsection-header">Third-Party APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="third-party-module-summaries"></ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/high-level-modules.html"><h3 class="sidebar-subsection-header">High-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="high-level-module-summaries">
+<li>
+<a href="modules/sdk/addon-page.html">addon-page</a>
+</li>
+
+<li>
+<a href="modules/sdk/base64.html">base64</a>
+</li>
+
+<li>
+<a href="modules/sdk/clipboard.html">clipboard</a>
+</li>
+
+<li>
+<a href="modules/sdk/context-menu.html">context-menu</a>
+</li>
+
+<li>
+<a href="modules/sdk/hotkeys.html">hotkeys</a>
+</li>
+
+<li>
+<a href="modules/sdk/indexed-db.html">indexed-db</a>
+</li>
+
+<li>
+<a href="modules/sdk/l10n.html">l10n</a>
+</li>
+
+<li>
+<a href="modules/sdk/notifications.html">notifications</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod.html">page-mod</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-worker.html">page-worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/panel.html">panel</a>
+</li>
+
+<li>
+<a href="modules/sdk/passwords.html">passwords</a>
+</li>
+
+<li>
+<a href="modules/sdk/private-browsing.html">private-browsing</a>
+</li>
+
+<li>
+<a href="modules/sdk/querystring.html">querystring</a>
+</li>
+
+<li>
+<a href="modules/sdk/request.html">request</a>
+</li>
+
+<li>
+<a href="modules/sdk/selection.html">selection</a>
+</li>
+
+<li>
+<a href="modules/sdk/self.html">self</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-prefs.html">simple-prefs</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-storage.html">simple-storage</a>
+</li>
+
+<li>
+<a href="modules/sdk/system.html">system</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs.html">tabs</a>
+</li>
+
+<li>
+<a href="modules/sdk/timers.html">timers</a>
+</li>
+
+<li>
+<a href="modules/sdk/url.html">url</a>
+</li>
+
+<li>
+<a href="modules/sdk/widget.html">widget</a>
+</li>
+
+<li>
+<a href="modules/sdk/windows.html">windows</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/low-level-modules.html"><h3 class="sidebar-subsection-header">Low-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="low-level-module-summaries">
+<li>
+<a href="modules/toolkit/loader.html">/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/plain-text.html">console/plain-text</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/traceback.html">console/traceback</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/content.html">content/content</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/loader.html">content/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/symbiont.html">content/symbiont</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/worker.html">content/worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/heritage.html">core/heritage</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/namespace.html">core/namespace</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/promise.html">core/promise</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/api-utils.html">deprecated/api-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/app-strings.html">deprecated/app-strings</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/cortex.html">deprecated/cortex</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/errors.html">deprecated/errors</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/events.html">deprecated/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/light-traits.html">deprecated/light-traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/observer-service.html">deprecated/observer-service</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/tab-browser.html">deprecated/tab-browser</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/traits.html">deprecated/traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/window-utils.html">deprecated/window-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/core.html">event/core</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/target.html">event/target</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/hidden-frame.html">frame/hidden-frame</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/utils.html">frame/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/byte-streams.html">io/byte-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/file.html">io/file</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/text-streams.html">io/text-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/cuddlefish.html">loader/cuddlefish</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/sandbox.html">loader/sandbox</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/url.html">net/url</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/xhr.html">net/xhr</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod/match-pattern.html">page-mod/match-pattern</a>
+</li>
+
+<li>
+<a href="modules/sdk/platform/xpcom.html">platform/xpcom</a>
+</li>
+
+<li>
+<a href="modules/sdk/preferences/service.html">preferences/service</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/environment.html">system/environment</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/events.html">system/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/runtime.html">system/runtime</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/unload.html">system/unload</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/xul-app.html">system/xul-app</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs/utils.html">tabs/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/assert.html">test/assert</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/harness.html">test/harness</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/httpd.html">test/httpd</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/runner.html">test/runner</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/collection.html">util/collection</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/deprecate.html">util/deprecate</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/list.html">util/list</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/uuid.html">util/uuid</a>
+</li>
+
+<li>
+<a href="modules/sdk/window/utils.html">window/utils</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <h3 class="sidebar-subsection-header">Tools Reference</h3>
+          <div class="sidebar-subsection-contents">
+            <a href="dev-guide/console.html">console</a>
+            <a href="dev-guide/cfx-tool.html">cfx</a>
+            <a href="dev-guide/package-spec.html">package.json</a>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <ul class="sidebar-section" id="appendices">
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack/Release_Notes"><h3>Release Notes</h3></a></li>
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack"><h3>Jetpack Wiki</h3></a></li>
+        <li><a href="dev-guide/glossary.html"><h3>Glossary</h3></a></li>
+        <li><a href="dev-guide/credits.html"><h3>Credits</h3></a></li>
+
+    </ul>
+<!--end of sidebar column-->
+  </div>
+<!--end of 'columns'-->
+<div class="clearfooter"></div>
+</div>
+</div>
+
+<div id="footer">
+  <div class="section">
+    <img alt="" src="static-files/media/footer-logo-med.png" class="footerlogo">
+    <div id="social-footer">
+      <ul>
+        <li>get to know <b>add-ons</b></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/about">About</a></li>
+        <li><a href="http://blog.mozilla.com/addons">Blog</a></li>
+        <li class="footer-devhub-link"><a href="https://addons.mozilla.org/en-US/developers/">Developer Hub</a></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/faq">FAQ</a></li>
+        <li><a href="https://forums.addons.mozilla.org">Forum</a></li>
+      </ul>
+    </div>
+
+    <div id="copyright">
+      <p id="footer-links">
+        <a href="http://mozilla.com/privacy-policy.html">Privacy Policy</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/about/legal.html">Legal Notices</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/legal/fraud-report/index.html">Report Trademark Abuse</a>
+    &nbsp;|&nbsp;<a href="https://addons.mozilla.org/z/en-US/developers/" class="mobile-link">View Mobile Site</a>
+      </p>
+      <p>
+      Except where otherwise <a href="http://mozilla.com/about/legal.html#site">noted</a>, content on this site is licensed under the <br> <a href="http://creativecommons.org/licenses/by-sa/3.0/"> Creative Commons Attribution Share-Alike License v3.0 </a> or any later version.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="static-files/js/jquery.js"></script>
+<script type="text/javascript" src="static-files/js/main.js"></script>
+
+</body>
+
+</html>

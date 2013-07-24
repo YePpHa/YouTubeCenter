@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <base href="file:///C:/Tools/firefox-addon-sdk-1.14/doc/" >
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shCore.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushCss.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/base.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/header.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/footer.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/sdk-docs.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/api-reference.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shCore.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shThemeDefault.css">
+  <!--[if IE]>
+    <style type="text/css">
+      .package-summary .module,
+      .package-entry .module,
+      .package-detail .module {
+      display: block;
+      }
+    </style>
+  <![endif]-->
+
+  <link rel="shortcut icon" type="image/x-icon" href="static-files/media/favicon.png">
+  <title>Modifying the Page Hosted by a Tab - Add-on SDK Documentation</title>
+</head>
+<body>
+
+<div id="global-header">
+  <div class="funnel">
+    <a id="mozilla-tab" href="http://www.mozilla.org/?ref=logo">Mozilla</a>
+    <div class="menu">
+	<!-- Google CSE Search Box Begins  -->
+	<!-- Use of this code assumes agreement with the Google Custom Search Terms of Service. -->
+	<!-- The terms of service are available at http://www.google.com/cse/docs/tos.html -->
+      <form action="dev-guide/search.html" id="cse-search-box">
+        <div>
+          <input type="hidden" name="cx" value="017013284162333743052:rvlazd1zehe" />
+          <input type="hidden" name="cof" value="FORID:10" />
+          <input type="hidden" name="ie" value="UTF-8" />
+          <input type="text" name="q" size="31" id="search-box" />
+        </div>
+      </form>
+      <script type="text/javascript" src="https://www.google.com/cse/brand?form=cse-search-box&lang=en"></script>
+    <!-- Google CSE Search Box Ends -->
+    </div>
+  </div>
+</div>
+
+<div id="site-header">
+  <div class="funnel">
+    <h1>
+      <a href="dev-guide/index.html">Add-on SDK<span></span></a>
+    </h1>
+    <div id="version">Version 1.14</div>
+  </div>
+</div>
+
+  <div id="container">
+
+  <div id="columns">
+
+  <div id="main-content-column" class="column">
+    <div id="toc"></div>
+    <div id="search-results"></div>
+    <div id="main-content"><!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<h1>Modifying the Page Hosted by a Tab</h1>
+<p><span class="aside">
+To follow this tutorial you'll need to have
+<a href="dev-guide/tutorials/installation.html">installed the SDK</a>
+and learned the
+<a href="dev-guide/tutorials/getting-started-with-cfx.html">basics of <code>cfx</code></a>.
+</span></p>
+<p>To modify the page hosted by a particular tab, load a script into it
+using the <code>attach()</code> method of the
+<a href="modules/sdk/tabs.html">tab</a> object. Because their job is
+to interact with web content, these scripts are called <em>content scripts</em>.</p>
+<p>Here's a simple example:</p>
+<pre><code>var widgets = require("sdk/widget");
+var tabs = require("sdk/tabs");
+
+var widget = widgets.Widget({
+  id: "mozilla-link",
+  label: "Mozilla website",
+  contentURL: "http://www.mozilla.org/favicon.ico",
+  onClick: function() {
+    tabs.activeTab.attach({
+      contentScript:
+        'document.body.style.border = "5px solid red";'
+      })
+    }
+});
+</code></pre>
+<p>This add-on creates a widget which contains the Mozilla favicon as an icon.
+It has a click handler which fetches the active tab and loads a
+script into the page hosted by the active tab. The script is specified using
+<code>contentScript</code> option, and just draws
+a red border around the page. Try it out:</p>
+<ul>
+<li>create a new directory and navigate to it</li>
+<li>run <code>cfx init</code></li>
+<li>open the <code>lib/main.js</code> file, and add the code above</li>
+<li>run <code>cfx run</code>, then run <code>cfx run</code> again</li>
+</ul>
+<p>You should see the Mozilla icon appear in the bottom-right corner of the
+browser:</p>
+<img class="image-center" src="static-files/media/screenshots/widget-mozilla.png"
+alt="Mozilla icon widget" />
+
+<p>Then open any web page in the browser window that opens, and click the
+Mozilla icon. You should see a red border appear around the page, like this:</p>
+<img class="image-center" src="static-files/media/screenshots/tabattach-bbc.png"
+alt="bbc.co.uk modded by tab.attach" />
+
+<h2>Keeping the Content Script in a Separate File</h2>
+<p>In the example above we've passed in the content script as a string. Unless
+the script is extremely simple, you should instead maintain the script as a
+separate file. This makes the code easier to maintain, debug, and review.</p>
+<p>For example, if we save the script above under the add-on's <code>data</code> directory
+in a file called <code>my-script.js</code>:</p>
+<pre><code>document.body.style.border = "5px solid red";
+</code></pre>
+<p>We can load this script by changing the add-on code like this:</p>
+<pre><code>var widgets = require("sdk/widget");
+var tabs = require("sdk/tabs");
+var self = require("sdk/self");
+
+var widget = widgets.Widget({
+  id: "mozilla-link",
+  label: "Mozilla website",
+  contentURL: "http://www.mozilla.org/favicon.ico",
+  onClick: function() {
+    tabs.activeTab.attach({
+      contentScriptFile: self.data.url("my-script.js")
+    });
+  }
+});
+</code></pre>
+<p>You can load more than one script, and the scripts can interact
+directly with each other. So you can load <a href="http://jquery.com/">jQuery</a>,
+and then your content script can use that.</p>
+<h2>Communicating With the Content Script</h2>
+<p>Your add-on script and the content script can't directly
+access each other's variables or call each other's functions, but they
+can send each other messages.</p>
+<p>To send a
+message from one side to the other, the sender calls <code>port.emit()</code> and
+the receiver listens using <code>port.on()</code>.</p>
+<ul>
+<li>In the content script, <code>port</code> is a property of the global <code>self</code> object.</li>
+<li>In the add-on script, <code>tab-attach()</code> returns an object containing the
+<code>port</code> property you use to send messages to the content script.</li>
+</ul>
+<p>Let's rewrite the example above to pass a message from the add-on to
+the content script. The content script now needs to look like this:</p>
+<pre><code>// "self" is a global object in content scripts
+// Listen for a "drawBorder"
+self.port.on("drawBorder", function(color) {
+  document.body.style.border = "5px solid " + color;
+});
+</code></pre>
+<p>In the add-on script, we'll send the content script a "drawBorder" message
+using the object returned from <code>attach()</code>:</p>
+<pre><code>var widgets = require("sdk/widget");
+var tabs = require("sdk/tabs");
+var self = require("sdk/self");
+
+var widget = widgets.Widget({
+  id: "mozilla-link",
+  label: "Mozilla website",
+  contentURL: "http://www.mozilla.org/favicon.ico",
+  onClick: function() {
+    worker = tabs.activeTab.attach({
+      contentScriptFile: self.data.url("my-script.js")
+    });
+    worker.port.emit("drawBorder", "red");
+  }
+});
+</code></pre>
+<p>The <code>drawBorder</code> message isn't a built-in message, it's one that this
+add-on defines in the <code>port.emit()</code> call.</p>
+<h2>Injecting CSS</h2>
+<p>Unlike the <a href="dev-guide/tutorials/modifying-web-pages-url.html"><code>page-mod</code></a> API,
+<code>tab.attach()</code> doesn't enable you to inject CSS directly into a page.</p>
+<p>To modify the style of a page you have to use JavaScript, as in
+the example above.</p>
+<h2>Learning More</h2>
+<p>To learn more about working with tabs in the SDK, see the
+<a href="dev-guide/tutorials/open-a-web-page.html">Open a Web Page</a>
+tutorial, the
+<a href="dev-guide/tutorials/list-open-tabs.html">List Open Tabs</a>
+tutorial, and the <a href="modules/sdk/tabs.html"><code>tabs</code> API reference</a>.</p>
+<p>To learn more about content scripts, see the
+<a href="dev-guide/guides/content-scripts/index.html">content scripts guide</a>.</p></div>
+  </div>
+
+  <div id="sidebar" class="column">
+    <div class="sidebar-section" id="addon-development">
+      <a href="dev-guide/index.html"><h2 class="sidebar-section-header">Developer Guide</h2></a>
+      <ul class="sidebar-section-contents" id="default-section-contents">
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/installation.html"><h3>Installation</h3></a>
+        </li>
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/index.html"><h3 class="sidebar-subsection-header">Tutorials</h3></a>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/guides/index.html"><h3 class="sidebar-subsection-header">Guides</h3></a>
+        </li>
+
+        <li class="sidebar-subsection" id="third-party-module-subsection">
+          <a href="modules/third-party-modules.html"><h3 class="sidebar-subsection-header">Third-Party APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="third-party-module-summaries"></ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/high-level-modules.html"><h3 class="sidebar-subsection-header">High-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="high-level-module-summaries">
+<li>
+<a href="modules/sdk/addon-page.html">addon-page</a>
+</li>
+
+<li>
+<a href="modules/sdk/base64.html">base64</a>
+</li>
+
+<li>
+<a href="modules/sdk/clipboard.html">clipboard</a>
+</li>
+
+<li>
+<a href="modules/sdk/context-menu.html">context-menu</a>
+</li>
+
+<li>
+<a href="modules/sdk/hotkeys.html">hotkeys</a>
+</li>
+
+<li>
+<a href="modules/sdk/indexed-db.html">indexed-db</a>
+</li>
+
+<li>
+<a href="modules/sdk/l10n.html">l10n</a>
+</li>
+
+<li>
+<a href="modules/sdk/notifications.html">notifications</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod.html">page-mod</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-worker.html">page-worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/panel.html">panel</a>
+</li>
+
+<li>
+<a href="modules/sdk/passwords.html">passwords</a>
+</li>
+
+<li>
+<a href="modules/sdk/private-browsing.html">private-browsing</a>
+</li>
+
+<li>
+<a href="modules/sdk/querystring.html">querystring</a>
+</li>
+
+<li>
+<a href="modules/sdk/request.html">request</a>
+</li>
+
+<li>
+<a href="modules/sdk/selection.html">selection</a>
+</li>
+
+<li>
+<a href="modules/sdk/self.html">self</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-prefs.html">simple-prefs</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-storage.html">simple-storage</a>
+</li>
+
+<li>
+<a href="modules/sdk/system.html">system</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs.html">tabs</a>
+</li>
+
+<li>
+<a href="modules/sdk/timers.html">timers</a>
+</li>
+
+<li>
+<a href="modules/sdk/url.html">url</a>
+</li>
+
+<li>
+<a href="modules/sdk/widget.html">widget</a>
+</li>
+
+<li>
+<a href="modules/sdk/windows.html">windows</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/low-level-modules.html"><h3 class="sidebar-subsection-header">Low-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="low-level-module-summaries">
+<li>
+<a href="modules/toolkit/loader.html">/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/plain-text.html">console/plain-text</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/traceback.html">console/traceback</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/content.html">content/content</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/loader.html">content/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/symbiont.html">content/symbiont</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/worker.html">content/worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/heritage.html">core/heritage</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/namespace.html">core/namespace</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/promise.html">core/promise</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/api-utils.html">deprecated/api-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/app-strings.html">deprecated/app-strings</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/cortex.html">deprecated/cortex</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/errors.html">deprecated/errors</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/events.html">deprecated/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/light-traits.html">deprecated/light-traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/observer-service.html">deprecated/observer-service</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/tab-browser.html">deprecated/tab-browser</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/traits.html">deprecated/traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/window-utils.html">deprecated/window-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/core.html">event/core</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/target.html">event/target</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/hidden-frame.html">frame/hidden-frame</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/utils.html">frame/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/byte-streams.html">io/byte-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/file.html">io/file</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/text-streams.html">io/text-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/cuddlefish.html">loader/cuddlefish</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/sandbox.html">loader/sandbox</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/url.html">net/url</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/xhr.html">net/xhr</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod/match-pattern.html">page-mod/match-pattern</a>
+</li>
+
+<li>
+<a href="modules/sdk/platform/xpcom.html">platform/xpcom</a>
+</li>
+
+<li>
+<a href="modules/sdk/preferences/service.html">preferences/service</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/environment.html">system/environment</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/events.html">system/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/runtime.html">system/runtime</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/unload.html">system/unload</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/xul-app.html">system/xul-app</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs/utils.html">tabs/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/assert.html">test/assert</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/harness.html">test/harness</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/httpd.html">test/httpd</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/runner.html">test/runner</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/collection.html">util/collection</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/deprecate.html">util/deprecate</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/list.html">util/list</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/uuid.html">util/uuid</a>
+</li>
+
+<li>
+<a href="modules/sdk/window/utils.html">window/utils</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <h3 class="sidebar-subsection-header">Tools Reference</h3>
+          <div class="sidebar-subsection-contents">
+            <a href="dev-guide/console.html">console</a>
+            <a href="dev-guide/cfx-tool.html">cfx</a>
+            <a href="dev-guide/package-spec.html">package.json</a>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <ul class="sidebar-section" id="appendices">
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack/Release_Notes"><h3>Release Notes</h3></a></li>
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack"><h3>Jetpack Wiki</h3></a></li>
+        <li><a href="dev-guide/glossary.html"><h3>Glossary</h3></a></li>
+        <li><a href="dev-guide/credits.html"><h3>Credits</h3></a></li>
+
+    </ul>
+<!--end of sidebar column-->
+  </div>
+<!--end of 'columns'-->
+<div class="clearfooter"></div>
+</div>
+</div>
+
+<div id="footer">
+  <div class="section">
+    <img alt="" src="static-files/media/footer-logo-med.png" class="footerlogo">
+    <div id="social-footer">
+      <ul>
+        <li>get to know <b>add-ons</b></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/about">About</a></li>
+        <li><a href="http://blog.mozilla.com/addons">Blog</a></li>
+        <li class="footer-devhub-link"><a href="https://addons.mozilla.org/en-US/developers/">Developer Hub</a></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/faq">FAQ</a></li>
+        <li><a href="https://forums.addons.mozilla.org">Forum</a></li>
+      </ul>
+    </div>
+
+    <div id="copyright">
+      <p id="footer-links">
+        <a href="http://mozilla.com/privacy-policy.html">Privacy Policy</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/about/legal.html">Legal Notices</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/legal/fraud-report/index.html">Report Trademark Abuse</a>
+    &nbsp;|&nbsp;<a href="https://addons.mozilla.org/z/en-US/developers/" class="mobile-link">View Mobile Site</a>
+      </p>
+      <p>
+      Except where otherwise <a href="http://mozilla.com/about/legal.html#site">noted</a>, content on this site is licensed under the <br> <a href="http://creativecommons.org/licenses/by-sa/3.0/"> Creative Commons Attribution Share-Alike License v3.0 </a> or any later version.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="static-files/js/jquery.js"></script>
+<script type="text/javascript" src="static-files/js/main.js"></script>
+
+</body>
+
+</html>

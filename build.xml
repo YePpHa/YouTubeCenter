@@ -107,8 +107,10 @@
   </target>
   
   <target name="firefox" depends="preinit, copy-firefox">
-		<zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
-    <antcall target="clean" />
+    <exec executable="cmd">
+      <arg value="/c"/>
+      <arg value="build-firefox.bat"/>
+    </exec>
 	</target>
   
   <target name="safari" depends="preinit, copy-safari">

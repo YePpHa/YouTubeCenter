@@ -1,0 +1,780 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <base href="file:///C:/Tools/firefox-addon-sdk-1.14/doc/" >
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shCore.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushCss.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/base.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/header.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/footer.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/sdk-docs.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/api-reference.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shCore.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shThemeDefault.css">
+  <!--[if IE]>
+    <style type="text/css">
+      .package-summary .module,
+      .package-entry .module,
+      .package-detail .module {
+      display: block;
+      }
+    </style>
+  <![endif]-->
+
+  <link rel="shortcut icon" type="image/x-icon" href="static-files/media/favicon.png">
+  <title>Developing for Firefox Mobile - Add-on SDK Documentation</title>
+</head>
+<body>
+
+<div id="global-header">
+  <div class="funnel">
+    <a id="mozilla-tab" href="http://www.mozilla.org/?ref=logo">Mozilla</a>
+    <div class="menu">
+	<!-- Google CSE Search Box Begins  -->
+	<!-- Use of this code assumes agreement with the Google Custom Search Terms of Service. -->
+	<!-- The terms of service are available at http://www.google.com/cse/docs/tos.html -->
+      <form action="dev-guide/search.html" id="cse-search-box">
+        <div>
+          <input type="hidden" name="cx" value="017013284162333743052:rvlazd1zehe" />
+          <input type="hidden" name="cof" value="FORID:10" />
+          <input type="hidden" name="ie" value="UTF-8" />
+          <input type="text" name="q" size="31" id="search-box" />
+        </div>
+      </form>
+      <script type="text/javascript" src="https://www.google.com/cse/brand?form=cse-search-box&lang=en"></script>
+    <!-- Google CSE Search Box Ends -->
+    </div>
+  </div>
+</div>
+
+<div id="site-header">
+  <div class="funnel">
+    <h1>
+      <a href="dev-guide/index.html">Add-on SDK<span></span></a>
+    </h1>
+    <div id="version">Version 1.14</div>
+  </div>
+</div>
+
+  <div id="container">
+
+  <div id="columns">
+
+  <div id="main-content-column" class="column">
+    <div id="toc"></div>
+    <div id="search-results"></div>
+    <div id="main-content"><!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<div class="warning">Developing add-ons for Firefox Mobile is still
+an experimental feature of the SDK. Although the SDK modules used are
+stable, the setup instructions and cfx commands are likely to change.
+</div>
+
+<h1>Developing for Firefox Mobile</h1>
+<p><span class="aside">
+To follow this tutorial you'll need to have
+<a href="dev-guide/tutorials/installation.html">installed the SDK</a>
+and learned the
+<a href="dev-guide/tutorials/getting-started-with-cfx.html">basics of <code>cfx</code></a>.
+</span></p>
+<p>Mozilla has recently decided to
+<a href="http://starkravingfinkle.org/blog/2011/11/firefox-for-android-native-android-ui/">reimplement the UI for Firefox Mobile on Android</a>
+ using native Android widgets instead of XUL. With the add-on SDK you
+can develop add-ons that run on this new version of Firefox Mobile as
+well as on the desktop version of Firefox.</p>
+<p>You can use the same code to target both desktop Firefox and Firefox
+Mobile, and just specify some extra options to <code>cfx run</code>, <code>cfx test</code>,
+and <code>cfx xpi</code> when targeting Firefox Mobile.</p>
+<p>Right now not all modules are fully functional, but we're working on adding
+support for more modules.
+The <a href="dev-guide/tutorials/mobile.html#modules-compatibility">tables at the end of this guide</a> list the modules that are currently supported on Firefox Mobile.</p>
+<p>This tutorial explains how to run SDK add-ons on an Android
+device connected via USB to your development machine.
+We'll use the
+<a href="http://developer.android.com/guide/developing/tools/adb.html">Android Debug Bridge</a>
+(adb) to communicate between the Add-on SDK and the device.</p>
+<img class="image-center" src="static-files/media/mobile-setup-adb.png"/>
+
+<p>It's possible to use the
+<a href="http://developer.android.com/guide/developing/tools/emulator.html">Android emulator</a>
+to develop add-ons for Android without access to a device, but it's slow,
+so for the time being it's much easier to use the technique described
+below.</p>
+<h2>Setting up the Environment</h2>
+<p>First you'll need an
+<a href="https://wiki.mozilla.org/Mobile/Platforms/Android#System_Requirements">Android device capable of running the native version of
+Firefox Mobile</a>.
+Then:</p>
+<ul>
+<li>install the
+<a href="https://wiki.mozilla.org/Mobile/Platforms/Android#Download_Nightly">Nightly build of the native version of Firefox Mobile</a>
+on the device.</li>
+<li><a href="http://developer.android.com/guide/developing/device.html#setting-up">enable USB debugging on the device (step 3 of this link only)</a></li>
+</ul>
+<p>On the development machine:</p>
+<ul>
+<li>install version 1.5 or higher of the Add-on SDK</li>
+<li>install the correct version of the
+<a href="http://developer.android.com/sdk/index.html">Android SDK</a>
+for your device</li>
+<li>using the Android SDK, install the
+<a href="http://developer.android.com/sdk/installing.html#components">Android Platform Tools</a></li>
+</ul>
+<p>Next, attach the device to the development machine via USB.</p>
+<p>Now open up a command shell. Android Platform Tools will have
+installed <code>adb</code> in the "platform-tools" directory under the directory
+in which you installed the Android SDK. Make sure the "platform-tools"
+directory is in your path. Then type:</p>
+<pre>
+adb devices
+</pre>
+
+<p>You should see some output like:</p>
+<pre>
+List of devices attached
+51800F220F01564 device
+</pre>
+
+<p>(The long hex string will be different.)</p>
+<p>If you do, then <code>adb</code> has found your device and you can get started.</p>
+<h2>Running Add-ons on Android</h2>
+<p>You can develop your add-on as normal, as long as you restrict yourself
+to the supported modules.</p>
+<p>When you need to run the add-on, first ensure that Firefox is not running
+on the device. Then execute <code>cfx run</code> with some extra options:</p>
+<pre>
+cfx run -a fennec-on-device -b /path/to/adb --mobile-app fennec --force-mobile
+</pre>
+
+<p>See <a href="dev-guide/tutorials/mobile.html#cfx-options">"cfx Options for Mobile Development"</a>
+for the details of this command.</p>
+<p>In the command shell, you should see something like:</p>
+<pre>
+Launching mobile application with intent name org.mozilla.fennec
+Pushing the addon to your device
+Starting: Intent { act=android.activity.MAIN cmp=org.mozilla.fennec/.App (has extras) }
+--------- beginning of /dev/log/main
+--------- beginning of /dev/log/system
+Could not read chrome manifest 'file:///data/data/org.mozilla.fennec/chrome.manifest'.
+info: starting
+info: starting
+zerdatime 1329258528988 - browser chrome startup finished.
+</pre>
+
+<p>This will be followed by lots of debug output.</p>
+<p>On the device, you should see Firefox launch with your add-on installed.</p>
+<p><code>console.log()</code> output from your add-on is written to the command shell,
+just as it is in desktop development. However, because there's a
+lot of other debug output in the shell, it's not easy to follow.
+The command <code>adb logcat</code> prints <code>adb</code>'s log, so you can filter the
+debug output after running the add-on. For example, on Mac OS X
+or Linux you can use a command like:</p>
+<pre>
+adb logcat | grep info:
+</pre>
+
+<p>Running <code>cfx test</code> is identical:</p>
+<pre>
+cfx test -a fennec-on-device -b /path/to/adb --mobile-app fennec --force-mobile
+</pre>
+
+<h2><a name="cfx-options">cfx Options for Mobile Development</a></h2>
+<p>As you see in the quote above, <code>cfx run</code> and <code>cfx test</code> need four options to
+work on Android devices.</p>
+<table>
+<colgroup>
+<col width="30%">
+<col width="70%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>-a fennec-on-device</code>
+  </td>
+  <td>
+    This tells the Add-on SDK which application will host the
+    add-on, and should be set to "fennec-on-device" when running
+    an add-on on Firefox Mobile on a device.
+  </td>
+</tr>
+<tr>
+  <td>
+    <code>-b /path/to/adb</code>
+  </td>
+  <td>
+    <p>As we've seen, <code>cfx</code> uses the Android Debug Bridge (adb)
+    to communicate with the Android device. This tells <code>cfx</code>
+    where to find the <code>adb</code> executable.</p>
+    <p>You need to supply the full path to the <code>adb</code> executable.</p>
+  </td>
+</tr>
+<tr>
+  <td>
+    <code>--mobile-app</code>
+  </td>
+  <td>
+    <p>This is the name of the <a href="http://developer.android.com/reference/android/content/Intent.html">
+    Android intent</a>. Its value depends on the version of Firefox Mobile
+    that you're running on the device:</p>
+    <ul>
+      <li><code>fennec</code>: if you're running Nightly</li>
+      <li><code>fennec_aurora</code>: if you're running Aurora</li>
+      <li><code>firefox_beta</code>: if you're running Beta</li>
+      <li><code>firefox</code>: if you're running Release</li>
+    </ul>
+    <p>If you're not sure, run a command like this (on OS X/Linux, or the equivalent on Windows):</p>
+    <pre>adb shell pm list packages | grep mozilla</pre>
+    <p>You should see "package" followed by "org.mozilla." followed by a string.
+    The final string is the name you need to use. For example, if you see:</p>
+    <pre>package:org.mozilla.fennec</pre>
+    <p>...then you need to specify:</p>
+    <pre>--mobile-app fennec</pre>
+    <p>This option is not required if you have only one Firefox application
+    installed on the device.</p>
+  </td>
+</tr>
+<tr>
+  <td>
+    <code>--force-mobile</code>
+  </td>
+  <td>
+    <p>This is used to force compatibility with Firefox Mobile, and should
+    always be used when running on Firefox Mobile.</p>
+  </td>
+</tr>
+</table>
+
+<h2>Packaging Mobile Add-ons</h2>
+<p>To package a mobile add-on as an XPI, use the command:</p>
+<pre>
+cfx xpi --force-mobile
+</pre>
+
+<p>Actually installing the XPI on the device is a little tricky. The easiest way is
+probably to copy the XPI somewhere on the device:</p>
+<pre>
+adb push my-addon.xpi /mnt/sdcard/
+</pre>
+
+<p>Then open Firefox Mobile and type this into the address bar:</p>
+<pre>
+file:///mnt/sdcard/my-addon.xpi
+</pre>
+
+<p>The browser should open the XPI and ask if you
+want to install it.</p>
+<p>Afterwards you can delete it using <code>adb</code> as follows:</p>
+<pre>
+adb shell
+cd /mnt/sdcard
+rm my-addon.xpi
+</pre>
+
+<p><a name="modules-compatibility"></a></p>
+<h2>Module Compatibility</h2>
+<p>Modules not yet supported in Firefox Mobile are <span class="unsupported-on-mobile">highlighted</span> in the tables below.</p>
+<h3>High-Level APIs</h3>
+<ul class="module-list">
+  <li class="unsupported-on-mobile"><a href="modules/sdk/addon-page.html">addon-page</a></li>
+  <li><a href="modules/sdk/base64.html">base64</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/clipboard.html">clipboard</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/context-menu.html">context-menu</a></li>
+  <li><a href="modules/sdk/hotkeys.html">hotkeys</a></li>
+  <!-- test-l10n-locale, test-l10n-plural-rules -->
+  <li><a href="modules/sdk/l10n.html">l10n</a></li>
+  <li><a href="modules/sdk/notifications.html">notifications</a></li>
+  <!-- test-page-mod fails, but we know the module works -->
+  <li><a href="modules/sdk/page-mod.html">page-mod</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/panel.html">panel</a></li>
+  <!-- test-passwords, test-passwords-utils (with exceptions / warning from js console) -->
+  <li><a href="modules/sdk/passwords.html">passwords</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/private-browsing.html">private-browsing</a></li>
+  <li><a href="modules/sdk/querystring.html">querystring</a></li>
+  <li><a href="modules/sdk/request.html">request</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/selection.html">selection</a></li>
+  <li><a href="modules/sdk/self.html">self</a></li>
+  <li><a href="modules/sdk/simple-prefs.html">simple-prefs</a></li>
+  <li><a href="modules/sdk/simple-storage.html">simple-storage</a></li>
+  <!-- test-tabs, test-tabs-common -->
+  <li><a href="modules/sdk/tabs.html">tabs</a></li>
+  <!-- test-timer -->
+  <li><a href="modules/sdk/timers.html">timers</a></li>
+  <li><a href="modules/sdk/url.html">url</a></li>
+  <li><a href="modules/sdk/widget.html">widget</a></li>
+  <!-- test-windows-common, test-windows -->
+  <li><a href="modules/sdk/windows.html">windows</a></li>
+</ul>
+
+<h3>Low-Level APIs</h3>
+<ul class="module-list">
+  <li><a href="modules/toolkit/loader.html">/loader</a></li>
+  <li><a href="dev-guide/tutorials/chrome.html">chrome</a></li>
+  <li><a href="modules/sdk/console/plain-text.html">console/plain-text</a></li>
+  <li><a href="modules/sdk/console/traceback.html">console/traceback</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/content/content.html">content/content</a></li>
+  <li><a href="modules/sdk/content/loader.html">content/loader</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/content/symbiont.html">content/symbiont</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/content/worker.html">content/worker</a></li>
+  <li>core/disposable</li>
+  <li><a href="modules/sdk/core/heritage.html">core/heritage</a></li>
+  <li><a href="modules/sdk/core/namespace.html">core/namespace</a></li>
+  <li><a href="modules/sdk/core/promise.html">core/promise</a></li>
+  <li><a href="modules/sdk/deprecated/api-utils.html">deprecated/api-utils</a></li>
+  <li><a href="modules/sdk/deprecated/app-strings.html">deprecated/app-strings</a></li>
+  <li><a href="modules/sdk/deprecated/cortex.html">deprecated/cortex</a></li>
+  <li><a href="modules/sdk/deprecated/errors.html">deprecated/errors</a></li>
+  <li><a href="modules/sdk/deprecated/events.html">deprecated/events</a></li>
+  <li><a href="modules/sdk/deprecated/light-traits.html">deprecated/light-traits</a></li>
+  <li>deprecated/list</li>
+  <li><a href="modules/sdk/deprecated/observer-service.html">deprecated/observer-service</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/deprecated/tab-browser.html">deprecated/tab-browser</a></li>
+  <!-- test-traits-core, test-traits -->
+  <li><a href="modules/sdk/deprecated/traits.html">deprecated/traits</a></li>
+  <li class="unsupported-on-mobile"><a href="modules/sdk/deprecated/window-utils.html">deprecated/window-utils</a></li>
+  <!-- test-dom -->
+  <li>dom/events</li>
+  <li><a href="modules/sdk/event/core.html">event/core</a></li>
+  <li><a href="modules/sdk/event/target.html">event/target</a></li>
+  <li><a href="modules/sdk/frame/hidden-frame.html">frame/hidden-frame</a></li>
+  <li><a href="modules/sdk/frame/utils.html">frame/utils</a></li>
+  <li><a href="modules/sdk/io/byte-streams.html">io/byte-streams</a></li>
+  <li><a href="modules/sdk/io/file.html">io/file</a></li>
+  <li><a href="modules/sdk/io/text-streams.html">io/text-streams</a></li>
+  <li>keyboard/observer</li>
+  <li>keyboard/utils</li>
+  <li>lang/functional</li>
+  <li>lang/type</li>
+  <li><a href="modules/sdk/loader/cuddlefish.html">loader/cuddlefish</a></li>
+  <li><a href="modules/sdk/loader/sandbox.html">loader/sandbox</a></li>
+  <li><a href="modules/sdk/net/url.html">net/url</a></li>
+  <li><a href="modules/sdk/net/xhr.html">net/xhr</a></li>
+  <li><a href="modules/sdk/page-mod/match-pattern.html">page-mod/match-pattern</a></li>
+  <li><a href="modules/sdk/platform/xpcom.html">platform/xpcom</a></li>
+  <!-- test-preferences-service, test-preferences-target -->
+  <li><a href="modules/sdk/preferences/service.html">preferences/service</a></li>
+  <li><a href="modules/sdk/system/environment.html">system/environment</a></li>
+  <!-- No test for `system/events`, assuming it works because other compatible modules are using it -->
+  <li><a href="modules/sdk/system/events.html">system/events</a></li>
+  <li>system/globals</li>
+  <!-- No test for `system/events`, assuming it works because other compatible modules are using it -->
+  <li><a href="modules/sdk/system/runtime.html">system/runtime</a></li>
+  <li><a href="modules/sdk/system/unload.html">system/unload</a></li>
+  <li><a href="modules/sdk/system/xul-app.html">system/xul-app</a></li>
+  <!-- No test for `assert`, assuming it works because the test are using it -->
+  <li><a href="modules/sdk/test/assert.html">test/assert</a></li>
+  <!-- No test for `harness`, assuming it works because the test are using it -->
+  <li><a href="modules/sdk/test/harness.html">test/harness</a></li>
+  <li><a href="modules/sdk/test/httpd.html">test/httpd</a></li>
+  <!-- No test for `runner`, assuming it works because the test are using it -->
+  <li><a href="modules/sdk/test/runner.html">test/runner</a></li>
+  <li>test/tmp-file</li>
+  <li>util/array</li>
+  <li><a href="modules/sdk/util/collection.html">util/collection</a></li>
+  <li><a href="modules/sdk/util/deprecate.html">util/deprecate</a></li>
+  <li><a href="modules/sdk/util/list.html">util/list</a></li>
+  <li>util/registry</li>
+  <li><a href="modules/sdk/util/uuid.html">util/uuid</a></li>
+  <!-- test-window-utils2 -->
+  <li><a href="modules/sdk/window/utils.html">window/utils</a></li>
+</ul></div>
+  </div>
+
+  <div id="sidebar" class="column">
+    <div class="sidebar-section" id="addon-development">
+      <a href="dev-guide/index.html"><h2 class="sidebar-section-header">Developer Guide</h2></a>
+      <ul class="sidebar-section-contents" id="default-section-contents">
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/installation.html"><h3>Installation</h3></a>
+        </li>
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/index.html"><h3 class="sidebar-subsection-header">Tutorials</h3></a>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/guides/index.html"><h3 class="sidebar-subsection-header">Guides</h3></a>
+        </li>
+
+        <li class="sidebar-subsection" id="third-party-module-subsection">
+          <a href="modules/third-party-modules.html"><h3 class="sidebar-subsection-header">Third-Party APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="third-party-module-summaries"></ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/high-level-modules.html"><h3 class="sidebar-subsection-header">High-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="high-level-module-summaries">
+<li>
+<a href="modules/sdk/addon-page.html">addon-page</a>
+</li>
+
+<li>
+<a href="modules/sdk/base64.html">base64</a>
+</li>
+
+<li>
+<a href="modules/sdk/clipboard.html">clipboard</a>
+</li>
+
+<li>
+<a href="modules/sdk/context-menu.html">context-menu</a>
+</li>
+
+<li>
+<a href="modules/sdk/hotkeys.html">hotkeys</a>
+</li>
+
+<li>
+<a href="modules/sdk/indexed-db.html">indexed-db</a>
+</li>
+
+<li>
+<a href="modules/sdk/l10n.html">l10n</a>
+</li>
+
+<li>
+<a href="modules/sdk/notifications.html">notifications</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod.html">page-mod</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-worker.html">page-worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/panel.html">panel</a>
+</li>
+
+<li>
+<a href="modules/sdk/passwords.html">passwords</a>
+</li>
+
+<li>
+<a href="modules/sdk/private-browsing.html">private-browsing</a>
+</li>
+
+<li>
+<a href="modules/sdk/querystring.html">querystring</a>
+</li>
+
+<li>
+<a href="modules/sdk/request.html">request</a>
+</li>
+
+<li>
+<a href="modules/sdk/selection.html">selection</a>
+</li>
+
+<li>
+<a href="modules/sdk/self.html">self</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-prefs.html">simple-prefs</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-storage.html">simple-storage</a>
+</li>
+
+<li>
+<a href="modules/sdk/system.html">system</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs.html">tabs</a>
+</li>
+
+<li>
+<a href="modules/sdk/timers.html">timers</a>
+</li>
+
+<li>
+<a href="modules/sdk/url.html">url</a>
+</li>
+
+<li>
+<a href="modules/sdk/widget.html">widget</a>
+</li>
+
+<li>
+<a href="modules/sdk/windows.html">windows</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/low-level-modules.html"><h3 class="sidebar-subsection-header">Low-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="low-level-module-summaries">
+<li>
+<a href="modules/toolkit/loader.html">/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/plain-text.html">console/plain-text</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/traceback.html">console/traceback</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/content.html">content/content</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/loader.html">content/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/symbiont.html">content/symbiont</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/worker.html">content/worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/heritage.html">core/heritage</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/namespace.html">core/namespace</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/promise.html">core/promise</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/api-utils.html">deprecated/api-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/app-strings.html">deprecated/app-strings</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/cortex.html">deprecated/cortex</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/errors.html">deprecated/errors</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/events.html">deprecated/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/light-traits.html">deprecated/light-traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/observer-service.html">deprecated/observer-service</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/tab-browser.html">deprecated/tab-browser</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/traits.html">deprecated/traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/window-utils.html">deprecated/window-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/core.html">event/core</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/target.html">event/target</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/hidden-frame.html">frame/hidden-frame</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/utils.html">frame/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/byte-streams.html">io/byte-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/file.html">io/file</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/text-streams.html">io/text-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/cuddlefish.html">loader/cuddlefish</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/sandbox.html">loader/sandbox</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/url.html">net/url</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/xhr.html">net/xhr</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod/match-pattern.html">page-mod/match-pattern</a>
+</li>
+
+<li>
+<a href="modules/sdk/platform/xpcom.html">platform/xpcom</a>
+</li>
+
+<li>
+<a href="modules/sdk/preferences/service.html">preferences/service</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/environment.html">system/environment</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/events.html">system/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/runtime.html">system/runtime</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/unload.html">system/unload</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/xul-app.html">system/xul-app</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs/utils.html">tabs/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/assert.html">test/assert</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/harness.html">test/harness</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/httpd.html">test/httpd</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/runner.html">test/runner</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/collection.html">util/collection</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/deprecate.html">util/deprecate</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/list.html">util/list</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/uuid.html">util/uuid</a>
+</li>
+
+<li>
+<a href="modules/sdk/window/utils.html">window/utils</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <h3 class="sidebar-subsection-header">Tools Reference</h3>
+          <div class="sidebar-subsection-contents">
+            <a href="dev-guide/console.html">console</a>
+            <a href="dev-guide/cfx-tool.html">cfx</a>
+            <a href="dev-guide/package-spec.html">package.json</a>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <ul class="sidebar-section" id="appendices">
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack/Release_Notes"><h3>Release Notes</h3></a></li>
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack"><h3>Jetpack Wiki</h3></a></li>
+        <li><a href="dev-guide/glossary.html"><h3>Glossary</h3></a></li>
+        <li><a href="dev-guide/credits.html"><h3>Credits</h3></a></li>
+
+    </ul>
+<!--end of sidebar column-->
+  </div>
+<!--end of 'columns'-->
+<div class="clearfooter"></div>
+</div>
+</div>
+
+<div id="footer">
+  <div class="section">
+    <img alt="" src="static-files/media/footer-logo-med.png" class="footerlogo">
+    <div id="social-footer">
+      <ul>
+        <li>get to know <b>add-ons</b></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/about">About</a></li>
+        <li><a href="http://blog.mozilla.com/addons">Blog</a></li>
+        <li class="footer-devhub-link"><a href="https://addons.mozilla.org/en-US/developers/">Developer Hub</a></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/faq">FAQ</a></li>
+        <li><a href="https://forums.addons.mozilla.org">Forum</a></li>
+      </ul>
+    </div>
+
+    <div id="copyright">
+      <p id="footer-links">
+        <a href="http://mozilla.com/privacy-policy.html">Privacy Policy</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/about/legal.html">Legal Notices</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/legal/fraud-report/index.html">Report Trademark Abuse</a>
+    &nbsp;|&nbsp;<a href="https://addons.mozilla.org/z/en-US/developers/" class="mobile-link">View Mobile Site</a>
+      </p>
+      <p>
+      Except where otherwise <a href="http://mozilla.com/about/legal.html#site">noted</a>, content on this site is licensed under the <br> <a href="http://creativecommons.org/licenses/by-sa/3.0/"> Creative Commons Attribution Share-Alike License v3.0 </a> or any later version.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="static-files/js/jquery.js"></script>
+<script type="text/javascript" src="static-files/js/main.js"></script>
+
+</body>
+
+</html>
