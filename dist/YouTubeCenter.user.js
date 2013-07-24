@@ -9460,7 +9460,6 @@
       }
       if (ytcenter.settings.removeBrandingBackground) {
         $AddCSS(document.body, "ytcenter-branding-remove-background");
-        if (document.getElementById("player")) $RemoveCSS(document.getElementById("player"), "watch-branded-banner");
       }
       
       ytcenter.player.getConfig().args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
@@ -9472,10 +9471,8 @@
         }
         if (ytcenter.settings.removeBrandingBackground) {
           $AddCSS(document.body, "ytcenter-branding-remove-background");
-          if (document.getElementById("player")) $RemoveCSS(document.getElementById("player"), "watch-branded-banner");
         } else {
           $RemoveCSS(document.body, "ytcenter-branding-remove-background");
-          if (document.getElementById("player")) $AddCSS(document.getElementById("player"), "watch-branded-banner");
         }
       });
       
