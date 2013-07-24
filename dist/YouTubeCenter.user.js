@@ -9366,10 +9366,10 @@
       con.log("YouTube Player is " + (ytcenter.html5 ? "HTML5" : "Flash"));
       ytcenter.video.stream = ytcenter.parseStream(ytcenter.player.getConfig().args);
       
-      try {
-      //if (ytcenter.video.stream[0].s) {
-        ytcenter.utils.updateSignatureDecoder(); // Only Updating the signature decoder when it's needed!
-      //}
+      try { // Just to make sure that if this fails that it doesn't make YouTube Center stop working.
+        if (ytcenter.video.stream[0].s) {
+          ytcenter.utils.updateSignatureDecoder(); // Only Updating the signature decoder when it's needed!
+        }
       } catch (e) {
         con.error(e);
       }
