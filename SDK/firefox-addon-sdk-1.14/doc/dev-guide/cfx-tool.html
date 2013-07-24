@@ -1,0 +1,1281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <base href="file:///C:/Tools/firefox-addon-sdk-1.14/doc/" >
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shCore.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushCss.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/base.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/header.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/footer.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/sdk-docs.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/api-reference.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shCore.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shThemeDefault.css">
+  <!--[if IE]>
+    <style type="text/css">
+      .package-summary .module,
+      .package-entry .module,
+      .package-detail .module {
+      display: block;
+      }
+    </style>
+  <![endif]-->
+
+  <link rel="shortcut icon" type="image/x-icon" href="static-files/media/favicon.png">
+  <title>cfx - Add-on SDK Documentation</title>
+</head>
+<body>
+
+<div id="global-header">
+  <div class="funnel">
+    <a id="mozilla-tab" href="http://www.mozilla.org/?ref=logo">Mozilla</a>
+    <div class="menu">
+	<!-- Google CSE Search Box Begins  -->
+	<!-- Use of this code assumes agreement with the Google Custom Search Terms of Service. -->
+	<!-- The terms of service are available at http://www.google.com/cse/docs/tos.html -->
+      <form action="dev-guide/search.html" id="cse-search-box">
+        <div>
+          <input type="hidden" name="cx" value="017013284162333743052:rvlazd1zehe" />
+          <input type="hidden" name="cof" value="FORID:10" />
+          <input type="hidden" name="ie" value="UTF-8" />
+          <input type="text" name="q" size="31" id="search-box" />
+        </div>
+      </form>
+      <script type="text/javascript" src="https://www.google.com/cse/brand?form=cse-search-box&lang=en"></script>
+    <!-- Google CSE Search Box Ends -->
+    </div>
+  </div>
+</div>
+
+<div id="site-header">
+  <div class="funnel">
+    <h1>
+      <a href="dev-guide/index.html">Add-on SDK<span></span></a>
+    </h1>
+    <div id="version">Version 1.14</div>
+  </div>
+</div>
+
+  <div id="container">
+
+  <div id="columns">
+
+  <div id="main-content-column" class="column">
+    <div id="toc"></div>
+    <div id="search-results"></div>
+    <div id="main-content"><!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<h1>cfx</h1>
+<p>The <code>cfx</code> command-line tool gives you access to the SDK documentation and
+development servers as well as testing, running, and building add-ons.
+<code>cfx</code> usage is:</p>
+<pre>
+  cfx [options] command [command-specific options]
+</pre>
+
+<p>"Options" are global options applicable to the tool itself or to all
+commands (for example <code>--help</code>). <code>cfx</code> supports the following global options:</p>
+<pre>
+  -h, --help        - show a help message and exit
+  -v, --verbose     - enable lots of output
+</pre>
+
+<p>"Command-specific options" are only
+applicable to a subset of the commands.</p>
+<h2>Supported Commands</h2>
+<h3>cfx docs</h3>
+<p>This command displays the documentation for the SDK. The documentation is
+shipped with the SDK in <a href="http://daringfireball.net/projects/markdown/">Markdown</a>
+format. The first time this command is executed, and any time after the
+Markdown files on disk have changed, <code>cfx docs</code> will generate a set of HTML
+pages from them and launch a web browser to display them. If the Markdown files
+haven't changed, <code>cfx docs</code> just launches a browser initialized to the set of
+generated pages.</p>
+<p>To regenerate the documentation associated with a single file, you can
+specify the file as an argument. For example:</p>
+<pre>
+  cfx docs doc/dev-guide-source/addon-development/cfx-tool.md 
+</pre>
+
+<p>This command will regenerate only the HTML page you're reading.
+This is useful if you're iteratively editing a single file, and don't want to wait for cfx to
+regenerate the complete documentation tree.</p>
+<h3>cfx init</h3>
+<p>Create a new directory called "my-addon", change into it, and run <code>cfx init</code>.</p>
+<p>This command will create an skeleton add-on, as a starting point for your
+own add-on development, with the following file structure:</p>
+<ul class="tree">
+  <li>my-addon
+    <ul>
+    <li>data</li>
+    <li>docs
+      <ul><li>main.md</li></ul>
+    </li>
+    <li>lib
+      <ul><li>main.js</li></ul>
+    </li>
+    <li>package.json</li>
+    <li>README.md</li>
+    <li>tests
+      <ul><li>test-main.js</li></ul>
+    </li>
+    </ul>
+  </li>
+</ul>
+
+<div style="clear:both"></div>
+
+<h3>cfx run</h3>
+<p>This command is used to run the add-on. Called with no options it looks for a
+file called <code>package.json</code> in the current directory, loads the corresponding
+add-on, and runs it under the version of Firefox it finds in the platform's
+default install path.</p>
+<h4>Supported Options</h4>
+<p>You can point <code>cfx run</code> at a different <code>package.json</code> file using the
+<code>--pkgdir</code> option, and pass arguments to your add-on using the
+<code>--static-args</code> option.</p>
+<p>You can specify a different version of the
+<a href="dev-guide/glossary.html#host-application">host application</a>
+using the <code>--binary</code> option, passing in the path to the application binary to
+run. The path may be specified as a full path or may be relative to the current
+directory. But note that the version must be 4.0b7 or later.</p>
+<p><code>cfx run</code> runs the host application with a new
+<a href="http://support.mozilla.com/en-US/kb/profiles">profile</a>. You can specify an
+existing profile using the <code>--profiledir</code> option, and this gives you access to
+that profile's history, bookmarks, and other add-ons. This enables you to run
+your add-on alongside debuggers like <a href="http://getfirebug.com/">Firebug</a>.
+See <a href="dev-guide/cfx-tool.html#profiledir">
+"Using --profiledir"</a> for more information.</p>
+<table>
+<colgroup>
+<col width="30%">
+<col width="70%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>-b BINARY, --binary=BINARY</code>
+  </td>
+  <td>
+    Use the host application binary specified in BINARY. BINARY may be specified as
+    a full path or as a path relative to the current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--binary-args=CMDARGS</code>
+  </td>
+  <td>
+    <p>Pass <a href="http://kb.mozillazine.org/Command_line_arguments">extra
+    arguments</a> to the binary being executed (for example, Firefox).</p>
+    <p>For example, to pass the
+    <code>-jsconsole</code> argument to Firefox, which will launch the
+    <a href="https://developer.mozilla.org/en/Error_Console">JavaScript
+    Error Console</a>, try the following:</p>
+    <pre>cfx run --binary-args -jsconsole</pre>
+    <p>To pass multiple arguments, or arguments containing spaces, quote them:</p>
+    <pre>cfx run --binary-args '-url "www.mozilla.org" -jsconsole'</pre>
+    </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--extra-packages=EXTRA_PACKAGES</code>
+  </td>
+  <td>
+    Extra packages to include, specified as a comma-separated list of package
+    names.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>-g CONFIG, --use-config=CONFIG</code>
+  </td>
+  <td>
+    Pass a set of options by
+    <a href="dev-guide/cfx-tool.html#configurations">referencing a named configuration</a>.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>-p PROFILEDIR, --profiledir=PROFILEDIR</code>
+  </td>
+  <td>
+    <p>Use an existing
+    <a href="http://support.mozilla.com/en-US/kb/profiles">profile</a>
+    located in PROFILEDIR. PROFILEDIR may be specified as
+    a full path or as a path relative to the current directory.</p>
+
+<p>See <a href="dev-guide/cfx-tool.html#profiledir">
+    "Using --profiledir"</a> for more information.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--pkgdir=PKGDIR</code>
+  </td>
+  <td>
+    Use an add-on located in PKGDIR. PKGDIR may be specified as
+    a full path or as a path relative to the current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--static-args=STATIC_ARGS</code>
+  </td>
+  <td>
+    <a href="dev-guide/cfx-tool.html#arguments">Pass arguments to your add-on</a>,
+    in JSON format.
+  </td>
+</tr>
+
+</table>
+
+<h4>Experimental Options</h4>
+<table>
+<colgroup>
+<col width="30%">
+<col width="70%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>-a APP, --app=APP</code>
+  </td>
+  <td>
+    By default, <code>cfx run</code> uses Firefox as the
+    <a href="dev-guide/glossary.html#host-application">host application</a>.
+    This option enables you to select a different host. You can specify
+    "firefox", "xulrunner", "fennec", or "thunderbird". But note that at
+    present only Firefox is supported.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--no-run</code>
+  </td>
+  <td>
+    <p>With this option <code>cfx</code> will not execute the command, but
+    will print out the command that it would have used to execute the
+    command.</p>
+    <p>For example, if you type:</p>
+    <pre>
+cfx run ---no-run</pre>
+    <p>you will see something like:</p>
+    <pre>
+To launch the application, enter the following command:
+ /path/to/firefox/firefox-bin -profile
+ /path/to/profile/tmpJDNlP6.mozrunner -foreground -no-remote</pre>
+    <p>This enables you to run the add-on without going through
+    <code>cfx</code>, which might be useful if you want to run it
+    inside a debugger like GDB.</p>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--templatedir=TEMPLATEDIR</code>
+  </td>
+  <td>
+    The <code>cfx run</code> command constructs the add-on using a extension
+    template which you can find under the SDK root, in
+    <code>app-extension</code>.
+    Use the <code>--templatedir</code> option to specify a different template.
+    TEMPLATEDIR may be specified as a full path or as a path relative to the
+    current directory.
+  </td>
+</tr>
+
+</table>
+
+<h4>Internal Options</h4>
+<table>
+<colgroup>
+<col width="30%">
+<col width="70%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>--addons=ADDONS</code>
+  </td>
+  <td>
+    Paths of add-ons to install, comma-separated. ADDONS may be specified as
+    a full path or as a path relative to the current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--e10s</code>
+  </td>
+  <td>
+    If this option is set then the add-on runs in a separate process.
+    This option is currently not implemented.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--keydir=KEYDIR</code>
+  </td>
+  <td>
+    Supply a different location for
+    <a href="dev-guide/guides/program-id.html">signing keys</a>.
+    KEYDIR may be specified as a full path or as a path relative to the
+    current directory.
+  </td>
+</tr>
+
+</table>
+
+<h3>cfx test</h3>
+<p>Run available tests for the specified package.</p>
+<p><span class="aside">Note the hyphen after "test" in the module name.
+<code>cfx test</code> will include a module called "test-myCode.js", but will exclude
+modules called "test_myCode.js" or "testMyCode.js".</span></p>
+<p>Called with no options this command will look for a file called <code>package.json</code>
+in the current directory. If <code>package.json</code> exists, <code>cfx</code> will load the
+corresponding add-on, load from the <code>tests</code> directory
+any modules that start with the word <code>test-</code> and run the unit tests
+they contain.</p>
+<p>See the
+<a href="dev-guide/tutorials/unit-testing.html">tutorial on unit testing</a> and the
+<a href="modules/sdk/test/assert.html">reference documentation for the <code>assert</code> module</a>
+for details.</p>
+<h4>Supported Options</h4>
+<p>As with <code>cfx run</code> you can use options to control which host application binary
+version to use, and to select a profile.</p>
+<p>You can also control which tests are run: you
+can test dependent packages, filter the tests by name and run tests multiple
+times.</p>
+<table>
+<colgroup>
+<col width="30%">
+<col width="70%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>-b BINARY, --binary=BINARY</code>
+  </td>
+  <td>
+    Use the host application binary specified in BINARY. BINARY may be specified as
+    a full path or as a path relative to the current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--binary-args=CMDARGS</code>
+  </td>
+  <td>
+    <p>Pass <a href="http://kb.mozillazine.org/Command_line_arguments">extra
+    arguments</a> to the binary being executed (for example, Firefox).</p>
+    <p>For example, to pass the
+    <code>-jsconsole</code> argument to Firefox, which will launch the
+    <a href="https://developer.mozilla.org/en/Error_Console">JavaScript
+    Error Console</a>, try the following:</p>
+    <pre>cfx run --binary-args -jsconsole</pre>
+    <p>To pass multiple arguments, or arguments containing spaces, quote them:</p>
+    <pre>cfx run --binary-args '-url "www.mozilla.org" -jsconsole'</pre>
+    </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--dependencies</code>
+  </td>
+  <td>
+    Load and run any tests that are included with modules that your package
+    depends on.
+    <br>
+    For example: if your add-on depends on modules from the SDK, then
+    <code>cfx</code> will run the unit tests for the SDK's modules as well
+    as yours.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>-f FILENAME[:TESTNAME], --filter=FILENAME[:TESTNAME]</code>
+  </td>
+  <td>
+    Only run tests whose filenames match FILENAME and
+    optionally match TESTNAME, both regexps (test, testall, testex, testpkgs)
+    <br>
+    For example: if you specify <code>--filter data</code>, then
+    <code>cfx</code> will only run tests in those modules whose name contain
+    the string "data".
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>-g CONFIG, --use-config=CONFIG</code>
+  </td>
+  <td>
+    Pass a set of options by
+    <a href="dev-guide/cfx-tool.html#configurations">referencing a named configuration</a>.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>-p PROFILEDIR, --profiledir=PROFILEDIR</code>
+  </td>
+  <td>
+    <p>Use an existing
+    <a href="http://support.mozilla.com/en-US/kb/profiles">profile</a>
+    located in PROFILEDIR. PROFILEDIR may be specified as
+    a full path or as a path relative to the current directory.</p>
+
+<p>See <a href="dev-guide/cfx-tool.html#profiledir">
+    "Using --profiledir"</a> for more information.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--times=ITERATIONS</code>
+  </td>
+  <td>
+    Execute tests ITERATIONS number of times.
+  </td>
+</tr>
+
+</table>
+
+<h4>Experimental Options</h4>
+<table>
+<colgroup>
+<col width="30%">
+<col width="70%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>-a APP, --app=APP</code>
+  </td>
+  <td>
+    By default, <code>cfx test</code> uses Firefox as the
+    <a href="dev-guide/glossary.html#host-application">host application</a>.
+    This option enables you to select a different host. You can specify
+    "firefox", "xulrunner", "fennec", or "thunderbird". But note that at
+    present only Firefox is supported.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--no-run</code>
+  </td>
+  <td>
+    <p>With this option <code>cfx</code> will not execute the command, but
+    will print out the command that it would have used to execute the
+    command.</p>
+    <p>For example, if you type:</p>
+    <pre>
+cfx run ---no-run</pre>
+    <p>you will see something like:</p>
+    <pre>
+To launch the application, enter the following command:
+ /path/to/firefox/firefox-bin -profile
+ /path/to/profile/tmpJDNlP6.mozrunner -foreground -no-remote</pre>
+    <p>This enables you to run the add-on without going through
+    <code>cfx</code>, which might be useful if you want to run it
+    inside a debugger like GDB.</p>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--use-server</code>
+  </td>
+  <td>
+    Run tests using a server previously started with <code>cfx develop</code>.
+  </td>
+</tr>
+
+</table>
+
+<h4>Internal Options</h4>
+<table>
+<colgroup>
+<col width="30%">
+<col width="70%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>--addons=ADDONS</code>
+  </td>
+  <td>
+    Paths of add-ons to install, comma-separated.
+    ADDONS may be specified as full paths or relative to the
+    current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--e10s</code>
+  </td>
+  <td>
+    If this option is set then the add-on runs in a separate process.
+    This option is currently not implemented.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--keydir=KEYDIR</code>
+  </td>
+  <td>
+    Supply a different location for
+    <a href="dev-guide/guides/program-id.html">signing keys</a>.
+    KEYDIR may be specified as a full path or as a path relative to the
+    current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--logfile=LOGFILE</code>
+  </td>
+  <td>
+    Log console output to the file specified by LOGFILE.
+    LOGFILE may be specified as a full path or as a path relative to the
+    current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--profile-memory=PROFILEMEMORY</code>
+  </td>
+  <td>
+    If this option is given and PROFILEMEMORY is any non-zero integer, then
+    <code>cfx</code> dumps detailed memory usage information to the console
+    when the tests finish.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--test-runner-pkg=TEST_RUNNER_PKG</code>
+  </td>
+  <td>
+    Name of package containing test runner program. Defaults to
+    <code>test-harness</code>.
+  </td>
+</tr>
+
+</table>
+
+<h3>cfx xpi</h3>
+<p>This tool is used to package your add-on as an
+<a href="https://developer.mozilla.org/en/XPI">XPI</a> file, which is the install file
+format for Mozilla add-ons.</p>
+<p>Called with no options, this command looks for a file called <code>package.json</code> in
+the current directory and creates the corresponding XPI file.</p>
+<p>Once you have built an XPI file you can distribute your add-on by submitting
+it to <a href="http://addons.mozilla.org">addons.mozilla.org</a>.</p>
+<h4>updateURL and updateLink</h4>
+<p>If you choose to host the XPI yourself you should enable the host application
+to find new versions of your add-on.</p>
+<p>To do this, include a URL in the XPI called the
+<a href="https://developer.mozilla.org/en/install_manifests#updateURL">updateURL</a>: the
+host application will go here to get information about updates. At the
+<code>updateURL</code> you host a file in the
+<a href="https://developer.mozilla.org/en/extension_versioning,_update_and_compatibility#Update_RDF_Format">update RDF</a>
+format: among other things, this includes another URL called <code>updateLink</code> which
+points to the updated XPI itself.</p>
+<p>The <code>--update-link</code> and <code>--update-url</code> options simplify this process.
+Both options take a URL as an argument.</p>
+<p>The <code>--update-link</code> option builds an update RDF alongside the XPI, and embeds
+the supplied URL in the update RDF as the value of <code>updateLink</code>.</p>
+<p>The <code>--update-url</code> option embeds the supplied URL in the XPI file, as the value
+of <code>updateURL</code>.</p>
+<p>Note that as the <a href="https://developer.mozilla.org/en/extension_versioning,_update_and_compatibility#Securing_Updates">add-on documentation</a>
+explains, you should make sure the update procedure for your add-on is secure,
+and this usually involves using HTTPS for the links.</p>
+<p>So if we run the following command:</p>
+<pre>
+  cfx xpi --update-link https://example.com/addon/latest
+          --update-url https://example.com/addon/update_rdf
+</pre>
+
+<p><code>cfx</code> will create two files:</p>
+<ul>
+<li>an XPI file which embeds
+<code>https://example.com/addon/update_rdf</code> as the value of <code>updateURL</code></li>
+<li>an RDF file which embeds <code>https://example.com/addon/latest</code> as the value of
+<code>updateLink</code>.</li>
+</ul>
+<h4>Supported Options</h4>
+<p>As with <code>cfx run</code> you can point <code>cfx</code> at a different <code>package.json</code> file using
+the <code>--pkgdir</code> option. You can also embed arguments in the XPI using the
+<code>--static-args</code> option: if you do this the arguments will be passed to your
+add-on whenever it is run.</p>
+<table>
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>--extra-packages=EXTRA_PACKAGES</code>
+  </td>
+  <td>
+   Extra packages to include, specified as a comma-separated list of package
+   names.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>-g CONFIG, --use-config=CONFIG</code>
+  </td>
+  <td>
+    Pass a set of options by
+    <a href="dev-guide/cfx-tool.html#configurations">referencing a named configuration</a>.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--pkgdir=PKGDIR</code>
+  </td>
+  <td>
+    Use an add-on located in PKGDIR.
+    PKGDIR may be specified as a full path or as a path relative to the
+    current directory.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--static-args=STATIC_ARGS</code>
+  </td>
+  <td>
+    <a href="dev-guide/cfx-tool.html#arguments">Pass arguments to your add-on</a>,
+    in JSON format.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--update-link=UPDATE_LINK</code>
+  </td>
+  <td>
+    Build an
+    <a href="https://developer.mozilla.org/en/extension_versioning,_update_and_compatibility#Update_RDF_Format">update RDF</a>
+    alongside the XPI file, and embed the URL supplied in UPDATE_LINK in it as
+    the value of <code>updateLink</code>.
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <code>--update-link=UPDATE_URL</code>
+  </td>
+  <td>
+    Embed the URL supplied in UPDATE_URL in the XPI file, as the value
+    of <code>updateURL</code>.
+  </td>
+</tr>
+
+</table>
+
+<h4>Experimental Options</h4>
+<table>
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>--templatedir=TEMPLATEDIR</code>
+  </td>
+  <td>
+    The <code>cfx xpi</code> command constructs the add-on using a extension
+    template which you can find under the SDK root, in
+    <code>app-extension</code>.
+    Use the <code>--templatedir</code> option to specify a different template.
+    TEMPLATEDIR may be specified as a full path or as a path relative to the
+    current directory.
+  </td>
+</tr>
+
+</table>
+
+<h4>Internal Options</h4>
+<table>
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>--keydir=KEYDIR</code>
+  </td>
+  <td>
+    Supply a different location for
+    <a href="dev-guide/guides/program-id.html">signing keys</a>.
+    KEYDIR may be specified as a full path or as a path relative to the
+    current directory.
+  </td>
+</tr>
+
+</table>
+
+<h2>Experimental Commands</h2>
+<h3>cfx develop</h3>
+<p>This initiates an instance of a host application in development mode,
+and allows you to pipe commands into it from another shell without
+having to constantly restart it. Aside from convenience, for SDK
+Platform developers this has the added benefit of making it easier to
+detect leaks.</p>
+<p>For example, in shell A, type:</p>
+<pre>
+  cfx develop
+</pre>
+
+<p>In shell B, type:</p>
+<pre>
+  cfx test --use-server
+</pre>
+
+<p>This will send <code>cfx test --use-server</code> output to shell A. If you repeat the
+command in shell B, <code>cfx test --use-server</code> output will appear again in shell A
+without restarting the host application.</p>
+<p><code>cfx develop</code> doesn't take any options.</p>
+<h2>Internal Commands</h2>
+<h3>cfx sdocs</h3>
+<p>Executing this command builds a static HTML version of the SDK documentation
+that can be hosted on a web server without the special application support
+required by <code>cfx docs</code>.</p>
+<h4>Options</h4>
+<table>
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+
+<tr>
+  <td>
+    <code>--baseurl=BASEURL</code>
+  </td>
+  <td>
+    The root of the static docs tree, for example:
+    <code>http://example.com/sdk-docs/</code>.
+  </td>
+</tr>
+
+</table>
+
+<h3>cfx testcfx</h3>
+<p>This will run a number of tests on the cfx tool, including tests against the
+documentation. Use <code>cfx testcfx -v</code> for the specific list of tests.</p>
+<p>This accepts the same options as <code>cfx test</code>.</p>
+<h3>cfx testaddons</h3>
+<p>This will run a number of test add-ons that are packaged with the SDK.</p>
+<p>This accepts the same options as <code>cfx test</code>.</p>
+<h3>cfx testpkgs</h3>
+<p>This will test all of the available CommonJS packages. Note that the number
+of tests run and their success depends on what application they are run
+with, and which binary is used.</p>
+<p>This accepts the same options as <code>cfx test</code>.</p>
+<h3>cfx testex</h3>
+<p>This will test all available example code. Note that the number
+of tests run and their success depends on what application they are run
+with, and which binary is used.</p>
+<p>This accepts the same options as <code>cfx test</code>.</p>
+<h3>cfx testall</h3>
+<p>This will test <em>everything</em>: the cfx tool, all available CommonJS packages,
+and all examples.</p>
+<p>This accepts the same options as <code>cfx test</code>.</p>
+<h2><a name="profiledir">Using --profiledir</a></h2>
+<p>By default, <code>cfx run</code> and <code>cfx test</code> use a new profile each time they
+are executed. This means that any profile-specific data entered from
+one run of <code>cfx</code> will not, by default, be available in the next run.</p>
+<p>This includes, for example, any extra add-ons you installed, or your
+history, or any data stored using the
+<a href="modules/sdk/simple-storage.html">simple-storage</a> API.</p>
+<p>To make <code>cfx</code> use a specific profile, pass the <code>--profiledir</code> option,
+specifying the path to the profile you wish to use.</p>
+<p>If you give <code>--profiledir</code> a path to a nonexistent profile, <code>cfx</code>
+will create a profile there for you. So you just have to make up
+a path and name the first time, and keep using it:</p>
+<pre>
+cfx run --profiledir="~/addon-dev/profiles/boogaloo"
+</pre>
+
+<p>The path must contain at least one "/" (although you may specify
+just "./dir").</p>
+<h2><a name="configurations">Using Configurations</a></h2>
+<p>The <code>--use-config</code> option enables you to specify a set of options as a named
+configuration in a file, then pass them to <code>cfx</code> by referencing the named set.</p>
+<p>You define configurations in a file called <code>local.json</code> which should live
+in the root directory of your SDK. Configurations are listed under a key called
+"configs".</p>
+<p>Suppose your the following <code>local.json</code> is as follows:</p>
+<pre>
+  {
+      "configs": {
+          "ff40": ["-b", "/usr/bin/firefox-4.0"]
+      }
+  }
+</pre>
+
+<p>You can run:</p>
+<pre>
+  cfx test --use-config=ff40
+</pre>
+
+<p>And it would be equivalent to:</p>
+<pre>
+  cfx test -a firefox -b /usr/bin/firefox-4.0
+</pre>
+
+<p>This method of defining configuration options can be used for all of the <code>run</code>,
+build, and test tools. If "default" is defined in the <code>local.json</code> cfx will use
+that configuration unless otherwise specified.</p>
+<h2><a name="arguments">Passing Static Arguments</a></h2>
+<p>You can use the cfx <code>--static-args</code> option to pass arbitrary data to your
+program.  This may be especially useful if you run cfx from a script.</p>
+<p>The value of <code>--static-args</code> must be a JSON string.  The object encoded by the
+JSON becomes the <code>staticArgs</code> property of the
+<a href="modules/sdk/system.html"><code>system</code> module</a>.</p>
+<p>The default value of
+<code>--static-args</code> is <code>"{}"</code> (an empty object), so you don't have to worry about
+checking whether <code>staticArgs</code> exists in <code>system</code>.</p>
+<p>For example, if your add-on looks like this:</p>
+<pre><code>var system = require("sdk/system");
+console.log(system.staticArgs.foo);
+</code></pre>
+<p>And you run cfx like this:</p>
+<pre>
+  cfx run --static-args="{ \"foo\": \"Hello from the command line\" }"
+</pre>
+
+<p>Then your console should contain this:</p>
+<pre>
+info: my-addon: Hello from the command line
+</pre>
+
+<p>The <code>--static-args</code> option is recognized by two of the package-specific
+commands: <code>run</code> and <code>xpi</code>.  When used with the <code>xpi</code> command, the JSON is
+packaged with the XPI's harness options and will therefore be used whenever the
+program in the XPI is run.</p></div>
+  </div>
+
+  <div id="sidebar" class="column">
+    <div class="sidebar-section" id="addon-development">
+      <a href="dev-guide/index.html"><h2 class="sidebar-section-header">Developer Guide</h2></a>
+      <ul class="sidebar-section-contents" id="default-section-contents">
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/installation.html"><h3>Installation</h3></a>
+        </li>
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/index.html"><h3 class="sidebar-subsection-header">Tutorials</h3></a>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/guides/index.html"><h3 class="sidebar-subsection-header">Guides</h3></a>
+        </li>
+
+        <li class="sidebar-subsection" id="third-party-module-subsection">
+          <a href="modules/third-party-modules.html"><h3 class="sidebar-subsection-header">Third-Party APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="third-party-module-summaries"></ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/high-level-modules.html"><h3 class="sidebar-subsection-header">High-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="high-level-module-summaries">
+<li>
+<a href="modules/sdk/addon-page.html">addon-page</a>
+</li>
+
+<li>
+<a href="modules/sdk/base64.html">base64</a>
+</li>
+
+<li>
+<a href="modules/sdk/clipboard.html">clipboard</a>
+</li>
+
+<li>
+<a href="modules/sdk/context-menu.html">context-menu</a>
+</li>
+
+<li>
+<a href="modules/sdk/hotkeys.html">hotkeys</a>
+</li>
+
+<li>
+<a href="modules/sdk/indexed-db.html">indexed-db</a>
+</li>
+
+<li>
+<a href="modules/sdk/l10n.html">l10n</a>
+</li>
+
+<li>
+<a href="modules/sdk/notifications.html">notifications</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod.html">page-mod</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-worker.html">page-worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/panel.html">panel</a>
+</li>
+
+<li>
+<a href="modules/sdk/passwords.html">passwords</a>
+</li>
+
+<li>
+<a href="modules/sdk/private-browsing.html">private-browsing</a>
+</li>
+
+<li>
+<a href="modules/sdk/querystring.html">querystring</a>
+</li>
+
+<li>
+<a href="modules/sdk/request.html">request</a>
+</li>
+
+<li>
+<a href="modules/sdk/selection.html">selection</a>
+</li>
+
+<li>
+<a href="modules/sdk/self.html">self</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-prefs.html">simple-prefs</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-storage.html">simple-storage</a>
+</li>
+
+<li>
+<a href="modules/sdk/system.html">system</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs.html">tabs</a>
+</li>
+
+<li>
+<a href="modules/sdk/timers.html">timers</a>
+</li>
+
+<li>
+<a href="modules/sdk/url.html">url</a>
+</li>
+
+<li>
+<a href="modules/sdk/widget.html">widget</a>
+</li>
+
+<li>
+<a href="modules/sdk/windows.html">windows</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/low-level-modules.html"><h3 class="sidebar-subsection-header">Low-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="low-level-module-summaries">
+<li>
+<a href="modules/toolkit/loader.html">/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/plain-text.html">console/plain-text</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/traceback.html">console/traceback</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/content.html">content/content</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/loader.html">content/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/symbiont.html">content/symbiont</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/worker.html">content/worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/heritage.html">core/heritage</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/namespace.html">core/namespace</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/promise.html">core/promise</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/api-utils.html">deprecated/api-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/app-strings.html">deprecated/app-strings</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/cortex.html">deprecated/cortex</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/errors.html">deprecated/errors</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/events.html">deprecated/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/light-traits.html">deprecated/light-traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/observer-service.html">deprecated/observer-service</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/tab-browser.html">deprecated/tab-browser</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/traits.html">deprecated/traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/window-utils.html">deprecated/window-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/core.html">event/core</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/target.html">event/target</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/hidden-frame.html">frame/hidden-frame</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/utils.html">frame/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/byte-streams.html">io/byte-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/file.html">io/file</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/text-streams.html">io/text-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/cuddlefish.html">loader/cuddlefish</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/sandbox.html">loader/sandbox</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/url.html">net/url</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/xhr.html">net/xhr</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod/match-pattern.html">page-mod/match-pattern</a>
+</li>
+
+<li>
+<a href="modules/sdk/platform/xpcom.html">platform/xpcom</a>
+</li>
+
+<li>
+<a href="modules/sdk/preferences/service.html">preferences/service</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/environment.html">system/environment</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/events.html">system/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/runtime.html">system/runtime</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/unload.html">system/unload</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/xul-app.html">system/xul-app</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs/utils.html">tabs/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/assert.html">test/assert</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/harness.html">test/harness</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/httpd.html">test/httpd</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/runner.html">test/runner</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/collection.html">util/collection</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/deprecate.html">util/deprecate</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/list.html">util/list</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/uuid.html">util/uuid</a>
+</li>
+
+<li>
+<a href="modules/sdk/window/utils.html">window/utils</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <h3 class="sidebar-subsection-header">Tools Reference</h3>
+          <div class="sidebar-subsection-contents">
+            <a href="dev-guide/console.html">console</a>
+            <a href="dev-guide/cfx-tool.html">cfx</a>
+            <a href="dev-guide/package-spec.html">package.json</a>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <ul class="sidebar-section" id="appendices">
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack/Release_Notes"><h3>Release Notes</h3></a></li>
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack"><h3>Jetpack Wiki</h3></a></li>
+        <li><a href="dev-guide/glossary.html"><h3>Glossary</h3></a></li>
+        <li><a href="dev-guide/credits.html"><h3>Credits</h3></a></li>
+
+    </ul>
+<!--end of sidebar column-->
+  </div>
+<!--end of 'columns'-->
+<div class="clearfooter"></div>
+</div>
+</div>
+
+<div id="footer">
+  <div class="section">
+    <img alt="" src="static-files/media/footer-logo-med.png" class="footerlogo">
+    <div id="social-footer">
+      <ul>
+        <li>get to know <b>add-ons</b></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/about">About</a></li>
+        <li><a href="http://blog.mozilla.com/addons">Blog</a></li>
+        <li class="footer-devhub-link"><a href="https://addons.mozilla.org/en-US/developers/">Developer Hub</a></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/faq">FAQ</a></li>
+        <li><a href="https://forums.addons.mozilla.org">Forum</a></li>
+      </ul>
+    </div>
+
+    <div id="copyright">
+      <p id="footer-links">
+        <a href="http://mozilla.com/privacy-policy.html">Privacy Policy</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/about/legal.html">Legal Notices</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/legal/fraud-report/index.html">Report Trademark Abuse</a>
+    &nbsp;|&nbsp;<a href="https://addons.mozilla.org/z/en-US/developers/" class="mobile-link">View Mobile Site</a>
+      </p>
+      <p>
+      Except where otherwise <a href="http://mozilla.com/about/legal.html#site">noted</a>, content on this site is licensed under the <br> <a href="http://creativecommons.org/licenses/by-sa/3.0/"> Creative Commons Attribution Share-Alike License v3.0 </a> or any later version.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="static-files/js/jquery.js"></script>
+<script type="text/javascript" src="static-files/js/main.js"></script>
+
+</body>
+
+</html>

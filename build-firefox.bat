@@ -1,3 +1,8 @@
-ant firefox
+CALL SDK\firefox-addon-sdk-1.14\bin\activate.bat
 
-ant firefox-clean
+cd build\YouTubeCenter
+CALL cfx xpi
+
+move youtube-center.xpi ..\..\dist\YouTubeCenter.xpi
+cd ..\..\
+ant clean

@@ -1,0 +1,7 @@
+Page 1:
+ - Introduce the core functionality of YouTube Center and how it works.
+Page 2:
+ - An introduction to the settings and how to navigate them.
+Page 3:
+ - An about page (credits and such), where a donate option will be present.
+

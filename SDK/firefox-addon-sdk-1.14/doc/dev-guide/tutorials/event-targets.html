@@ -1,0 +1,720 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <base href="file:///C:/Tools/firefox-addon-sdk-1.14/doc/" >
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shCore.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushCss.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="static-files/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/base.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/header.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/footer.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/sdk-docs.css">
+  <link rel="stylesheet" type="text/css" media="all" href="static-files/css/api-reference.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shCore.css">
+  <link rel="stylesheet" type="text/css" href="static-files/syntaxhighlighter/styles/shThemeDefault.css">
+  <!--[if IE]>
+    <style type="text/css">
+      .package-summary .module,
+      .package-entry .module,
+      .package-detail .module {
+      display: block;
+      }
+    </style>
+  <![endif]-->
+
+  <link rel="shortcut icon" type="image/x-icon" href="static-files/media/favicon.png">
+  <title>Creating Event Targets - Add-on SDK Documentation</title>
+</head>
+<body>
+
+<div id="global-header">
+  <div class="funnel">
+    <a id="mozilla-tab" href="http://www.mozilla.org/?ref=logo">Mozilla</a>
+    <div class="menu">
+	<!-- Google CSE Search Box Begins  -->
+	<!-- Use of this code assumes agreement with the Google Custom Search Terms of Service. -->
+	<!-- The terms of service are available at http://www.google.com/cse/docs/tos.html -->
+      <form action="dev-guide/search.html" id="cse-search-box">
+        <div>
+          <input type="hidden" name="cx" value="017013284162333743052:rvlazd1zehe" />
+          <input type="hidden" name="cof" value="FORID:10" />
+          <input type="hidden" name="ie" value="UTF-8" />
+          <input type="text" name="q" size="31" id="search-box" />
+        </div>
+      </form>
+      <script type="text/javascript" src="https://www.google.com/cse/brand?form=cse-search-box&lang=en"></script>
+    <!-- Google CSE Search Box Ends -->
+    </div>
+  </div>
+</div>
+
+<div id="site-header">
+  <div class="funnel">
+    <h1>
+      <a href="dev-guide/index.html">Add-on SDK<span></span></a>
+    </h1>
+    <div id="version">Version 1.14</div>
+  </div>
+</div>
+
+  <div id="container">
+
+  <div id="columns">
+
+  <div id="main-content-column" class="column">
+    <div id="toc"></div>
+    <div id="search-results"></div>
+    <div id="main-content"><!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<h1>Creating Event Targets</h1>
+<p><span class="aside">This tutorial describes the use of low-level APIs.
+These APIs are still in active development, and we expect to make
+incompatible changes to them in future releases.</span></p>
+<p>The <a href="dev-guide/guides/events.html">guide to event-driven programming with the SDK</a>
+describes how to consume events: that is, how to listen to events generated
+by event targets. For example, you can listen to the <a href="modules/sdk/tabs.html#ready"><code>tabs</code> module's <code>ready</code> event</a> or the
+<a href="modules/sdk/panel.html#show"><code>Panel</code> object's <code>show</code> event</a>.</p>
+<p>With the SDK, it's also simple to implement your own event targets.
+This is especially useful if you want to
+<a href="dev-guide/tutorials/reusable-modules.html">build your own modules</a>,
+either to organize your add-on better or to enable other developers to
+reuse your code. If you use the SDK's event framework for your
+event targets, users of your module can listen for events using the SDK's
+standard event API.</p>
+<p>In this tutorial we'll create part of a module to access the browser's
+<a href="https://developer.mozilla.org/en/Places">Places API</a>. It will emit events
+when the user adds and visits bookmarks, enabling users of the module
+to listen for these events using the SDK's standard event API.</p>
+<h2>Using the Places API</h2>
+<p>First, let's write some code using Places API that logs the URIs of
+bookmarks the user adds.</p>
+<p>Create a new directory called "bookmarks", navigate to it, and run <code>cfx init</code>.
+Then open "lib/main.js" and add the following code:</p>
+<pre><code>var {Cc, Ci, Cu} = require("chrome");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm", this);
+var bookmarkService = Cc["@mozilla.org/browser/nav-bookmarks-service;1"]
+                          .getService(Ci.nsINavBookmarksService);
+
+var bookmarkObserver = {
+  onItemAdded: function(aItemId, aFolder, aIndex) {
+    console.log("added ", bookmarkService.getBookmarkURI(aItemId).spec);
+  },
+  onItemVisited: function(aItemId, aVisitID, time) {
+    console.log("visited ", bookmarkService.getBookmarkURI(aItemId).spec);
+  },
+  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsINavBookmarkObserver])
+};
+
+exports.main = function() {
+  bookmarkService.addObserver(bookmarkObserver, false);    
+};
+
+exports.onUnload = function() {
+  bookmarkService.removeObserver(bookmarkObserver);
+}
+</code></pre>
+<p>Try running this add-on, adding and visiting bookmarks, and observing
+the output in the console.</p>
+<h2>Modules as Event Targets</h2>
+<p>We can adapt this code into a separate module that exposes the SDK's
+standard event interface.</p>
+<p>To do this we'll use the <a href="modules/sdk/event/core.html"><code>event/core</code></a>
+module.</p>
+<p>Create a new file in "lib" called "bookmarks.js", and add the following code:</p>
+<pre><code>var { emit, on, once, off } = require("sdk/event/core");
+
+var {Cc, Ci, Cu} = require("chrome");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm", this);
+var bookmarkService = Cc["@mozilla.org/browser/nav-bookmarks-service;1"]
+                          .getService(Ci.nsINavBookmarksService);
+
+var bookmarkObserver = {
+  onItemAdded: function(aItemId, aFolder, aIndex) {
+    emit(exports, "added", bookmarkService.getBookmarkURI(aItemId).spec);
+  },
+  onItemVisited: function(aItemId, aVisitID, time) {
+    emit(exports, "visited", bookmarkService.getBookmarkURI(aItemId).spec);
+  },
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsINavBookmarkObserver])
+};
+
+bookmarkService.addObserver(bookmarkObserver, false);
+
+exports.on = on.bind(null, exports);
+exports.once = once.bind(null, exports);
+exports.removeListener = function removeListener(type, listener) {
+  off(exports, type, listener);
+};
+</code></pre>
+<p>This code implements a module which can emit <code>added</code> and <code>visited</code> events.
+It duplicates the previous code, but with a few changes:</p>
+<ul>
+<li>import <code>emit()</code>, <code>on()</code>, <code>once()</code>, and <code>off()</code> from <code>event/core</code></li>
+<li>replace listener functions with calls to <code>emit()</code>, passing the appropriate
+event type</li>
+<li>export its own event API. This consists of three functions:<br />
+<ul>
+<li><code>on()</code>: start listening for events or a given type</li>
+<li><code>once()</code>: listen for the next occurrence of a given event, and then stop</li>
+<li><code>removeListener()</code>: stop listening for events of a given type</li>
+</ul>
+</li>
+</ul>
+<p>The <code>on()</code> and <code>once()</code> exports delegate to the corresponding function from
+<code>event/core</code>, and use <code>bind()</code> to pass the <code>exports</code> object itself as
+the <code>target</code> argument to the underlying function. The <code>removeListener()</code>
+function is implemented by calling the underlying <code>off()</code> function.</p>
+<p>We can use this module in the same way we use any other module that emits
+module-level events, such as
+<a href="modules/sdk/private-browsing.html"><code>private-browsing</code></a>. For example,
+we can adapt "main.js" as follows:</p>
+<pre><code>var bookmarks = require("./bookmarks");
+
+function logAdded(uri) {
+  console.log("added: " + uri);
+}
+
+function logVisited(uri) {
+  console.log("visited: " + uri);
+}
+
+exports.main = function() {
+  bookmarks.on("added", logAdded);
+  bookmarks.on("visited", logVisited);
+};
+
+exports.onUnload = function() {
+  bookmarks.removeListener("added", logAdded);
+  bookmarks.removeListener("visited", logVisited);
+}
+</code></pre>
+<h2>Classes as Event Targets</h2>
+<p>Sometimes we want to emit events at the level of individual objects,
+rather than at the level of the module.</p>
+<p>To do this, we can inherit from the SDK's
+<a href="modules/sdk/event/target.html"><code>EventTarget</code></a> class. <code>EventTarget</code>
+provides an implementation of the functions needed to add and remove
+event listeners: <code>on()</code>, <code>once()</code>, and <code>removeListener()</code>.</p>
+<p>In this example, we could define a class <code>BookmarkManager</code> that inherits
+from <code>EventTarget</code> and emits <code>added</code> and <code>visited</code> events.</p>
+<p>Open "bookmarks.js" and replace its contents with this code:</p>
+<pre><code>var { emit } = require("sdk/event/core");
+var { EventTarget } = require("sdk/event/target");
+var { Class } = require("sdk/core/heritage");
+var { merge } = require("sdk/util/object");
+
+var {Cc, Ci, Cu} = require("chrome");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm", this);
+var bookmarkService = Cc["@mozilla.org/browser/nav-bookmarks-service;1"]
+                          .getService(Ci.nsINavBookmarksService);
+
+function createObserver(target) {
+   var bookmarkObserver = {
+     onItemAdded: function(aItemId, aFolder, aIndex) {
+       emit(target, "added", bookmarkService.getBookmarkURI(aItemId).spec);
+     },
+     onItemVisited: function(aItemId, aVisitID, time) {
+       emit(target, "visited", bookmarkService.getBookmarkURI(aItemId).spec);
+     },
+     QueryInterface: XPCOMUtils.generateQI([Ci.nsINavBookmarkObserver])
+   };
+   bookmarkService.addObserver(bookmarkObserver, false);
+}
+
+var BookmarkManager = Class({
+  extends: EventTarget,
+  initialize: function initialize(options) {
+    EventTarget.prototype.initialize.call(this, options);
+    merge(this, options);
+    createObserver(this);
+  }
+});
+
+exports.BookmarkManager = BookmarkManager;
+</code></pre>
+<p>The code to interact with the Places API is the same here. However:</p>
+<ul>
+<li>we're now importing from four modules:<ul>
+<li><a href="modules/sdk/event/core.html"><code>event/core</code></a> gives us
+<code>emit()</code>: note that we don't need <code>on</code>, <code>once</code>, or <code>off</code>,
+since we will use <code>EventTarget</code> for adding and removing listeners</li>
+<li><a href="modules/sdk/event/target.html"><code>event/target</code></a> gives us
+<code>EventTarget</code>, which implements the interface for adding and removing
+listeners</li>
+<li><a href="modules/sdk/core/heritage.html"><code>heritage</code></a> gives us
+<code>Class()</code>, which we can use to inherit from <code>EventTarget</code></li>
+<li><code>utils/object</code> gives us <code>merge()</code>, which just simplifies setting up the
+<code>BookmarkManager</code>'s properties</li>
+</ul>
+</li>
+<li>we use <code>Class</code> to inherit from <code>EventTarget</code>. In its <code>initialize()</code> function,
+we:<ul>
+<li>call the base class initializer</li>
+<li>use <code>merge()</code> to copy any supplied options into the newly created object</li>
+<li>call <code>createObserver()</code>, passing in the newly created object as the
+event target</li>
+</ul>
+</li>
+<li><code>createObserver()</code> is the same as in the previous example, except that in
+<code>emit()</code> we pass the newly created <code>BookmarkManager</code> as the event target</li>
+</ul>
+<p>To use this event target we can create it and call the <code>on()</code>, <code>once()</code>, and
+<code>removeListener()</code> functions that it has inherited:</p>
+<pre><code>var bookmarks = require("./bookmarks");
+var bookmarkManager = bookmarks.BookmarkManager({});
+
+function logAdded(uri) {
+  console.log("added: " + uri);
+}
+
+function logVisited(uri) {
+  console.log("visited: " + uri);
+}
+
+exports.main = function() {
+  bookmarkManager.on("added", logAdded);
+  bookmarkManager.on("visited", logVisited);
+};
+
+exports.onUnload = function() {
+  bookmarkManager.removeListener("added", logAdded);
+  bookmarkManager.removeListener("visited", logVisited);
+}
+</code></pre>
+<h3>Implementing "onEvent" Options</h3>
+<p>Finally, most event targets accept options of the form "onEvent", where
+"Event" is the capitalized form of the event type. For example, you
+can listen to the
+<a href="modules/sdk/panel.html#show"><code>Panel</code> object's <code>show</code> event</a>
+either by calling:</p>
+<pre><code>myPanel.on("show", listenerFunction);
+</code></pre>
+<p>or by passing the <code>onShow</code> option to <code>Panel</code>'s constructor:</p>
+<pre><code>var myPanel = require("sdk/panel").Panel({
+  onShow: listenerFunction,
+  contentURL: "https://en.wikipedia.org/w/index.php"
+});
+</code></pre>
+<p>If your class inherits from <code>EventTarget</code>, options like this are automatically
+handled for you. For example, given the implementation of <code>BookmarkManager</code>
+above, your "main.js" could be rewritten like this:</p>
+<pre><code>var bookmarks = require("./bookmarks");
+
+function logAdded(uri) {
+  console.log("added: " + uri);
+}
+
+function logVisited(uri) {
+  console.log("visited: " + uri);
+}
+
+var bookmarkManager = bookmarks.BookmarkManager({
+  onAdded: logAdded,
+  onVisited: logVisited
+});
+
+exports.onUnload = function() {
+  bookmarkManager.removeListener("added", logAdded);
+  bookmarkManager.removeListener("visited", logVisited);
+}
+</code></pre></div>
+  </div>
+
+  <div id="sidebar" class="column">
+    <div class="sidebar-section" id="addon-development">
+      <a href="dev-guide/index.html"><h2 class="sidebar-section-header">Developer Guide</h2></a>
+      <ul class="sidebar-section-contents" id="default-section-contents">
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/installation.html"><h3>Installation</h3></a>
+        </li>
+        <li class="sidebar-subsection">
+          <a href="dev-guide/tutorials/index.html"><h3 class="sidebar-subsection-header">Tutorials</h3></a>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="dev-guide/guides/index.html"><h3 class="sidebar-subsection-header">Guides</h3></a>
+        </li>
+
+        <li class="sidebar-subsection" id="third-party-module-subsection">
+          <a href="modules/third-party-modules.html"><h3 class="sidebar-subsection-header">Third-Party APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="third-party-module-summaries"></ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/high-level-modules.html"><h3 class="sidebar-subsection-header">High-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="high-level-module-summaries">
+<li>
+<a href="modules/sdk/addon-page.html">addon-page</a>
+</li>
+
+<li>
+<a href="modules/sdk/base64.html">base64</a>
+</li>
+
+<li>
+<a href="modules/sdk/clipboard.html">clipboard</a>
+</li>
+
+<li>
+<a href="modules/sdk/context-menu.html">context-menu</a>
+</li>
+
+<li>
+<a href="modules/sdk/hotkeys.html">hotkeys</a>
+</li>
+
+<li>
+<a href="modules/sdk/indexed-db.html">indexed-db</a>
+</li>
+
+<li>
+<a href="modules/sdk/l10n.html">l10n</a>
+</li>
+
+<li>
+<a href="modules/sdk/notifications.html">notifications</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod.html">page-mod</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-worker.html">page-worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/panel.html">panel</a>
+</li>
+
+<li>
+<a href="modules/sdk/passwords.html">passwords</a>
+</li>
+
+<li>
+<a href="modules/sdk/private-browsing.html">private-browsing</a>
+</li>
+
+<li>
+<a href="modules/sdk/querystring.html">querystring</a>
+</li>
+
+<li>
+<a href="modules/sdk/request.html">request</a>
+</li>
+
+<li>
+<a href="modules/sdk/selection.html">selection</a>
+</li>
+
+<li>
+<a href="modules/sdk/self.html">self</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-prefs.html">simple-prefs</a>
+</li>
+
+<li>
+<a href="modules/sdk/simple-storage.html">simple-storage</a>
+</li>
+
+<li>
+<a href="modules/sdk/system.html">system</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs.html">tabs</a>
+</li>
+
+<li>
+<a href="modules/sdk/timers.html">timers</a>
+</li>
+
+<li>
+<a href="modules/sdk/url.html">url</a>
+</li>
+
+<li>
+<a href="modules/sdk/widget.html">widget</a>
+</li>
+
+<li>
+<a href="modules/sdk/windows.html">windows</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <a href="modules/low-level-modules.html"><h3 class="sidebar-subsection-header">Low-Level APIs</h3></a>
+          <div class="sidebar-subsection-contents">
+            <ul id="low-level-module-summaries">
+<li>
+<a href="modules/toolkit/loader.html">/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/plain-text.html">console/plain-text</a>
+</li>
+
+<li>
+<a href="modules/sdk/console/traceback.html">console/traceback</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/content.html">content/content</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/loader.html">content/loader</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/symbiont.html">content/symbiont</a>
+</li>
+
+<li>
+<a href="modules/sdk/content/worker.html">content/worker</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/heritage.html">core/heritage</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/namespace.html">core/namespace</a>
+</li>
+
+<li>
+<a href="modules/sdk/core/promise.html">core/promise</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/api-utils.html">deprecated/api-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/app-strings.html">deprecated/app-strings</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/cortex.html">deprecated/cortex</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/errors.html">deprecated/errors</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/events.html">deprecated/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/light-traits.html">deprecated/light-traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/observer-service.html">deprecated/observer-service</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/tab-browser.html">deprecated/tab-browser</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/traits.html">deprecated/traits</a>
+</li>
+
+<li>
+<a href="modules/sdk/deprecated/window-utils.html">deprecated/window-utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/core.html">event/core</a>
+</li>
+
+<li>
+<a href="modules/sdk/event/target.html">event/target</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/hidden-frame.html">frame/hidden-frame</a>
+</li>
+
+<li>
+<a href="modules/sdk/frame/utils.html">frame/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/byte-streams.html">io/byte-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/file.html">io/file</a>
+</li>
+
+<li>
+<a href="modules/sdk/io/text-streams.html">io/text-streams</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/cuddlefish.html">loader/cuddlefish</a>
+</li>
+
+<li>
+<a href="modules/sdk/loader/sandbox.html">loader/sandbox</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/url.html">net/url</a>
+</li>
+
+<li>
+<a href="modules/sdk/net/xhr.html">net/xhr</a>
+</li>
+
+<li>
+<a href="modules/sdk/page-mod/match-pattern.html">page-mod/match-pattern</a>
+</li>
+
+<li>
+<a href="modules/sdk/platform/xpcom.html">platform/xpcom</a>
+</li>
+
+<li>
+<a href="modules/sdk/preferences/service.html">preferences/service</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/environment.html">system/environment</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/events.html">system/events</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/runtime.html">system/runtime</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/unload.html">system/unload</a>
+</li>
+
+<li>
+<a href="modules/sdk/system/xul-app.html">system/xul-app</a>
+</li>
+
+<li>
+<a href="modules/sdk/tabs/utils.html">tabs/utils</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/assert.html">test/assert</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/harness.html">test/harness</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/httpd.html">test/httpd</a>
+</li>
+
+<li>
+<a href="modules/sdk/test/runner.html">test/runner</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/collection.html">util/collection</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/deprecate.html">util/deprecate</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/list.html">util/list</a>
+</li>
+
+<li>
+<a href="modules/sdk/util/uuid.html">util/uuid</a>
+</li>
+
+<li>
+<a href="modules/sdk/window/utils.html">window/utils</a>
+</li>
+</ul>
+          </div>
+        </li>
+
+        <li class="sidebar-subsection">
+          <h3 class="sidebar-subsection-header">Tools Reference</h3>
+          <div class="sidebar-subsection-contents">
+            <a href="dev-guide/console.html">console</a>
+            <a href="dev-guide/cfx-tool.html">cfx</a>
+            <a href="dev-guide/package-spec.html">package.json</a>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <ul class="sidebar-section" id="appendices">
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack/Release_Notes"><h3>Release Notes</h3></a></li>
+        <li><a href="https://wiki.mozilla.org/Labs/Jetpack"><h3>Jetpack Wiki</h3></a></li>
+        <li><a href="dev-guide/glossary.html"><h3>Glossary</h3></a></li>
+        <li><a href="dev-guide/credits.html"><h3>Credits</h3></a></li>
+
+    </ul>
+<!--end of sidebar column-->
+  </div>
+<!--end of 'columns'-->
+<div class="clearfooter"></div>
+</div>
+</div>
+
+<div id="footer">
+  <div class="section">
+    <img alt="" src="static-files/media/footer-logo-med.png" class="footerlogo">
+    <div id="social-footer">
+      <ul>
+        <li>get to know <b>add-ons</b></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/about">About</a></li>
+        <li><a href="http://blog.mozilla.com/addons">Blog</a></li>
+        <li class="footer-devhub-link"><a href="https://addons.mozilla.org/en-US/developers/">Developer Hub</a></li>
+        <li><a href="https://addons.mozilla.org/en-US/firefox/faq">FAQ</a></li>
+        <li><a href="https://forums.addons.mozilla.org">Forum</a></li>
+      </ul>
+    </div>
+
+    <div id="copyright">
+      <p id="footer-links">
+        <a href="http://mozilla.com/privacy-policy.html">Privacy Policy</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/about/legal.html">Legal Notices</a> &nbsp;|&nbsp;
+        <a href="http://mozilla.com/legal/fraud-report/index.html">Report Trademark Abuse</a>
+    &nbsp;|&nbsp;<a href="https://addons.mozilla.org/z/en-US/developers/" class="mobile-link">View Mobile Site</a>
+      </p>
+      <p>
+      Except where otherwise <a href="http://mozilla.com/about/legal.html#site">noted</a>, content on this site is licensed under the <br> <a href="http://creativecommons.org/licenses/by-sa/3.0/"> Creative Commons Attribution Share-Alike License v3.0 </a> or any later version.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="static-files/js/jquery.js"></script>
+<script type="text/javascript" src="static-files/js/main.js"></script>
+
+</body>
+
+</html>
