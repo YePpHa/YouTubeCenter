@@ -10199,6 +10199,7 @@
         $AddStyle(".ytcenter-remove-ads-page .ad-div,.ytcenter-remove-ads-page .mastad,.ytcenter-remove-ads-page .masthead-ad-control,.ytcenter-remove-ads-page .masthead-ad-control-lihp,.ytcenter-remove-ads-page #watch-channel-brand-div,.ytcenter-remove-ads-page .watch-pyv-vid,.ytcenter-remove-ads-page #feed-pyv-container,.ytcenter-remove-ads-page #premium-yva,.ytcenter-remove-ads-page .branded-page-v2-top-row{display:none!important}");
         
         $AddStyle(".watch-sidebar {margin-right: 0!important;}");
+        $AddStyle(".watch-content {float: none!important; clear: none!important;}");
         
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           // TODO add compatible styles here
