@@ -20,13 +20,13 @@
   <property name="cert.chrome" value="${cert.chromePath}/${name}.pem" />
   
   <property name="src.chrome" value="${src}/.chrome" />
-  <property name="src.maxthon3" value="${src}/.maxthon3" />
+  <property name="src.maxthon" value="${src}/.maxthon" />
   <property name="src.firefox" value="${src}/.firefox" />
   <property name="src.safari" value="${src}/.safari" />
   <property name="src.opera" value="${src}/.opera" />
   
   <property name="sdk.chrome" value="C:/Users/Jeppe Rune Mortensen/AppData/Local/Google/Chrome/Application/chrome.exe" />
-  <property name="sdk.maxthon3" value="${basedir}/SDK/maxthon3.exe" />
+  <property name="sdk.maxthon" value="${basedir}/SDK/maxthon.exe" />
   
   <property name="indentifier.userscript" value="0" />
   <property name="indentifier.chrome" value="1" />
@@ -35,7 +35,7 @@
   <property name="indentifier.safari" value="4" />
   <property name="indentifier.opera" value="5" />
   
-  <target name="all" depends="preinit, userscript, chrome, maxthon3, firefox, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
@@ -44,7 +44,7 @@
     <mkdir dir="${src}" />
     <mkdir dir="${src.chrome}" />
     <mkdir dir="${src.firefox}" />
-    <mkdir dir="${src.maxthon3}" />
+    <mkdir dir="${src.maxthon}" />
     <mkdir dir="${cert.chromePath}" />
   </target>
   
@@ -105,8 +105,8 @@
     </move>
   </target>
   
-  <target name="maxthon3" depends="preinit, copy-maxthon3">
-    <exec executable="${sdk.maxthon3}">
+  <target name="maxthon" depends="preinit, copy-maxthon">
+    <exec executable="${sdk.maxthon}">
       <arg value="${buildDir}" />
       <arg value="${dist}/${name}.mxaddon" />
     </exec>
@@ -157,9 +157,9 @@
     <replace dir="${buildDir}" value="${indentifier.chrome}" token="@identifier@" encoding="${encoding}" />
   </target>
   
-  <target name="copy-maxthon3">
+  <target name="copy-maxthon">
     <copy todir="${buildDir}">
-      <fileset dir="${src.maxthon3}/" />
+      <fileset dir="${src.maxthon}/" />
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
