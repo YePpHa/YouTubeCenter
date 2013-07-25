@@ -6,4 +6,5 @@
 	<author href="http://www.facebook.com/YouTubeCenter" email="jepperm@gmail.com">Jeppe Rune Mortensen</author>
   <icon src="icon-64x64.png" />
   <icon src="icon-128x128.png" />
+  <access origin="*"/>
 </widget>

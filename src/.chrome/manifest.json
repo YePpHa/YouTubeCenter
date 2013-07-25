@@ -8,7 +8,9 @@
       "matches": [
         "http://*.youtube.com/*",
         "https://*.youtube.com/*",
-        "http://userscripts.org/scripts/source/114002.meta.js"
+        "http://userscripts.org/scripts/source/114002.meta.js",
+        "http://s.ytimg.com/yts/jsbin/*",
+        "https://s.ytimg.com/yts/jsbin/*"
       ],
       "exclude_matches": [
         "http://apiblog.youtube.com/*",

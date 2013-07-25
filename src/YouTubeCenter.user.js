@@ -19,8 +19,8 @@
 // @include         https://*.youtube.com/*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
-// @downloadURL     http://userscripts.org/scripts/source/114002.user.js
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
+// @downloadURL     http://userscripts.org/scripts/source/114002.user.js
 // @updateVersion   @ant-revision@
 // @run-at          document-start
 // @priority        9001
@@ -32,7 +32,7 @@
       var script = document.createElement("script");
       script.setAttribute("type", "text/javascript");
       if (typeof func === "string") func = "function(){" + func + "}";
-      script.appendChild(document.createTextNode("(" + func + ")();\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@);\n//# sourceURL=YouTubeCenter.js"));
       var __p = (document.body || document.head || document.documentElement);
       __p.appendChild(script);
       __p.removeChild(script);
@@ -90,9 +90,18 @@
     return false;
   }
   
-  var ___main_function = function(injected){
-    "use strict"
-    if (typeof injected === "undefined") injected = true;
+  var ___main_function = function(injected, indentifier){
+    "use strict";
+    /** Injected
+     * True, if it's injected into the page to compensate for the missing unsafeWindow variable.
+     ** Identifier
+     * 0 : UserScript
+     * 1 : Chrome
+     * 2 : Maxthon
+     * 3 : Firefox
+     * 4 : Safari
+     * 5 : Opera
+     **/
     
     /* UTILS */
     function $SaveData(key, value) {
@@ -2135,6 +2144,18 @@
     var __rootCall_db = [];
     var __rootCall_index = 0;
     
+    if (indentifier === 5) { // Opera Legacy Extnesion
+      opera.extension.onmessage = function(e){
+        if (e.data.action === "xhr onreadystatechange") {
+          __rootCall_db[e.data.id].onreadystatechange(e.data.response);
+        } else if (e.data.action === "xhr onload") {
+          __rootCall_db[e.data.id].onload(e.data.response);
+        } else if (e.data.action === "xhr onerror") {
+          __rootCall_db[e.data.id].onerror(e.data.response);
+        }
+      };
+    }
+    
     function $XMLHTTPRequest(details) {
       if (injected) {
         if (!window.ytcenter || !window.ytcenter.xhr) {
@@ -2191,7 +2212,34 @@
           arguments: [details]
         }), "*");
       } else {
-        if (typeof GM_xmlhttpRequest != "undefined") {
+        if (indentifier === 5) {
+          var id = __rootCall_db.length,
+              entry = {};
+          if (details.onreadystatechange) {
+            entry.onreadystatechange = details.onreadystatechange;
+            details.onreadystatechange = true;
+          } else {
+            details.onreadystatechange = false;
+          }
+          if (details.onload) {
+            entry.onload = details.onload;
+            details.onload = true;
+          } else {
+            details.onload = false;
+          }
+          if (details.onerror) {
+            entry.onerror = details.onerror;
+            details.onerror = true;
+          } else {
+            details.onerror = false;
+          }
+          __rootCall_db.push(entry);
+          opera.extension.postMessage({
+            action: 'xhr',
+            id: id,
+            details: details
+          });
+        } else if (typeof GM_xmlhttpRequest != "undefined") {
           GM_xmlhttpRequest(details);
           return true;
         } else {
@@ -10415,7 +10463,7 @@
         
         _inject(___main_function);
       } else {
-        ___main_function(false);
+        ___main_function(false, @identifier@);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -10430,6 +10478,6 @@
       _inject(___main_function);
     }
   } else {
-    ___main_function(false);
+    ___main_function(false, @identifier@);
   }
 })();

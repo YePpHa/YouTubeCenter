@@ -28,6 +28,13 @@
   <property name="sdk.chrome" value="C:/Users/Jeppe Rune Mortensen/AppData/Local/Google/Chrome/Application/chrome.exe" />
   <property name="sdk.maxthon3" value="${basedir}/SDK/maxthon3.exe" />
   
+  <property name="indentifier.userscript" value="0" />
+  <property name="indentifier.chrome" value="1" />
+  <property name="indentifier.maxthon" value="2" />
+  <property name="indentifier.firefox" value="3" />
+  <property name="indentifier.safari" value="4" />
+  <property name="indentifier.opera" value="5" />
+  
   <target name="all" depends="preinit, userscript, chrome, maxthon3, firefox, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
@@ -138,6 +145,7 @@
   <target name="copy-userscript">
     <antcall target="copy" />
     <antcall target="tokenreplace" />
+    <replace dir="${buildDir}" value="${indentifier.userscript}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-chrome">
@@ -146,6 +154,7 @@
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
+    <replace dir="${buildDir}" value="${indentifier.chrome}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-maxthon3">
@@ -154,6 +163,7 @@
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
+    <replace dir="${buildDir}" value="${indentifier.maxthon3}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-firefox">
@@ -165,6 +175,7 @@
       <fileset dir="${src.firefox}/" />
     </copy>
     <antcall target="tokenreplace" />
+    <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-safari">
@@ -173,6 +184,7 @@
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
+    <replace dir="${buildDir}" value="${indentifier.safari}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-opera">
@@ -189,6 +201,7 @@
       <fileset dir="${src.opera}/" />
     </copy>
     <antcall target="tokenreplace" />
+    <replace dir="${buildDir}" value="${indentifier.opera}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="tokenreplace">
