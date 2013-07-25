@@ -17,7 +17,10 @@
 	<key>CFBundleVersion</key>
 	<string>116</string>
 	<key>Chrome</key>
-	<dict/>
+	<dict>
+		<key>Global Page</key>
+		<string>global.html</string>
+	</dict>
 	<key>Content</key>
 	<dict>
 		<key>Blacklist</key>
