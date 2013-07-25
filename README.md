@@ -8,8 +8,8 @@ Build
 3. Run convert.bat (will run YouTubeCenterLanguageToJSON.jar) which will create the language.json
 4. Run command "ant userscript" to build userscript.
 
-Ant
----
+### Ant
+
 The build system is made in ant and require ant and java to be installed.
 
  * `ant all` -- Builds Firefox extension, Chrome extension, Maxthon extension, Opera extension and userscript.
