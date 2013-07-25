@@ -2154,6 +2154,17 @@
           __rootCall_db[e.data.id].onerror(e.data.response);
         }
       };
+    } else if (indentifier === 4) {
+      safari.self.addEventListener("message", function(e){
+        var data = JSON.parse(e.message);
+        if (e.name === "xhr onreadystatechange") {
+          __rootCall_db[data.id].onreadystatechange(data.response);
+        } else if (e.name === "xhr onload") {
+          __rootCall_db[data.id].onload(data.response);
+        } else if (e.name === "xhr onerror") {
+          __rootCall_db[data.id].onerror(data.response);
+        }
+      }, false);
     }
     
     function $XMLHTTPRequest(details) {
@@ -2239,6 +2250,32 @@
             id: id,
             details: details
           });
+        } else if (indentifier === 4) {
+          var id = __rootCall_db.length,
+              entry = {};
+          if (details.onreadystatechange) {
+            entry.onreadystatechange = details.onreadystatechange;
+            details.onreadystatechange = true;
+          } else {
+            details.onreadystatechange = false;
+          }
+          if (details.onload) {
+            entry.onload = details.onload;
+            details.onload = true;
+          } else {
+            details.onload = false;
+          }
+          if (details.onerror) {
+            entry.onerror = details.onerror;
+            details.onerror = true;
+          } else {
+            details.onerror = false;
+          }
+          __rootCall_db.push(entry);
+          safari.self.tab.dispatchMessage("xhr", JSON.stringify({
+            id: id,
+            details: details
+          }));
         } else if (typeof GM_xmlhttpRequest != "undefined") {
           GM_xmlhttpRequest(details);
           return true;
