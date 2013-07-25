@@ -13,8 +13,8 @@ Build
 The build system is made in ant and require ant and java to be installed.
 
  * `ant all` -- Builds Firefox extension, Chrome extension, Maxthon extension, Opera extension and userscript.
- * `ant firefox` -- Builds Firefox extension
- * `ant chrome` -- Builds Chrome extension
- * `ant maxthon` -- Builds Maxthon extension
- * `ant opera` -- Builds Opera extension
- * `ant userscript` -- Builds userscript
+ * `ant firefox` -- Builds Firefox extension (.xpi)
+ * `ant chrome` -- Builds Chrome extension (.crx)
+ * `ant maxthon` -- Builds Maxthon extension (.mxaddon)
+ * `ant opera` -- Builds Opera extension (.oex)
+ * `ant userscript` -- Builds userscript (.user.js)
