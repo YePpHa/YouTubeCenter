@@ -8,6 +8,15 @@
     "title": {
       "en": "YouTube Center"
     },
+    "permissions": {
+      "httpRequest": [
+        "http://*.youtube.com",
+        "https://*.youtube.com",
+        "http://userscripts.org",
+        "http://s.ytimg.com",
+        "https://s.ytimg.com"
+      ]
+    },
     "actions": [
       {
         "type": "script",
