@@ -2276,16 +2276,16 @@
             id: id,
             details: details
           }));
-        } else if (typeof GM_xmlhttpRequest != "undefined") {
+        } else if (typeof GM_xmlhttpRequest !== "undefined") {
           GM_xmlhttpRequest(details);
           return true;
         } else {
           var xmlhttp;
-          if (typeof XMLHttpRequest != "undefined") {
+          if (typeof XMLHttpRequest !== "undefined") {
             xmlhttp = new XMLHttpRequest();
-          } else if (typeof opera != "undefined" && typeof opera.XMLHttpRequest != "undefined") {
+          } else if (typeof opera !== "undefined" && typeof opera.XMLHttpRequest !== "undefined") {
             xmlhttp = new opera.XMLHttpRequest();
-          } else if (typeof uw != "undefined" && typeof uw.XMLHttpRequest != "undefined") {
+          } else if (typeof uw !== "undefined" && typeof uw.XMLHttpRequest !== "undefined") {
             xmlhttp = new uw.XMLHttpRequest();
           } else {
             if (details["onerror"]) {

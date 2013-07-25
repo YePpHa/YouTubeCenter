@@ -163,7 +163,7 @@
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
-    <replace dir="${buildDir}" value="${indentifier.maxthon3}" token="@identifier@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${indentifier.maxthon}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-firefox">
