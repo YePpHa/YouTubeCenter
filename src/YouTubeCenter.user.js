@@ -6383,7 +6383,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
-      scriptedPlayback: false,
+      dashPlayback: false,
       experimentalFeatureTopGuide: false,
       language: 'auto',
       filename: '{title}',
@@ -6832,7 +6832,7 @@
           ],
           "defaultSetting": "watch7playerguidehide"
         }, {
-          "label": "SETTINGS_SCRIPTEDPLAYBACK",
+          "label": "SETTINGS_DASHPLAYBACK",
           "type": "bool",
           "defaultSetting": "scriptedPlayback"
         }, {
@@ -9648,11 +9648,12 @@
       } else if (ytcenter.settings.bgcolor !== "default" && ytcenter.settings.bgcolor.indexOf("#") === 0) {
         ytcenter.player.getConfig().args.keywords = ytcenter.utils.setKeyword(ytcenter.player.getConfig().args.keywords, "yt:bgcolor", ytcenter.settings.bgcolor);
       }
-      if (ytcenter.settings.scriptedPlayback) {
-        ytcenter.player.getConfig().args.splay = "1";
+      if (ytcenter.settings.dashPlayback) {
+        ytcenter.player.getConfig().args.dash = "1";
       } else {
-        ytcenter.player.getConfig().args.splay = "0";
+        ytcenter.player.getConfig().args.dash = "0";
       }
+      
       if (ytcenter.playlist) {
         if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
           ytcenter.player.getConfig().args.autoplay = "0";
