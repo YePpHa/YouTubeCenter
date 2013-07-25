@@ -9653,8 +9653,6 @@
       } else {
         ytcenter.player.getConfig().args.splay = "0";
       }
-      //ytcenter.player.getConfig().args.fexp = "";
-      ytcenter.player.getConfig().args.fs = "1";
       if (ytcenter.playlist) {
         if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
           ytcenter.player.getConfig().args.autoplay = "0";
