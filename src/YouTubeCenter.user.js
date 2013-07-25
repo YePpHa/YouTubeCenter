@@ -90,8 +90,9 @@
     return false;
   }
   
-  var ___main_function = function(injected, indentifier){
+  var ___main_function = function(injected, identifier){
     "use strict";
+    console.log("Script was " + (injected ? "injected" : " not injected") + ".");
     /** Injected
      * True, if it's injected into the page to compensate for the missing unsafeWindow variable.
      ** Identifier
@@ -102,86 +103,94 @@
      * 4 : Safari
      * 5 : Opera
      **/
-    
     /* UTILS */
     function $SaveData(key, value) {
-      try {
-        if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") === -1)) {
-          con.log("Saving " + key + " using GM_setValue");
-          GM_setValue(key, value);
-          if (GM_getValue(key, null) === value) return true; // validation
+      if (identifier === 2) {
+        window.external.mxGetRuntime().storage.setConfig(key, value);
+        return true;
+      } else {
+        try {
+          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") === -1)) {
+            con.log("Saving " + key + " using GM_setValue");
+            GM_setValue(key, value);
+            if (GM_getValue(key, null) === value) return true; // validation
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
-      }
-      try {
-        if (typeof localStorage !== "undefined") {
-          con.log("Saving " + key + " using localStorage");
-          localStorage[key] = value;
-          if (localStorage[key] === value) return true; // validation
+        try {
+          if (typeof localStorage !== "undefined") {
+            con.log("Saving " + key + " using localStorage");
+            localStorage[key] = value;
+            if (localStorage[key] === value) return true; // validation
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
-      }
-      try {
-        if (typeof uw.localStorage !== "undefined") {
-          con.log("Saving " + key + " using uw.localStorage");
-          uw.localStorage[key] = value;
-          if (uw.localStorage[key] === value) return true; // validation
+        try {
+          if (typeof uw.localStorage !== "undefined") {
+            con.log("Saving " + key + " using uw.localStorage");
+            uw.localStorage[key] = value;
+            if (uw.localStorage[key] === value) return true; // validation
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
-      }
-      try {
-        if (typeof document.cookie !== "undefined") {
-          con.log("Saving " + key + " using document.cookie");
-          ytcenter.utils.setCookie(key, value, null, "/", 1000*24*60*60*1000);
-          if (ytcenter.utils.getCookie(name) === value) return true; // validation
+        try {
+          if (typeof document.cookie !== "undefined") {
+            con.log("Saving " + key + " using document.cookie");
+            ytcenter.utils.setCookie(key, value, null, "/", 1000*24*60*60*1000);
+            if (ytcenter.utils.getCookie(name) === value) return true; // validation
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
+        con.error("Couldn't save data!");
+        return false;
       }
-      con.error("Couldn't save data!");
-      return false;
     }
 
     function $LoadData(key, def) {
-      try {
-        if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") === -1)) {
-          con.log("Loading " + key + " using GM_getValue");
-          var d = GM_getValue(key, null);
-          if (d !== null) return d;
+      if (identifier === 2) {
+        return window.external.mxGetRuntime().storage.getConfig(key);
+      } else {
+        try {
+          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") === -1)) {
+            con.log("Loading " + key + " using GM_getValue");
+            var d = GM_getValue(key, null);
+            if (d !== null) return d;
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
-      }
-      try {
-        if (typeof localStorage != "undefined") {
-          con.log("Loading " + key + " using localStorage");
-          if (localStorage[key]) return localStorage[key];
+        try {
+          if (typeof localStorage != "undefined") {
+            con.log("Loading " + key + " using localStorage");
+            if (localStorage[key]) return localStorage[key];
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
-      }
-      try {
-        if (typeof uw.localStorage != "undefined") {
-          con.log("Loading " + key + " using uw.localStorage");
-          if (uw.localStorage[key]) return uw.localStorage[key];
+        try {
+          if (typeof uw.localStorage != "undefined") {
+            con.log("Loading " + key + " using uw.localStorage");
+            if (uw.localStorage[key]) return uw.localStorage[key];
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
-      }
-      try {
-        if (typeof document.cookie != "undefined") {
-          con.log("Loading " + key + " using document.cookie");
-          var d = ytcenter.utils.getCookie(name);
-          if (d) return d;
+        try {
+          if (typeof document.cookie != "undefined") {
+            con.log("Loading " + key + " using document.cookie");
+            var d = ytcenter.utils.getCookie(name);
+            if (d) return d;
+          }
+        } catch (e) {
+          con.error(e);
         }
-      } catch (e) {
-        con.error(e);
+        con.error("Couldn't load data!");
+        return def;
       }
-      con.error("Couldn't load data!");
-      return def;
     }
     function $UpdateChecker() {
       if (!ytcenter.settings.enableUpdateChecker) return;
@@ -2144,17 +2153,20 @@
     var __rootCall_db = [];
     var __rootCall_index = 0;
     
-    if (indentifier === 5) { // Opera Legacy Extnesion
-      opera.extension.onmessage = function(e){
-        if (e.data.action === "xhr onreadystatechange") {
-          __rootCall_db[e.data.id].onreadystatechange(e.data.response);
-        } else if (e.data.action === "xhr onload") {
-          __rootCall_db[e.data.id].onload(e.data.response);
-        } else if (e.data.action === "xhr onerror") {
-          __rootCall_db[e.data.id].onerror(e.data.response);
-        }
-      };
-    } else if (indentifier === 4) {
+    if (identifier === 3) { // Firefox Extension
+      self.port.on("xhr onreadystatechange", function(data){
+        var data = JSON.parse(data);
+        __rootCall_db[data.id].onreadystatechange({responseText: data.responseText});
+      });
+      self.port.on("xhr onload", function(data){
+        var data = JSON.parse(data);
+        __rootCall_db[data.id].onload({responseText: data.responseText});
+      });
+      self.port.on("xhr onerror", function(data){
+        var data = JSON.parse(data);
+        __rootCall_db[data.id].onerror({responseText: data.responseText});
+      });
+    } else if (identifier === 4) { // Safari Extension
       safari.self.addEventListener("message", function(e){
         var data = JSON.parse(e.message);
         if (e.name === "xhr onreadystatechange") {
@@ -2165,6 +2177,16 @@
           __rootCall_db[data.id].onerror(data.response);
         }
       }, false);
+    } else if (identifier === 5) { // Opera Legacy Extnesion
+      opera.extension.onmessage = function(e){
+        if (e.data.action === "xhr onreadystatechange") {
+          __rootCall_db[e.data.id].onreadystatechange(e.data.response);
+        } else if (e.data.action === "xhr onload") {
+          __rootCall_db[e.data.id].onload(e.data.response);
+        } else if (e.data.action === "xhr onerror") {
+          __rootCall_db[e.data.id].onerror(e.data.response);
+        }
+      };
     }
     
     function $XMLHTTPRequest(details) {
@@ -2223,7 +2245,60 @@
           arguments: [details]
         }), "*");
       } else {
-        if (indentifier === 5) {
+        if (identifier === 3) { // Firefox Extension
+          var id = __rootCall_db.length,
+              entry = {};
+          if (details.onreadystatechange) {
+            entry.onreadystatechange = details.onreadystatechange;
+            details.onreadystatechange = true;
+          } else {
+            details.onreadystatechange = false;
+          }
+          if (details.onload) {
+            entry.onload = details.onload;
+            details.onload = true;
+          } else {
+            details.onload = false;
+          }
+          if (details.onerror) {
+            entry.onerror = details.onerror;
+            details.onerror = true;
+          } else {
+            details.onerror = false;
+          }
+          __rootCall_db.push(entry);
+          con.log("[Firefox XHR] Sending data to background.");
+          self.port.emit("xhr", JSON.stringify({
+            id: id,
+            details: details
+          }));
+        } else if (identifier === 4) { // Safari Extension
+          var id = __rootCall_db.length,
+              entry = {};
+          if (details.onreadystatechange) {
+            entry.onreadystatechange = details.onreadystatechange;
+            details.onreadystatechange = true;
+          } else {
+            details.onreadystatechange = false;
+          }
+          if (details.onload) {
+            entry.onload = details.onload;
+            details.onload = true;
+          } else {
+            details.onload = false;
+          }
+          if (details.onerror) {
+            entry.onerror = details.onerror;
+            details.onerror = true;
+          } else {
+            details.onerror = false;
+          }
+          __rootCall_db.push(entry);
+          safari.self.tab.dispatchMessage("xhr", JSON.stringify({
+            id: id,
+            details: details
+          }));
+        } else if (identifier === 5) { // Maxthon Extension
           var id = __rootCall_db.length,
               entry = {};
           if (details.onreadystatechange) {
@@ -2250,32 +2325,6 @@
             id: id,
             details: details
           });
-        } else if (indentifier === 4) {
-          var id = __rootCall_db.length,
-              entry = {};
-          if (details.onreadystatechange) {
-            entry.onreadystatechange = details.onreadystatechange;
-            details.onreadystatechange = true;
-          } else {
-            details.onreadystatechange = false;
-          }
-          if (details.onload) {
-            entry.onload = details.onload;
-            details.onload = true;
-          } else {
-            details.onload = false;
-          }
-          if (details.onerror) {
-            entry.onerror = details.onerror;
-            details.onerror = true;
-          } else {
-            details.onerror = false;
-          }
-          __rootCall_db.push(entry);
-          safari.self.tab.dispatchMessage("xhr", JSON.stringify({
-            id: id,
-            details: details
-          }));
         } else if (typeof GM_xmlhttpRequest !== "undefined") {
           GM_xmlhttpRequest(details);
           return true;
@@ -2541,7 +2590,7 @@
     
     con.log("Initializing Functions");
     
-    var yt, ytcenter = {}, self = this;
+    var yt, ytcenter = {};
     ytcenter.version = "@ant-version@";
     ytcenter.revision = @ant-revision@;
     ytcenter.icon = {};
@@ -2563,9 +2612,9 @@
       };
       a.setVisibility = function(visible){
         if (visible) {
-          ytcenter.utils.addCSS(document.body, "player-disable");
+          ytcenter.utils.addClass(document.body, "player-disable");
         } else {
-          ytcenter.utils.removeCSS(document.body, "player-disable");
+          ytcenter.utils.removeClass(document.body, "player-disable");
         }
       };
       
@@ -6334,6 +6383,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      scriptedPlayback: false,
       experimentalFeatureTopGuide: false,
       language: 'auto',
       filename: '{title}',
@@ -6781,6 +6831,10 @@
             }
           ],
           "defaultSetting": "watch7playerguidehide"
+        }, {
+          "label": "SETTINGS_SCRIPTEDPLAYBACK",
+          "type": "bool",
+          "defaultSetting": "scriptedPlayback"
         }, {
           "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
           "type": "list",
@@ -7704,7 +7758,7 @@
                 dbg.ytcenter._signatureDecoder = ytcenter.utils.__signatureDecoder;
                 try {
                   dbg.ytcenter.player = {};
-                  dbg.ytcenter.player.config = ytcenter.player.getReference().config;
+                  dbg.ytcenter.player.config = ytcenter.player.getConfig();
                 } catch (e) {
                   dbg.ytcenter.player.config = {};
                 }
@@ -9594,6 +9648,12 @@
       } else if (ytcenter.settings.bgcolor !== "default" && ytcenter.settings.bgcolor.indexOf("#") === 0) {
         ytcenter.player.getConfig().args.keywords = ytcenter.utils.setKeyword(ytcenter.player.getConfig().args.keywords, "yt:bgcolor", ytcenter.settings.bgcolor);
       }
+      if (ytcenter.settings.scriptedPlayback) {
+        ytcenter.player.getConfig().args.splay = "1";
+      } else {
+        ytcenter.player.getConfig().args.splay = "0";
+      }
+      //ytcenter.player.getConfig().args.fexp = "";
       ytcenter.player.getConfig().args.fs = "1";
       if (ytcenter.playlist) {
         if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
@@ -10478,7 +10538,7 @@
     })();
     con.log("At Scope End");
   };
-  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1) {
+  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && @identifier@ !== 2) {
     try {
       var __uw = (function(){
         var a;

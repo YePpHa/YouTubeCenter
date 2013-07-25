@@ -1,8 +1,9 @@
 const data = require("self").data;
 const Request = require("request").Request;
 const PageMod = require("page-mod").PageMod;
+var xhr, page, workers = [];
 
-var xhr = function(details){
+xhr = function(details){
   try {
     var req = Request(details);
     if (details.method === "POST") {
@@ -16,18 +17,37 @@ var xhr = function(details){
     details.onerror();
   }
 };
-var workers = [];
-var page = PageMod({
+page = PageMod({
   include: "*",
   contentScriptWhen: "start",
-  contentScriptFile: data.url("YouTubeCenter.user.js")/*,
-  onAttach: function(worker){
+  contentScriptFile: data.url("YouTubeCenter.user.js"),
+  onAttach: function(worker) {
     workers.push(worker);
     worker.on("detach", function() {
       var index = workers.indexOf(worker);
       if (index >= 0) workers.splice(index, 1);
     });
-    *//*worker.port.on("xhr", function(details){
+    worker.port.on("xhr", function(data){
+      data = JSON.parse(data);
+      if (data.details.onload) {
+        data.details.onComplete = function(response){
+          worker.port.emit("xhr onload", JSON.stringify({id: data.id, responseText: response.text}));
+        };
+      }
+      if (data.details.onerror) {
+        data.details.onerror = function(response){
+          worker.port.emit("xhr onerror", JSON.stringify({id: data.id, responseText: response.text}));
+        };
+      }
+      if (data.details.onreadystatechange) {
+        data.details.onreadystatechange = function(response){
+          worker.port.emit("xhr onreadystatechange", JSON.stringify({id: data.id, responseText: response.text}));
+        };
+      }
+      xhr(data.details);
+    });
+    /*
+    worker.port.on("xhr", function(details){
       try {
         if (details.onload) {
           details.onComplete = function(response){
@@ -47,7 +67,6 @@ var page = PageMod({
         xhr(details);
       }
       console.log(details);
-    });*//*
-  }*/
+    });*/
+  }
 });
-
