@@ -8578,12 +8578,14 @@
         ytcenter.player.updateResize_updateVisibility();
         ytcenter.player.updateResize_updatePosition();
       };
+      ytcenter.events.addEvent("ui-refresh", function(){
+        ytcenter.player._resize(_width, _height, _large, _align);
+      });
       window.addEventListener("resize", (function(){
         var timer = null;
         return function(){
           if (timer !== null) uw.clearTimeout(timer);
           timer = uw.setTimeout(function(){
-            ytcenter.player._resize(_width, _height, _large, _align);
             ytcenter.events.performEvent("ui-refresh");
           }, 100);
         };
@@ -8674,9 +8676,10 @@
         // Sidebar
         if (document.getElementById("watch7-sidebar")) {
           if (!large && !document.getElementById("watch7-playlist-data")) {
-            document.getElementById("watch7-sidebar").style.marginTop = "-" +
-              (calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0) +
-              ((document.getElementById("watch7-branded-banner") || document.getElementById("player-branded-banner")) && !ytcenter.settings.removeBrandingBanner ? 70 : 0)) + "px";
+            var mt = calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0);
+            if (ytcenter.utils.hasClass(document.getElementById("watch7-container"), "watch-branded-banner") && !ytcenter.settings.removeBrandingBanner)
+              mt += 70;
+            document.getElementById("watch7-sidebar").style.marginTop = "-" + mt + "px";
           } else {
             document.getElementById("watch7-sidebar").style.marginTop = "";
           }
