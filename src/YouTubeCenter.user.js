@@ -946,13 +946,22 @@
               medium: ytcenter.language.getLocale("MEDIUM"),
               small: ytcenter.language.getLocale("SMALL")
             }[stream_groups[key][i].quality];
+            var _t = document.createElement("table"), _tb = document.createElement("tbody"), _tr = document.createElement("tr"),  _td = document.createElement("td"), _td2 = document.createElement("td");
+            _t.style.width = "100%";
+            _t.style.border = "0";
+            _t.style.margin = "0";
+            _t.style.padding = "0";
             
-            item.innerHTML = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_MENU_ITEM_TEXT"), {
-              stream_name: stream_name,
-              stream_resolution: (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p",
-              stream_dimension: (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : ""),
-              stream_3d: (is3D ? "&nbsp;3D" : "")
-            });
+            td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
+            td2.textContent = (is3D ? "&nbsp;3D" : "");
+            
+            _tr.appendChild(td);
+            _tr.appendChild(td2);
+            _tb.appendChild(_tr);
+            _t.appendChild(_tb);
+            
+            item.appendChild(_t);
+            
             ytcenter.events.addEvent("ui-refresh", (function(stream, is3D){
               return function(){
                 var stream_name = {
@@ -963,12 +972,8 @@
                   medium: ytcenter.language.getLocale("MEDIUM"),
                   small: ytcenter.language.getLocale("SMALL")
                 }[stream.quality];
-                item.innerHTML = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_MENU_ITEM_TEXT"), {
-                  stream_name: stream_name,
-                  stream_resolution: stream.dimension.split("x")[1] + "p",
-                  stream_dimension: stream.dimension,
-                  stream_3d: (is3D ? "&nbsp;3D" : "")
-                });
+                td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
+                td2.textContent = (is3D ? "&nbsp;3D" : "");
               };
             })(stream_groups[key][i], is3D));
             var li = document.createElement("li");
@@ -1403,7 +1408,7 @@
                 item.textContent = ytcenter.language.getLocale(recipe.list[i].label);
                 ytcenter.language.addLocaleElement(item, recipe.list[i].label, "@textContent");
               } else if (recipe.list[i].variable) {
-                item.textContent = eval(recipe.list[i].variable);
+                item.textContent = recipe.list[i].variable();
               }
               if (recipe.list[i].value === ytcenter.settings[recipe.defaultSetting]) {
                 item.selected = true;
@@ -1477,7 +1482,8 @@
             elm.textContent = recipe.text;
           }
           if (recipe.html) {
-            elm.innerHTML = recipe.html;
+            con.error("[Settings Recipe] Element attribute HTML not allowed!");
+            //elm.innerHTML = recipe.html;
           }
           if (recipe.load) {
             tab.addEventListener("click", (function(elm, load){
@@ -1509,7 +1515,8 @@
             elm.textContent = recipe.text;
           }
           if (recipe.html) {
-            elm.innerHTML = recipe.html;
+            con.error("[Settings Recipe] Textarea doesn't allow the HTML attribute!");
+            //elm.innerHTML = recipe.html;
           }
           if (recipe.load) {
             tab.addEventListener("click", (function(elm, load){
@@ -1526,36 +1533,7 @@
           break;
         case 'html':
           elm = document.createElement("div");
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          if (recipe.html) {
-            if (recipe.replace) {
-              elm.innerHTML = $TextReplacer(recipe.html, recipe.replace);
-            } else {
-              elm.innerHTML = recipe.html;
-            }
-            
-            elm.innerHTML = recipe.html;
-          }
-          if (recipe.htmllocale) {
-            if (recipe.replace) {
-              elm.innerHTML = $TextReplacer(ytcenter.language.getLocale(recipe.htmllocale), recipe.replace);
-            } else {
-              elm.innerHTML = ytcenter.language.getLocale(recipe.htmllocale);
-            }
-            
-            ytcenter.language.addLocaleElement(elm, recipe.htmllocale, "@innerHTML", recipe.replace || {});
-          }
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
+          con.error("[Settings Recipe] Illegal type => HTML");
           break;
         case 'multi':
           var multilist = ytcenter.embeds.multilist(recipe.multi);
@@ -1700,6 +1678,167 @@
           })(recipe.defaultSetting));
           _il.update(ytcenter.settings[recipe.defaultSetting]);
           elm = _il.element;
+          break;
+        case "horizontalRule":
+          elm = document.createElement("hr");
+          elm.className = "yt-horizontal-rule";
+          elm.style.zIndex = "0";
+          if (recipe.style) {
+            for (var key in recipe.style) {
+              if (recipe.style.hasOwnProperty(key)) {
+                elm.style[key] = recipe.style[key];
+              }
+            }
+          }
+          if (recipe.listeners) {
+            for (var i = 0; i < recipe.listeners.length; i++) {
+              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
+            }
+          }
+          break;
+        case "newline":
+          elm = document.createElement("br");
+          if (recipe.style) {
+            for (var key in recipe.style) {
+              if (recipe.style.hasOwnProperty(key)) {
+                elm.style[key] = recipe.style[key];
+              }
+            }
+          }
+          if (recipe.listeners) {
+            for (var i = 0; i < recipe.listeners.length; i++) {
+              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
+            }
+          }
+          break;
+        case "textContent":
+          elm = document.createElement("div");
+          if (recipe.style) {
+            for (var key in recipe.style) {
+              if (recipe.style.hasOwnProperty(key)) {
+                elm.style[key] = recipe.style[key];
+              }
+            }
+          }
+          if (recipe.text) {
+            if (recipe.replace) {
+              elm.textContent = $TextReplacer(recipe.text, recipe.replace);
+            } else {
+              elm.textContent = recipe.text;
+            }
+          }
+          if (recipe.textlocale) {
+            if (recipe.replace) {
+              elm.textContent = $TextReplacer(ytcenter.language.getLocale(recipe.textlocale), recipe.replace);
+            } else {
+              elm.textContent = ytcenter.language.getLocale(recipe.textlocale);
+            }
+            
+            ytcenter.language.addLocaleElement(elm, recipe.textlocale, "@textContent", recipe.replace || {});
+          }
+          if (recipe.listeners) {
+            for (var i = 0; i < recipe.listeners.length; i++) {
+              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
+            }
+          }
+          break;
+        case "link":
+          elm = document.createElement("div");
+          var title = document.createElement("b");
+          if (recipe.titleLocale) {
+            title.textContent = ytcenter.language.getLocale(recipe.titleLocale);
+            ytcenter.language.addLocaleElement(title, recipe.titleLocale, "@textContent", recipe.replace || {});
+          } else if (recipe.title) {
+            title.textContent = recipe.title;
+          }
+          var content = document.createElement("div");
+          content.style.marginLeft = "20px";
+          
+          for (var i = 0; i < recipe.links.length; i++) {
+            if (i > 0) content.appendChild(document.createElement("br"));
+            var __a = document.createElement("a");
+            __a.href = recipe.links[i].url;
+            __a.textContent = recipe.links[i].text;
+            __a.setAttribute("target", "_blank");
+            content.appendChild(__a);
+          }
+          elm.appendChild(title);
+          elm.appendChild(content);
+          break;
+        case "aboutText":
+          elm = document.createElement("div");
+          
+          var title = document.createElement("h2");
+          title.textContent = "YouTube Center v" + ytcenter.version;
+          
+          var content1 = document.createElement("div");
+          content1.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_COPYRIGHTS");
+          ytcenter.language.addLocaleElement(content1, "SETTINGS_ABOUT_COPYRIGHTS", "@textContent", {});
+          
+          var content2 = document.createElement("div");
+          content2.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_CONTACTSINFO");
+          ytcenter.language.addLocaleElement(content2, "SETTINGS_ABOUT_CONTACTSINFO", "@textContent", {});
+          
+          var contact = document.createElement("div"),
+              contactText = document.createTextNode(ytcenter.language.getLocale("SETTINGS_ABOUT_EMAIL")),
+              contactTextEnd = document.createTextNode(":"),
+              contactLink = document.createElement("a");
+          ytcenter.language.addLocaleElement(contactText, "SETTINGS_ABOUT_EMAIL", "@textContent", {});
+          
+          contactLink.href = "mailto:jepperm@gmail.com";
+          contactLink.textContent = "jepperm@gmail.com";
+          
+          contact.appendChild(contactText);
+          contact.appendChild(contactTextEnd);
+          contact.appendChild(contactLink);
+          
+          elm.appendChild(title);
+          elm.appendChild(content1);
+          elm.appendChild(document.createElement("br"));
+          elm.appendChild(content2);
+          elm.appendChild(contact);
+          break;
+        case "translators":
+          elm = document.createElement("div");
+          var title = document.createElement("b"),
+              titleText,
+              titleTextEnd = document.createTextNode(":");
+          if (recipe.titleLocale) {
+            titleText = document.createTextNode(ytcenter.language.getLocale(recipe.titleLocale));
+            ytcenter.language.addLocaleElement(titleText, recipe.titleLocale, "@textContent", {});
+          } else if (recipe.title) {
+            titleText = document.createTextNode(recipe.title);
+          } else {
+            titleText = document.createTextNode("");
+          }
+          
+          title.appendChild(titleText);
+          title.appendChild(titleTextEnd);
+          
+          var translators = document.createElement("div");
+          translators.style.marginLeft = "20px";
+          ytcenter.utils.each(recipe.translators, function(key, value){
+            if (value.length > 0) {
+              var entry = document.createElement("div");
+              entry.appendChild(document.createTextNode(ytcenter.language.getLocale("LANGUAGE", key) + " (" + ytcenter.language.getLocale("LANGUAGE_ENGLISH", key) + ") - "));
+              for (var i = 0; i < value.length; i++) {
+                if (i > 0) entry.appendChild(document.createTextNode(" & "));
+                var el;
+                if (value[i].url) {
+                  el = document.createElement("a");
+                  el.href = value[i].url;
+                  el.textContent = value[i].name;
+                  el.setAttribute("target", "_blank");
+                } else {
+                  el = document.createTextNode(value[i].name);
+                }
+                entry.appendChild(el);
+              }
+              translators.appendChild(entry);
+            }
+          });
+          elm.appendChild(title);
+          elm.appendChild(translators);
           break;
       }
       if (elm) {
@@ -5248,6 +5387,9 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide");
     };
     ytcenter.utils = {};
+    ytcenter.utils.sanitizeHTML = function(){
+      var allowedTags
+    };
     ytcenter.utils.xhr = function(details){
       var xmlhttp;
       if (typeof XMLHttpRequest != "undefined") {
@@ -6224,11 +6366,17 @@
         replace = replace || {};
         db.push([elm, name, type, replace]);
       };
+      __r.getLanguage = function(language){
+        return ytcenter.languages[language];
+      };
       /**
        * Gets the locale for the specific locale name.
        */
-      __r.getLocale = function(name){
-        return currentLang[name];
+      __r.getLocale = function(name, language){
+        if (typeof language !== "string")
+          return currentLang[name];
+        else
+          return __r.getLanguage(language)[name];
       };
       /**
        * Updates all elements added to the database with the given language.
@@ -6421,21 +6569,34 @@
                 
                 var cnme = document.createElement("div");
                 cnme.className = "yt-alert-message";
-                cnme.innerHTML = $TextReplacer(ytcenter.language.getLocale("UPDATE_HTML"), {
-                  scripturl: 'http://userscripts.org/scripts/source/114002.user.js',
-                  version: ver,
-                  siteurl: 'http://userscripts.org/scripts/show/114002',
-                  site: 'userscripts.org'
-                });
+                var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
+                ytcenter.language.addLocaleElement(f1, ytcenter.language.getLocale("UPDATE_NOTICE"), "@textContent", {});
+                var f2 = document.createElement("br");
+                var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
+                ytcenter.language.addLocaleElement(f3, ytcenter.language.getLocale("UPDATE_INSTALL"), "@textContent", {});
+                var f4 = document.createTextNode(" ");
+                var f5 = document.createElement("a");
+                f5.href = "http://userscripts.org/scripts/source/114002.user.js";
+                f5.setAttribute("target", "_blank");
+                f5.textContent = "YouTube Center v" + ver;
+                var f6 = document.createTextNode(" ");
+                var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
+                ytcenter.language.addLocaleElement(f7, ytcenter.language.getLocale("UPDATE_OR"), "@textContent", {});
+                var f8 = document.createTextNode(" ");
+                var f9 = document.createElement("a");
+                f9.href = "http://userscripts.org/scripts/show/114002";
+                f9.setAttribute("target", "_blank");
+                f9.textContent = "userscripts.org";
                 
-                ytcenter.events.addEvent("ui-refresh", function(){
-                  cnme.innerHTML = $TextReplacer(ytcenter.language.getLocale("UPDATE_HTML"), {
-                    scripturl: 'http://userscripts.org/scripts/source/114002.user.js',
-                    version: ver,
-                    siteurl: 'http://userscripts.org/scripts/show/114002',
-                    site: 'userscripts.org'
-                  });
-                });
+                cnme.appendChild(f1);
+                cnme.appendChild(f2);
+                cnme.appendChild(f3);
+                cnme.appendChild(f4);
+                cnme.appendChild(f5);
+                cnme.appendChild(f6);
+                cnme.appendChild(f7);
+                cnme.appendChild(f8);
+                cnme.appendChild(f9);
                 
                 cn.appendChild(cnt);
                 cn.appendChild(cnme);
@@ -6731,7 +6892,11 @@
               if (ytcenter.languages.hasOwnProperty(key)) {
                 a.push({
                   "value": key,
-                  "variable": "ytcenter.languages[\"" + key + "\"].LANGUAGE"
+                  "variable": (function(k){
+                    return function(){
+                      return ytcenter.languages[k].LANGUAGE;
+                    };
+                  })(key)
                 });
               }
             }
@@ -7014,8 +7179,7 @@
           "type": "bool",
           "defaultSetting": "scrollToPlayer"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
           "type": "bool",
@@ -7046,8 +7210,7 @@
           ],
           "defaultSetting": "autoVideoQuality"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_BRANDING_BANNER_REMOVE",
           "type": "bool",
@@ -7085,8 +7248,7 @@
           ],
           "defaultSetting": "removeBrandingWatermark"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_PREVENTAUTOPLAY_LABEL",
           "type": "bool",
@@ -7096,8 +7258,7 @@
           "type": "bool",
           "defaultSetting": "preventAutoBuffer"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_PLAYLIST_PREVENT_AUTOPLAY",
           "type": "bool",
@@ -7115,8 +7276,7 @@
           "type": "bool",
           "defaultSetting": "preventTabAutoBuffer"*/
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_VOLUME_ENABLE",
           "type": "bool",
@@ -7132,8 +7292,7 @@
           "type": "bool",
           "defaultSetting": "mute"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_LIGHTBULB_AUTO",
           "type": "bool",
@@ -7246,8 +7405,7 @@
           "type": "bool",
           "defaultSetting": "channel_enableAnnotations"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
           "type": "bool",
@@ -7278,8 +7436,7 @@
           ],
           "defaultSetting": "channel_autoVideoQuality"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_PREVENTAUTOPLAY_LABEL",
           "type": "bool",
@@ -7289,8 +7446,7 @@
           "type": "bool",
           "defaultSetting": "channel_preventAutoBuffer"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_VOLUME_ENABLE",
           "type": "bool",
@@ -7407,8 +7563,7 @@
           "type": "bool",
           "defaultSetting": "embed_enableAnnotations"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
           "type": "bool",
@@ -7439,8 +7594,7 @@
           ],
           "defaultSetting": "embed_autoVideoQuality"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_PREVENTAUTOPLAY_LABEL",
           "type": "bool",
@@ -7450,8 +7604,7 @@
           "type": "bool",
           "defaultSetting": "embed_preventAutoBuffer"
         }, {
-          "type": "html",
-          "html": "<hr class=\"yt-horizontal-rule\" style=\"z-index:0;\" />"
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_VOLUME_ENABLE",
           "type": "bool",
@@ -7530,8 +7683,7 @@
           ],
           "defaultSetting": "aspectEnable"
         }, {
-          "type": "html",
-          "html": "<br />",
+          "type": "newline",
           "style": {
             "display": (loc.href.match(/^(http|https)\:\/\/(.*?)\.youtube\.com\/watch\?/) ? "block" : "none")
           }
@@ -7558,7 +7710,7 @@
             }
           ]
         }, {
-          "type": "html",
+          "type": "textContent",
           "htmllocale": "SETTINGS_PLACEMENTSYSTEM_MOVEELEMENTS_INSTRUCTIONS",
           "style": {
             "marginLeft": "20px",
@@ -7813,22 +7965,90 @@
       ],
       "SETTINGS_TAB_ABOUT": [
         {
-          "type": "html",
-          "htmllocale": "SETTINGS_ABOUT_HTML",
-          "replace": {
-            "version": ytcenter.version
-          }
+          "type": "aboutText"
         }, {
-          "type": "html",
-          "htmllocale": "SETTINGS_ABOUT_LINKS_HTML", // {userscript}
-          "replace": {
-            "links": "<div style=\"margin-left:20px;\"><a href=\"http://userscripts.org/scripts/show/114002\" target=\"_blank\">Userscript</a><br /><a href=\"https://www.facebook.com/YouTubeCenter\" target=\"_blank\">Facebook</a><br /><a href=\"https://plus.google.com/111275247987213661483/posts\" target=\"_blank\">Google+</a><br /><a href=\"https://addons.opera.com/en/extensions/details/youtube-center/\" target=\"_blank\">Opera</a><br /><a href=\"http://extension.maxthon.com/detail/index.php?view_id=1201\" target=\"_blank\">Maxthon</a></div>"
-          }
+          "type": "link",
+          "titleLocale": "SETTINGS_ABOUT_LINKS",
+          "links": [
+            {text: "Userscript", url: "http://userscripts.org/scripts/show/114002"},
+            {text: "Facebook", url: "https://www.facebook.com/YouTubeCenter"},
+            {text: "Google+", url: "https://plus.google.com/111275247987213661483/posts"},
+            {text: "Opera", url: "https://addons.opera.com/en/extensions/details/youtube-center/"},
+            {text: "Maxthon", url: "http://extension.maxthon.com/detail/index.php?view_id=1201"}
+          ]
         }, {
-          "type": "html",
-          "htmllocale": "SETTINGS_ABOUT_TRANSLATORS_HTML",
-          "replace": {
-            "translators": "<div style=\"margin-left:20px;\">Arabic (Bahrain) - alihill381<br />Danish - Jeppe Rune Mortensen (YePpHa)<br />French - <a href=\"http://www.twitter.com/ThePoivron\">ThePoivron</a><br />German - Simon Artmann & Sven \"Hidden\" W<br />Hebrew (Israel) - baryoni<br />Italian - Pietro De Nicolao<br />Russian - <a href=\"http://kdasoft.narod.ru\" target=\"_blank\">KDASOFT</a><br />Spanish - Roxz<br />Turkish - Ismail Aksu<br />Hungarian - Eugenox & Mateus<br />Portuguese - <a href=\"http://userscripts.org/users/264457\" target=\"_blank\">Rafael Damasceno</a><br />Portuguese (Brazil) - Thiago R. M. Pereira & José Junior<br />Simplified Chinese - 小酷 and MatrixGT<br />Romanian - <a href=\"http://www.itinerary.ro/\" target=\"_blank\">BlueMe</a><br />Polish - Piotr<br />Slovak - ja1som<br />Traditional Chinese - 泰熊<br />Ukrainian - SPIDER-T1<br />Japanese - Lightning-Natto<br />Swedish - Christian Eriksson<br />Catalan - Joan Alemany & Raül Cambeiro</div>"
+          "type": "translators",
+          "titleLocale": "SETTINGS_ABOUT_TRANSLATORS",
+          "translators": {
+            "ar-bh": [
+              {name: "alihill381"}
+            ],
+            "ca": [
+              {name: "Joan Alemany"},
+              {name: "Raül Cambeiro"}
+            ],
+            "da": [],
+            "de": [
+              {name: "Simon Artmann"},
+              {name: "Sven \"Hidden\" W"}
+            ],
+            "en": [],
+            "es": [
+              {name: "Roxz"}
+            ],
+            "fa-IR": [],
+            "fr": [
+              {name: "ThePoivron", url: "http://www.twitter.com/ThePoivron"}
+            ],
+            "he": [
+              {name: "baryoni"}
+            ],
+            "hu": [
+              {name: "Eugenox"},
+              {name: "Mateus"}
+            ],
+            "it": [
+              {name: "Pietro De Nicolao"}
+            ],
+            "jp": [
+              {name: "Lightning-Natto"}
+            ],
+            "nl": [],
+            "pl": [
+              {name: "Piotr"}
+            ],
+            "pt-BR": [
+              {name: "Thiago R. M. Pereira"},
+              {name: "José Junior"}
+            ],
+            "pt-PT": [
+              {name: "Rafael Damasceno", url: "http://userscripts.org/users/264457"}
+            ],
+            "ro": [
+              {name: "BlueMe", url: "http://www.itinerary.ro/"}
+            ],
+            "ru": [
+              {name: "KDASOFT", url: "http://kdasoft.narod.ru/"}
+            ],
+            "sk": [
+              {name: "ja1som"}
+            ],
+            "sv-SE": [
+              {name: "Christian Eriksson"}
+            ],
+            "tr": [
+              {name: "Ismail Aksu"}
+            ],
+            "UA": [
+              {name: "SPIDER-T1"}
+            ],
+            "zh-CN": [
+              {name: "小酷"},
+              {name: "MatrixGT"}
+            ],
+            "zh-TW": [
+              {name: "泰熊"}
+            ]
           }
         }
       ]
