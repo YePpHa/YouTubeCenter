@@ -18,7 +18,7 @@ xhr = function(details){
   }
 };
 page = PageMod({
-  include: "*",
+  include: ["*.youtube.com"],
   contentScriptWhen: "start",
   contentScriptFile: data.url("YouTubeCenter.user.js"),
   onAttach: function(worker) {

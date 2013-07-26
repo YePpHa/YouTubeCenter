@@ -2601,6 +2601,70 @@
     ytcenter.refreshHomepage = function() {
       // Doing nothing for the moment!
     };
+    ytcenter.debug = function(){
+      var debugText = "{}";
+      var dbg = {};
+      try {
+        dbg.location = {
+          hash: loc.hash,
+          host: loc.host,
+          hostname: loc.hostname,
+          href: loc.href,
+          origin: loc.origin,
+          pathname: loc.pathname,
+          port: loc.port,
+          protocol: loc.protocol,
+          search: loc.search
+        };
+        dbg.navigator = {
+          userAgent: uw.navigator.userAgent,
+          vendor: uw.navigator.vendor,
+          vendorSub: uw.navigator.vendorSub,
+          platform: uw.navigator.platform
+        };
+        dbg._settings = ytcenter._settings;
+        dbg.settings = ytcenter.settings;
+        dbg.ytcenter = {};
+        dbg.ytcenter.video = ytcenter.video;
+        dbg.ytcenter.signatureDecoder = ytcenter.utils._signatureDecoder;
+        dbg.ytcenter._signatureDecoder = ytcenter.utils.__signatureDecoder;
+        try {
+          dbg.ytcenter.player = {};
+          dbg.ytcenter.player.config = ytcenter.player.getConfig();
+        } catch (e) {
+          dbg.ytcenter.player.config = {};
+        }
+        try {
+          dbg.ytcenter.player.apiinterface = ytcenter.player.getReference().api.getApiInterface();
+        } catch (e) {
+          dbg.ytcenter.player.apiinterface = {};
+        }
+        if (typeof dbg.ytcenter.player.reference !== "undefined") {
+          dbg.ytcenter.player.reference = true;
+        } else {
+          dbg.ytcenter.player.reference = false;
+        }
+        
+        try {
+          var tests = ["getAvailablePlaybackRates", "getAvailableQualityLevels", "getCurrentTime", "getDebugText", "getDuration", "getPlaybackQuality", "getPlaybackRate", "getPlayerState", "getPlayerType", "getVolume", "isMuted", "isReady"];
+          dbg.player_test = {};
+          for (var i = 0; i < tests.length; i++) {
+            if (ytcenter.player.getReference().api[tests[i]])
+              dbg.player_test[tests[i]] = ytcenter.player.getReference().api[tests[i]]();
+          }
+        } catch (e) {
+          dbg.player_test_error = e;
+        }
+        
+        dbg.console = _console;
+        
+        debugText = JSON.stringify(dbg);
+      } catch (e) {
+        con.error(e);
+        debugText = e.message;
+      }
+      return debugText;
+    };
     ytcenter.welcome /*NOT SURE WHAT TO REALLY CALL THIS ATM :I */ = (function(){
       var a = {};
       a.setLaunchStatus = function(launch){
@@ -2730,18 +2794,18 @@
     })();
     ytcenter._dialogVisible = null;
     ytcenter.dialog = function(titleLabel, content, actions, alignment){
+      var __r = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer;
       alignment = alignment || "center";
-      var __r = {}, ___parent_dialog = null;
       
-      var bgOverlay = ytcenter.dialogOverlay();
-      var root = document.createElement("div");
+      bgOverlay = ytcenter.dialogOverlay();
+      root = document.createElement("div");
       root.className = "yt-dialog";
-      var base = document.createElement("div");
+      base = document.createElement("div");
       base.className = "yt-dialog-base";
       
-      var fg = document.createElement("div");
+      fg = document.createElement("div");
       fg.className = "yt-dialog-fg";
-      var fgContent = document.createElement("div");
+      fgContent = document.createElement("div");
       fgContent.className = "yt-dialog-fg-content yt-dialog-show-content";
       fg.appendChild(fgContent);
       
@@ -2778,7 +2842,7 @@
         cnt.appendChild(content);
         fgContent.appendChild(cnt);
       }
-      var footer = document.createElement("div");
+      footer = document.createElement("div");
       footer.className = "yt-dialog-footer";
       fgContent.appendChild(footer);
       if (typeof actions !== "undefined") {
@@ -2845,6 +2909,10 @@
         }
       };
       __r.setFocus = function(focus){
+        if (!base) {
+          con.error("[Dialog.setFocus] base element was not found!");
+          return;
+        }
         if (focus) {
           base.style.zIndex = "";
         } else {
@@ -7730,68 +7798,7 @@
           "load": function(){
             con.log("Loading debug text...");
             this.textContent = (function(){
-              var debugText = "{}";
-              var dbg = {};
-              try {
-                dbg.location = {
-                  hash: loc.hash,
-                  host: loc.host,
-                  hostname: loc.hostname,
-                  href: loc.href,
-                  origin: loc.origin,
-                  pathname: loc.pathname,
-                  port: loc.port,
-                  protocol: loc.protocol,
-                  search: loc.search
-                };
-                dbg.navigator = {
-                  userAgent: uw.navigator.userAgent,
-                  vendor: uw.navigator.vendor,
-                  vendorSub: uw.navigator.vendorSub,
-                  platform: uw.navigator.platform
-                };
-                dbg._settings = ytcenter._settings;
-                dbg.settings = ytcenter.settings;
-                dbg.ytcenter = {};
-                dbg.ytcenter.video = ytcenter.video;
-                dbg.ytcenter.signatureDecoder = ytcenter.utils._signatureDecoder;
-                dbg.ytcenter._signatureDecoder = ytcenter.utils.__signatureDecoder;
-                try {
-                  dbg.ytcenter.player = {};
-                  dbg.ytcenter.player.config = ytcenter.player.getConfig();
-                } catch (e) {
-                  dbg.ytcenter.player.config = {};
-                }
-                try {
-                  dbg.ytcenter.player.apiinterface = ytcenter.player.getReference().api.getApiInterface();
-                } catch (e) {
-                  dbg.ytcenter.player.apiinterface = {};
-                }
-                if (typeof dbg.ytcenter.player.reference !== "undefined") {
-                  dbg.ytcenter.player.reference = true;
-                } else {
-                  dbg.ytcenter.player.reference = false;
-                }
-                
-                try {
-                  var tests = ["getAvailablePlaybackRates", "getAvailableQualityLevels", "getCurrentTime", "getDebugText", "getDuration", "getPlaybackQuality", "getPlaybackRate", "getPlayerState", "getPlayerType", "getVolume", "isMuted", "isReady"];
-                  dbg.player_test = {};
-                  for (var i = 0; i < tests.length; i++) {
-                    if (ytcenter.player.getReference().api[tests[i]])
-                      dbg.player_test[tests[i]] = ytcenter.player.getReference().api[tests[i]]();
-                  }
-                } catch (e) {
-                  dbg.player_test_error = e;
-                }
-                
-                dbg.console = _console;
-                
-                debugText = JSON.stringify(dbg);
-              } catch (e) {
-                con.error(e);
-                debugText = e.message;
-              }
-              return debugText;
+              return ytcenter.debug();
             })();
           }
         }
@@ -10300,11 +10307,14 @@
         // Settings made public
         uw.ytcenter = uw.ytcenter || {};
         uw.ytcenter.settings = uw.ytcenter.settings || {};
+        uw.ytcenter.getDebug = ytcenter.utils.bind(function(){
+          return ytcenter.debug();
+        }, uw.ytcenter);
         uw.ytcenter.updateSignatureDecoder = ytcenter.utils.bind(function(){
           uw.postMessage("YouTubeCenter" + JSON.stringify({
             type: "updateSignatureDecoder"
           }), "http://www.youtube.com");
-        }, uw.ytcenter.settings);
+        }, uw.ytcenter);
         uw.ytcenter.settings.setOption = ytcenter.utils.bind(function(key, value){
           ytcenter.settings[key] = value;
           uw.postMessage("YouTubeCenter" + JSON.stringify({
@@ -10375,7 +10385,7 @@
         
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           // TODO add compatible styles here
-          $AddStyle(".ytcenter-settings-content h2{border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
+          $AddStyle(".ytcenter-settings-content h2 {border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
         } else {
           $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
           $AddStyle("#page.search.no-flex .branded-page-v2-container{min-width:0!important}");
