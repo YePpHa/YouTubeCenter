@@ -2911,8 +2911,8 @@
           }
           if (document.getElementById("player-api")) document.getElementById("player-api").style.visibility = "hidden";
         } else {
-          if (root.parentNode) document.body.removeChild(root);
-          if (bgOverlay.parentNode) document.body.removeChild(bgOverlay);
+          if (root.parentNode) root.parentNode.removeChild(root);
+          if (bgOverlay.parentNode) bgOverlay.parentNode.removeChild(bgOverlay);
           if (document.getElementById("player-api")) document.getElementById("player-api").style.visibility = "";
         }
       };
