@@ -1209,6 +1209,7 @@
           dialog.setVisibility(true);
         }, false);
         
+        textIcon.className = "upload-menu-account-settings";
         textIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
         
         spanText.appendChild(textIcon);
