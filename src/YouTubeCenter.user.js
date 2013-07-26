@@ -6834,7 +6834,7 @@
         }, {
           "label": "SETTINGS_DASHPLAYBACK",
           "type": "bool",
-          "defaultSetting": "scriptedPlayback"
+          "defaultSetting": "dashPlayback"
         }, {
           "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
           "type": "list",
@@ -9652,6 +9652,7 @@
         ytcenter.player.getConfig().args.dash = "1";
       } else {
         ytcenter.player.getConfig().args.dash = "0";
+        ytcenter.player.getConfig().args.dashmpd = "";
       }
       
       if (ytcenter.playlist) {
