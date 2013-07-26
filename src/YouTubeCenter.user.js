@@ -952,17 +952,17 @@
             _t.style.margin = "0";
             _t.style.padding = "0";
             
-            td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
-            td2.textContent = (is3D ? "&nbsp;3D" : "");
+            _td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
+            _td2.textContent = (is3D ? "&nbsp;3D" : "");
             
-            _tr.appendChild(td);
-            _tr.appendChild(td2);
+            _tr.appendChild(_td);
+            _tr.appendChild(_td2);
             _tb.appendChild(_tr);
             _t.appendChild(_tb);
             
             item.appendChild(_t);
             
-            ytcenter.events.addEvent("ui-refresh", (function(stream, is3D){
+            ytcenter.events.addEvent("ui-refresh", (function(stream, _is3D){
               return function(){
                 var stream_name = {
                   highres: ytcenter.language.getLocale("HIGHRES"),
@@ -972,8 +972,8 @@
                   medium: ytcenter.language.getLocale("MEDIUM"),
                   small: ytcenter.language.getLocale("SMALL")
                 }[stream.quality];
-                td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
-                td2.textContent = (is3D ? "&nbsp;3D" : "");
+                _td.textContent = stream_name + ", " + (stream.dimension ? stream.dimension.split("x")[1] : "") + "p (" + (stream.dimension ? stream.dimension : "") + ")";
+                _td2.textContent = (_is3D ? "&nbsp;3D" : "");
               };
             })(stream_groups[key][i], is3D));
             var li = document.createElement("li");
@@ -1483,7 +1483,6 @@
           }
           if (recipe.html) {
             con.error("[Settings Recipe] Element attribute HTML not allowed!");
-            //elm.innerHTML = recipe.html;
           }
           if (recipe.load) {
             tab.addEventListener("click", (function(elm, load){
@@ -1516,7 +1515,6 @@
           }
           if (recipe.html) {
             con.error("[Settings Recipe] Textarea doesn't allow the HTML attribute!");
-            //elm.innerHTML = recipe.html;
           }
           if (recipe.load) {
             tab.addEventListener("click", (function(elm, load){
@@ -5387,9 +5385,6 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide");
     };
     ytcenter.utils = {};
-    ytcenter.utils.sanitizeHTML = function(){
-      var allowedTags
-    };
     ytcenter.utils.xhr = function(details){
       var xmlhttp;
       if (typeof XMLHttpRequest != "undefined") {
@@ -9249,6 +9244,27 @@
             if (playlistTray) {
               playlistTray.style.height = Math.ceil(__h - (large ? 0 : 27)) + "px";
             }
+            var __w = Math.ceil(calcWidth), __ra = __w*0.35;
+            if (__ra < 275) __ra = 275;
+            else if (__ra > 400) __ra = 400;
+            playlistTrayContainer.style.width = (large ? __ra : maxInsidePlayerWidth - __w) + "px";
+            
+            var sTop = __h;
+            if (large) {
+              sTop = sTop + 27;
+            }
+            playlistTrayContainer.style.top = "-" + sTop + "px";
+            playlistTrayContainer.style.left = (large ? __w - __ra : __w) + "px";
+            
+            var playlistTrayPositioning = document.getElementById("watch7-playlist-tray-positioning");
+            if (playlistTrayPositioning) {
+              playlistTrayPositioning.style.width = __w + "px";
+              if (align) {
+                playlistTrayPositioning.style.margin = "";
+              } else {
+                playlistTrayPositioning.style.margin = "0 auto";
+              }
+            }
           }
         } else {
           var playlistElement = document.getElementById("watch7-playlist-data"),
@@ -9269,6 +9285,27 @@
               var playlistTray = document.getElementById("watch7-playlist-tray");
               if (playlistTray) {
                 playlistTray.style.height = Math.ceil(__h - (large ? 0 : 27)) + "px";
+              }
+              var __w = Math.ceil(calcWidth), __ra = __w*0.35;
+              if (__ra < 275) __ra = 275;
+              else if (__ra > 400) __ra = 400;
+              playlistTrayContainer.style.width = (large ? __ra : maxInsidePlayerWidth - __w) + "px";
+              
+              var sTop = __h;
+              if (large) {
+                sTop = sTop + 27;
+              }
+              playlistTrayContainer.style.top = "-" + sTop + "px";
+              playlistTrayContainer.style.left = (large ? __w - __ra : __w) + "px";
+              
+              var playlistTrayPositioning = document.getElementById("watch7-playlist-tray-positioning");
+              if (playlistTrayPositioning) {
+                playlistTrayPositioning.style.width = __w + "px";
+                if (align) {
+                  playlistTrayPositioning.style.margin = "";
+                } else {
+                  playlistTrayPositioning.style.margin = "0 auto";
+                }
               }
             }
           }
@@ -10607,10 +10644,9 @@
         $AddStyle(".ytcenter-remove-ads-page .ad-div,.ytcenter-remove-ads-page .mastad,.ytcenter-remove-ads-page .masthead-ad-control,.ytcenter-remove-ads-page .masthead-ad-control-lihp,.ytcenter-remove-ads-page #watch-channel-brand-div,.ytcenter-remove-ads-page .watch-pyv-vid,.ytcenter-remove-ads-page #feed-pyv-container,.ytcenter-remove-ads-page #premium-yva,.ytcenter-remove-ads-page .branded-page-v2-top-row{display:none!important}");
         
         $AddStyle(".watch-sidebar {margin-right: 0!important;}");
-        $AddStyle("#player-api {float: none!important;clear: none!important;overflow:visible!important;}");
+        $AddStyle("#player-api {float: none!important;clear: none!important;overflow:visible!important;} #watch7-playlist-tray-positioning {position:absolute;}");
         
         $AddStyle(".ytcenter-site-center #page, .ytcenter-site-center #yt-masthead, .ytcenter-site-center #ad_creative_1, .ytcenter-site-center #footer, .ytcenter-site-center #masthead_child_div, .ytcenter-site-center #masthead-expanded-lists-container, .ytcenter-site-center #baseDiv, .ytcenter-site-center.no-sidebar #alerts, .ytcenter-site-center.no-sidebar #ticker .ytg-wide, .ytcenter-site-center.no-sidebar #masthead-subnav, #watch7-sidebar, .watch7-sidebar {-moz-transition:none!important;-ms-transition:none!important;-o-transition:none!important;-webkit-transition:none!important;transition:none!important}");
-        
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           // TODO add compatible styles here
           $AddStyle(".ytcenter-settings-content h2 {border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
@@ -10657,13 +10693,13 @@
           if (!ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = false;
             ytcenter.saveSettings();
-            loc.refresh();
+            loc.reload();
           }
         } else {
           if (ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = true;
             ytcenter.saveSettings();
-            loc.refresh();
+            loc.reload();
           }
         }
         
