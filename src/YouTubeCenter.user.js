@@ -1745,10 +1745,13 @@
           elm = document.createElement("div");
           var title = document.createElement("b");
           if (recipe.titleLocale) {
-            title.textContent = ytcenter.language.getLocale(recipe.titleLocale);
-            ytcenter.language.addLocaleElement(title, recipe.titleLocale, "@textContent", recipe.replace || {});
+            var __t1 = document.createTextNode(ytcenter.language.getLocale(recipe.titleLocale)),
+                __t2 = document.createTextNode(":");
+            ytcenter.language.addLocaleElement(__t1, recipe.titleLocale, "@textContent", recipe.replace || {});
+            title.appendChild(__t1);
+            title.appendChild(__t2);
           } else if (recipe.title) {
-            title.textContent = recipe.title;
+            title.textContent = recipe.title + ":";
           }
           var content = document.createElement("div");
           content.style.marginLeft = "20px";
@@ -7695,9 +7698,9 @@
               "callback": function(){
                 try {
                   if (ytcenter.placementsystem.toggleEnable()) {
-                    $AddCSS(this, "ytcenter-uix-button-toggled");
+                    $AddCSS(this, "yt-uix-button-toggled");
                   } else {
-                    $RemoveCSS(this, "ytcenter-uix-button-toggled");
+                    $RemoveCSS(this, "yt-uix-button-toggled");
                   }
                 } catch (e) {
                   con.error(e);
@@ -9927,6 +9930,14 @@
         ytcenter.player.getConfig().args.dash = "0";
         ytcenter.player.getConfig().args.dashmpd = "";
       }
+      ytcenter.player.getConfig().args.cafe_experiment_id = "41351083";
+      ytcenter.player.getConfig().args.sffb = true;
+      ytcenter.player.getConfig().args.dclk = true;
+      ytcenter.player.getConfig().args.shortform = true;
+      ytcenter.player.getConfig().args.afv_merge_enabled = "";
+      ytcenter.player.getConfig().args.cc_load_policy = "2";
+      ytcenter.player.getConfig().args.q = "Homeless Jackpot Prank";
+      ytcenter.player.getConfig().args.fexp = "909703,938404,916624,922911,909546,906397,929117,929121,929906,929907,925720,925722,925718,925714,929917,929919,912521,904830,919373,904122,932216,908534,919387,936303,909549,900816,936301,912711,935000";
       
       if (ytcenter.playlist) {
         if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
@@ -10057,6 +10068,7 @@
         } else {
           if (ytcenter.settings.preventAutoBuffer) {
             ytcenter.player.getReference().api.stopVideo();
+            ytcenter.player.getReference().api.playVideo();
           } else if (ytcenter.settings.preventAutoPlay) {
             ytcenter.player.getReference().api.playVideo();
             ytcenter.player.getReference().api.pauseVideo();
