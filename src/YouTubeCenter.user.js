@@ -1842,6 +1842,255 @@
           elm.appendChild(title);
           elm.appendChild(translators);
           break;
+        case "import/export settings":
+          var textLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_TITLE"),
+              content = document.createElement("div"),
+              VALIDATOR_STRING = "YTCSettings=>",
+              dropZone = document.createElement("div"),
+              dropZoneContent = document.createElement("div"),
+              filechooser = document.createElement("input"),
+              settingsPool = document.createElement("textarea"),
+              dialog = ytcenter.dialog("SETTINGS_IMEX_TITLE", content, [
+                {
+                  label: "SETTINGS_IMEX_CANCEL",
+                  primary: false,
+                  callback: function(){
+                    dialog.setVisibility(false);
+                  }
+                }, {
+                  name: "save",
+                  label: "SETTINGS_IMEX_SAVE",
+                  primary: true,
+                  callback: function(){
+                    if (!saveEnabled) return;
+                    ytcenter.settings = JSON.parse(settingsPool.value);
+                    ytcenter.saveSettings();
+                    loc.reload();
+                  }
+                }
+              ]),
+              status,
+              loadingText = document.createElement("div"),
+              messageText = document.createElement("div"),
+              messageTimer,
+              dropZoneEnabled = true,
+              saveEnabled = true,
+              pushMessage = function(message, color, timer){
+                //dropZoneEnabled = false;
+                messageText.textContent = message;
+                messageText.style.display = "inline-block";
+                if (typeof color === "string") messageText.style.color = color;
+                else messageText.style.color = "";
+                
+                status.style.display = "";
+                dropZoneContent.style.visibility = "hidden";
+                uw.clearTimeout(messageTimer);
+                if (typeof timer === "number") {
+                  messageTimer = uw.setTimeout(function(){
+                    removeMessage();
+                  }, timer);
+                }
+              },
+              removeMessage = function(){
+                status.style.display = "none";
+                dropZoneContent.style.visibility = "";
+                
+                messageText.style.display = "none";
+                messageText.textContent = "";
+                //dropZoneEnabled = true;
+                uw.clearTimeout(messageTimer);
+              },
+              validateFileAndLoad = function(file){
+                dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE"));
+                
+                var reader = new FileReader();
+                reader.onerror = function(e){
+                  switch (e.target.error.code) {
+                    case e.target.error.NOT_FOUND_ERR:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_FOUND"), "#ff0000", 10000);
+                      break;
+                    case e.target.error.NOT_READABLE_ERR:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_READABLE"), "#ff0000", 10000);
+                      break;
+                    case e.target.error.ABORT_ERR:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+                      break;
+                    default:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_UNKNOWN"), "#ff0000", 10000);
+                      break;
+                  }
+                };
+                reader.onabort = function(){
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+                };
+                reader.onload = function(e){
+                  if (e.target.result === VALIDATOR_STRING) {
+                    readFile(file);
+                  } else {
+                    pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
+                    
+                  }
+                };
+                
+                reader.readAsText(file.slice(0, VALIDATOR_STRING.length));
+              },
+              readFile = function(file){
+                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_LOADING"));
+                
+                var reader = new FileReader();
+                reader.onerror = function(e){
+                  switch (e.target.error.code) {
+                    case e.target.error.NOT_FOUND_ERR:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_FOUND"), "#ff0000", 10000);
+                      break;
+                    case e.target.error.NOT_READABLE_ERR:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_READABLE"), "#ff0000", 10000);
+                      break;
+                    case e.target.error.ABORT_ERR:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+                      break;
+                    default:
+                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_UNKNOWN"), "#ff0000", 10000);
+                      break;
+                  }
+                };
+                reader.onabort = function(){
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+                };
+                reader.onload = function(e){
+                  settingsPool.value = e.target.result;
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_MESSAGE"), "", 10000);
+                };
+                
+                reader.readAsText(file.slice(VALIDATOR_STRING.length));
+              },
+              exportFileButtonLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_EXPORT_AS_FILE"),
+              exportFileButton = ytcenter.gui.createYouTubeDefaultButton("", [exportFileButtonLabel]),
+              statusContainer = document.createElement("div");
+          elm = ytcenter.gui.createYouTubeDefaultButton("", [textLabel]);
+          
+          // Message Text
+          messageText.style.fontWeight = "bold";
+          messageText.style.fontSize = "16px";
+          messageText.style.textAlign = "center";
+          messageText.style.width = "100%";
+          messageText.style.display = "none";
+          
+          status = ytcenter.gui.createMiddleAlignHack(messageText);
+          status.style.position = "absolute";
+          status.style.top = "0px";
+          status.style.left = "0px";
+          status.style.width = "100%";
+          status.style.height = "100%";
+          status.style.display = "none";
+          
+          filechooser.setAttribute("type", "file");
+          ytcenter.utils.addEventListener(elm, "click", function(){
+            dialog.setVisibility(true);
+          }, false);
+          var __f = function(e){
+            validateFileAndLoad(e.target.files[0]);
+            
+            var newNode = document.createElement("input");
+            newNode.setAttribute("type", "file");
+            ytcenter.utils.addEventListener(newNode, "change", __f, false);
+            filechooser.parentNode.replaceChild(newNode, filechooser);
+            filechooser = newNode;
+          };
+          ytcenter.utils.addEventListener(filechooser, "change", __f, false);
+          
+          ytcenter.utils.addEventListener(dropZone, "drop", function(e){
+            e.stopPropagation();
+            e.preventDefault();
+            
+            validateFileAndLoad(e.dataTransfer.files[0]);
+            
+          }, false);
+          
+          ytcenter.utils.addEventListener(dropZone, "dragover", function(e){
+            if (!dropZoneEnabled) return;
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "copy";
+            dropZone.style.border = "2px dashed rgb(130, 130, 130)";
+          }, false);
+          ytcenter.utils.addEventListener(dropZone, "dragleave", function(e){
+            if (!dropZoneEnabled) return;
+            dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+            e.dataTransfer.dropEffect = "none";
+          }, false);
+          ytcenter.utils.addEventListener(dropZone, "dragend", function(e){
+            if (!dropZoneEnabled) return;
+            dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+            e.dataTransfer.dropEffect = "none";
+          }, false);
+          var text1 = document.createElement("span");
+          text1.style.fontWeight = "bold";
+          text1.style.fontSize = "16px";
+          text1.textContent = ytcenter.language.getLocale("SETTINGS_IMEX_DROPFILEHERE");
+          ytcenter.language.addLocaleElement(text1, "SETTINGS_IMEX_DROPFILEHERE", "@textContent");
+          dropZoneContent.appendChild(text1);
+          dropZoneContent.appendChild(document.createElement("br"));
+          var text2 = document.createTextNode(ytcenter.language.getLocale("SETTINGS_IMEX_OR"));
+          ytcenter.language.addLocaleElement(text2, "SETTINGS_IMEX_OR", "@textContent");
+          dropZoneContent.appendChild(text2);
+          dropZoneContent.appendChild(filechooser);
+          
+          dropZone.style.position = "relative";
+          dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+          dropZone.style.borderRadius = "4px";
+          dropZone.style.color = "rgb(110, 110, 110)";
+          dropZone.style.padding = "20px 0";
+          dropZone.style.width = "100%";
+          dropZone.style.marginBottom = "10px";
+          dropZone.style.textAlign = "center";
+          settingsPool.style.width = "100%";
+          settingsPool.style.height = "120px";
+          
+          dropZoneContent.style.margin = "0 auto";
+          dropZoneContent.style.display = "inline-block";
+          dropZoneContent.style.textAlign = "left";
+          
+          dropZone.appendChild(dropZoneContent);
+          dropZone.appendChild(status);
+          content.appendChild(dropZone);
+          content.appendChild(settingsPool);
+          
+          dialog.setWidth("490px");
+          
+          var settingsPoolChecker = function(){
+            try {
+              JSON.parse(settingsPool.value);
+              dialog.getActionButton("save").disabled = false;
+              settingsPool.style.background = "";
+              saveEnabled = true;
+            } catch (e) {
+              dialog.getActionButton("save").disabled  = true;
+              settingsPool.style.background = "#FFAAAA";
+              saveEnabled = false;
+            }
+          };
+          
+          ytcenter.utils.addEventListener(settingsPool, "input", settingsPoolChecker, false);
+          ytcenter.utils.addEventListener(settingsPool, "keyup", settingsPoolChecker, false);
+          ytcenter.utils.addEventListener(settingsPool, "paste", settingsPoolChecker, false);
+          ytcenter.utils.addEventListener(settingsPool, "change", settingsPoolChecker, false);
+          
+          dialog.addEventListener("visibility", function(visible){
+            if (visible) settingsPool.value = JSON.stringify(ytcenter.settings);
+            else settingsPool.value = "";
+          });
+          
+          ytcenter.utils.addEventListener(exportFileButton, "click", function(){
+            var bb = new ytcenter.data.BlobBuilder();
+            bb.append(VALIDATOR_STRING + settingsPool.value);
+            ytcenter.data.saveAs(bb.getBlob("application/json"), "ytcenter-settings.json");
+          }, false);
+          
+          content.appendChild(exportFileButton);
+          
+          break;
       }
       if (elm) {
         elm.style.verticalAlign = "top";
@@ -2742,6 +2991,392 @@
     ytcenter.refreshHomepage = function() {
       // Doing nothing for the moment!
     };
+    
+    ytcenter.data = {};
+    /* BlobBuilder.js
+     * A BlobBuilder implementation.
+     * 2012-04-21
+     *
+     * By Eli Grey, http://eligrey.com
+     * License: X11/MIT
+     * See LICENSE.md
+     */
+    /*! @source http://purl.eligrey.com/github/BlobBuilder.js/blob/master/BlobBuilder.js */
+    ytcenter.data.FakeBlobBuilder = function(){return (function() {
+      "use strict";
+      var get_class = function(object) {
+        return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
+      },
+      FakeBlobBuilder = function(){
+        this.data = [];
+      },
+      FakeBlob = function(data, type, encoding) {
+        this.data = data;
+        this.size = data.length;
+        this.type = type;
+        this.encoding = encoding;
+      },
+      FBB_proto = FakeBlobBuilder.prototype,
+      FB_proto = FakeBlob.prototype,
+      FileReaderSync = uw.FileReaderSync,
+      FileException = function(type) {
+        this.code = this[this.name = type];
+      },
+      file_ex_codes = (
+        "NOT_FOUND_ERR SECURITY_ERR ABORT_ERR NOT_READABLE_ERR ENCODING_ERR "
+        + "NO_MODIFICATION_ALLOWED_ERR INVALID_STATE_ERR SYNTAX_ERR"
+      ).split(" "),
+      file_ex_code = file_ex_codes.length,
+      real_URL = URL || uw.URL || webkitURL || uw.webkitURL || uw,
+      real_create_object_URL = real_URL.createObjectURL,
+      real_revoke_object_URL = real_URL.revokeObjectURL,
+      URL = real_URL,
+      btoa = uw.btoa,
+      atob = uw.atob,
+      can_apply_typed_arrays = false,
+      can_apply_typed_arrays_test = function(pass) {
+        can_apply_typed_arrays = !pass;
+      },
+      ArrayBuffer = uw.ArrayBuffer,
+      Uint8Array = uw.Uint8Array;
+      FakeBlobBuilder.fake = FB_proto.fake = true;
+      while (file_ex_code--) {
+        FileException.prototype[file_ex_codes[file_ex_code]] = file_ex_code + 1;
+      }
+      try {
+        if (Uint8Array) {
+          can_apply_typed_arrays_test.apply(0, new Uint8Array(1));
+        }
+      } catch (ex) {}
+      if (!real_URL.createObjectURL) {
+        URL = {};
+      }
+      URL.createObjectURL = function(blob) {
+        var type = blob.type,
+            data_URI_header;
+        if (type === null) {
+          type = "application/octet-stream";
+        }
+        if (blob instanceof FakeBlob) {
+          data_URI_header = "data:" + type;
+          if (blob.encoding === "base64") {
+            return data_URI_header + ";base64," + blob.data;
+          } else if (blob.encoding === "URI") {
+            return data_URI_header + "," + decodeURIComponent(blob.data);
+          } if (btoa) {
+            return data_URI_header + ";base64," + btoa(blob.data);
+          } else {
+            return data_URI_header + "," + encodeURIComponent(blob.data);
+          }
+        } else if (real_create_object_URL) {
+          return real_create_object_URL.call(real_URL, blob);
+        }
+      };
+      URL.revokeObjectURL = function(object_URL) {
+        if (object_URL.substring(0, 5) !== "data:" && real_revoke_object_URL) {
+          real_revoke_object_URL.call(real_URL, object_URL);
+        }
+      };
+      FBB_proto.append = function(data/*, endings*/) {
+        var bb = this.data;
+        // decode data to a binary string
+        if (Uint8Array && data instanceof ArrayBuffer) {
+          if (can_apply_typed_arrays) {
+            bb.push(String.fromCharCode.apply(String, new Uint8Array(data)));
+          } else {
+            var str = "",
+                buf = new Uint8Array(data),
+                i = 0,
+                buf_len = buf.length;
+            for (; i < buf_len; i++) {
+              str += String.fromCharCode(buf[i]);
+            }
+          }
+        } else if (get_class(data) === "Blob" || get_class(data) === "File") {
+          if (FileReaderSync) {
+            var fr = new FileReaderSync;
+            bb.push(fr.readAsBinaryString(data));
+          } else {
+            // async FileReader won't work as BlobBuilder is sync
+            throw new FileException("NOT_READABLE_ERR");
+          }
+        } else if (data instanceof FakeBlob) {
+          if (data.encoding === "base64" && atob) {
+            bb.push(atob(data.data));
+          } else if (data.encoding === "URI") {
+            bb.push(decodeURIComponent(data.data));
+          } else if (data.encoding === "raw") {
+            bb.push(data.data);
+          }
+        } else {
+          if (typeof data !== "string") {
+            data += ""; // convert unsupported types to strings
+          }
+          // decode UTF-16 to binary string
+          bb.push(unescape(encodeURIComponent(data)));
+        }
+      };
+      FBB_proto.getBlob = function(type) {
+        if (!arguments.length) {
+          type = null;
+        }
+        return new FakeBlob(this.data.join(""), type, "raw");
+      };
+      FBB_proto.toString = function() {
+        return "[object BlobBuilder]";
+      };
+      FB_proto.slice = function(start, end, type) {
+        var args = arguments.length;
+        if (args < 3) {
+          type = null;
+        }
+        return new FakeBlob(
+          this.data.slice(start, args > 1 ? end : this.data.length),
+          type,
+          this.encoding
+        );
+      };
+      FB_proto.toString = function() {
+        return "[object Blob]";
+      };
+      return FakeBlobBuilder;
+    }());};
+    ytcenter.data.BlobBuilder = (function(){
+      var a;
+      try {
+        a = BlobBuilder || uw.WebKitBlobBuilder || uw.MozBlobBuilder || uw.MSBlobBuilder;
+      } catch (e) {
+        try {
+          a = uw.WebKitBlobBuilder || uw.MozBlobBuilder || uw.MSBlobBuilder;
+        } catch (e) {
+          try {
+          a = uw.MozBlobBuilder || uw.MSBlobBuilder;;
+          } catch (e) {
+            try {
+              a = uw.MSBlobBuilder;
+            } catch (e) {}
+          }
+        }
+      }
+      if (typeof a === "undefined") a = ytcenter.data.FakeBlobBuilder();
+      return a;
+    })();
+    /* FileSaver.js
+     * A saveAs() FileSaver implementation.
+     * 2013-01-23
+     *
+     * By Eli Grey, http://eligrey.com
+     * License: X11/MIT
+     * See LICENSE.md
+     */
+    /*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
+    ytcenter.data.fakeSaveAs = function(){return (function() {
+      "use strict";
+      // only get URL when necessary in case BlobBuilder.js hasn't overridden it yet
+      var get_URL = function() {
+            return URL || uw.URL || webkitURL || uw.webkitURL || uw;
+          },
+          URL = URL || uw.URL || webkitURL || uw.webkitURL || uw,
+          save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
+          can_use_save_link =  !uw.externalHost && "download" in save_link,
+          click = function(node) {
+            var event = document.createEvent("MouseEvents");
+            event.initMouseEvent(
+              "click", true, false, uw, 0, 0, 0, 0, 0,
+              false, false, false, false, 0, null
+            );
+            node.dispatchEvent(event);
+          },
+          webkit_req_fs = uw.webkitRequestFileSystem,
+          req_fs = uw.requestFileSystem || webkit_req_fs || uw.mozRequestFileSystem,
+          throw_outside = function (ex) {
+            (uw.setImmediate || uw.setTimeout)(function() {
+              throw ex;
+            }, 0);
+          },
+          force_saveable_type = "application/octet-stream",
+          fs_min_size = 0,
+          deletion_queue = [],
+          process_deletion_queue = function() {
+            var i = deletion_queue.length;
+            while (i--) {
+              var file = deletion_queue[i];
+              if (typeof file === "string") { // file is an object URL
+                URL.revokeObjectURL(file);
+              } else { // file is a File
+                file.remove();
+              }
+            }
+            deletion_queue.length = 0; // clear queue
+          },
+          dispatch = function(filesaver, event_types, event) {
+            event_types = [].concat(event_types);
+            var i = event_types.length;
+            while (i--) {
+              var listener = filesaver["on" + event_types[i]];
+              if (typeof listener === "function") {
+                try {
+                  listener.call(filesaver, event || filesaver);
+                } catch (ex) {
+                  throw_outside(ex);
+                }
+              }
+            }
+          },
+          FileSaver = function(blob, name) {
+            // First try a.download, then web filesystem, then object URLs
+            var filesaver = this,
+                type = blob.type,
+                blob_changed = false,
+                object_url,
+                target_view,
+                get_object_url = function() {
+                  var object_url = get_URL().createObjectURL(blob);
+                  deletion_queue.push(object_url);
+                  return object_url;
+                },
+                dispatch_all = function() {
+                  dispatch(filesaver, "writestart progress write writeend".split(" "));
+                },
+                // on any filesys errors revert to saving with object URLs
+                fs_error = function() {
+                  // don't create more object URLs than needed
+                  if (blob_changed || !object_url) {
+                    object_url = get_object_url(blob);
+                  }
+                  if (target_view) {
+                    target_view.location.href = object_url;
+                  } else {
+                                window.open(object_url, "_blank");
+                            }
+                  filesaver.readyState = filesaver.DONE;
+                  dispatch_all();
+                },
+                abortable = function(func) {
+                  return function() {
+                    if (filesaver.readyState !== filesaver.DONE) {
+                      return func.apply(this, arguments);
+                    }
+                  };
+                },
+                create_if_not_found = {create: true, exclusive: false},
+                slice;
+            filesaver.readyState = filesaver.INIT;
+            if (!name) {
+              name = "download";
+            }
+            if (can_use_save_link) {
+              object_url = get_object_url(blob);
+              save_link.href = object_url;
+              save_link.download = name;
+              click(save_link);
+              filesaver.readyState = filesaver.DONE;
+              dispatch_all();
+              return;
+            }
+            // Object and web filesystem URLs have a problem saving in Google Chrome when
+            // viewed in a tab, so I force save with application/octet-stream
+            // http://code.google.com/p/chromium/issues/detail?id=91158
+            if (uw.chrome && type && type !== force_saveable_type) {
+              slice = blob.slice || blob.webkitSlice;
+              blob = slice.call(blob, 0, blob.size, force_saveable_type);
+              blob_changed = true;
+            }
+            // Since I can't be sure that the guessed media type will trigger a download
+            // in WebKit, I append .download to the filename.
+            // https://bugs.webkit.org/show_bug.cgi?id=65440
+            if (webkit_req_fs && name !== "download") {
+              name += ".download";
+            }
+            if (type === force_saveable_type || webkit_req_fs) {
+              target_view = uw;
+            }
+            if (!req_fs) {
+              fs_error();
+              return;
+            }
+            fs_min_size += blob.size;
+            req_fs(uw.TEMPORARY, fs_min_size, abortable(function(fs) {
+              fs.root.getDirectory("saved", create_if_not_found, abortable(function(dir) {
+                var save = function() {
+                  dir.getFile(name, create_if_not_found, abortable(function(file) {
+                    file.createWriter(abortable(function(writer) {
+                      writer.onwriteend = function(event) {
+                        target_view.location.href = file.toURL();
+                        deletion_queue.push(file);
+                        filesaver.readyState = filesaver.DONE;
+                        dispatch(filesaver, "writeend", event);
+                      };
+                      writer.onerror = function() {
+                        var error = writer.error;
+                        if (error.code !== error.ABORT_ERR) {
+                          fs_error();
+                        }
+                      };
+                      "writestart progress write abort".split(" ").forEach(function(event) {
+                        writer["on" + event] = filesaver["on" + event];
+                      });
+                      writer.write(blob);
+                      filesaver.abort = function() {
+                        writer.abort();
+                        filesaver.readyState = filesaver.DONE;
+                      };
+                      filesaver.readyState = filesaver.WRITING;
+                    }), fs_error);
+                  }), fs_error);
+                };
+                dir.getFile(name, {create: false}, abortable(function(file) {
+                  // delete file if it already exists
+                  file.remove();
+                  save();
+                }), abortable(function(ex) {
+                  if (ex.code === ex.NOT_FOUND_ERR) {
+                    save();
+                  } else {
+                    fs_error();
+                  }
+                }));
+              }), fs_error);
+            }), fs_error);
+          },
+          FS_proto = FileSaver.prototype,
+          saveAs = function(blob, name) {
+            return new FileSaver(blob, name);
+          };
+      FS_proto.abort = function() {
+        var filesaver = this;
+        filesaver.readyState = filesaver.DONE;
+        dispatch(filesaver, "abort");
+      };
+      FS_proto.readyState = FS_proto.INIT = 0;
+      FS_proto.WRITING = 1;
+      FS_proto.DONE = 2;
+
+      FS_proto.error =
+      FS_proto.onwritestart =
+      FS_proto.onprogress =
+      FS_proto.onwrite =
+      FS_proto.onabort =
+      FS_proto.onerror =
+      FS_proto.onwriteend =
+        null;
+
+      window.addEventListener("unload", process_deletion_queue, false);
+      return saveAs;
+    }(self));};
+    ytcenter.data.saveAs = (function(){
+      var a;
+      try {
+        a = saveAs || (navigator.msSaveBlob && navigator.msSaveBlob.bind(navigator));
+      } catch (e) {
+        try {
+          a = (navigator.msSaveBlob && navigator.msSaveBlob.bind(navigator));
+        } catch (e) {}
+      }
+      if (typeof a === "undefined") a = ytcenter.data.fakeSaveAs();
+      return a;
+    })();
+    
     ytcenter.debug = function(){
       var debugText = "{}";
       var dbg = {};
@@ -2935,7 +3570,7 @@
     })();
     ytcenter._dialogVisible = null;
     ytcenter.dialog = function(titleLabel, content, actions, alignment){
-      var __r = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer;
+      var __r = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer, eventListeners = {}, actionButtons = {};
       alignment = alignment || "center";
       
       bgOverlay = ytcenter.dialogOverlay();
@@ -3009,6 +3644,8 @@
           
           btn.appendChild(btnContent);
           footer.appendChild(btn);
+          
+          if (actions[i].name) actionButtons[actions[i].name] = btn;
         }
       } else { // Default
         var closeBtn = document.createElement("button");
@@ -3028,7 +3665,24 @@
         
         closeBtn.appendChild(closeContent);
         footer.appendChild(closeBtn);
+        actionButtons['close'] = btn;
       }
+      __r.getActionButton = function(name){
+        return actionButtons[name];
+      };
+      __r.addEventListener = function(eventName, func){
+        if (!eventListeners.hasOwnProperty(eventName)) eventListeners[eventName] = [];
+        eventListeners[eventName].push(func);
+        return eventListeners[eventName].length - 1;
+      };
+      __r.removeEventListener = function(eventName, index){
+        if (!eventListeners.hasOwnProperty(eventName)) return;
+        if (index < 0 && index >= eventListeners[eventName].length) return;
+        eventListeners[eventName].splice(index, 1);
+      };
+      __r.setWidth = function(width){
+        fg.style.width = width;
+      };
       __r.getBase = function(){
         return base;
       };
@@ -3069,6 +3723,11 @@
         }
       };
       __r.setVisibility = function(visible){
+        if (eventListeners["visibility"]) {
+          for (var i = 0; i < eventListeners["visibility"].length; i++) {
+            eventListeners["visibility"][i](visible);
+          }
+        }
         if (visible) {
           if (document.body) ytcenter.utils.addClass(document.body, "yt-dialog-active");
           ___parent_dialog = ytcenter._dialogVisible;
@@ -3291,6 +3950,17 @@
     ytcenter.gui = {};
     ytcenter.gui.icons = {};
     ytcenter.gui.icons.cog = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAFM0aXcAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj333vRCS4iAlEtvUhUIIFJCi4AUkSYqIQkQSoghodkVUcERRUUEG8igiAOOjoCMFVEsDIoK2AfkIaKOg6OIisr74Xuja9a89+bN/rXXPues852zzwfACAyWSDNRNYAMqUIeEeCDx8TG4eQuQIEKJHAAEAizZCFz/SMBAPh+PDwrIsAHvgABeNMLCADATZvAMByH/w/qQplcAYCEAcB0kThLCIAUAEB6jkKmAEBGAYCdmCZTAKAEAGDLY2LjAFAtAGAnf+bTAICd+Jl7AQBblCEVAaCRACATZYhEAGg7AKzPVopFAFgwABRmS8Q5ANgtADBJV2ZIALC3AMDOEAuyAAgMADBRiIUpAAR7AGDIIyN4AISZABRG8lc88SuuEOcqAAB4mbI8uSQ5RYFbCC1xB1dXLh4ozkkXKxQ2YQJhmkAuwnmZGTKBNA/g88wAAKCRFRHgg/P9eM4Ors7ONo62Dl8t6r8G/yJiYuP+5c+rcEAAAOF0ftH+LC+zGoA7BoBt/qIl7gRoXgugdfeLZrIPQLUAoOnaV/Nw+H48PEWhkLnZ2eXk5NhKxEJbYcpXff5nwl/AV/1s+X48/Pf14L7iJIEyXYFHBPjgwsz0TKUcz5IJhGLc5o9H/LcL//wd0yLESWK5WCoU41EScY5EmozzMqUiiUKSKcUl0v9k4t8s+wM+3zUAsGo+AXuRLahdYwP2SycQWHTA4vcAAPK7b8HUKAgDgGiD4c93/+8//UegJQCAZkmScQAAXkQkLlTKsz/HCAAARKCBKrBBG/TBGCzABhzBBdzBC/xgNoRCJMTCQhBCCmSAHHJgKayCQiiGzbAdKmAv1EAdNMBRaIaTcA4uwlW4Dj1wD/phCJ7BKLyBCQRByAgTYSHaiAFiilgjjggXmYX4IcFIBBKLJCDJiBRRIkuRNUgxUopUIFVIHfI9cgI5h1xGupE7yAAygvyGvEcxlIGyUT3UDLVDuag3GoRGogvQZHQxmo8WoJvQcrQaPYw2oefQq2gP2o8+Q8cwwOgYBzPEbDAuxsNCsTgsCZNjy7EirAyrxhqwVqwDu4n1Y8+xdwQSgUXACTYEd0IgYR5BSFhMWE7YSKggHCQ0EdoJNwkDhFHCJyKTqEu0JroR+cQYYjIxh1hILCPWEo8TLxB7iEPENyQSiUMyJ7mQAkmxpFTSEtJG0m5SI+ksqZs0SBojk8naZGuyBzmULCAryIXkneTD5DPkG+Qh8lsKnWJAcaT4U+IoUspqShnlEOU05QZlmDJBVaOaUt2ooVQRNY9aQq2htlKvUYeoEzR1mjnNgxZJS6WtopXTGmgXaPdpr+h0uhHdlR5Ol9BX0svpR+iX6AP0dwwNhhWDx4hnKBmbGAcYZxl3GK+YTKYZ04sZx1QwNzHrmOeZD5lvVVgqtip8FZHKCpVKlSaVGyovVKmqpqreqgtV81XLVI+pXlN9rkZVM1PjqQnUlqtVqp1Q61MbU2epO6iHqmeob1Q/pH5Z/YkGWcNMw09DpFGgsV/jvMYgC2MZs3gsIWsNq4Z1gTXEJrHN2Xx2KruY/R27iz2qqaE5QzNKM1ezUvOUZj8H45hx+Jx0TgnnKKeX836K3hTvKeIpG6Y0TLkxZVxrqpaXllirSKtRq0frvTau7aedpr1Fu1n7gQ5Bx0onXCdHZ4/OBZ3nU9lT3acKpxZNPTr1ri6qa6UbobtEd79up+6Ynr5egJ5Mb6feeb3n+hx9L/1U/W36p/VHDFgGswwkBtsMzhg8xTVxbzwdL8fb8VFDXcNAQ6VhlWGX4YSRudE8o9VGjUYPjGnGXOMk423GbcajJgYmISZLTepN7ppSTbmmKaY7TDtMx83MzaLN1pk1mz0x1zLnm+eb15vft2BaeFostqi2uGVJsuRaplnutrxuhVo5WaVYVVpds0atna0l1rutu6cRp7lOk06rntZnw7Dxtsm2qbcZsOXYBtuutm22fWFnYhdnt8Wuw+6TvZN9un2N/T0HDYfZDqsdWh1+c7RyFDpWOt6azpzuP33F9JbpL2dYzxDP2DPjthPLKcRpnVOb00dnF2e5c4PziIuJS4LLLpc+Lpsbxt3IveRKdPVxXeF60vWdm7Obwu2o26/uNu5p7ofcn8w0nymeWTNz0MPIQ+BR5dE/C5+VMGvfrH5PQ0+BZ7XnIy9jL5FXrdewt6V3qvdh7xc+9j5yn+M+4zw33jLeWV/MN8C3yLfLT8Nvnl+F30N/I/9k/3r/0QCngCUBZwOJgUGBWwL7+Hp8Ib+OPzrbZfay2e1BjKC5QRVBj4KtguXBrSFoyOyQrSH355jOkc5pDoVQfujW0Adh5mGLw34MJ4WHhVeGP45wiFga0TGXNXfR3ENz30T6RJZE3ptnMU85ry1KNSo+qi5qPNo3ujS6P8YuZlnM1VidWElsSxw5LiquNm5svt/87fOH4p3iC+N7F5gvyF1weaHOwvSFpxapLhIsOpZATIhOOJTwQRAqqBaMJfITdyWOCnnCHcJnIi/RNtGI2ENcKh5O8kgqTXqS7JG8NXkkxTOlLOW5hCepkLxMDUzdmzqeFpp2IG0yPTq9MYOSkZBxQqohTZO2Z+pn5mZ2y6xlhbL+xW6Lty8elQfJa7OQrAVZLQq2QqboVFoo1yoHsmdlV2a/zYnKOZarnivN7cyzytuQN5zvn//tEsIS4ZK2pYZLVy0dWOa9rGo5sjxxedsK4xUFK4ZWBqw8uIq2Km3VT6vtV5eufr0mek1rgV7ByoLBtQFr6wtVCuWFfevc1+1dT1gvWd+1YfqGnRs+FYmKrhTbF5cVf9go3HjlG4dvyr+Z3JS0qavEuWTPZtJm6ebeLZ5bDpaql+aXDm4N2dq0Dd9WtO319kXbL5fNKNu7g7ZDuaO/PLi8ZafJzs07P1SkVPRU+lQ27tLdtWHX+G7R7ht7vPY07NXbW7z3/T7JvttVAVVN1WbVZftJ+7P3P66Jqun4lvttXa1ObXHtxwPSA/0HIw6217nU1R3SPVRSj9Yr60cOxx++/p3vdy0NNg1VjZzG4iNwRHnk6fcJ3/ceDTradox7rOEH0x92HWcdL2pCmvKaRptTmvtbYlu6T8w+0dbq3nr8R9sfD5w0PFl5SvNUyWna6YLTk2fyz4ydlZ19fi753GDborZ752PO32oPb++6EHTh0kX/i+c7vDvOXPK4dPKy2+UTV7hXmq86X23qdOo8/pPTT8e7nLuarrlca7nuer21e2b36RueN87d9L158Rb/1tWeOT3dvfN6b/fF9/XfFt1+cif9zsu72Xcn7q28T7xf9EDtQdlD3YfVP1v+3Njv3H9qwHeg89HcR/cGhYPP/pH1jw9DBY+Zj8uGDYbrnjg+OTniP3L96fynQ89kzyaeF/6i/suuFxYvfvjV69fO0ZjRoZfyl5O/bXyl/erA6xmv28bCxh6+yXgzMV70VvvtwXfcdx3vo98PT+R8IH8o/2j5sfVT0Kf7kxmTk/8EA5jz/GMzLdsAAAAgY0hSTQAAeiUAAICDAAD5/wAAgOkAAHUwAADqYAAAOpgAABdvkl/FRgAAAkFJREFUeNpi+v//P8OqVatcmVavXt3JwMDwGAAAAP//Yvr//z/D////GZhWr179f/Xq1RMBAAAA//9igqr5D8WKTAwQ0MPAwPCEgYGhBwAAAP//TMtBEUBQAAXA9ZsII8IrIIQOBHF5EdwU42TGffcT+/8e2No+MLAmmaDtMnC3PTEnuV4AAAD//zTOQRGCUAAG4YWrCbxSwQzYYDt452AGHCKQ4H9gAYNwcsabMeDyKLD7nY01SZfkn2ROMiV5n80euABf9VoFA3ArpYyt+gEe9bEDW6Uu6rMFUH8VcgdeaqMOAAcZZIiDMBQE0cdv0jQhQREMGDRB9B5Ihssguc2OhHsg4ACoKhQgSIPAbDGsG7GZee/HHhFVRByHPPRPbJ+BGbCxPU5HdQHewBrosvMFXCX1BTgAVQ4ZAXdgZftWgB3/9wRcJC3T8jaRpulgX2zXwAKY51cDXICmSOqTrQNOwEdSK+nxZZJ8VSIKoyD+24uw3CAIYhAEBZNdbK6r0ShM9AH2abRpNwhnwEfQVaPYDQZBk4KIZTX4p8wut33nMMw3Z2a6d/aqqp93W1WvSfm4gxlUVTvzIfYOgF/gy/ZzrF6KjJHtx+i9Bu5st9MeIOkGWAO+o38VuAJOgTdgPUQXwCYwB9DYHof1CegHdChpT9JI0gpwm/0BMAE+bY8bSUNgPil9BHRm+9L2ie0XYDv7+5jXkzScNv4HOAcWMr8Du6nccn5+SB//4tHs5gmwBeyEdRE46hDtS9pIhk084n8AVJscCePQvIsAAAAASUVORK5CYII=";
+    ytcenter.gui.createMiddleAlignHack = function(content){
+      var e = document.createElement("div"),
+          a = document.createElement("span");
+      a.className = "yt-dialog-align";
+      content.style.verticalAlign = "middle";
+      content.style.display = "inline-block";
+      
+      e.appendChild(a);
+      e.appendChild(content);
+      return e;
+    };
     ytcenter.gui.createYouTubeButtonIcon = function(src){
       var wrapper = document.createElement("span");
       wrapper.className = "yt-uix-button-icon-wrapper";
@@ -3352,7 +4022,7 @@
     };
     ytcenter.gui.createYouTubeButton = function(title, content, styles){
       var btn = document.createElement("button");
-      if (title !== "") {
+      if (typeof title === "string" && title !== "") {
         btn.setAttribute("title", ytcenter.language.getLocale(title));
         ytcenter.language.addLocaleElement(btn, title, "title");
       }
@@ -6996,6 +7666,8 @@
             }
           ]
         }, {
+          "type": "import/export settings"
+        }, {
           "text": "SETTINGS_RESETSETTINGS_LABEL",
           "type": "button",
           "listeners": [
@@ -9930,15 +10602,6 @@
         ytcenter.player.getConfig().args.dash = "0";
         ytcenter.player.getConfig().args.dashmpd = "";
       }
-      ytcenter.player.getConfig().args.cafe_experiment_id = "41351083";
-      ytcenter.player.getConfig().args.sffb = true;
-      ytcenter.player.getConfig().args.dclk = true;
-      ytcenter.player.getConfig().args.shortform = true;
-      ytcenter.player.getConfig().args.afv_merge_enabled = "";
-      ytcenter.player.getConfig().args.cc_load_policy = "2";
-      ytcenter.player.getConfig().args.q = "Homeless Jackpot Prank";
-      ytcenter.player.getConfig().args.fexp = "909703,938404,916624,922911,909546,906397,929117,929121,929906,929907,925720,925722,925718,925714,929917,929919,912521,904830,919373,904122,932216,908534,919387,936303,909549,900816,936301,912711,935000";
-      
       if (ytcenter.playlist) {
         if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
           ytcenter.player.getConfig().args.autoplay = "0";
@@ -10068,7 +10731,6 @@
         } else {
           if (ytcenter.settings.preventAutoBuffer) {
             ytcenter.player.getReference().api.stopVideo();
-            ytcenter.player.getReference().api.playVideo();
           } else if (ytcenter.settings.preventAutoPlay) {
             ytcenter.player.getReference().api.playVideo();
             ytcenter.player.getReference().api.pauseVideo();
