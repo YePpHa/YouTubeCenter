@@ -2085,7 +2085,7 @@
           ytcenter.utils.addEventListener(exportFileButton, "click", function(){
             var bb = new ytcenter.data.BlobBuilder();
             bb.append(VALIDATOR_STRING + settingsPool.value);
-            ytcenter.data.saveAs(bb.getBlob("application/json"), "ytcenter-settings.json");
+            ytcenter.data.saveAs(bb.getBlob("text/plain"), "ytcenter-settings.ytcs");
           }, false);
           
           content.appendChild(exportFileButton);
