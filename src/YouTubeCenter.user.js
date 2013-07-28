@@ -8316,219 +8316,6 @@
           ]
         }
       ],
-      "SETTINGS_TAB_VIDEOTHUMBNAIL": [
-        {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_QUALITY",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_QUALITY_ENABLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailQualityBar",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "topleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
-            }, {
-              "value": "topright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
-            }, {
-              "value": "bottomleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
-            }, {
-              "value": "bottomright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailQualityPosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
-          "type": "list",
-          "list": [
-            {
-              "value": "page_start",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
-            }, {
-              "value": "hover_thumbnail",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailQualityDownloadAt",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailQualityVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_RATING_BAR",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsBar",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "top",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOP"
-            }, {
-              "value": "bottom",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOM"
-            }, {
-              "value": "left",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_LEFT"
-            }, {
-              "value": "right",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsBarPosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
-          "type": "list",
-          "list": [
-            {
-              "value": "page_start",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
-            }, {
-              "value": "hover_thumbnail",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsBarDownloadAt",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsBarVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_RATING_COUNT",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_ENABLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsCount",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "topleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
-            }, {
-              "value": "topright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
-            }, {
-              "value": "bottomleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
-            }, {
-              "value": "bottomright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsCountPosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
-          "type": "list",
-          "list": [
-            {
-              "value": "page_start",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
-            }, {
-              "value": "hover_thumbnail",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsCountDownloadAt",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsCountVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }
-      ],
       "SETTINGS_TAB_WATCH": [
         {
           "label": "SETTINGS_WATCH7_PLAYER_ALIGN",
@@ -9116,6 +8903,219 @@
           "label": "SETTINGS_MUTE_LABEL",
           "type": "bool",
           "defaultSetting": "embed_mute"
+        }
+      ],
+      "SETTINGS_TAB_VIDEOTHUMBNAIL": [
+        {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_QUALITY",
+          "style": {
+            "fontWeight": "bold"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_QUALITY_ENABLE",
+          "type": "bool",
+          "defaultSetting": "videoThumbnailQualityBar",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "topleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+            }, {
+              "value": "topright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+            }, {
+              "value": "bottomleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+            }, {
+              "value": "bottomright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailQualityPosition",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
+          "type": "list",
+          "list": [
+            {
+              "value": "page_start",
+              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+            }, {
+              "value": "hover_thumbnail",
+              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailQualityDownloadAt",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
+          "type": "list",
+          "list": [
+            {
+              "value": "always",
+              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+            }, {
+              "value": "show_hover",
+              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+            }, {
+              "value": "hide_hover",
+              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailQualityVisible",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_RATING_BAR",
+          "style": {
+            "fontWeight": "bold"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE",
+          "type": "bool",
+          "defaultSetting": "videoThumbnailRatingsBar",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "top",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOP"
+            }, {
+              "value": "bottom",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOM"
+            }, {
+              "value": "left",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_LEFT"
+            }, {
+              "value": "right",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsBarPosition",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
+          "type": "list",
+          "list": [
+            {
+              "value": "page_start",
+              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+            }, {
+              "value": "hover_thumbnail",
+              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsBarDownloadAt",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
+          "type": "list",
+          "list": [
+            {
+              "value": "always",
+              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+            }, {
+              "value": "show_hover",
+              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+            }, {
+              "value": "hide_hover",
+              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsBarVisible",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_RATING_COUNT",
+          "style": {
+            "fontWeight": "bold"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_ENABLE",
+          "type": "bool",
+          "defaultSetting": "videoThumbnailRatingsCount",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "topleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+            }, {
+              "value": "topright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+            }, {
+              "value": "bottomleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+            }, {
+              "value": "bottomright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsCountPosition",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
+          "type": "list",
+          "list": [
+            {
+              "value": "page_start",
+              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+            }, {
+              "value": "hover_thumbnail",
+              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsCountDownloadAt",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
+          "type": "list",
+          "list": [
+            {
+              "value": "always",
+              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+            }, {
+              "value": "show_hover",
+              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+            }, {
+              "value": "hide_hover",
+              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsCountVisible",
+          "style": {
+            "marginLeft": "12px"
+          }
         }
       ],
       "SETTINGS_TAB_PLACEMENT": [
