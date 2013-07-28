@@ -3034,7 +3034,7 @@
           callback(item.hq);
         } else {
           //var spflink = Math.round(Math.random()) === 1 ? true : false;
-          var spflink = true;
+          var spflink = ytcenter.spf.isEnabled();
           
           $XMLHTTPRequest({
             url: "http://www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : ""),
@@ -3065,6 +3065,7 @@
                 callback(item.likes, item.dislikes);
               } catch (e) {
                 con.error("[VideoThumbnail] IO Error => Too many requests!");
+                con.error(e);
               }
             }
           });
@@ -3075,34 +3076,72 @@
           var total = likes + dislikes,
               sparkBars = document.createElement("div"),
               sparkBarLikes = document.createElement("div"),
-              sparkBarDislikes = document.createElement("div");
+              sparkBarDislikes = document.createElement("div"),
+              barLength;
           sparkBars.className = "video-extras-sparkbars"
                               + (ytcenter.settings.videoThumbnailRatingsBarShowOnHover ? " ytcenter-video-thumb-show-hover" : "")
                               + (ytcenter.settings.videoThumbnailRatingsBarHideOnHover ? " ytcenter-video-thumb-hide-hover" : "");
-          if (item.videoThumb.className.match(/yt-thumb-[0-9]+/)) {
-            sparkBars.style.width = /yt-thumb-([0-9]+)/.exec(item.videoThumb.className)[1] + "px";
+          if (!ytcenter.utils.hasClass(item.videoThumb, "yt-thumb-fluid") && item.videoThumb.className.match(/yt-thumb-[0-9]+/)) {
+            barLength = /yt-thumb-([0-9]+)/.exec(item.videoThumb.className)[1] + "px";
           } else {
-            sparkBars.style.width = "100%";
+            barLength = "100%";
           }
-          
           sparkBarLikes.className = "video-extras-sparkbar-likes";
           sparkBarDislikes.className = "video-extras-sparkbar-dislikes";
-          if (total === 0) {
+          if (total > 0) {
             sparkBarDislikes.style.background = "#f00";
+            dislikes = 1;
           }
-          
-          sparkBarLikes.style.width = (likes/total*100) + "%";
-          sparkBarDislikes.style.width = (dislikes/total*100) + "%";
           
           sparkBars.appendChild(sparkBarLikes);
           sparkBars.appendChild(sparkBarDislikes);
           
           sparkBars.style.position = "absolute";
-          sparkBars.style.left = "0px";
-          sparkBars.style.bottom = "0px";
+          switch (ytcenter.settings.videoThumbnailRatingsBarPosition) {
+            case "top":
+              sparkBars.style.top = "0px";
+              sparkBars.style.left = "0px";
+              
+              sparkBarLikes.style.width = (likes/total*100) + "%";
+              sparkBarDislikes.style.width = (dislikes/total*100) + "%";
+              sparkBars.style.width = barLength;
+              break;
+            case "bottom":
+              sparkBars.style.bottom = "0px";
+              sparkBars.style.left = "0px";
+              
+              sparkBarLikes.style.width = (likes/total*100) + "%";
+              sparkBarDislikes.style.width = (dislikes/total*100) + "%";
+              sparkBars.style.width = barLength;
+              break;
+            case "left":
+              sparkBars.style.top = "0px";
+              sparkBars.style.left = "0px";
+              
+              sparkBarLikes.style.height = (likes/total*100) + "%";
+              sparkBarDislikes.style.height = (dislikes/total*100) + "%";
+              sparkBarLikes.style.width = "2px";
+              sparkBarDislikes.style.width = "2px";
+              sparkBarLikes.style.cssFloat = "none";
+              sparkBarDislikes.style.cssFloat = "none";
+              sparkBars.style.height = "100%";
+              break;
+            case "right":
+              sparkBars.style.top = "0px";
+              sparkBars.style.right = "0px";
+              
+              sparkBarLikes.style.height = (likes/total*100) + "%";
+              sparkBarDislikes.style.height = (dislikes/total*100) + "%";
+              sparkBarLikes.style.width = "2px";
+              sparkBarDislikes.style.width = "2px";
+              sparkBarLikes.style.cssFloat = "none";
+              sparkBarDislikes.style.cssFloat = "none";
+              sparkBars.style.height = "100%";
+              break;
+          }
           item.content.appendChild(sparkBars);
         } catch (e) {
-          con.log(videoData);
+          con.error("[Id=" + item.id + "] Likes: " + likes + ", " + dislikes);
           con.error(e);
         }
       }
@@ -3127,10 +3166,12 @@
           likesCount.style.marginRight = "4px";
           likesCount.style.color = "#fff";
           likesCount.style.verticalAlign = "middle";
+          likesCount.style.fontSize = "11px";
           likesCount.textContent = ytcenter.utils.number1000Formating(likes);
           dislikesCount.className = "dislikes-count";
           dislikesCount.style.color = "#fff";
           dislikesCount.style.verticalAlign = "middle";
+          dislikesCount.style.fontSize = "11px";
           dislikesCount.textContent = ytcenter.utils.number1000Formating(dislikes);
           
           if (ytcenter.utils.hasClass(item.videoThumb, "yt-thumb-120") || ytcenter.utils.hasClass(item.videoThumb, "yt-thumb-106")) {
@@ -3156,8 +3197,24 @@
           dislikeIcon.style.verticalAlign = "middle";
           
           numLikesDislikes.style.position = "absolute";
-          numLikesDislikes.style.left = "2px";
-          numLikesDislikes.style.bottom = "2px";
+          switch (ytcenter.settings.videoThumbnailRatingsCountPosition) {
+            case "topleft":
+              numLikesDislikes.style.top = "2px";
+              numLikesDislikes.style.left = "2px";
+              break;
+            case "topright":
+              numLikesDislikes.style.top = "2px";
+              numLikesDislikes.style.right = "2px";
+              break;
+            case "bottomleft":
+              numLikesDislikes.style.bottom = "2px";
+              numLikesDislikes.style.left = "2px";
+              break;
+            case "bottomright":
+              numLikesDislikes.style.bottom = "2px";
+              numLikesDislikes.style.right = "2px";
+              break;
+          }
           
           numLikesDislikes.appendChild(likeIcon);
           numLikesDislikes.appendChild(likesCount);
@@ -3165,7 +3222,7 @@
           numLikesDislikes.appendChild(dislikesCount);
           item.content.appendChild(numLikesDislikes);
         } catch (e) {
-          con.log(videoData);
+          con.error("[Id=" + item.id + "] Likes: " + likes + ", " + dislikes);
           con.error(e);
         }
       }
@@ -3206,14 +3263,31 @@
         wrapper.textContent = text;
         
         wrapper.style.position = "absolute";
-        wrapper.style.top = "2px";
-        wrapper.style.left = "2px";
+        switch (ytcenter.settings.videoThumbnailQualityPosition) {
+          case "topleft":
+            wrapper.style.top = "2px";
+            wrapper.style.left = "2px";
+            break;
+          case "topright":
+            wrapper.style.top = "2px";
+            wrapper.style.right = "2px";
+            break;
+          case "bottomleft":
+            wrapper.style.bottom = "2px";
+            wrapper.style.left = "2px";
+            break;
+          case "bottomright":
+            wrapper.style.bottom = "2px";
+            wrapper.style.right = "2px";
+            break;
+        }
         wrapper.style.verticalAlign = "middle";
         /*wrapper.style.opacity = "0.75";
         wrapper.style.filter = "alpha(opacity=75)";*/
         wrapper.style.padding = "2px 4px";
         wrapper.style.lineHeight = "14px";
         wrapper.style.fontWeight = "bold";
+        wrapper.style.fontSize = "11px";
         wrapper.style.zoom = "1";
         wrapper.style.background = background;
         wrapper.style.color = color;
@@ -7696,14 +7770,17 @@
       videoThumbnailQualityLoadOnHover: false,
       videoThumbnailQualityHideOnHover: false,
       videoThumbnailQualityShowOnHover: false,
+      videoThumbnailQualityPosition: "topleft",
       videoThumbnailQualityBar: false,
       videoThumbnailRatingsBarLoadOnHover: false,
       videoThumbnailRatingsBarHideOnHover: false,
       videoThumbnailRatingsBarShowOnHover: false,
+      videoThumbnailRatingsBarPosition: "bottom",
       videoThumbnailRatingsBar: true,
       videoThumbnailRatingsCountLoadOnHover: false,
       videoThumbnailRatingsCountHideOnHover: false,
       videoThumbnailRatingsCountShowOnHover: true,
+      videoThumbnailRatingsCountPosition: "bottomleft",
       videoThumbnailRatingsCount: true,
       dashPlayback: false,
       experimentalFeatureTopGuide: false,
@@ -8094,6 +8171,25 @@
           "type": "bool",
           "defaultSetting": "videoThumbnailQualityBar"
         }, {
+          "label": "SETTINGS_THUMBVIDEO_QUALITY_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "topleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+            }, {
+              "value": "topright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+            }, {
+              "value": "bottomleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+            }, {
+              "value": "bottomright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailQualityPosition"
+        }, {
           "label": "SETTINGS_THUMBVIDEO_QUALITY_LOADONHOVER",
           "type": "bool",
           "defaultSetting": "videoThumbnailQualityLoadOnHover"
@@ -8110,6 +8206,25 @@
           "type": "bool",
           "defaultSetting": "videoThumbnailRatingsBar"
         }, {
+          "label": "SETTINGS_THUMBVIDEO_QUALITY_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "top",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOP"
+            }, {
+              "value": "bottom",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOM"
+            }, {
+              "value": "left",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_LEFT"
+            }, {
+              "value": "right",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsBarPosition"
+        }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_BAR_LOADONHOVER",
           "type": "bool",
           "defaultSetting": "videoThumbnailRatingsBarLoadOnHover"
@@ -8125,6 +8240,25 @@
           "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_ENABLE",
           "type": "bool",
           "defaultSetting": "videoThumbnailRatingsCount"
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "topleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+            }, {
+              "value": "topright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+            }, {
+              "value": "bottomleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+            }, {
+              "value": "bottomright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailRatingsCountPosition"
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_LOADONHOVER",
           "type": "bool",
