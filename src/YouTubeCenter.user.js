@@ -3272,7 +3272,7 @@
               "large": "480p",
               "hd720": "720p",
               "hd1080": "1080p",
-              "highres": "1080p"
+              "highres": "1080p+"
             },
             tableBackground = {
               "auto": "#f00",
@@ -3330,6 +3330,7 @@
         wrapper.style.zoom = "1";
         wrapper.style.background = background;
         wrapper.style.color = color;
+        wrapper.style.borderRadius = "2px";
         
         item.content.appendChild(wrapper);
       }
@@ -6624,7 +6625,7 @@
     }
     ytcenter.experiments = {};
     ytcenter.experiments.isTopGuide = function(){
-      return ytcenter.utils.hasClass(document.body, "exp-top-guide");
+      return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.utils = {};
     ytcenter.utils.number1000Formating = function(num){
@@ -12131,7 +12132,7 @@
         $AddStyle(".ytcenter-range{display:inline-block;cursor:default;position:relative;border:1px solid;outline:0;white-space:nowrap;word-wrap:normal;vertical-align:middle;-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px;border-color:#CCC #CCC #AAA;background:white;padding:0;margin:0;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.ytcenter-range a.ytcenter-range-handle{position:absolute;top:-1px;left:0px;outline:none;margin-left:-.5em;cursor:default;padding:0;margin:0;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}");
         
         // Ads
-        $AddStyle(".ytcenter-remove-ads-page .ad-div,.ytcenter-remove-ads-page .mastad,.ytcenter-remove-ads-page .masthead-ad-control,.ytcenter-remove-ads-page .masthead-ad-control-lihp,.ytcenter-remove-ads-page #watch-channel-brand-div,.ytcenter-remove-ads-page .watch-pyv-vid,.ytcenter-remove-ads-page #feed-pyv-container,.ytcenter-remove-ads-page #premium-yva,.ytcenter-remove-ads-page .branded-page-v2-top-row{display:none!important}");
+        $AddStyle(".ytcenter-remove-ads-page .ad-div, .ytcenter-remove-ads-page .mastad, .ytcenter-remove-ads-page .masthead-ad-control, .ytcenter-remove-ads-page .masthead-ad-control-lihp, .ytcenter-remove-ads-page #watch-channel-brand-div, .ytcenter-remove-ads-page .watch-pyv-vid, .ytcenter-remove-ads-page #feed-pyv-container, .ytcenter-remove-ads-page #premium-yva, .ytcenter-remove-ads-page .branded-page-v2-top-row, .ytcenter-remove-ads-page .pyv-afc-ads-container {display:none!important}");
         
         $AddStyle(".watch-sidebar {margin-right: 0!important;}");
         $AddStyle("#player-api {float: none!important;clear: none!important;overflow:visible!important;} #watch7-playlist-tray-positioning {position:absolute;}");
