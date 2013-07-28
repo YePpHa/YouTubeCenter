@@ -3074,6 +3074,8 @@
                 }
                 callback(item.hq);
               } catch (e) {
+                if (r.indexOf("Too many")) con.error("[VideoThumbnail] IO Error => Too many requests!");
+                else con.error(r.responseText);
                 con.error(e);
               }
             }
@@ -3100,7 +3102,8 @@
                 }
                 callback(item.likes, item.dislikes);
               } catch (e) {
-                con.error("[VideoThumbnail] IO Error => Too many requests!");
+                if (r.responseText.indexOf("Too many")) con.error("[VideoThumbnail] IO Error => Too many requests!");
+                else con.error(r.responseText);
                 con.error(e);
               }
             }
@@ -6152,6 +6155,7 @@
           state = 0;
           wrp.style.visibility = "hidden";
           if (typeof saveListener !== "undefined") saveListener();
+          ytcenter.events.performEvent("ui-refresh");
         });
         
         var cancelBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonText("Cancel")]);
@@ -6165,12 +6169,14 @@
                 state = 0;
                 wrp.style.visibility = "hidden";
                 if (typeof cancelListener !== "undefined") cancelListener();
+                ytcenter.events.performEvent("ui-refresh");
               }
             });
           } else {
             state = 0;
             wrp.style.visibility = "hidden";
             if (typeof cancelListener !== "undefined") cancelListener();
+            ytcenter.events.performEvent("ui-refresh");
           }
         });
         
@@ -6183,6 +6189,7 @@
               state = 0;
               wrp.style.visibility = "hidden";
               if (typeof deleteListener !== "undefined") deleteListener();
+              ytcenter.events.performEvent("ui-refresh");
             }
           }, "EMBED_RESIZEITEMLIST_CONFIRM_DELETE");
         });
@@ -6594,6 +6601,7 @@
         items.splice(oldIndex, 1);
         items.splice(newIndex, 0, itm);
         if (typeof saveCallback !== "undefined") saveCallback(getSaveArray());
+        ytcenter.events.performEvent("ui-refresh");
       });
       
       listWrapper.appendChild(listOl);
