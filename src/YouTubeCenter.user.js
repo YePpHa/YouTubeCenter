@@ -1436,6 +1436,13 @@
               };
             })(sc2, s));
           }
+          if (recipe.style) {
+            for (var key in recipe.style) {
+              if (recipe.style.hasOwnProperty(key)) {
+                wrapper.style[key] = recipe.style[key];
+              }
+            }
+          }
           s.addEventListener('change', (function(defaultSetting){
             return function(){
               ytcenter.settings[defaultSetting] = this.value;
@@ -2106,7 +2113,7 @@
           break;
       }
       if (elm) {
-        elm.style.verticalAlign = "top";
+        //elm.style.verticalAlign = "top";
         wrapper.appendChild(elm);
       }
       return wrapper;
@@ -3040,11 +3047,15 @@
             url: "http://www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : ""),
             method: "GET",
             onload: function(r){
-              if (spflink) r = JSON.parse(r.responseText).html.content;
-              else r = r.responseText;
-              var c = JSON.parse(r.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0]);
-              item.hq = ytcenter.player.getClosestQuality("highres", ytcenter.parseStream(c.args));
-              callback(item.hq);
+              try {
+                if (spflink) r = JSON.parse(r.responseText).html.content;
+                else r = r.responseText;
+                var c = JSON.parse(r.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0]);
+                item.hq = ytcenter.player.getClosestQuality("highres", ytcenter.parseStream(c.args));
+                callback(item.hq);
+              } catch (e) {
+                con.error(e);
+              }
             }
           });
         }
@@ -3090,7 +3101,9 @@
           sparkBarDislikes.className = "video-extras-sparkbar-dislikes";
           if (total > 0) {
             sparkBarDislikes.style.background = "#f00";
+          } else {
             dislikes = 1;
+            total = 1;
           }
           
           sparkBars.appendChild(sparkBarLikes);
@@ -3254,10 +3267,11 @@
               "hd1080": "#fff",
               "highres": "#fff"
             },
-            text = tableQuality[hq],
-            background = tableBackground[hq],
-            color = tableColor[hq];
-            wrapper = document.createElement("span");
+            text, background, color, wrapper = document.createElement("span");
+        text = tableQuality[hq];
+        background = tableBackground[hq];
+        color = tableColor[hq];
+            
         wrapper.className = (ytcenter.settings.videoThumbnailQualityShowOnHover ? " ytcenter-video-thumb-show-hover" : "")
                             + (ytcenter.settings.videoThumbnailQualityHideOnHover ? " ytcenter-video-thumb-hide-hover" : "");
         wrapper.textContent = text;
@@ -8164,12 +8178,23 @@
           "type": "textContent",
           "textlocale": "SETTINGS_THUMBVIDEO_LABEL",
           "style": {
-            "fontWeight": "bold"
-          },
+            "fontWeight": "bold",
+            "fontSize": "16px"
+          }
+        }, {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_QUALITY",
+          "style": {
+            "fontWeight": "bold",
+            "marginLeft": "4px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_QUALITY_ENABLE",
           "type": "bool",
-          "defaultSetting": "videoThumbnailQualityBar"
+          "defaultSetting": "videoThumbnailQualityBar",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_QUALITY_POSITION",
           "type": "list",
@@ -8188,23 +8213,45 @@
               "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
             }
           ],
-          "defaultSetting": "videoThumbnailQualityPosition"
+          "defaultSetting": "videoThumbnailQualityPosition",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_QUALITY_LOADONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailQualityLoadOnHover"
+          "defaultSetting": "videoThumbnailQualityLoadOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_QUALITY_SHOWONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailQualityShowOnHover"
+          "defaultSetting": "videoThumbnailQualityShowOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_QUALITY_HIDEONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailQualityHideOnHover"
+          "defaultSetting": "videoThumbnailQualityHideOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
+        }, {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_RATING_BAR",
+          "style": {
+            "fontWeight": "bold",
+            "marginLeft": "4px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsBar"
+          "defaultSetting": "videoThumbnailRatingsBar",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_QUALITY_POSITION",
           "type": "list",
@@ -8223,23 +8270,45 @@
               "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
             }
           ],
-          "defaultSetting": "videoThumbnailRatingsBarPosition"
+          "defaultSetting": "videoThumbnailRatingsBarPosition",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_BAR_LOADONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsBarLoadOnHover"
+          "defaultSetting": "videoThumbnailRatingsBarLoadOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_BAR_SHOWONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsBarShowOnHover"
+          "defaultSetting": "videoThumbnailRatingsBarShowOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_BAR_HIDEONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsBarHideOnHover"
+          "defaultSetting": "videoThumbnailRatingsBarHideOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
+        }, {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_RATING_COUNT",
+          "style": {
+            "fontWeight": "bold",
+            "marginLeft": "4px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_ENABLE",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsCount"
+          "defaultSetting": "videoThumbnailRatingsCount",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_POSITION",
           "type": "list",
@@ -8258,19 +8327,31 @@
               "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
             }
           ],
-          "defaultSetting": "videoThumbnailRatingsCountPosition"
+          "defaultSetting": "videoThumbnailRatingsCountPosition",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_LOADONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsCountLoadOnHover"
+          "defaultSetting": "videoThumbnailRatingsCountLoadOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_SHOWONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsCountShowOnHover"
+          "defaultSetting": "videoThumbnailRatingsCountShowOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_HIDEONHOVER",
           "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsCountHideOnHover"
+          "defaultSetting": "videoThumbnailRatingsCountHideOnHover",
+          "style": {
+            "marginLeft": "16px"
+          }
         }, {
           "type": "horizontalRule"
         }, {
