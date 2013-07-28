@@ -7894,7 +7894,7 @@
       videoThumbnailQualityHideOnHover: false,
       videoThumbnailQualityShowOnHover: false,
       videoThumbnailQualityPosition: "topleft",
-      videoThumbnailQualityBar: false,
+      videoThumbnailQualityBar: true,
       videoThumbnailRatingsBarLoadOnHover: false,
       videoThumbnailRatingsBarHideOnHover: false,
       videoThumbnailRatingsBarShowOnHover: false,
