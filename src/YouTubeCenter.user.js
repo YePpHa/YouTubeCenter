@@ -2040,7 +2040,7 @@
           var text2 = document.createTextNode(ytcenter.language.getLocale("SETTINGS_IMEX_OR"));
           ytcenter.language.addLocaleElement(text2, "SETTINGS_IMEX_OR", "@textContent");
           dropZoneContent.appendChild(text2);
-          dropZoneContent.appendChild(document.createTextNode("&nbsp;"));
+          dropZoneContent.appendChild(document.createTextNode(" "));
           dropZoneContent.appendChild(filechooser);
           
           dropZone.style.position = "relative";
