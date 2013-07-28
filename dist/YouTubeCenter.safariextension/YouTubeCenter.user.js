@@ -2113,7 +2113,6 @@
           break;
       }
       if (elm) {
-        //elm.style.verticalAlign = "top";
         wrapper.appendChild(elm);
       }
       return wrapper;
@@ -3019,20 +3018,35 @@
         var linkRegex = /v=([a-zA-Z0-9-_]+)/,
             vt = document.getElementsByClassName("video-thumb"),
             videos = [],
-            i, id, videoElement;
+            i, id, videoElement, cacheData, data;
         for (i = 0; i < vt.length; i++) {
           videoElement = vt[i].parentNode;
+          data = null;
+          cacheData = null;
           if (videoElement.tagName === "A") {
             if (videoElement.href.match(linkRegex)) {
               id = linkRegex.exec(videoElement.href)[1];
-              videos.push({id: id, content: videoElement, wrapper: videoElement, videoThumb: vt[i]});
+              cacheData = getDataCacheById(id);
+              data = {id: id, content: videoElement, wrapper: videoElement, videoThumb: vt[i]};
+              if (cacheData) {
+                if (cacheData.hq) data.hq = cacheData.hq;
+                if (cacheData.likes) data.likes = cacheData.likes;
+                if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
+              }
             }
           } else if (videoElement.parentNode.tagName === "A") {
             if (videoElement.parentNode.href.match(linkRegex)) {
               id = linkRegex.exec(videoElement.parentNode.href)[1];
-              videos.push({id: id, content: videoElement, wrapper: videoElement.parentNode, videoThumb: vt[i]});
+              cacheData = getDataCacheById(id);
+              data = {id: id, content: videoElement, wrapper: videoElement.parentNode, videoThumb: vt[i]};
+              if (cacheData) {
+                if (cacheData.hq) data.hq = cacheData.hq;
+                if (cacheData.likes) data.likes = cacheData.likes;
+                if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
+              }
             }
           }
+          if (data) videos.push(data);
         }
         return videos;
       }
@@ -3041,7 +3055,8 @@
           callback(item.hq);
         } else {
           //var spflink = Math.round(Math.random()) === 1 ? true : false;
-          var spflink = ytcenter.spf.isEnabled();
+          //var spflink = ytcenter.spf.isEnabled();
+          var spflink = true;
           
           $XMLHTTPRequest({
             url: "http://www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : ""),
@@ -3052,6 +3067,11 @@
                 else r = r.responseText;
                 var c = JSON.parse(r.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0]);
                 item.hq = ytcenter.player.getClosestQuality("highres", ytcenter.parseStream(c.args));
+                if (isInCache(item)) {
+                  updateItemInCache(item);
+                } else {
+                  addNewDataToCache(item);
+                }
                 callback(item.hq);
               } catch (e) {
                 con.error(e);
@@ -3073,6 +3093,11 @@
                     ratings = videoData.yt$rating;
                 item.likes = parseInt(ratings ? ratings.numLikes : 0);
                 item.dislikes = parseInt(ratings ? ratings.numDislikes : 0);
+                if (isInCache(item)) {
+                  updateItemInCache(item);
+                } else {
+                  addNewDataToCache(item);
+                }
                 callback(item.likes, item.dislikes);
               } catch (e) {
                 con.error("[VideoThumbnail] IO Error => Too many requests!");
@@ -3407,6 +3432,85 @@
         }
         return b;
       }
+      function updateItemInCache(data) {
+        var i = getDataCacheIndex(data);
+        if (data.hq && !ytcenter.settings.videoThumbnailData[i].hq) {
+          ytcenter.settings.videoThumbnailData[i].hq = data.hq;
+        }
+        if (data.likes && data.dislikes && !ytcenter.settings.videoThumbnailData[i].likes && !ytcenter.settings.videoThumbnailData[i].dislikes) {
+          ytcenter.settings.videoThumbnailData[i].likes = data.likes;
+          ytcenter.settings.videoThumbnailData[i].dislikes = data.dislikes;
+        }
+        ytcenter.saveSettings();
+      }
+      function updateReuse(data) {
+        var i = getDataCacheIndex(data);
+        if (i === -1) return;
+        ytcenter.settings.videoThumbnailData[i].reuse++;
+        if (ytcenter.settings.videoThumbnailData[i].reuse > 5)
+          ytcenter.settings.videoThumbnailData[i].reuse = 5;
+        ytcenter.saveSettings();
+      }
+      function getDataCacheById(id) {
+        var i;
+        for (i = 0; i < ytcenter.settings.videoThumbnailData.length; i++) {
+          if (id === ytcenter.settings.videoThumbnailData[i].id) return ytcenter.settings.videoThumbnailData[i];
+        }
+        return null;
+      }
+      function getDataCacheIndex(data) {
+        var i;
+        for (i = 0; i < ytcenter.settings.videoThumbnailData.length; i++) {
+          if (data.id === ytcenter.settings.videoThumbnailData[i].id) return i;
+        }
+        return -1;
+      }
+      function isInCache(data) {
+        return getDataCacheIndex(data) !== -1;
+      }
+      function addNewDataToCache(data) {
+        if (isInCache(data)) return;
+        var cacheSize = 50, nData = {};
+        while (ytcenter.settings.videoThumbnailData.length >= cacheSize) removeOldestFromCache();
+        nData.id = data.id;
+        nData.reuse = 0;
+        nData.date = ytcenter.utils.now();
+        if (data.hq) nData.hq = data.hq;
+        if (data.likes) nData.likes = data.likes;
+        if (data.dislikes) nData.dislikes = data.dislikes;
+        
+        ytcenter.settings.videoThumbnailData.push(nData);
+      }
+      function calculateCacheLife(data) {
+        return 1000*60*10 + (1000*60*5)*(data.reused ? data.reused : 0);
+      }
+      function removeOldestFromCache() {
+        if (ytcenter.settings.videoThumbnailData.length === 0) return;
+        var i, now = ytcenter.utils.now(), life, lifeRemaining, oldest = ytcenter.settings.videoThumbnailData[0], j = 0;
+        for (i = 1; i < ytcenter.settings.videoThumbnailData.length; i++) {
+          life = calculateCacheLife(ytcenter.settings.videoThumbnailData[i]);
+          lifeRemaining = (ytcenter.settings.videoThumbnailData[i].date + life) - now;
+          if (lifeRemaining < (oldest.date + calculateCacheLife(oldest)) - now) {
+            oldest = ytcenter.settings.videoThumbnailData[i];
+            j = i;
+          }
+        }
+        ytcenter.settings.videoThumbnailData.splice(j, 1);
+      }
+      function cacheChecker() {
+        if (ytcenter.settings.videoThumbnailData.length === 0) return;
+        var i, now = ytcenter.utils.now(), life, nData = [];
+        
+        for (i = 0; i < ytcenter.settings.videoThumbnailData.length; i++) {
+          life = calculateCacheLife(ytcenter.settings.videoThumbnailData[i]);
+          if (now < ytcenter.settings.videoThumbnailData[i].date + life) {
+            if (ytcenter.settings.videoThumbnailData[i].reused < 5) ytcenter.settings.videoThumbnailData[i].reused++;
+            nData.push(ytcenter.settings.videoThumbnailData[i]);
+          }
+        }
+        ytcenter.settings.videoThumbnailData = nData;
+        ytcenter.saveSettings();
+      }
       var __r = {}, observer, videoThumbs, dispacherAdded;
       __r.setupObserver = function(){
         /* Targets:
@@ -3425,6 +3529,7 @@
           var vt = compareDifference(getVideoThumbs(), videoThumbs), i;
           for (i = 0; i < vt.length; i++) {
             videoThumbs.push(vt[i]);
+            updateReuse(vt[i]);
             processItem(vt[i]);
             processItemHeavyLoad(vt[i]);
           }
@@ -3436,11 +3541,13 @@
         if (document.getElementById("feed"))
           observer.observe(document.getElementById("feed"), config);
       };
-      __r.applyRatings = function(){
+      __r.setup = function(){
         try {
           var i;
+          cacheChecker();
           videoThumbs = getVideoThumbs();
           for (i = 0; i < videoThumbs.length; i++) {
+            updateReuse(videoThumbs[i]);
             processItem(videoThumbs[i]);
             processItemHeavyLoad(videoThumbs[i]);
           }
@@ -7781,6 +7888,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      videoThumbnailData: [],
       videoThumbnailQualityLoadOnHover: false,
       videoThumbnailQualityHideOnHover: false,
       videoThumbnailQualityShowOnHover: false,
@@ -11865,7 +11973,7 @@
               }, 50);
             }
           }
-          ytcenter.thumbnail.applyRatings();
+          ytcenter.thumbnail.setup();
         } else if (loc.href.indexOf(".youtube.com/user/") !== -1 ||
                   (document.body.innerHTML.indexOf("data-swf-config=\"{") !== -1 && document.body.innerHTML.indexOf("&quot;el&quot;: &quot;profilepage&quot;") !== -1) ||
                   (ytcenter.player.getConfig() && ytcenter.player.getConfig().args.el === "profilepage")) {
@@ -11882,7 +11990,7 @@
               }
             }, 50);
           }
-          ytcenter.thumbnail.applyRatings();
+          ytcenter.thumbnail.setup();
         } else if (loc.href.indexOf(".youtube.com/embed/") !== -1) {
           if (!ytcenter.settings.embed_enabled) return;
           con.log("YouTube Embed Page Detected");
@@ -11908,7 +12016,7 @@
           yt = uw.yt;
           //ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           injectingSPF();
-          ytcenter.thumbnail.applyRatings();
+          ytcenter.thumbnail.setup();
         }
       } catch (e) {
         con.error(e);
