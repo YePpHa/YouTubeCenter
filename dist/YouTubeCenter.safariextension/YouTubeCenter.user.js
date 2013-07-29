@@ -6637,14 +6637,17 @@
     };
     ytcenter.utils = {};
     ytcenter.utils.number1000Formating = function(num){
-      var i, j = 0, r = "";
+      var i, j = 0, r = [], tmp = "";
       num = num + "";
-      for (i = num.length-1; i >= 0; i--) {
-        j++;
-        if (j%4 === 0) r = "," + r;
-        r = num[i] + r;
+      for (i = num.length - 1; i >= 0; i--) {
+        tmp = num[i] + tmp;
+        if (tmp.length === 3) {
+          r.unshift(tmp);
+          tmp = "";
+        }
       }
-      return r;
+      if (tmp !== "") r.unshift(tmp);
+      return r.join(",");
     };
     ytcenter.utils.xhr = function(details){
       var xmlhttp;
