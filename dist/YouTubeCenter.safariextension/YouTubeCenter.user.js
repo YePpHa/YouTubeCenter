@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            YouTube Center
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         1.32.4
+// @version         1.33.0
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/icons/logo-48x48.png
@@ -26,7 +26,7 @@
 // @grant           GM_log
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
-// @updateVersion   121
+// @updateVersion   122
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
@@ -1235,7 +1235,7 @@
           document.getElementById("header").appendChild(container);
         } else if (document.getElementById("alerts")) {
           document.getElementById("alerts").parentNode.insertBefore(container, document.getElementById("alerts").nextElementSibling);
-        } else {
+        }else {
           con.error("Settings UI - Couldn't find element to append");
         }
       
@@ -1286,12 +1286,13 @@
             }
           };
         })(container), false);
-        var msthdsr = document.getElementById("masthead-user") || document.getElementById("yt-masthead-user") || document.getElementById("yt-masthead-signin");
-        if (msthdsr) {
-          if (document.getElementById("yt-masthead-signin")) {
-            btn.style.marginLeft = "10px";
-          }
-          msthdsr.appendChild(btn);
+        if (document.getElementById("masthead-user")) {
+          document.getElementById("masthead-user").appendChild(btn);
+        } else if (document.getElementById("yt-masthead-user")) {
+          document.getElementById("yt-masthead-user").appendChild(btn);
+        } else if (document.getElementById("yt-masthead-signin")) {
+          btn.style.margin = "0 10px";
+          document.getElementById("yt-masthead-signin").appendChild(btn);
         } else {
           con.error("Settings UI - Couldn't add settings button");
         }
@@ -3000,8 +3001,8 @@
     con.log("Initializing Functions");
     
     var yt, ytcenter = {};
-    ytcenter.version = "1.32.4";
-    ytcenter.revision = 121;
+    ytcenter.version = "1.33.0";
+    ytcenter.revision = 122;
     ytcenter.icon = {};
     ytcenter.page = "none";
     con.log("Initializing icons");
@@ -3565,6 +3566,7 @@
     })();
     
     ytcenter.io = {};
+    
     /* BlobBuilder.js
      * A BlobBuilder implementation.
      * 2012-04-21
@@ -3733,6 +3735,7 @@
       if (typeof a === "undefined") a = ytcenter.io.FakeBlobBuilder();
       return a;
     })();
+    
     /* FileSaver.js
      * A saveAs() FileSaver implementation.
      * 2013-01-23
@@ -12174,7 +12177,7 @@
         $AddStyle(".ytcenter-remove-ads-page .ad-div, .ytcenter-remove-ads-page .mastad, .ytcenter-remove-ads-page .masthead-ad-control, .ytcenter-remove-ads-page .masthead-ad-control-lihp, .ytcenter-remove-ads-page #watch-channel-brand-div, .ytcenter-remove-ads-page .watch-pyv-vid, .ytcenter-remove-ads-page #feed-pyv-container, .ytcenter-remove-ads-page #premium-yva, .ytcenter-remove-ads-page .branded-page-v2-top-row, .ytcenter-remove-ads-page .pyv-afc-ads-container {display:none!important}");
         
         $AddStyle(".watch-sidebar {margin-right: 0!important;}");
-        $AddStyle("#player-api {float: none!important;clear: none!important;overflow:visible!important;} #watch7-playlist-tray-positioning {position:absolute;}");
+        $AddStyle("#movie_player {outline: 0!important; overflow: hidden!important;} #player-api {float: none!important;clear: none!important; outline: 0!important;} # #watch7-playlist-tray-positioning {position:absolute;}");
         
         $AddStyle(".ytcenter-site-center #page, .ytcenter-site-center #yt-masthead, .ytcenter-site-center #ad_creative_1, .ytcenter-site-center #footer, .ytcenter-site-center #masthead_child_div, .ytcenter-site-center #masthead-expanded-lists-container, .ytcenter-site-center #baseDiv, .ytcenter-site-center.no-sidebar #alerts, .ytcenter-site-center.no-sidebar #ticker .ytg-wide, .ytcenter-site-center.no-sidebar #masthead-subnav, #watch7-sidebar, .watch7-sidebar {-moz-transition:none!important;-ms-transition:none!important;-o-transition:none!important;-webkit-transition:none!important;transition:none!important}");
         if (ytcenter.settings['experimentalFeatureTopGuide']) {

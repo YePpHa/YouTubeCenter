@@ -1,4 +1,4 @@
- - Import and export settings functionality.
+ - Prevent when a video ends to switch the about tab to the share tab.
  - Extend the guide. So that it will include a link to the "Favorites", "Indbox" and "History".
  - Unify http:// and https:// settings.
  - YouTubeInAudio.com (320 kbp/s)  doesn't work anymore.
