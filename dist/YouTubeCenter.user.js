@@ -2025,7 +2025,6 @@
             e.preventDefault();
             
             validateFileAndLoad(e.dataTransfer.files[0]);
-            
           }, false);
           
           ytcenter.utils.addEventListener(dropZone, "dragover", function(e){
@@ -7974,8 +7973,6 @@
                 updElement.appendChild(cn);
                 
                 document.getElementById("alerts").appendChild(updElement);
-                
-                ytcenter.refreshHomepage();
               } else {
                 con.log("No new updates available");
               }
@@ -9586,11 +9583,14 @@
           "type": "link",
           "titleLocale": "SETTINGS_ABOUT_LINKS",
           "links": [
+            {text: "Wiki", url: "https://github.com/YePpHa/YouTubeCenter/wiki"},
             {text: "Userscript", url: "http://userscripts.org/scripts/show/114002"},
             {text: "Facebook", url: "https://www.facebook.com/YouTubeCenter"},
             {text: "Google+", url: "https://plus.google.com/111275247987213661483/posts"},
+            {text: "Firefox", url: "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/"},
             {text: "Opera", url: "https://addons.opera.com/en/extensions/details/youtube-center/"},
-            {text: "Maxthon", url: "http://extension.maxthon.com/detail/index.php?view_id=1201"}
+            {text: "Maxthon", url: "http://extension.maxthon.com/detail/index.php?view_id=1201"},
+            {text: "Github", url: "https://github.com/YePpHa/YouTubeCenter/"}
           ]
         }, {
           "type": "translators",
@@ -10465,7 +10465,7 @@
       scrollToPlayerButton.style.display = "block";
       scrollToPlayerButton.style.position = "absolute";
       scrollToPlayerButton.addEventListener("click", function(){
-        if (ytcenter.settings['experimentalFeatureTopGuide']) {
+        if (ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
           var posY = 0,
               scrollElm = document.getElementById("player-api"),
               t = ytcenter.utils.getOffset(document.getElementById("player-api")).top,
@@ -10484,7 +10484,7 @@
         var _s = getSizeById(ytcenter.player.currentResizeId);
         ytcenter.player.resize(_s);
         if (_s.config.scrollToPlayer) {
-          if (ytcenter.settings['experimentalFeatureTopGuide']) {
+          if (ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
             var posY = 0,
                 scrollElm = document.getElementById("player-api"),
                 mp = document.getElementById("masthead-positioner");
@@ -11703,7 +11703,7 @@
         });
       });
 
-      if (ytcenter.settings.scrollToPlayer) {
+      if (ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentalLayotTopbarStatic)) {
         (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
       }
       if (ytcenter.settings.expandDescription) {
