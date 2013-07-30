@@ -665,9 +665,9 @@
       iconw.className = "yt-uix-button-icon-wrapper" + (!ytcenter.settings.repeatShowIcon ? " hid" : "");
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.repeatShowIcon) {
-          $RemoveCSS(iconw, 'hid');
+          iconw.style.display = "";
         } else {
-          $AddCSS(iconw, 'hid');
+          iconw.style.display = "none";
         }
       });
       var icon = document.createElement("img");
@@ -4015,6 +4015,74 @@
         debugText = e.message;
       }
       return debugText;
+    };
+    ytcenter.alert = function(type, message, closeable){
+      var __r = {},
+          types = {
+            "error": "yt-alert-error",
+            "warning": "yt-alert-warning",
+            "info": "yt-alert-info"
+          },
+          wrapper = document.createElement("div"),
+          icon = document.createElement("div"),
+          iconImg = document.createElement("img"),
+          content = document.createElement("div"),
+          contentVerticalTrick = document.createElement("span"),
+          contentMessage = document.createElement("div");
+      closeable = typeof closeable === "boolean" ? closeable : true;
+      wrapper.className = "yt-alert yt-alert-default " + types[type];
+      
+      icon.className = "yt-alert-icon";
+      iconImg.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+      iconImg.className = "icon master-sprite";
+      
+      if (closeable) {
+        var buttons = document.createElement("div"),
+            closeButton = document.createElement("button"),
+            closeButtonText = document.createElement("span");
+        buttons.className = "yt-alert-buttons";
+        closeButton.setAttribute("type", "button");
+        closeButton.setAttribute("role", "button");
+        closeButton.setAttribute("onclick", ";return false;");
+        closeButton.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
+        closeButton.addEventListener("click", function(){
+          __r.setVisibility(false);
+        });
+        
+        closeButtonText.className = "yt-uix-button-content";
+        closeButtonText.textContent = "Close ";
+        closeButton.appendChild(closeButtonText);
+        buttons.appendChild(closeButton);
+        wrapper.appendChild(buttons);
+      }
+      
+      content.className = "yt-alert-content";
+      
+      contentVerticalTrick.className = "yt-alert-vertical-trick";
+      
+      contentMessage.className = "yt-alert-message";
+      
+      if (typeof message === "string") {
+        contentMessage.textContent = message;
+      } else {
+        contentMessage.appendChild(message);
+      }
+      
+      
+      content.appendChild(contentVerticalTrick);
+      content.appendChild(contentMessage);
+      wrapper.appendChild(content);
+      
+      __r.setVisibility = function(visible){
+        if (visible) {
+          if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+          document.getElementById("alerts").appendChild(wrapper);
+        } else {
+          if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        }
+      };
+      
+      return __r;
     };
     ytcenter.welcome /*NOT SURE WHAT TO REALLY CALL THIS ATM :I */ = (function(){
       var a = {};
@@ -7853,10 +7921,10 @@
                 var cnme = document.createElement("div");
                 cnme.className = "yt-alert-message";
                 var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
-                ytcenter.language.addLocaleElement(f1, ytcenter.language.getLocale("UPDATE_NOTICE"), "@textContent", {});
+                ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
                 var f2 = document.createElement("br");
                 var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
-                ytcenter.language.addLocaleElement(f3, ytcenter.language.getLocale("UPDATE_INSTALL"), "@textContent", {});
+                ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
                 var f4 = document.createTextNode(" ");
                 var f5 = document.createElement("a");
                 f5.href = "http://userscripts.org/scripts/source/114002.user.js";
@@ -7864,7 +7932,7 @@
                 f5.textContent = "YouTube Center v" + ver;
                 var f6 = document.createTextNode(" ");
                 var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
-                ytcenter.language.addLocaleElement(f7, ytcenter.language.getLocale("UPDATE_OR"), "@textContent", {});
+                ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
                 var f8 = document.createTextNode(" ");
                 var f9 = document.createElement("a");
                 f9.href = "http://userscripts.org/scripts/show/114002";
@@ -11980,6 +12048,36 @@
         }, 50);
       }
     };
+    var extensionCompatibilityChecker = function(){
+      if (injected && @identifier@ === 0) {
+        var content = document.createElement("div"),
+            p1 = document.createTextNode(ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1")),
+            p2 = document.createElement("br"),
+            p3 = document.createTextNode(ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT2")),
+            p4 = document.createTextNode(" "),
+            p5 = document.createElement("a"),
+            p6 = document.createTextNode(ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT"));
+        
+        
+        p5.textContent = ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT3");
+        p5.href = "https://github.com/YePpHa/YouTubeCenter/wiki#wiki-Chrome__Opera_15_Extension";
+        p5.setAttribute("target", "_blank");
+        
+        ytcenter.language.addLocaleElement(p1, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1", "@textContent");
+        ytcenter.language.addLocaleElement(p3, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT2", "@textContent");
+        ytcenter.language.addLocaleElement(p5, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT3", "@textContent");
+        ytcenter.language.addLocaleElement(p6, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT", "@textContent");
+        
+        content.appendChild(p1);
+        content.appendChild(p2);
+        content.appendChild(p3);
+        content.appendChild(p4);
+        content.appendChild(p5);
+        content.appendChild(p6);
+        
+        ytcenter.alert("error", content, false).setVisibility(true);
+      }
+    };
     var dclcaller = function(){
       if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
         return;
@@ -12182,6 +12280,7 @@
         $AddStyle(".ytcenter-site-center #page, .ytcenter-site-center #yt-masthead, .ytcenter-site-center #ad_creative_1, .ytcenter-site-center #footer, .ytcenter-site-center #masthead_child_div, .ytcenter-site-center #masthead-expanded-lists-container, .ytcenter-site-center #baseDiv, .ytcenter-site-center.no-sidebar #alerts, .ytcenter-site-center.no-sidebar #ticker .ytg-wide, .ytcenter-site-center.no-sidebar #masthead-subnav, #watch7-sidebar, .watch7-sidebar {-moz-transition:none!important;-ms-transition:none!important;-o-transition:none!important;-webkit-transition:none!important;transition:none!important}");
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           // TODO add compatible styles here
+          $AddStyle(".watch-playlist-collapsed #watch7-playlist-tray-container {height: 0px!important}");
           $AddStyle(".ytcenter-settings-content h2 {border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
         } else {
           $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
