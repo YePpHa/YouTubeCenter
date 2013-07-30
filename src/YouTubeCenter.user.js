@@ -4036,6 +4036,9 @@
       iconImg.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
       iconImg.className = "icon master-sprite";
       
+      icon.appendChild(iconImg);
+      wrapper.appendChild(icon);
+      
       if (closeable) {
         var buttons = document.createElement("div"),
             closeButton = document.createElement("button"),
@@ -7927,7 +7930,19 @@
                 ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
                 var f4 = document.createTextNode(" ");
                 var f5 = document.createElement("a");
-                f5.href = "http://userscripts.org/scripts/source/114002.user.js";
+                if (@identifier@ === 0) {
+                  f5.href = "http://userscripts.org/scripts/source/114002.user.js";
+                } else if (@identifier@ === 1) {
+                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
+                } else if (@identifier@ === 2) {
+                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
+                } else if (@identifier@ === 3) {
+                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
+                } else if (@identifier@ === 4) {
+                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
+                } else if (@identifier@ === 5) {
+                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
+                }
                 f5.setAttribute("target", "_blank");
                 f5.textContent = "YouTube Center v" + ver;
                 var f6 = document.createTextNode(" ");
@@ -7935,9 +7950,14 @@
                 ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
                 var f8 = document.createTextNode(" ");
                 var f9 = document.createElement("a");
-                f9.href = "http://userscripts.org/scripts/show/114002";
                 f9.setAttribute("target", "_blank");
-                f9.textContent = "userscripts.org";
+                if (@identifier@ === 3) {
+                  f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
+                  f9.textContent = "addons.mozilla.org";
+                } else {
+                  f9.href = "http://userscripts.org/scripts/show/114002";
+                  f9.textContent = "userscripts.org";
+                }
                 
                 cnme.appendChild(f1);
                 cnme.appendChild(f2);
@@ -7971,6 +7991,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      ytExperimentalLayotTopbarStatic: false,
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
       videoThumbnailQualityPosition: "topleft",
@@ -8356,6 +8377,22 @@
                   } else {
                     $RemoveCSS(document.body, "flex-width-enabled");
                   }
+                }
+              }
+            }
+          ]
+        }, {
+          "label": "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC",
+          "type": "bool",
+          "defaultSetting": "ytExperimentalLayotTopbarStatic",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+                  $AddCSS(document.body, "ytcenter-exp-topbar-static");
+                } else {
+                  $RemoveCSS(document.body, "ytcenter-exp-topbar-static");
                 }
               }
             }
@@ -12051,22 +12088,34 @@
     var extensionCompatibilityChecker = function(){
       if (injected && @identifier@ === 0) {
         var content = document.createElement("div"),
-            p1 = document.createTextNode(ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1")),
+            p1 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1")),
             p2 = document.createElement("br"),
-            p3 = document.createTextNode(ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT2")),
+            p3 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT2")),
             p4 = document.createTextNode(" "),
             p5 = document.createElement("a"),
-            p6 = document.createTextNode(ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT"));
+            p6 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT")),
+            p7 = document.createElement("br"),
+            p8 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_MOREINFO1")),
+            p9 = document.createTextNode(" "),
+            p10 = document.createElement("a"),
+            p11 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT"));
         
         
-        p5.textContent = ytcenter.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT3");
+        p5.textContent = ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT3");
         p5.href = "https://github.com/YePpHa/YouTubeCenter/wiki#wiki-Chrome__Opera_15_Extension";
         p5.setAttribute("target", "_blank");
+        
+        p10.textContent = ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_MOREINFO2");
+        p10.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Chrome:CompatibilityError";
+        p10.setAttribute("target", "_blank");
         
         ytcenter.language.addLocaleElement(p1, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1", "@textContent");
         ytcenter.language.addLocaleElement(p3, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT2", "@textContent");
         ytcenter.language.addLocaleElement(p5, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT3", "@textContent");
         ytcenter.language.addLocaleElement(p6, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT", "@textContent");
+        ytcenter.language.addLocaleElement(p8, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_MOREINFO1", "@textContent");
+        ytcenter.language.addLocaleElement(p10, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_MOREINFO2", "@textContent");
+        ytcenter.language.addLocaleElement(p11, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT", "@textContent");
         
         content.appendChild(p1);
         content.appendChild(p2);
@@ -12074,6 +12123,11 @@
         content.appendChild(p4);
         content.appendChild(p5);
         content.appendChild(p6);
+        content.appendChild(p7);
+        content.appendChild(p8);
+        content.appendChild(p9);
+        content.appendChild(p10);
+        content.appendChild(p11);
         
         ytcenter.alert("error", content, false).setVisibility(true);
       }
@@ -12100,6 +12154,7 @@
       try {
         if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
           con.log("YouTube Watch Page Detected");
+          extensionCompatibilityChecker();
           if (uw.ytplayer && uw.ytplayer.config && !document.getElementById("watch7-player-age-gate-content")) {
             injectingSPF();
             ytwatchinit();
@@ -12119,6 +12174,7 @@
                   (document.body.innerHTML.indexOf("data-swf-config=\"{") !== -1 && document.body.innerHTML.indexOf("&quot;el&quot;: &quot;profilepage&quot;") !== -1) ||
                   (ytcenter.player.getConfig() && ytcenter.player.getConfig().args.el === "profilepage")) {
           con.log("YouTube Channel Featured Page Detected");
+          extensionCompatibilityChecker();
           if (typeof ytcenter.player.getConfig() !== "undefined") {
             injectingSPF();
             ytchannelfeatureinit();
@@ -12154,6 +12210,7 @@
             ytcenter.page = "normal";
           }
           con.log("YouTube Page Detected");
+          extensionCompatibilityChecker();
           yt = uw.yt;
           //ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           injectingSPF();
@@ -12280,6 +12337,7 @@
         $AddStyle(".ytcenter-site-center #page, .ytcenter-site-center #yt-masthead, .ytcenter-site-center #ad_creative_1, .ytcenter-site-center #footer, .ytcenter-site-center #masthead_child_div, .ytcenter-site-center #masthead-expanded-lists-container, .ytcenter-site-center #baseDiv, .ytcenter-site-center.no-sidebar #alerts, .ytcenter-site-center.no-sidebar #ticker .ytg-wide, .ytcenter-site-center.no-sidebar #masthead-subnav, #watch7-sidebar, .watch7-sidebar {-moz-transition:none!important;-ms-transition:none!important;-o-transition:none!important;-webkit-transition:none!important;transition:none!important}");
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           // TODO add compatible styles here
+          $AddStyle("body.ytcenter-exp-topbar-static div#masthead-positioner {position: static !important;} body.ytcenter-exp-topbar-static div#masthead-positioner-height-offset {display: none !important;}");
           $AddStyle(".watch-playlist-collapsed #watch7-playlist-tray-container {height: 0px!important}");
           $AddStyle(".ytcenter-settings-content h2 {border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
         } else {
@@ -12333,6 +12391,11 @@
             ytcenter.saveSettings();
             loc.reload();
           }
+        }
+        if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+          $AddCSS(document.body, "ytcenter-exp-topbar-static");
+        } else {
+          $RemoveCSS(document.body, "ytcenter-exp-topbar-static");
         }
         
         ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
