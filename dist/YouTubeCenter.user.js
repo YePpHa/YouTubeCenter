@@ -665,9 +665,9 @@
       iconw.className = "yt-uix-button-icon-wrapper" + (!ytcenter.settings.repeatShowIcon ? " hid" : "");
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.repeatShowIcon) {
-          $RemoveCSS(iconw, 'hid');
+          iconw.style.display = "";
         } else {
-          $AddCSS(iconw, 'hid');
+          iconw.style.display = "none";
         }
       });
       var icon = document.createElement("img");
@@ -4015,6 +4015,15 @@
         debugText = e.message;
       }
       return debugText;
+    };
+    ytcenter.warning = function(){
+      var __r = {};
+      
+      
+      __r.setVisibility = function(visible){
+        
+      };
+      return __r;
     };
     ytcenter.welcome /*NOT SURE WHAT TO REALLY CALL THIS ATM :I */ = (function(){
       var a = {};
@@ -12182,6 +12191,7 @@
         $AddStyle(".ytcenter-site-center #page, .ytcenter-site-center #yt-masthead, .ytcenter-site-center #ad_creative_1, .ytcenter-site-center #footer, .ytcenter-site-center #masthead_child_div, .ytcenter-site-center #masthead-expanded-lists-container, .ytcenter-site-center #baseDiv, .ytcenter-site-center.no-sidebar #alerts, .ytcenter-site-center.no-sidebar #ticker .ytg-wide, .ytcenter-site-center.no-sidebar #masthead-subnav, #watch7-sidebar, .watch7-sidebar {-moz-transition:none!important;-ms-transition:none!important;-o-transition:none!important;-webkit-transition:none!important;transition:none!important}");
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           // TODO add compatible styles here
+          $AddStyle(".watch-playlist-collapsed #watch7-playlist-tray-container {height:0px!important}");
           $AddStyle(".ytcenter-settings-content h2 {border-bottom: inherit!important;margin: inherit!important;padding: inherit!important;color: inherit!important;font-size: inherit!important;line-height: inherit!important;overflow: inherit!important;white-space: inherit!important;word-wrap: inherit!important;-o-text-overflow: inherit!important;text-overflow: inherit!important;}");
         } else {
           $AddStyle(".ytcenter-site-center #yt-masthead, #footer-hh {width: 1003px!important}");
