@@ -10785,7 +10785,7 @@
           playerAPI.style.height = playerHeight + "px";
           
           if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-            content.style.width = (playerWidth > maxInsidePlayerWidth ? playerWidth : maxInsidePlayerWidth) + "px";
+            content.style.width = maxInsidePlayerWidth + "px";
           }
         }
         
@@ -10804,12 +10804,17 @@
         // Content
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
           if (clientWidth < calcWidth) {
-            var __w = (clientWidth/2 - maxInsidePlayerWidth/2);
+            var __w = Math.floor(clientWidth/2 - maxInsidePlayerWidth/2);
             if (__w < 180) __w = 180;
             if (clientWidth > 1165 && __w > 180) {
               contentMain.style.setProperty("margin-left", __w + "px", "important");
+              if (document.getElementById("watch7-main-container"))
+                document.getElementById("watch7-main-container").style.margin = "0";
             } else {
               contentMain.style.setProperty("margin-left", "", "important");
+            
+              if (document.getElementById("watch7-main-container"))
+                document.getElementById("watch7-main-container").style.margin = "";
             }
             contentMain.style.setProperty("margin-right", "", "important");
             
@@ -10817,8 +10822,13 @@
           } else if (!align) {
             ytcenter.utils.addClass(document.body, "ytcenter-content-margin");
             contentMain.style.setProperty("margin-left", "", "important");
+            if (document.getElementById("watch7-main-container"))
+              document.getElementById("watch7-main-container").style.margin = "";
           } else {
             ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
+            contentMain.style.setProperty("margin-left", "", "important");
+            if (document.getElementById("watch7-main-container"))
+              document.getElementById("watch7-main-container").style.margin = "";
           }
         }
         // Playlist
@@ -10890,7 +10900,6 @@
               clg = 10;
             }
             ytcenter.guide.left = clg;
-
             if (clientWidth <= 1325) {
               document.getElementById("page-container").style.width = "100%";
             } else {
@@ -10898,6 +10907,7 @@
             }
           } else {
             ytcenter.guide.left = null;
+            document.getElementById("page-container").style.width = "";
           }
           ytcenter.guide.update();
         }
