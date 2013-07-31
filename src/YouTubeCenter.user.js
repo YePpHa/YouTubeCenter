@@ -1605,13 +1605,13 @@
           
           _slide.addEventListener("valuechange", (function(status_elm){
             return function(newvalue){
-              status_elm.value = Math.ceil(newvalue - 0.5);
+              status_elm.value = Math.floor(newvalue + 0.5);
             };
           })(_text));
           
           _slide.addEventListener("change", (function(status_elm, recipe){
             return function(newvalue){
-              status_elm.value = Math.ceil(newvalue - 0.5);
+              status_elm.value = Math.floor(newvalue + 0.5);
               ytcenter.settings[recipe.defaultSetting] = status_elm.value;
               ytcenter.saveSettings();
             };
@@ -1620,13 +1620,13 @@
           _text.addEventListener("input", (function(_slide){
             return function(){
               if (this.value === '') this.value = "0";
-              this.value = Math.ceil(_slide.setValue(this.value) - 0.5);
+              this.value = Math.floor(_slide.setValue(this.value) + 0.5);
             };
           })(_slide), false);
           _text.addEventListener("change", (function(_slide, recipe){
             return function(){
               if (this.value === '') this.value = "0";
-              this.value = Math.ceil(_slide.setValue(this.value) - 0.5);
+              this.value = Math.floor(_slide.setValue(this.value) + 0.5);
               ytcenter.settings[recipe.defaultSetting] = this.value;
               ytcenter.saveSettings(true);
             };
@@ -6076,7 +6076,7 @@
           if (isNaN(parseInt(widthInput.value))) {
             heightInput.value = "";
           } else if (aspectRatio !== 0) {
-            heightInput.value = Math.ceil(parseInt(widthInput.value)/aspectRatio);
+            heightInput.value = Math.floor(parseInt(widthInput.value)/aspectRatio + 0.5);
           }
         });
         
@@ -6119,7 +6119,7 @@
           if (isNaN(parseInt(heightInput.value))) {
             widthInput.value = "";
           } else if (aspectRatio !== 0) {
-            widthInput.value = Math.ceil(parseInt(heightInput.value)*aspectRatio);
+            widthInput.value = Math.floor(parseInt(heightInput.value)*aspectRatio + 0.5);
           }
         });
         
@@ -7033,9 +7033,9 @@
       }
       if (widthType === "px" && heightType === "px") {
         if (!isNaN(parseInt(width)) && isNaN(parseInt(height))) {
-          calcHeight = Math.ceil(calcWidth/player_ratio);
+          calcHeight = Math.floor(calcWidth/player_ratio + 0.5);
         } else if (isNaN(parseInt(width)) && !isNaN(parseInt(height))) {
-          calcWidth = Math.ceil(calcHeight*player_ratio);
+          calcWidth = Math.floor(calcHeight*player_ratio + 0.5);
         }
       }
       return [calcWidth, calcHeight];
@@ -8002,7 +8002,7 @@
       videoThumbnailRatingsCountPosition: "bottomleft",
       videoThumbnailRatingsCountDownloadAt: "page_start",
       videoThumbnailRatingsCountVisible: "show_hover",
-      dashPlayback: false,
+      dashPlayback: true,
       experimentalFeatureTopGuide: false,
       language: 'auto',
       filename: '{title}',
@@ -8093,9 +8093,9 @@
       watch7playerguidealwayshide: false,
       watch7centerpage: true,
       lightbulbAutoOff: false,
-      removeBrandingBanner: false,
-      removeBrandingBackground: false,
-      removeBrandingWatermark: false,
+      removeBrandingBanner: true,
+      removeBrandingBackground: true,
+      removeBrandingWatermark: true,
       fixGuideNotVisible: false,
       hideFeedbackButton: false,
       bgcolor: "default",
@@ -10704,8 +10704,8 @@
             content = document.getElementById("watch7-main-container"),
             contentMain = document.getElementById("watch7-main"),
             playlist = document.getElementById("watch7-playlist-tray-container"),
-            playerWidth = Math.ceil(calcWidth),
-            playerHeight = Math.ceil(calcHeight + pbh);
+            playerWidth = Math.floor(calcWidth + 0.5),
+            playerHeight = Math.floor(calcHeight + pbh + 0.5);
         if (player) {
           player.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
           player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";
@@ -10753,12 +10753,12 @@
         if (playlist) {
           var playlistElement = document.getElementById("watch7-playlist-data"),
               playlistBar,
-              __playlistWidth = Math.ceil(calcWidth),
+              __playlistWidth = Math.floor(calcWidth + 0.5),
               __playlistRealWidth = __playlistWidth*0.5;
           if (__playlistRealWidth < 275) __playlistRealWidth = 275;
           else if (__playlistRealWidth > 400) __playlistRealWidth = 400;
           playlist.style.width = (large ? __playlistRealWidth + "px" : "auto");
-          playlist.style.height = Math.ceil(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh)) + "px";
+          playlist.style.height = Math.floor(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh) + 0.5) + "px";
           
           if (playlistElement) playlistBar = playlistElement.children[0];
           
@@ -10817,7 +10817,6 @@
               cl = 0;
               clg = 10;
             }
-            //document.getElementById("watch7-main").style.setProperty("left", cl + "px", "important");
             ytcenter.guide.left = clg;
 
             if (clientWidth <= 1325) {
@@ -10826,21 +10825,17 @@
               document.getElementById("page-container").style.width = "";
             }
           } else {
-            //document.getElementById("watch7-main-container").style.left = "";
-            //document.getElementById("watch7-main").style.left = "";
             ytcenter.guide.left = null;
-            //document.getElementById("page-container").style.width = "";
           }
           ytcenter.guide.update();
         }
         
         // Player
         var wp = document.getElementById("player-api");
-        //document.getElementById("player").style.height = Math.ceil(calcHeight + pbh) + "px";
         if (wp) {
           if (width !== "" || height !== "") {
-            wp.style.width = Math.ceil(calcWidth) + "px";
-            wp.style.height = Math.ceil(calcHeight + pbh) + "px";
+            wp.style.width = Math.floor(calcWidth + 0.5) + "px";
+            wp.style.height = Math.floor(calcHeight + pbh + 0.5) + "px";
           } else {
             wp.style.width = "";
             wp.style.height = "";
@@ -10851,7 +10846,7 @@
               wp.style.marginLeft = "";
             } else {
               var wvOffset = $GetOffset(document.getElementById("player"));
-              var mLeft = Math.ceil(-(calcWidth - maxInsidePlayerWidth)/2);
+              var mLeft = Math.floor(-(calcWidth - maxInsidePlayerWidth)/2 + 0.5);
               if (-mLeft > wvOffset[0]) mLeft = -wvOffset[0];
               wp.style.marginLeft = mLeft + "px";
             }
@@ -10873,75 +10868,7 @@
           }
         }
         
-        if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          // Playlist
-          /*var playlistElement = document.getElementById("watch7-playlist-data"),
-              playlistBar;
-          if (playlistElement) playlistBar = playlistElement.children[0];
-          
-          if (playlistBar) {
-            playlistBar.style.width = __playlistWidth + "px";
-            playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
-            playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
-            
-            if (calcWidth > maxInsidePlayerWidth) {
-              playlistBar.style.margin = "";
-              if (align) {
-                playlistBar.style.marginLeft = "";
-              } else {
-                playlistBar.style.marginLeft = Math.ceil(-(calcWidth - maxInsidePlayerWidth)/2) + "px";
-              }
-            } else {
-              playlistBar.style.marginLeft = "";
-              if (align) {
-                playlistBar.style.margin = "";
-              } else {
-                playlistBar.style.margin = "0 auto";
-              }
-            }
-          }
-          if (playlistElement && (width !== "" || height !== "")) {
-            playlistElement.style.width = Math.ceil((large ? calcWidth : calcWidth + 305)) + "px";
-          } else if (playlistElement) {
-            playlistElement.style.width = "";
-          }
-          var playlistTrayContainer = document.getElementById("watch7-playlist-tray-container");
-          if (playlistTrayContainer) {
-            var __h = Math.ceil(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh));
-            playlistTrayContainer.style.height = __h + "px";
-            var playlistTray = document.getElementById("watch7-playlist-tray");
-            if (playlistTray) {
-              playlistTray.style.height = Math.ceil(__h - (large ? 0 : 27)) + "px";
-            }
-            playlistTrayContainer.style.width = (large ? __playlistRealWidth : maxInsidePlayerWidth - __playlistWidth) + "px";
-            
-            playlistTrayContainer.style.left = (large ? __w - __ra : __w) + "px";
-            if (large) {
-              playlistTrayContainer.style.left = (large ? __playlistWidth - __playlistRealWidth : __playlistWidth) + "px";
-            } else {
-              playlistTrayContainer.style.left = "";
-            }
-            
-            var playlistTrayPositioning = document.getElementById("watch7-playlist-tray-positioning");
-            if (playlistTrayPositioning) {
-              playlistTrayPositioning.style.width = __playlistWidth + "px";
-              if (align) {
-                playlistTrayPositioning.style.margin = "";
-              } else {
-                playlistTrayPositioning.style.margin = "0 auto";
-              }
-            }
-          }
-          
-          var creatorBar = document.getElementById("watch7-creator-bar");
-          if (creatorBar) {
-            if (width !== "" || height !== "") {
-              creatorBar.style.width = Math.ceil(calcWidth - 40) + "px";
-            } else {
-              creatorBar.style.width = "";
-            }
-          }*/
-        } else {
+        if (ytcenter.settings['experimentalFeatureTopGuide']) {
           var playlistElement = document.getElementById("watch7-playlist-data"),
               playlistBar;
           if (playlistElement) playlistBar = playlistElement.children[0];
@@ -10952,19 +10879,14 @@
             
             var playlistTrayContainer = document.getElementById("watch7-playlist-tray-container");
             if (playlistTrayContainer) {
-              var __h = Math.ceil(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh));
+              var __h = Math.floor(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh) + 0.5);
               playlistTrayContainer.style.height = __h + "px";
               var playlistTray = document.getElementById("watch7-playlist-tray");
               if (playlistTray) {
-                playlistTray.style.height = Math.ceil(__h - (large ? 0 : 27)) + "px";
+                playlistTray.style.height = Math.floor(__h - (large ? 0 : 27) + 0.5) + "px";
               }
               playlistTrayContainer.style.width = (large ? __playlistRealWidth : maxInsidePlayerWidth - __playlistWidth) + "px";
               
-              /*var sTop = __h;
-              if (large) {
-                sTop = sTop + 27;
-              }
-              playlistTrayContainer.style.top = "-" + sTop + "px";*/
               if (large) {
                 playlistTrayContainer.style.left = (large ? __playlistWidth - __playlistRealWidth : __playlistWidth) + "px";
               } else {
@@ -10989,7 +10911,7 @@
             if (align) {
               p.style.marginLeft = "";
             } else {
-              var ml = Math.ceil(-(calcWidth - maxInsidePlayerWidth)/2);
+              var ml = Math.floor(-(calcWidth - maxInsidePlayerWidth)/2 + 0.5);
               if (document.getElementById("watch7-container")) {
                 var off = ytcenter.utils.getOffset(document.getElementById("watch7-container"));
                 if (-ml > off.left) ml = -off.left;
@@ -11007,7 +10929,7 @@
           var creatorBar = document.getElementById("watch7-creator-bar");
           if (creatorBar) {
             if (width !== "" || height !== "") {
-              creatorBar.style.width = Math.ceil(calcWidth - 40) + "px";
+              creatorBar.style.width = Math.floor(calcWidth - 40 + 0.5) + "px";
             } else {
               creatorBar.style.width = "";
             }
