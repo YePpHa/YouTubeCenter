@@ -10754,14 +10754,14 @@
         }
         if (!isNaN(calcWidth) && isNaN(calcHeight) && !calcedHeight) {
           calcedHeight = true;
-          if (player_ratio !== 0) calcHeight = Math.floor(calcWidth/player_ratio);
+          if (player_ratio !== 0) calcHeight = Math.floor(calcWidth/player_ratio + 0.5);
           else calcHeight = calcWidth;
         } else if (isNaN(calcWidth) && !isNaN(calcHeight) && !calcedWidth) {
           calcedWidth = true;
           if (height.indexOf("%") !== -1 && height.match(/%$/) && height !== "%") {
-            calcWidth = Math.floor((calcHeight - _pbh)*player_ratio);
+            calcWidth = Math.floor((calcHeight - _pbh)*player_ratio + 0.5);
           } else {
-            calcWidth = Math.floor(calcHeight*player_ratio);
+            calcWidth = Math.floor(calcHeight*player_ratio + 0.5);
           }
         }
         
