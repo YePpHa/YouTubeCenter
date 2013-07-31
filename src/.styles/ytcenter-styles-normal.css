@@ -217,38 +217,18 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: auto!important;
 }
 
-/*@media screen and (min-width:1382px) {
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page {
-    width: 1365px;
-  }
-}*/
+.ytcenter-site-watch.ytcenter-site-center #player {
+  margin: 0 auto;
+}
 
-/*@media screen and (max-width:1381px) {
-  .ytcenter-site-watch.ytcenter-site-center #page {
-    width: 985px;
-  }
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container {
+  position: relative;
+  z-index: 0;
+}
 
-  .ytcenter-site-watch.ytcenter-site-center #page-container,
-  .ytcenter-site-watch.ytcenter-site-center #watch7-main-container {
-    margin: 0!important;
-  }
-  
-  .ytcenter-site-watch.ytcenter-site-center #player {
-    margin: -15px 0 0 0;
-  }
-  
-  .ytcenter-site-watch.ytcenter-site-center #watch7-main {
-    margin-left: 0!important;
-  }
-  
-  .ytcenter-site-watch.ytcenter-site-center #watch7-main-container {
-    padding-left: 180px;
-  }
-
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player {
-    margin-left: 0 auto!important;
-  };
-}*/
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #guide-container {
+  z-index: 1;
+}
 
 @media screen and (min-width:1382px) {
   .ytcenter-site-watch.site-left-aligned.ytcenter-site-center #watch7-main-container,
@@ -265,21 +245,23 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 @media screen and (max-width:1381px) {
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned  #watch7-main,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #content {
-    padding-left: 180px;
+    padding-left: 190px;
   }
   
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player  {
+    margin: auto!important;
+  }
+}
+
+@media screen and (min-width:1166px) {
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
-    left: 0!important;
-  }
-  
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player  {
-    margin: -15px 0 auto!important;
+    left: 10!important;
   }
 }
 
 @media screen and (max-width:1165px) {
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
-    margin-left: 10px !important;
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.guide-collapsed #guide-container {
+    margin-left: 0px !important;
   }
   
   .ytcenter-site-watch.ytcenter-site-center #watch7-main {
@@ -288,10 +270,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.sidebar-expanded #page {
     width: 100%!important;
   }
-
-  /*.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.sidebar-expanded #page {
-    width: 1003px!important;
-  }*/
   
   #watch7-main-container {
     width: 985px !important;
@@ -312,8 +290,11 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player {
     padding-left: 0!important;
   }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player {
+    margin-left: 0!important;
+  }
   
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded #content {
-    padding-left: 180px!important;
+    padding-left: 190px!important;
   }
 }
