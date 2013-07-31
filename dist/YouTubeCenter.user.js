@@ -26,7 +26,7 @@
 // @grant           GM_log
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
-// @updateVersion   122
+// @updateVersion   123
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
@@ -3001,7 +3001,7 @@
     
     var yt, ytcenter = {};
     ytcenter.version = "1.33.0";
-    ytcenter.revision = 122;
+    ytcenter.revision = 123;
     ytcenter.icon = {};
     ytcenter.page = "none";
     con.log("Initializing icons");
@@ -3600,7 +3600,28 @@
         + "NO_MODIFICATION_ALLOWED_ERR INVALID_STATE_ERR SYNTAX_ERR"
       ).split(" "),
       file_ex_code = file_ex_codes.length,
-      real_URL = URL || uw.URL || webkitURL || uw.webkitURL || uw,
+      
+      real_URL = (function(){
+        var a;
+        try {
+          a = URL || uw.URL || webkitURL || uw.webkitURL || uw;
+        } catch (e) {
+          try {
+            a = uw.URL || webkitURL || uw.webkitURL || uw;
+          } catch (e) {
+            try {
+              a = webkitURL || uw.webkitURL || uw;
+            } catch (e) {
+              try {
+                a = uw.webkitURL || uw;
+              } catch (e) {
+                a = uw;
+              }
+            }
+          }
+        }
+        return a;
+      })(),
       real_create_object_URL = real_URL.createObjectURL,
       real_revoke_object_URL = real_URL.revokeObjectURL,
       URL = real_URL,
@@ -3748,9 +3769,49 @@
       "use strict";
       // only get URL when necessary in case BlobBuilder.js hasn't overridden it yet
       var get_URL = function() {
-            return URL || uw.URL || webkitURL || uw.webkitURL || uw;
+            return (function(){
+              var a;
+              try {
+                a = URL || uw.URL || webkitURL || uw.webkitURL || uw;
+              } catch (e) {
+                try {
+                  a = uw.URL || webkitURL || uw.webkitURL || uw;
+                } catch (e) {
+                  try {
+                    a = webkitURL || uw.webkitURL || uw;
+                  } catch (e) {
+                    try {
+                      a = uw.webkitURL || uw;
+                    } catch (e) {
+                      a = uw;
+                    }
+                  }
+                }
+              }
+              return a;
+            })();
           },
-          URL = URL || uw.URL || webkitURL || uw.webkitURL || uw,
+          URL = (function(){
+            var a;
+            try {
+              a = URL || uw.URL || webkitURL || uw.webkitURL || uw;
+            } catch (e) {
+              try {
+                a = uw.URL || webkitURL || uw.webkitURL || uw;
+              } catch (e) {
+                try {
+                  a = webkitURL || uw.webkitURL || uw;
+                } catch (e) {
+                  try {
+                    a = uw.webkitURL || uw;
+                  } catch (e) {
+                    a = uw;
+                  }
+                }
+              }
+            }
+            return a;
+          })(),
           save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
           can_use_save_link =  !uw.externalHost && "download" in save_link,
           click = function(node) {
