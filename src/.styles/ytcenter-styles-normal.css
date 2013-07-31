@@ -209,12 +209,20 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-site-watch.ytcenter-site-center #watch7-main {
   width: 985px;
 }
-.ytcenter-site-watch.ytcenter-site-center #player,
-.ytcenter-site-watch.ytcenter-site-center #watch7-main-container {
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #content #watch7-main-container {
+  width: 985px!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #watch7-main-container,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page #content #player {
   padding-left: 0 !important;
 }
-.site-left-aligned.guide-enabled #page.watch #content {
-  width: auto!important;
+/*.site-left-aligned.guide-enabled #page.watch #player #content {
+  width: 985px!important;
+}*/
+.ytcenter-site-watch.ytcenter-site-center.site-left-aligned #page.watch #guide + #content {
+  margin: 0 auto!important;
 }
 
 .ytcenter-site-watch.ytcenter-site-center #player {
@@ -230,10 +238,13 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   z-index: 1;
 }
 
+.ytcenter-site-watch.ytcenter-site-center #content {
+  width: auto!important;
+}
+
 @media screen and (min-width:1382px) {
-  .ytcenter-site-watch.site-left-aligned.ytcenter-site-center #watch7-main-container,
-  .ytcenter-site-watch.site-left-aligned.ytcenter-site-center.ytcenter-content-margin #watch7-main  {
-    margin: 0 auto !important;
+  .ytcenter-site-watch.site-left-aligned.ytcenter-site-center #watch7-main-container  {
+    margin: 0 auto;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page-container {
     margin: 0 auto!important;
@@ -241,15 +252,38 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
     margin-left: -180px !important;
   }
+  .ytcenter-site-watch.ytcenter-site-center #player {
+    padding-left: 0 !important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.site-left-aligned #page.watch #player + #content {
+    margin: 0 auto!important;
+  }
 }
 @media screen and (max-width:1381px) {
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned  #watch7-main,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #watch7-main-container #watch7-main,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #content {
     padding-left: 190px;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player  {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player {
+    padding-left: 190px;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #content #player  {
     margin: auto!important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #content {
+    padding-left: 190px;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.site-left-aligned #page.watch > #player {
+    margin: 0 auto!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.site-left-aligned #watch7-container > #player {
+    margin: 0!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player {
+    width: auto!important;
   }
 }
 
@@ -276,25 +310,29 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
     margin: 0 !important;
   }
 
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #player  {
+  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #content #player  {
     margin-left: -58px!important;
-    margin-right: -58px!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned #player  {
-    margin-left: -180px!important;
-    margin-right: -180px!important;
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned #content #player  {
+    margin-left: -190px!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed #content {
+  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed #content,
+  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned #page > #player {
     padding-left: 58px!important;
   }
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player {
     padding-left: 0!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #content #player {
     margin-left: 0!important;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded #content {
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded #content,
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #page > #player  {
     padding-left: 190px!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container {
+    z-index: 2!important;
   }
 }
