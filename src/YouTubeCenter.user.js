@@ -4928,6 +4928,7 @@
     ytcenter.embeds.colorPicker = function(){
       var update = function(){
         wrapper.style.background = ytcenter.utils.colorToHex(red, green, blue);
+        currentColor.style.background = ytcenter.utils.colorToHex(red, green, blue);
         redRange.update(red);
         greenRange.update(green);
         blueRange.update(blue);
@@ -5104,6 +5105,15 @@
         updateColorField();
       });
       htmlColor.element.children[0].style.width = "80px";
+      
+      var currentColor = document.createElement("span");
+      currentColor.style.display = "inline-block";
+      currentColor.style.cssFloat = "left";
+      currentColor.style.width = "20px";
+      currentColor.style.height = "29px";
+      currentColor.style.background = sessionHex;
+      
+      htmlColor.element.appendChild(currentColor);
       
       hWrapper.appendChild(htmlColorLabel.element);
       hWrapper.appendChild(htmlColor.element);
@@ -10709,7 +10719,6 @@
         if (player) {
           player.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
           player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";
-          player.style.margin = "-15px auto auto"; // Move to css styles
           
           playerAPI.style.width = playerWidth + "px";
           playerAPI.style.height = playerHeight + "px";
@@ -10722,7 +10731,7 @@
         // Sidebar
         if (document.getElementById("watch7-sidebar")) {
           if (!large && !document.getElementById("watch7-playlist-data")) {
-            var mt = calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0) - (!ytcenter.settings['experimentalFeatureTopGuide'] ? 15 : 0); // 15 is the height of the white space between the header and content.
+            var mt = calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0);
             if (ytcenter.utils.hasClass(document.getElementById("watch7-container"), "watch-branded-banner") && !ytcenter.settings.removeBrandingBanner)
               mt += 70;
             document.getElementById("watch7-sidebar").style.marginTop = "-" + mt + "px";
@@ -10744,9 +10753,11 @@
             contentMain.style.setProperty("margin-right", "", "important");
             
             ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
-          } else {
+          } else if (!align) {
             ytcenter.utils.addClass(document.body, "ytcenter-content-margin");
             contentMain.style.setProperty("margin-left", "", "important");
+          } else {
+            ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
           }
         }
         // Playlist
