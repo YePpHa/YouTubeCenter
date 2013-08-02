@@ -746,8 +746,21 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   user-select: none;
 }
 
-.ytcenter-remove-ads-page .ad-div, .ytcenter-remove-ads-page .mastad, .ytcenter-remove-ads-page .masthead-ad-control, .ytcenter-remove-ads-page .masthead-ad-control-lihp, .ytcenter-remove-ads-page #watch-channel-brand-div, .ytcenter-remove-ads-page .watch-pyv-vid, .ytcenter-remove-ads-page #feed-pyv-container, .ytcenter-remove-ads-page #premium-yva, .ytcenter-remove-ads-page .branded-page-v2-top-row, .ytcenter-remove-ads-page .pyv-afc-ads-container {
+.ytcenter-remove-ads-page .ad-div,
+.ytcenter-remove-ads-page .mastad,
+.ytcenter-remove-ads-page .masthead-ad-control,
+.ytcenter-remove-ads-page .masthead-ad-control-lihp,
+.ytcenter-remove-ads-page .watch-pyv-vid,
+.ytcenter-remove-ads-page .branded-page-v2-top-row,
+.ytcenter-remove-ads-page .pyv-afc-ads-container,
+.ytcenter-remove-ads-page #feed-pyv-container,
+.ytcenter-remove-ads-page #premium-yva,
+.ytcenter-remove-ads-page #ad_creative_1,
+.ytcenter-remove-ads-page #watch-channel-brand-div {
   display: none!important;
+}
+.ytcenter-remove-ads-page .branded-page-v2-masthead-ad-header.masthead-ad-expanded .branded-page-v2-primary-col {
+  border-top: 0!important;
 }
 
 .watch-sidebar {
@@ -776,3 +789,8 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   -webkit-transition: none!important;
   transition: none!important;
 }
+
+.ytcenter-site-not-watch #page-container #page > #player.off-screen {
+  display: none!important;
+}
+

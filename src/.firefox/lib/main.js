@@ -1,6 +1,7 @@
 const data = require("self").data;
 const Request = require("request").Request;
 const PageMod = require("page-mod").PageMod;
+const simpleStorage = require("simple-storage");
 var xhr, page, workers = [];
 
 xhr = function(details){
@@ -45,6 +46,16 @@ page = PageMod({
         };
       }
       xhr(data.details);
+    });
+    worker.port.on("save", function(data){
+      data = JSON.parse(data);
+      simpleStorage.storage[data.name] = data.value;
+    });
+    worker.port.on("load", function(data){
+      data = JSON.parse(data);
+      if (!simpleStorage.storage[data.name])
+        simpleStorage.storage[data.name] = "{}";
+      worker.port.emit("load callback", JSON.stringify({id: data.id, storage: simpleStorage.storage[data.name]}));
     });
   }
 });
