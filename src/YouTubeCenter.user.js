@@ -3207,21 +3207,26 @@
                 }
                 callback(item.stream);
               } catch (e) {
-                con.error(e);
                 var msg = "";
                 if (e === "unavailable") {
                   msg = "Video Unavailable!";
                 } else {
-                  if (r.responseText.indexOf("Too many")) {
-                    con.error("[VideoThumbnail Quality] IO Error => Too many requests!");
-                    msg = "ERROR 429: Too many requests!";
+                  if (r.responseText.indexOf("Too many") !== -1) {
+                    msg = "Too many requests!";
                   } else {
-                    msg = "ERROR";
+                    msg = "Error!";
+                    con.error(e);
                     con.error(r.responseText);
                   }
                 }
+                con.error("[VideoThumbnail Quality] IO Error => " + msg);
                 callback("error", msg);
               }
+            },
+            onerror: function(){
+              msg = "Connection failed!";
+              con.error("[VideoThumbnail Quality] IO Error => " + msg);
+              callback("error", msg);
             }
           });
         }
@@ -3235,6 +3240,7 @@
             method: "GET",
             onload: function(r){
               try {
+                if (!r.responseText) throw "unavailable";
                 var videoData = JSON.parse(r.responseText).entry,
                     ratings = videoData.yt$rating;
                 item.likes = parseInt(ratings ? ratings.numLikes : 0);
@@ -3247,17 +3253,30 @@
                 callback(item.likes, item.dislikes);
               } catch (e) {
                 var msg = "";
-                if (r.responseText.indexOf("Too many")) {
-                  con.error("[VideoThumbnail Ratings] IO Error => Too many requests!");
-                  msg = "ERROR 429: Too many requests!";
+                if (e === "unavailable") {
+                  msg = "Unavailable!";
+                } else {
+                  if (r.responseText.indexOf("<errors xmlns='http://schemas.google.com/g/2005'><error><domain>GData</domain>") === 0) {
+                    msg = "Error!";
+                    if (r.responseText.indexOf("<internalReason>") !== -1 && r.responseText.indexOf("</internalReason>") !== -1) {
+                      msg = ytcenter.utils.unescapeXML(r.responseText.split("<internalReason>")[1].split("</internalReason>")[0]) + "!";
+                    }
+                  } else if (r.responseText.indexOf("Too many") !== -1) {
+                    msg = "Too many requests!";
+                  } else {
+                    msg = "Error!";
+                    con.error(e);
+                    con.error(r.responseText);
+                  }
                 }
-                else {
-                  msg = "ERROR";
-                  con.error(r.responseText);
-                  con.error(e);
-                }
+                con.error("[VideoThumbnail Ratings] IO Error => " + msg);
                 callback("error", msg);
               }
+            },
+            onerror: function(){
+              msg = "Connection failed!";
+              con.error("[VideoThumbnail Quality] IO Error => " + msg);
+              callback("error", msg);
             }
           });
         }
@@ -3280,7 +3299,7 @@
           sparkBarLikes.className = "video-extras-sparkbar-likes";
           sparkBarDislikes.className = "video-extras-sparkbar-dislikes";
           if (likes === "error") {
-            sparkBarDislikes.style.background = "#9b30ff";
+            sparkBarDislikes.style.background = "#BF3EFF";
             total = 1;
             likes = 0;
             dislikes = 1;
@@ -6994,6 +7013,20 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.utils = {};
+    ytcenter.utils.escapeXML = function(str){
+      return ytcenter.utils.replaceArray(str, ["<", ">", "&", "\"", "'"], ["&lt;", "&gt;", "&amp;", "&quot;", "&apos;"]);
+    };
+    ytcenter.utils.unescapeXML = function(str){
+      return ytcenter.utils.replaceArray(str, ["&lt;", "&gt;", "&amp;", "&quot;", "&apos;"], ["<", ">", "&", "\"", "'"]);
+    };
+    ytcenter.utils.replaceArray = function(str, find, replace){
+      var i;
+      if (find.length !== replace.length) throw "The find & replace array doesn't have the same length!";
+      for (i = 0; i < find.length; i++) {
+        str = str.replace(new RegExp(find[i], "g"), replace[i]);
+      }
+      return str;
+    };
     ytcenter.utils.number1000Formating = function(num){
       var i, j = 0, r = [], tmp = "";
       num = num + "";
