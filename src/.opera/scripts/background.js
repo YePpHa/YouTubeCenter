@@ -70,6 +70,17 @@ opera.extension.onmessage = function(e) {
       };
     }
     xhr(details);
+  } else if (e.data.action === "save") {
+    widget.preferences.setItem(e.data.name, e.data.value);
+  } else if (e.data.action === "load") {
+    console.log("[Opera] Load Storage => " + e.data.name);
+    var s = widget.preferences.getItem(e.data.name);
+    if (!s) s = "{}";
+    e.source.postMessage({
+      action: 'load callback',
+      id: e.data.id,
+      storage: s
+    });
   } else {
     console.error("[Opera background.js] Unknown action (" + e.data.action + ")");
   }
