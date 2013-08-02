@@ -711,9 +711,9 @@
         }
         return ytcenter.language.getLocale("UNKNOWN");
       })();
-      for (var i = 0; i < ytcenter.video.stream.length; i++) {
-        if ((stream == null || $ArrayIndexOf(priority, ytcenter.video.stream[i].quality) > $ArrayIndexOf(priority, stream.quality)) && $ArrayIndexOf(priority, ytcenter.video.stream[i].quality) <= $ArrayIndexOf(priority, ytcenter.settings.downloadQuality) && ytcenter.video.stream[i].type && ytcenter.video.stream[i].type.indexOf(format) == 0 && ytcenter.video.stream[i].url) {
-          stream = ytcenter.video.stream[i];
+      for (var i = 0; i < ytcenter.video.streams.length; i++) {
+        if ((stream == null || $ArrayIndexOf(priority, ytcenter.video.streams[i].quality) > $ArrayIndexOf(priority, stream.quality)) && $ArrayIndexOf(priority, ytcenter.video.streams[i].quality) <= $ArrayIndexOf(priority, ytcenter.settings.downloadQuality) && ytcenter.video.streams[i].type && ytcenter.video.streams[i].type.indexOf(format) == 0 && ytcenter.video.streams[i].url) {
+          stream = ytcenter.video.streams[i];
         }
       }
       return stream;
@@ -868,19 +868,19 @@
           return obj;
         })();
         var sorted = {};
-        for (var i = 0; i < ytcenter.video.stream.length; i++) {
-          if (ytcenter.video.stream[i].type) {
-            var f = ytcenter.video.stream[i].type.split(";")[0];
+        for (var i = 0; i < ytcenter.video.streams.length; i++) {
+          if (ytcenter.video.streams[i].type) {
+            var f = ytcenter.video.streams[i].type.split(";")[0];
             if (groups.hasOwnProperty(f)) {
               if (!sorted[groups[f]]) sorted[groups[f]] = [];
-              sorted[groups[f]].push(ytcenter.video.stream[i]);
+              sorted[groups[f]].push(ytcenter.video.streams[i]);
             } else {
               if (!sorted['UNKNOWN']) sorted['UNKNOWN'] = [];
-              sorted['UNKNOWN'].push(ytcenter.video.stream[i]);
+              sorted['UNKNOWN'].push(ytcenter.video.streams[i]);
             }
           } else {
             if (!sorted['UNKNOWN']) sorted['UNKNOWN'] = [];
-            sorted['UNKNOWN'].push(ytcenter.video.stream[i]);
+            sorted['UNKNOWN'].push(ytcenter.video.streams[i]);
           }
         }
         return sorted;
@@ -3131,7 +3131,7 @@
               cacheData = getDataCacheById(id);
               data = {id: id, content: videoElement, wrapper: videoElement, videoThumb: vt[i]};
               if (cacheData) {
-                if (cacheData.hq) data.hq = cacheData.hq;
+                if (cacheData.stream) data.stream = cacheData.stream;
                 if (cacheData.likes) data.likes = cacheData.likes;
                 if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
               }
@@ -3142,7 +3142,7 @@
               cacheData = getDataCacheById(id);
               data = {id: id, content: videoElement, wrapper: videoElement.parentNode, videoThumb: vt[i]};
               if (cacheData) {
-                if (cacheData.hq) data.hq = cacheData.hq;
+                if (cacheData.stream) data.stream = cacheData.stream;
                 if (cacheData.likes) data.likes = cacheData.likes;
                 if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
               }
@@ -3153,8 +3153,8 @@
         return videos;
       }
       function loadVideoConfig(item, callback) {
-        if (item.hq) {
-          callback(item.hq);
+        if (item.stream) {
+          callback(item.stream);
         } else {
           //var spflink = Math.round(Math.random()) === 1 ? true : false;
           //var spflink = ytcenter.spf.isEnabled();
@@ -3186,14 +3186,28 @@
                 } else {
                   cfg = JSON.parse(r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0]);
                 }
-                item.hq = ytcenter.player.getClosestQuality("highres", ytcenter.parseStream(cfg.args));
-                if (isInCache(item)) {
-                  updateItemInCache(item);
-                } else {
-                  addNewDataToCache(item);
+                item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
+                try {
+                  delete item.stream.fallback_host;
+                  delete item.stream.sig;
+                  delete item.stream.flashVersion;
+                  delete item.stream.url;
+                } catch (e) {
+                  con.error(e);
                 }
-                callback(item.hq);
+                //item.hq = ytcenter.player.getClosestQuality("highres", ytcenter.parseStreams(cfg.args));
+                try {
+                  if (isInCache(item)) {
+                    updateItemInCache(item);
+                  } else {
+                    addNewDataToCache(item);
+                  }
+                } catch (e) {
+                  con.error(e);
+                }
+                callback(item.stream);
               } catch (e) {
+                con.error(e);
                 var msg = "";
                 if (e === "unavailable") {
                   msg = "Video Unavailable!";
@@ -3204,7 +3218,6 @@
                   } else {
                     msg = "ERROR";
                     con.error(r.responseText);
-                    con.error(e);
                   }
                 }
                 callback("error", msg);
@@ -3418,7 +3431,7 @@
           con.error(e);
         }
       }
-      function appendQuality(item, hq, errorMessage) {
+      function appendQuality(item, stream, errorMessage) {
         var tableQuality = {
               "error": errorMessage,
               "auto": errorMessage,
@@ -3450,9 +3463,15 @@
               "highres": "#fff"
             },
             text, background, color, wrapper = document.createElement("span");
-        text = tableQuality[hq];
-        background = tableBackground[hq];
-        color = tableColor[hq];
+        if (stream === "error") {
+          text = tableQuality[stream];
+          background = tableBackground[stream];
+          color = tableColor[stream];
+        } else if (stream && stream.quality) {
+          text = stream.dimension.split("x")[1] + "p";
+          background = tableBackground[stream.quality];
+          color = tableColor[stream.quality];
+        }
             
         wrapper.className = (ytcenter.settings.videoThumbnailQualityVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
                           + (ytcenter.settings.videoThumbnailQualityVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "");
@@ -3499,14 +3518,14 @@
             return function(){
               if (added) return;
               added = true;
-              loadVideoConfig(item, function(hq, errorMessage){
-                appendQuality(item, hq, errorMessage);
+              loadVideoConfig(item, function(stream, errorMessage){
+                appendQuality(item, stream, errorMessage);
               });
             };
           })(), false);
         } else {
-          loadVideoConfig(item, function(hq, errorMessage){
-            appendQuality(item, hq, errorMessage);
+          loadVideoConfig(item, function(stream, errorMessage){
+            appendQuality(item, stream, errorMessage);
           });
         }
       }
@@ -3591,22 +3610,22 @@
         return b;
       }
       function updateItemInCache(data) {
-        var i = getDataCacheIndex(data);
-        if (data.hq && !ytcenter.settings.videoThumbnailData[i].hq) {
-          ytcenter.settings.videoThumbnailData[i].hq = data.hq;
+        var index = getDataCacheIndex(data);
+        if (data.stream && !ytcenter.settings.videoThumbnailData[index].stream) {
+          ytcenter.settings.videoThumbnailData[index].stream = data.stream;
         }
-        if (data.likes && data.dislikes && !ytcenter.settings.videoThumbnailData[i].likes && !ytcenter.settings.videoThumbnailData[i].dislikes) {
-          ytcenter.settings.videoThumbnailData[i].likes = data.likes;
-          ytcenter.settings.videoThumbnailData[i].dislikes = data.dislikes;
+        if (data.likes && data.dislikes && !ytcenter.settings.videoThumbnailData[index].likes && !ytcenter.settings.videoThumbnailData[index].dislikes) {
+          ytcenter.settings.videoThumbnailData[index].likes = data.likes;
+          ytcenter.settings.videoThumbnailData[index].dislikes = data.dislikes;
         }
         ytcenter.saveSettings();
       }
       function updateReuse(data) {
-        var i = getDataCacheIndex(data);
-        if (i === -1) return;
-        ytcenter.settings.videoThumbnailData[i].reuse++;
-        if (ytcenter.settings.videoThumbnailData[i].reuse > 5)
-          ytcenter.settings.videoThumbnailData[i].reuse = 5;
+        var index = getDataCacheIndex(data);
+        if (index === -1) return;
+        ytcenter.settings.videoThumbnailData[index].reuse++;
+        if (ytcenter.settings.videoThumbnailData[index].reuse > 5)
+          ytcenter.settings.videoThumbnailData[index].reuse = 5;
         ytcenter.saveSettings();
       }
       function getDataCacheById(id) {
@@ -3633,11 +3652,13 @@
         nData.id = data.id;
         nData.reuse = 0;
         nData.date = ytcenter.utils.now();
-        if (data.hq) nData.hq = data.hq;
+        if (data.stream) nData.stream = data.stream;
         if (data.likes) nData.likes = data.likes;
         if (data.dislikes) nData.dislikes = data.dislikes;
         
         ytcenter.settings.videoThumbnailData.push(nData);
+        
+        ytcenter.saveSettings();
       }
       function calculateCacheLife(data) {
         return 1000*60*10 + (1000*60*5)*(data.reused ? data.reused : 0);
@@ -8141,32 +8162,40 @@
     con.log("Save Settings initializing");
     ytcenter.saveSettings_timeout_obj;
     ytcenter.saveSettings_timeout = 500;
-    ytcenter.saveSettings = function(async){
-      try {
-        uw.clearTimeout(ytcenter.saveSettings_timeout_obj);
-        ytcenter.saveSettings_timeout_obj = uw.setTimeout(function(){
-          con.log("[Storage] Saving Settings");
-          if (identifier === 3) {
-            self.port.emit("save", JSON.stringify({name: ytcenter.storageName, value: ytcenter.settings}));
-          } else if (identifier === 5) {
-            opera.extension.postMessage({
-              action: 'save',
-              name: ytcenter.storageName,
-              value: JSON.stringify(ytcenter.settings)
-            });
+    ytcenter.saveSettings = function(async, timeout){
+      if (typeof timeout === "undefined") timeout = true;
+      var __ss = function(){
+        con.log("[Storage] Saving Settings");
+        if (identifier === 3) {
+          self.port.emit("save", JSON.stringify({name: ytcenter.storageName, value: ytcenter.settings}));
+        } else if (identifier === 5) {
+          opera.extension.postMessage({
+            action: 'save',
+            name: ytcenter.storageName,
+            value: JSON.stringify(ytcenter.settings)
+          });
+        } else {
+          if (typeof async !== "boolean") async = false;
+          if (async) {
+            uw.postMessage("YouTubeCenter" + JSON.stringify({
+              type: "saveSettings"
+            }), "http://www.youtube.com");
           } else {
-            if (typeof async !== "boolean") async = false;
-            if (async) {
-              uw.postMessage("YouTubeCenter" + JSON.stringify({
-                type: "saveSettings"
-              }), "http://www.youtube.com");
-            } else {
-              if (!$SaveData(ytcenter.storageName, JSON.stringify(ytcenter.settings))) {
-                //
-              }
+            if (!$SaveData(ytcenter.storageName, JSON.stringify(ytcenter.settings))) {
+              //
             }
           }
-        }, ytcenter.saveSettings_timeout);
+        }
+      };
+      try {
+        uw.clearTimeout(ytcenter.saveSettings_timeout_obj);
+        if (timeout) {
+          ytcenter.saveSettings_timeout_obj = uw.setTimeout(function(){
+            __ss();
+          }, ytcenter.saveSettings_timeout);
+        } else {
+          __ss();
+        }
       } catch (e) {
         con.error(e);
       }
@@ -8738,7 +8767,7 @@
                     primary: true,
                     callback: function(){
                       ytcenter.settings = ytcenter._settings;
-                      ytcenter.saveSettings();
+                      ytcenter.saveSettings(false, false);
                       loc.reload();
                       dialog.setVisibility(false);
                     }
@@ -10152,9 +10181,9 @@
       return function(itag){
         con.log("Downloading format " + itag + "...");
         var stream = null;
-        for (var i = 0; i < ytcenter.video.stream.length; i++) {
-          if (ytcenter.video.stream[i].itag === itag && typeof ytcenter.video.stream[i].url != "undefined") {
-            stream = ytcenter.video.stream[i];
+        for (var i = 0; i < ytcenter.video.streams.length; i++) {
+          if (ytcenter.video.streams[i].itag === itag && typeof ytcenter.video.streams[i].url != "undefined") {
+            stream = ytcenter.video.streams[i];
             break;
           }
         }
@@ -10175,7 +10204,7 @@
         }
       };
     })();
-    ytcenter.video.stream = [];
+    ytcenter.video.streams = [];
     
     ytcenter.site = {};
     ytcenter.site.removeAdvertisement = function(){
@@ -10372,11 +10401,11 @@
       var webm = v.canPlayType('video/webm; codecs="vp8.0, vorbis"');
 
       var found = false;
-      for (var i = 0; i < ytcenter.video.stream.length; i++) {
-        if (mp4 && ytcenter.video.stream[i].type.indexOf("video/mp4;") === 0) {
+      for (var i = 0; i < ytcenter.video.streams.length; i++) {
+        if (mp4 && ytcenter.video.streams[i].type.indexOf("video/mp4;") === 0) {
           found = true;
           break;
-        } else if (webm && ytcenter.video.stream[i].type.indexOf("video/webm;") === 0) {
+        } else if (webm && ytcenter.video.streams[i].type.indexOf("video/webm;") === 0) {
           found = true;
           break;
         }
@@ -11266,38 +11295,61 @@
         }
       };
     })();
-    ytcenter.player.getClosestQuality = function(vq, stream){
+    ytcenter.player.getHighestStreamQuality = function(streams){
+      var i, stream = streams[0], stream_dim, tmp_dim;
+      if (stream.dimension.indexOf("x") !== -1) {
+        stream_dim = stream.dimension.split("x");
+        stream_dim[0] = parseInt(stream_dim[0]);
+        stream_dim[1] = parseInt(stream_dim[1]);
+      } else {
+        stream_dim = [0,0];
+      }
+      
+      for (i = 1; i < streams.length; i++) {
+        if (streams[i].dimension.indexOf("x") !== -1) {
+          tmp_dim = streams[i].dimension.split("x");
+          tmp_dim[0] = parseInt(tmp_dim[0]);
+          tmp_dim[1] = parseInt(tmp_dim[1]);
+          if (stream_dim[1] < tmp_dim[1]) {
+            stream_dim = tmp_dim;
+            stream = streams[i];
+          }
+        }
+      }
+      return stream;
+    };
+    ytcenter.player.getClosestQuality = function(vq, streams){
       var priority = ['auto', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
           a = "auto";
-      for (var i = 0; i < stream.length; i++) {
-        if (!stream[i]) continue;
-        if ($ArrayIndexOf(priority, stream[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, stream[i].quality) > $ArrayIndexOf(priority, a)) {
-          a = stream[i].quality;
+      for (var i = 0; i < streams.length; i++) {
+        if (!streams[i]) continue;
+        if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, a)) {
+          a = streams[i].quality;
         }
       }
       return a;
     };
     ytcenter.player.setQuality = function(vq){
       var pc = ytcenter.player.getConfig();
-      if (typeof ytcenter.video.stream === "undefined") return false;
+      if (typeof ytcenter.video.streams === "undefined") return false;
       con.log("Getting Highest Available Quality With \"" + vq + "\" As Highest Quality");
       var priority = ['auto', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'];
       if (ytcenter.html5) {
         var a = document.createElement("video");
         if (a && a.canPlayType) {
           pc.args.vq = "auto";
-          for (var i = 0; i < ytcenter.video.stream.length; i++) {
-            if (!ytcenter.video.stream[i]) continue;
-            if ($ArrayIndexOf(priority, ytcenter.video.stream[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, ytcenter.video.stream[i].quality) > $ArrayIndexOf(priority, pc.args.vq) && a.canPlayType(ytcenter.video.stream[i].type.split(";")[0]).replace(/no/, '')) {
-              pc.args.vq = ytcenter.video.stream[i].quality;
+          for (var i = 0; i < ytcenter.video.streams.length; i++) {
+            if (!ytcenter.video.streams[i]) continue;
+            if ($ArrayIndexOf(priority, ytcenter.video.streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, ytcenter.video.streams[i].quality) > $ArrayIndexOf(priority, pc.args.vq) && a.canPlayType(ytcenter.video.streams[i].type.split(";")[0]).replace(/no/, '')) {
+              pc.args.vq = ytcenter.video.streams[i].quality;
             }
           }
         }
       } else {
-        for (var i = 0; i < ytcenter.video.stream.length; i++) {
-          if (!ytcenter.video.stream[i]) continue;
-          if ($ArrayIndexOf(priority, ytcenter.video.stream[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, ytcenter.video.stream[i].quality) > $ArrayIndexOf(priority, pc.args.vq)) {
-            pc.args.vq = ytcenter.video.stream[i].quality;
+        for (var i = 0; i < ytcenter.video.streams.length; i++) {
+          if (!ytcenter.video.streams[i]) continue;
+          if ($ArrayIndexOf(priority, ytcenter.video.streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, ytcenter.video.streams[i].quality) > $ArrayIndexOf(priority, pc.args.vq)) {
+            pc.args.vq = ytcenter.video.streams[i].quality;
           }
         }
       }
@@ -11520,7 +11572,7 @@
         }
       }
     };
-    ytcenter.parseStream = function(playerConfig){
+    ytcenter.parseStreams = function(playerConfig){
       if (playerConfig.url_encoded_fmt_stream_map === "") return [];
       var parser1 = function(f){
         var a = f.split(",");
@@ -11529,10 +11581,17 @@
           var b = a[i].split("/");
           var itag = b.shift();
           var dimension = b.shift();
+          var minMajorFlashVersion = b.shift();
+          var minMinorFlashVersion = b.shift();
+          var revisionVersion = b.shift();
           r.push({
             itag: itag,
             dimension: dimension,
-            unknown: b
+            flashVersion: {
+              minMajor: minMajorFlashVersion,
+              minMinor: minMinorFlashVersion,
+              revision: revisionVersion
+            }
           });
         }
         return r;
@@ -11553,21 +11612,21 @@
         return b;
       };
       var fmt = parser1(playerConfig.fmt_list);
-      var stream = parser2(playerConfig.url_encoded_fmt_stream_map);
+      var streams = parser2(playerConfig.url_encoded_fmt_stream_map);
       var a = [];
-      for (var i = 0; i < stream.length; i++) {
+      for (var i = 0; i < streams.length; i++) {
         var fl = null;
         for (var j = 0; j < fmt.length; j++) {
-          if (stream[i].itag !== fmt[j].itag) continue;
+          if (streams[i].itag !== fmt[j].itag) continue;
           fl = fmt[j];
           break;
         }
         if (fl == null) {
-          a.push(stream[i]);
+          a.push(streams[i]);
         } else {
-          var coll = stream[i];
+          var coll = streams[i];
           coll.dimension = fl.dimension;
-          coll.unknown = fl.unknown;
+          coll.flashVersion = fl.flashVersion;
           a.push(coll);
         }
       }
@@ -11583,7 +11642,7 @@
       ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       try {
         var channel_onload = function(){
-          ytcenter.video.stream = ytcenter.parseStream(playerConfig.args);
+          ytcenter.video.streams = ytcenter.parseStreams(playerConfig.args);
           ytcenter.video.id = playerConfig.args.video_id;
           ytcenter.video.title = playerConfig.args.title;
           ytcenter.video.author = playerConfig.args.author;
@@ -11675,11 +11734,11 @@
                 var ss = s[i].split("=");
                 o[ss[0]] = decodeURIComponent(ss[1]);
               }
-              ytcenter.video.stream = ytcenter.parseStream(o);
+              ytcenter.video.streams = ytcenter.parseStreams(o);
               channel_onload();
             },
             onerror: function(){
-              ytcenter.video.stream = [];
+              ytcenter.video.streams = [];
               channel_onload();
             }
           });
@@ -11706,10 +11765,10 @@
       
       if (ytcenter.player.getConfig().html5) ytcenter.html5 = true;
       con.log("YouTube Player is " + (ytcenter.html5 ? "HTML5" : "Flash"));
-      ytcenter.video.stream = ytcenter.parseStream(ytcenter.player.getConfig().args);
+      ytcenter.video.streams = ytcenter.parseStreams(ytcenter.player.getConfig().args);
       
       try { // Just to make sure that if this fails that it doesn't make YouTube Center stop working.
-        if (ytcenter.video.stream[0].s) {
+        if (ytcenter.video.streams[0].s) {
           ytcenter.utils.updateSignatureDecoder(); // Only Updating the signature decoder when it's needed!
         }
       } catch (e) {
@@ -11717,7 +11776,7 @@
       }
       
       ytcenter.unsafe.video = {};
-      ytcenter.unsafe.video.stream = ytcenter.video.stream;
+      ytcenter.unsafe.video.streams = ytcenter.video.streams;
       
       ytcenter.playlist = false;
       try {
@@ -12193,7 +12252,7 @@
         if (embed_onload_called) return;
         embed_onload_called = true;
         con.log("Player arguments loaded, preparing player...");
-        con.log(ytcenter.video.stream);
+        con.log(ytcenter.video.streams);
         ytcenter.video.id = playerConfig.args.video_id;
         ytcenter.video.title = playerConfig.args.title;
         ytcenter.video.author = playerConfig.args.author;
@@ -12305,12 +12364,12 @@
               var ss = s[i].split("=");
               o[ss[0]] = decodeURIComponent(ss[1]);
             }
-            ytcenter.video.stream = ytcenter.parseStream(o);
+            ytcenter.video.streams = ytcenter.parseStreams(o);
             embed_onload();
           }
         },
         onerror: function(){
-          ytcenter.video.stream = [];
+          ytcenter.video.streams = [];
           embed_onload();
         }
       });
