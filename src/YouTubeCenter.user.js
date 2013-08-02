@@ -3170,7 +3170,7 @@
                   cfg = JSON.parse(r.responseText);
                   if (cfg.swfcfg) {
                     cfg = cfg.swfcfg;
-                  } else if (cfg.html["player-unavailable"] !== "") {
+                  } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
                     throw "unavailable";
                   } else {
                     cfg = JSON.parse(r.responseText);
@@ -8468,7 +8468,6 @@
       aspectSave: false,
       aspectValue: 'default',
       repeatShowIcon: true,
-      watch7playeralign: true,
       watch7playerguidehide: false,
       watch7playerguidealwayshide: false,
       watch7centerpage: true,
@@ -8814,19 +8813,6 @@
       ],
       "SETTINGS_TAB_WATCH": [
         {
-          "label": "SETTINGS_WATCH7_PLAYER_ALIGN",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.player.center(ytcenter.settings.watch7playeralign);
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "watch7playeralign"
-        }, {
           "label": "SETTINGS_GUIDE_ALWAYS_HIDE",
           "type": "bool",
           "listeners": [
@@ -10350,14 +10336,6 @@
       ytcenter.utils.setCookie("wide", (center ? "1" : "0"), null, "/", 3600*60*24*30);
       ytcenter.saveSettings();
     };
-    ytcenter.player.center = function(center){
-      if (!document.body) return;
-      if (center) {
-        $AddCSS(document.body, "ytcenter-player-center");
-      } else {
-        $RemoveCSS(document.body, "ytcenter-player-center");
-      }
-    };
     ytcenter.player.turnLightOff = (function(){
       var lightElement;
       return function(){
@@ -11112,29 +11090,35 @@
         
         // Content
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (clientWidth < calcWidth) {
-            var __w = Math.floor(clientWidth/2 - maxInsidePlayerWidth/2);
-            if (__w < 180) __w = 180;
-            if (clientWidth > 1165 && __w > 180) {
-              contentMain.style.setProperty("margin-left", __w + "px", "important");
-              if (document.getElementById("watch7-main-container"))
-                document.getElementById("watch7-main-container").style.margin = "0";
-            } else {
+          if (ytcenter.settings.watch7centerpage) {
+            if (clientWidth < calcWidth) {
+              var __w = Math.floor(clientWidth/2 - maxInsidePlayerWidth/2);
+              if (__w < 180) __w = 180;
+              if (clientWidth > 1165 && __w > 180) {
+                contentMain.style.setProperty("margin-left", __w + "px", "important");
+                if (document.getElementById("watch7-main-container"))
+                  document.getElementById("watch7-main-container").style.margin = "0";
+              } else {
+                contentMain.style.setProperty("margin-left", "", "important");
+              
+                if (document.getElementById("watch7-main-container"))
+                  document.getElementById("watch7-main-container").style.margin = "";
+              }
+              contentMain.style.setProperty("margin-right", "", "important");
+              
+              ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
+            } else if (!align) {
+              ytcenter.utils.addClass(document.body, "ytcenter-content-margin");
               contentMain.style.setProperty("margin-left", "", "important");
-            
+              if (document.getElementById("watch7-main-container"))
+                document.getElementById("watch7-main-container").style.margin = "";
+            } else {
+              ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
+              contentMain.style.setProperty("margin-left", "", "important");
               if (document.getElementById("watch7-main-container"))
                 document.getElementById("watch7-main-container").style.margin = "";
             }
-            contentMain.style.setProperty("margin-right", "", "important");
-            
-            ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
-          } else if (!align) {
-            ytcenter.utils.addClass(document.body, "ytcenter-content-margin");
-            contentMain.style.setProperty("margin-left", "", "important");
-            if (document.getElementById("watch7-main-container"))
-              document.getElementById("watch7-main-container").style.margin = "";
           } else {
-            ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
             contentMain.style.setProperty("margin-left", "", "important");
             if (document.getElementById("watch7-main-container"))
               document.getElementById("watch7-main-container").style.margin = "";
@@ -11193,13 +11177,11 @@
           } else if (!ytcenter.settings.watch7playerguidealwayshide && !ytcenter.settings.watch7playerguidehide) {
             ytcenter.guide.hidden = false;
           }
-          
-          
         }
         
         // Guide + Main Center
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (!align) {
+          if (!align && ytcenter.settings.watch7centerpage) {
             var cl = clientWidth/2 - maxInsidePlayerWidth/2;
             var clg = cl - 180;
             if (cl < 190) cl = 190;
@@ -12420,7 +12402,6 @@
           ytcenter.spf.addEventListener("processed", function(){
             ytcenter.placementsystem.clear();
             ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
-            ytcenter.player.center((ytcenter.settings.watch7playeralign ? true : false));
             
             $AddStyle(ytcenter.css.general);
             if (ytcenter.settings['experimentalFeatureTopGuide']) {
@@ -12747,7 +12728,6 @@
         }
         
         ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
-        ytcenter.player.center((ytcenter.settings.watch7playeralign ? true : false));
         
         if (ytcenter.settings.removeAdvertisements) {
           $AddCSS(document.body, "ytcenter-remove-ads-page");
