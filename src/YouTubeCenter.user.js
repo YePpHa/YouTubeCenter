@@ -1315,6 +1315,24 @@
         label.appendChild(ltext);
         ytcenter.language.addLocaleElement(ltext, recipe.label, "@textContent");
         
+        if (recipe.help) {
+          var help = document.createElement("a");
+          help.setAttribute("href", recipe.help);
+          help.setAttribute("target", "_blank");
+          help.setAttribute("style", "vertical-align: super; font-size: 10px");
+          help.appendChild(document.createTextNode('?'));
+
+          var replace = {
+            option: {
+              toString: function() { return ltext.textContent; }
+            }
+          };
+          help.setAttribute("title", $TextReplacer(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replace));
+          ytcenter.language.addLocaleElement(help, "SETTINGS_HELP_ABOUT", "title", replace);
+
+          label.appendChild(help);
+        }
+
         if (recipe.tooltip) {
           var tooltip = document.createElement("p");
           tooltip.style.color = "#9E9E9E";
@@ -8671,7 +8689,8 @@
               }
             }
           ],
-          "defaultSetting": "language"
+          "defaultSetting": "language",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#multiple-languages"
         }, {
           "label": "SETTINGS_WATCH7_CENTERPAGE",
           "type": "bool",
@@ -8690,7 +8709,8 @@
                 ytcenter.events.performEvent("ui-refresh");
               }
             }
-          ]
+          ],
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#centering-page"
         }/*, {
           "label": "SETTINGS_FIXGUIDENOTVISIBLE_LABEL",
           "type": "bool",
@@ -8718,7 +8738,8 @@
         }*/, {
           "label": "SETTINGS_REMOVEADVERTISEMENTS_LABEL",
           "type": "bool",
-          "defaultSetting": "removeAdvertisements"
+          "defaultSetting": "removeAdvertisements",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-advertisements"
         }, {
           "label": "SETTINGS_AUTOEXPANDDESCRIPTION_LABEL",
           "type": "bool",
@@ -8756,7 +8777,8 @@
                 }
               }
             }
-          ]
+          ],
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flex-width-on-page"
         }, {
           "label": "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC",
           "type": "bool",
@@ -8772,7 +8794,8 @@
                 }
               }
             }
-          ]
+          ],
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#set-experimental-topbar-to-static"
         }, {
           "type": "import/export settings"
         }, {
@@ -8841,7 +8864,8 @@
         }, {
           "label": "SETTINGS_DASHPLAYBACK",
           "type": "bool",
-          "defaultSetting": "dashPlayback"
+          "defaultSetting": "dashPlayback",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
         }, {
           "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
           "type": "list",
@@ -8860,7 +8884,8 @@
               "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
             }
           ],
-          "defaultSetting": "autohide"
+          "defaultSetting": "autohide",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-hide-bar"
         }, {
           "label": "SETTINGS_PLAYERTHEME_LABEL",
           "type": "list",
@@ -8883,7 +8908,8 @@
                 }
               }
             }
-          ]
+          ],
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-theme"
         }, {
           "label": "SETTINGS_PLAYERCOLOR_LABEL",
           "type": "list",
@@ -8906,7 +8932,8 @@
                 }
               }
             }
-          ]
+          ],
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-color"
         }/*, {
           "label": "SETTINGS_PLAYERBGCOLOR_LABEL",
           "type": "bgcolorlist",
@@ -8935,21 +8962,25 @@
               "label": "SETTINGS_WMODE_GPU"
             }
           ],
-          "defaultSetting": "flashWMode"
+          "defaultSetting": "flashWMode",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flash-wmode"
         }, {
           "label": "SETTINGS_ENABLEANNOTATIONS_LABEL",
           "type": "bool",
-          "defaultSetting": "enableAnnotations"
+          "defaultSetting": "enableAnnotations",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#annotations"
         }, {
           "label": "SETTINGS_SCROLLTOPLAYER_LABEL",
           "type": "bool",
-          "defaultSetting": "scrollToPlayer"
+          "defaultSetting": "scrollToPlayer",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-to-player"
         }, {
           "type": "horizontalRule"
         }, {
           "label": "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
           "type": "bool",
-          "defaultSetting": "enableAutoVideoQuality"
+          "defaultSetting": "enableAutoVideoQuality",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-resolution"
         }, {
           "label": "SETTINGS_AUTORESOLUTION_LABEL",
           "type": "list",
@@ -8988,7 +9019,8 @@
               }
             }
           ],
-          "defaultSetting": "removeBrandingBanner"
+          "defaultSetting": "removeBrandingBanner",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
         }, {
           "label": "SETTINGS_BRANDING_BACKGROUND_REMOVE",
           "type": "bool",
@@ -9000,7 +9032,8 @@
               }
             }
           ],
-          "defaultSetting": "removeBrandingBackground"
+          "defaultSetting": "removeBrandingBackground",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
         }, {
           "label": "SETTINGS_BRANDING_WATERMARK_REMOVE",
           "type": "bool",
@@ -9012,27 +9045,32 @@
               }
             }
           ],
-          "defaultSetting": "removeBrandingWatermark"
+          "defaultSetting": "removeBrandingWatermark",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
         }, {
           "type": "horizontalRule"
         }, {
           "label": "SETTINGS_PREVENTAUTOPLAY_LABEL",
           "type": "bool",
-          "defaultSetting": "preventAutoPlay"
+          "defaultSetting": "preventAutoPlay",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-play"
         }, {
           "label": "SETTINGS_PREVENTAUTOBUFFERING_LABEL",
           "type": "bool",
-          "defaultSetting": "preventAutoBuffer"
+          "defaultSetting": "preventAutoBuffer",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-buffering"
         }, {
           "type": "horizontalRule"
         }, {
           "label": "SETTINGS_PLAYLIST_PREVENT_AUTOPLAY",
           "type": "bool",
-          "defaultSetting": "preventPlaylistAutoPlay"
+          "defaultSetting": "preventPlaylistAutoPlay",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-play"
         }, {
           "label": "SETTINGS_PLAYLIST_PREVENT_AUTOBUFFERING",
           "type": "bool",
-          "defaultSetting": "preventPlaylistAutoBuffer"
+          "defaultSetting": "preventPlaylistAutoBuffer",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-buffering"
         /*}, {
           "label": "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
           "type": "bool",
@@ -9046,7 +9084,8 @@
         }, {
           "label": "SETTINGS_VOLUME_ENABLE",
           "type": "bool",
-          "defaultSetting": "enableVolume"
+          "defaultSetting": "enableVolume",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#volume-control"
         }, {
           "label": "SETTINGS_VOLUME_LABEL",
           "type": "range",
@@ -9062,7 +9101,8 @@
         }, {
           "label": "SETTINGS_LIGHTBULB_AUTO",
           "type": "bool",
-          "defaultSetting": "lightbulbAutoOff"
+          "defaultSetting": "lightbulbAutoOff",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#lights-off"
         }, {
           "label": "SETTINGS_LIGHTBULB_COLOR",
           "type": "colorpicker",
@@ -9400,7 +9440,8 @@
           "defaultSetting": "videoThumbnailQualityBar",
           "style": {
             "marginLeft": "12px"
-          }
+          },
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality"
         }, {
           "label": "SETTINGS_THUMBVIDEO_POSITION",
           "type": "list",
@@ -9470,7 +9511,8 @@
           "defaultSetting": "videoThumbnailRatingsBar",
           "style": {
             "marginLeft": "12px"
-          }
+          },
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-bar"
         }, {
           "label": "SETTINGS_THUMBVIDEO_POSITION",
           "type": "list",
@@ -9540,7 +9582,8 @@
           "defaultSetting": "videoThumbnailRatingsCount",
           "style": {
             "marginLeft": "12px"
-          }
+          },
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-count"
         }, {
           "label": "SETTINGS_THUMBVIDEO_POSITION",
           "type": "list",
@@ -9612,7 +9655,8 @@
               }
             }
           ],
-          "defaultSetting": "enableDownload"
+          "defaultSetting": "enableDownload",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
         }, {
           "label": "SETTINGS_ENABLEREPEAT_LABEL",
           "type": "bool",
@@ -9624,7 +9668,8 @@
               }
             }
           ],
-          "defaultSetting": "enableRepeat"
+          "defaultSetting": "enableRepeat",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
         }, {
           "label": "SETTINGS_LIGHTBULB_ENABLE",
           "type": "bool",
@@ -9636,7 +9681,8 @@
               }
             }
           ],
-          "defaultSetting": "lightbulbEnable"
+          "defaultSetting": "lightbulbEnable",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
         }, {
           "label": "SETTINGS_RESIZE_ENABLE",
           "type": "bool",
@@ -9648,7 +9694,8 @@
               }
             }
           ],
-          "defaultSetting": "resizeEnable"
+          "defaultSetting": "resizeEnable",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
         }, {
           "label": "SETTINGS_ASPECT_ENABLE",
           "type": "bool",
@@ -9660,7 +9707,8 @@
               }
             }
           ],
-          "defaultSetting": "aspectEnable"
+          "defaultSetting": "aspectEnable",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
         }, {
           "type": "newline",
           "style": {
@@ -9702,19 +9750,23 @@
           "label": "SETTINGS_RESIZE_DEFAULT",
           "type": "defaultplayersizedropdown",
           "bind": "resize-playersizes",
-          "defaultSetting": "resize-default-playersize"
+          "defaultSetting": "resize-default-playersize",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#default-player-size"
         }, {
           "label": "SETTINGS_RESIZE_SMALL_BUTTON",
           "type": "resizedropdown",
           "bind": "resize-playersizes",
-          "defaultSetting": "resize-small-button"
+          "defaultSetting": "resize-small-button",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#small-resize-button"
         }, {
           "label": "SETTINGS_RESIZE_LARGE_BUTTON",
           "type": "resizedropdown",
           "bind": "resize-playersizes",
-          "defaultSetting": "resize-large-button"
+          "defaultSetting": "resize-large-button",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#large-resize-button"
         }, {
-          "label": "SETTINGS_RESIZE_LIST"
+          "label": "SETTINGS_RESIZE_LIST",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-size-editor"
         }, {
           "type": "resizeItemList",
           "defaultSetting": "resize-playersizes"
@@ -9753,7 +9805,8 @@
               }
             }
           ],
-          "defaultSetting": "downloadQuality"
+          "defaultSetting": "downloadQuality",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality-1"
         }, {
           "label": "SETTINGS_DOWNLOADFORMAT_LABEL",
           "type": "list",
@@ -9780,7 +9833,8 @@
               }
             }
           ],
-          "defaultSetting": "downloadFormat"
+          "defaultSetting": "downloadFormat",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#format"
         }, {
           "label": "SETTINGS_DOWNLOADASLINKS_LABEL",
           "type": "bool",
@@ -9792,7 +9846,8 @@
               }
             }
           ],
-          "defaultSetting": "downloadAsLinks"
+          "defaultSetting": "downloadAsLinks",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#download-as-links"
         }, {
           "label": "SETTINGS_SHOW3DINDOWNLOADMENU_LABEL",
           "type": "bool",
@@ -9804,7 +9859,8 @@
               }
             }
           ],
-          "defaultSetting": "show3DInDownloadMenu"
+          "defaultSetting": "show3DInDownloadMenu",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-3d-in-download-menu"
         }, {
           "label": "SETTINGS_FILENAME_LABEL",
           "type": "text",
@@ -9816,7 +9872,8 @@
               }
             }
           ],
-          "defaultSetting": "filename"
+          "defaultSetting": "filename",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#filename"
         }, {
           "label": "SETTINGS_FIXDOWNLOADFILENAME_LABEL",
           "type": "bool",
@@ -9828,7 +9885,8 @@
               }
             }
           ],
-          "defaultSetting": "fixfilename"
+          "defaultSetting": "fixfilename",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-non-alphanumeric-characters"
         }, {
           "label": "SETTINGS_MP3SERVICES_LABEL",
           "type": "multi",
@@ -9841,14 +9899,16 @@
               }
             }
           ],
-          "defaultSetting": "mp3Services"
+          "defaultSetting": "mp3Services",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#mp3-services"
         }
       ],
       "SETTINGS_TAB_REPEAT": [
         {
           "label": "SETTINGS_AUTOACTIVATEREPEAT_LABEL",
           "type": "bool",
-          "defaultSetting": "autoActivateRepeat"
+          "defaultSetting": "autoActivateRepeat",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-activate-repeat"
         }, {
           "label": "SETTINGS_REPEAT_SHOW_ICON",
           "type": "bool",
@@ -9860,14 +9920,16 @@
               }
             }
           ],
-          "defaultSetting": "repeatShowIcon"
+          "defaultSetting": "repeatShowIcon",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-icon"
         }
       ],
       "SETTINGS_TAB_UPDATE": [
         {
           "label": "SETTINGS_UPDATE_ENABLE",
           "type": "bool",
-          "defaultSetting": "enableUpdateChecker"
+          "defaultSetting": "enableUpdateChecker",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#enable-update-checker"
         }, {
           "label": "SETTINGS_UPDATE_INTERVAL",
           "type": "list",
@@ -9901,7 +9963,8 @@
               "label": "SETTINGS_UPDATE_INTERVAL_EVERYMONTH"
             }
           ],
-          "defaultSetting": "updateCheckerInterval"
+          "defaultSetting": "updateCheckerInterval",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#update-interval"
         }, {
           "type": "button",
           "text": "SETTINGS_UPDATE_CHECKFORNEWUPDATES",
