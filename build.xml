@@ -56,7 +56,7 @@
     <mkdir dir="${cert.chromePath}" />
   </target>
   
-  <target name="styles">
+  <target name="build-styles">
     <copy todir="${build}/${name.styles}">
       <fileset dir="${src.styles}/" />
     </copy>
@@ -76,7 +76,7 @@
       <arg value="${build}/${name.styles}/${styles.topbar}" />
     </java>
   </target>
-  <target name="styles-adder">
+  <target name="apply-styles">
     <loadfile property="style.minified.general" srcFile="${build}/${name.styles}/${styles.general}" />
     <loadfile property="style.minified.normal" srcFile="${build}/${name.styles}/${styles.normal}" />
     <loadfile property="style.minified.topbar" srcFile="${build}/${name.styles}/${styles.topbar}" />
@@ -85,10 +85,10 @@
     <replace dir="${buildDir}" value="${style.minified.topbar}" token="@styles-topbar@" encoding="${encoding}" />
   </target>
   <target name="clean-styles">
-    <delete dir="${build}/{name.styles}" />
+    <delete dir="${build}/${name.styles}" />
   </target>
   
-  <target name="userscript" depends="preinit, copy-userscript, styles, styles-adder, clean-styles">
+  <target name="userscript" depends="preinit, copy-userscript">
     <move todir="${dist}">
       <fileset dir="${buildDir}">
         <include name="*.js" />
@@ -97,7 +97,7 @@
     <antcall target="clean" />
   </target>
   
-  <target name="dev" depends="preinit, copy-chrome, styles, styles-adder, clean-styles">
+  <target name="dev" depends="preinit, copy-chrome">
     <copy todir="${dist}/chrome-dev">
       <fileset dir="${buildDir}" />
     </copy>
@@ -185,9 +185,7 @@
   <target name="copy-userscript">
     <antcall target="copy" />
     <antcall target="tokenreplace" />
-    <antcall target="styles" />
-    <antcall target="styles-adder" />
-    <antcall target="clean-styles" />
+    <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.userscript}" token="@identifier@" encoding="${encoding}" />
   </target>
   
@@ -197,9 +195,7 @@
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
-    <antcall target="styles" />
-    <antcall target="styles-adder" />
-    <antcall target="clean-styles" />
+    <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.chrome}" token="@identifier@" encoding="${encoding}" />
   </target>
   
@@ -209,9 +205,7 @@
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
-    <antcall target="styles" />
-    <antcall target="styles-adder" />
-    <antcall target="clean-styles" />
+    <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.maxthon}" token="@identifier@" encoding="${encoding}" />
   </target>
   
@@ -224,9 +218,7 @@
       <fileset dir="${src.firefox}/" />
     </copy>
     <antcall target="tokenreplace" />
-    <antcall target="styles" />
-    <antcall target="styles-adder" />
-    <antcall target="clean-styles" />
+    <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
   </target>
   
@@ -236,9 +228,7 @@
     </copy>
     <antcall target="copy" />
     <antcall target="tokenreplace" />
-    <antcall target="styles" />
-    <antcall target="styles-adder" />
-    <antcall target="clean-styles" />
+    <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.safari}" token="@identifier@" encoding="${encoding}" />
   </target>
   
@@ -256,9 +246,7 @@
       <fileset dir="${src.opera}/" />
     </copy>
     <antcall target="tokenreplace" />
-    <antcall target="styles" />
-    <antcall target="styles-adder" />
-    <antcall target="clean-styles" />
+    <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.opera}" token="@identifier@" encoding="${encoding}" />
   </target>
   
@@ -271,4 +259,5 @@
   <target name="clean">
     <delete dir="${buildDir}" />
   </target>
+  <target name="clean-all" depends="clean, clean-styles" />
 </project>
