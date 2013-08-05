@@ -11063,13 +11063,14 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       con.log("Setting player progress color to " + color);
       var white = "white";
       var red = "red";
-      if (ytcenter.html5) {
+      var els = document.getElementsByClassName("html5-progress-bar"), i;
+      for (i = 0; i < els.length; i++) {
         if (color === "red") {
-          $RemoveCSS(document.getElementsByClassName("html5-play-progress")[0], white);
-          $AddCSS(document.getElementsByClassName("html5-play-progress")[0], red);
+          $RemoveCSS(els[i], white);
+          $AddCSS(els[i], red);
         } else if (color === "white") {
-          $RemoveCSS(document.getElementsByClassName("html5-play-progress")[0], red);
-          $AddCSS(document.getElementsByClassName("html5-play-progress")[0], white);
+          $RemoveCSS(els[i], red);
+          $AddCSS(els[i], white);
         }
       }
     };
