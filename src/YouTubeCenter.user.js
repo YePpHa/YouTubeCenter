@@ -3047,7 +3047,7 @@
         return "watch";
       } else if (loc.href.indexOf(".youtube.com/user/") !== -1 ||
                 (document.body.innerHTML.indexOf("data-swf-config=\"{") !== -1 && document.body.innerHTML.indexOf("&quot;el&quot;: &quot;profilepage&quot;") !== -1) ||
-                (ytcenter.player.getConfig() && ytcenter.player.getConfig().args.el === "profilepage")) {
+                (ytcenter.player.getConfig() && ytcenter.player.getConfig().args && ytcenter.player.getConfig().args.el === "profilepage")) {
         ytcenter.page = "channel";
         return "channel";
       } else if (loc.href.indexOf(".youtube.com/embed/") !== -1) {
@@ -8847,30 +8847,30 @@
           ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#centering-page"
         }/*, {
-          "label": "SETTINGS_FIXGUIDENOTVISIBLE_LABEL",
-          "type": "bool",
-          "defaultSetting": "fixGuideNotVisible",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.fixGuideNotVisible(ytcenter.settings.fixGuideNotVisible);
-              }
-            }
-          ]
-        }*//*, {
-          "label": "SETTINGS_REMOVEFEEDBACK_LABEL",
-          "type": "bool",
-          "defaultSetting": "hideFeedbackButton",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
-              }
-            }
-          ]
-        }*/, {
+"label": "SETTINGS_FIXGUIDENOTVISIBLE_LABEL",
+"type": "bool",
+"defaultSetting": "fixGuideNotVisible",
+"listeners": [
+{
+"event": "click",
+"callback": function(){
+ytcenter.fixGuideNotVisible(ytcenter.settings.fixGuideNotVisible);
+}
+}
+]
+}*//*, {
+"label": "SETTINGS_REMOVEFEEDBACK_LABEL",
+"type": "bool",
+"defaultSetting": "hideFeedbackButton",
+"listeners": [
+{
+"event": "click",
+"callback": function(){
+ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
+}
+}
+]
+}*/, {
           "label": "SETTINGS_REMOVEADVERTISEMENTS_LABEL",
           "type": "bool",
           "defaultSetting": "removeAdvertisements",
@@ -9070,10 +9070,10 @@
           ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-color"
         }/*, {
-          "label": "SETTINGS_PLAYERBGCOLOR_LABEL",
-          "type": "bgcolorlist",
-          "defaultSetting": "bgcolor"
-        }*/, {
+"label": "SETTINGS_PLAYERBGCOLOR_LABEL",
+"type": "bgcolorlist",
+"defaultSetting": "bgcolor"
+}*/, {
           "label": "SETTINGS_WMODE_LABEL",
           "type": "list",
           "list": [
@@ -9207,13 +9207,13 @@
           "defaultSetting": "preventPlaylistAutoBuffer",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-buffering"
         /*}, {
-          "label": "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventTabAutoPlay"
-        }, {
-          "label": "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventTabAutoBuffer"*/
+"label": "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
+"type": "bool",
+"defaultSetting": "preventTabAutoPlay"
+}, {
+"label": "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL",
+"type": "bool",
+"defaultSetting": "preventTabAutoBuffer"*/
         }, {
           "type": "horizontalRule"
         }, {
@@ -9646,7 +9646,8 @@
           "defaultSetting": "videoThumbnailRatingsBar",
           "style": {
             "marginLeft": "12px"
-          }
+          },
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-bar"
         }, {
           "label": "SETTINGS_THUMBVIDEO_POSITION",
           "type": "list",
@@ -9716,7 +9717,8 @@
           "defaultSetting": "videoThumbnailRatingsCount",
           "style": {
             "marginLeft": "12px"
-          }
+          },
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-count"
         }, {
           "label": "SETTINGS_THUMBVIDEO_POSITION",
           "type": "list",
@@ -10790,35 +10792,11 @@
       ytcenter.player._config = config;
     };
     ytcenter.player.getConfig = function(){
-      return uw.ytplayer.config;
-      if (ytcenter.player._config) return ytcenter.player._config;
-      
-      if (typeof uw !== "undefined") {
-        if (typeof uw.ytplayer !== "undefined" && typeof uw.ytplayer.config !== "undefined") {
-          return uw.ytplayer.config;
-        }
-        if (typeof uw.yt !== "undefined" && typeof uw.yt.playerConfig !== "undefined") {
-          return uw.yt.playerConfig;
-        }
-        if (typeof uw.yt !== "undefined" && typeof uw.yt.config_ !== "undefined" && typeof uw.yt.config_.PLAYER_CONFIG !== "undefined") {
-          return uw.yt.config_.PLAYER_CONFIG;
-        }
+      try {
+        return uw.ytplayer.config;
+      } catch (e) {
+        return {};
       }
-      if (typeof ytcenter.player._config === "undefined") {
-        if (typeof document.body !== "undefined") {
-          if (document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-            ytcenter.player._config = JSON.parse(document.body.innerHTML.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0]);
-          } else if (document.getElementById("movie_player")) {
-            ytcenter.player._config = {};
-            var __args = document.getElementById("movie_player").getAttribute("flashvars").split("&");
-            for (var i = 0; i < __args.length; i++) {
-              var _s = __args[i].split("=");
-              ytcenter.player._config[decodeURIComponent(_s[0])] = decodeURIComponent(_s[1]);
-            }
-          }
-        }
-      }
-      return ytcenter.player._config;
     };
     ytcenter.player.getPlayerId = (function(){
       function verify() {
