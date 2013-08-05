@@ -85,18 +85,18 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: 1003px!important;
 }
 
-.flex-width-enabled.ytcenter-site-center #yt-masthead {
+/*.ytcenter-flex-width.ytcenter-site-center #yt-masthead {
   width: auto!important;
   max-width: 1422px!important;
   min-width: 1003px!important;
 }
 
-.flex-width-enabled.ytcenter-site-center #page,
-body.flex-width-enabled.ytcenter-site-center #guide + #content {
+.ytcenter-flex-width.ytcenter-site-center #page,
+body.ytcenter-flex-width.ytcenter-site-center #guide + #content {
   max-width: 1422px!important;
   min-width: 1003px!important;
   width: auto!important;
-}
+}*/
 
 .ytcenter-site-watch #page-container {
   display: table!important;
