@@ -10871,6 +10871,10 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
               override: false,
               listeners: []
             },
+            "onCueRangeExit": {
+              override: false,
+              listeners: []
+            },
             "onError": {
               override: false,
               listeners: []
