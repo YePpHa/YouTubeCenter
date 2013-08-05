@@ -11949,7 +11949,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
         }
       }
       con.log("[Player Update] Checking if player exists!");
-      if (player) {
+      if (player && player.tagName === "EMBED") {
         player.setAttribute("flashvars", flashvars);
         if (ytcenter.settings.flashWMode !== "none") {
           player.setAttribute("wmode", ytcenter.settings.flashWMode);
