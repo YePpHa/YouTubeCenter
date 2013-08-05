@@ -3268,8 +3268,8 @@
           callback(item.stream);
         } else {
           //var spflink = Math.round(Math.random()) === 1 ? true : false;
-          //var spflink = ytcenter.spf.isEnabled();
-          var spflink = true;
+          var spflink = ytcenter.spf.isEnabled();
+          //var spflink = true;
           
           $XMLHTTPRequest({
             url: "http://www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : ""),
