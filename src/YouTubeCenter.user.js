@@ -10790,6 +10790,7 @@
       ytcenter.player._config = config;
     };
     ytcenter.player.getConfig = function(){
+      return uw.ytplayer.config;
       if (ytcenter.player._config) return ytcenter.player._config;
       
       if (typeof uw !== "undefined") {
@@ -12449,6 +12450,17 @@
           $AddStyle(ytcenter.css.normal);
         }
       });
+      ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
+        if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
+          if (ytcenter.settings["resize-default-playersize"] === "default") {
+            ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
+            ytcenter.player.updateResize();
+          } else {
+            ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
+            ytcenter.player.updateResize();
+          }
+        }
+      });
       ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
@@ -12466,16 +12478,6 @@
             ytcenter.settings['experimentalFeatureTopGuide'] = true;
             ytcenter.saveSettings();
             loc.reload();
-          }
-        }
-        
-        if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
-          if (ytcenter.settings["resize-default-playersize"] === "default") {
-            ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
-            ytcenter.player.updateResize();
-          } else {
-            ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
-            ytcenter.player.updateResize();
           }
         }
         
