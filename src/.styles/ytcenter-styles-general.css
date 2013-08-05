@@ -768,11 +768,12 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 }
 
 #movie_player {
-  outline: 0!important;
   overflow: hidden!important;
 }
 
-#player-api {
+#player-api,
+#movie_player,
+#movie_player *:focus {
   outline: 0!important;
 }
 
