@@ -1,3 +1,4 @@
+ - yt.player.embed("player-api", ytplayer.config).writePlayer("flash|html5"); Will change the player to either flash or html5. Make this into an option, but will require some testing of the timing.
  - Add http://www.listentoyoutube.com/
  - Prevent when a video ends to switch the about tab to the share tab.
  - Extend the guide. So that it will include a link to the "Favorites", "Indbox" and "History".
