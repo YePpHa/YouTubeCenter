@@ -791,9 +791,9 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   transition: none!important;
 }
 
-.ytcenter-site-not-watch #page-container #page > #player.off-screen {
+/*.ytcenter-site-not-watch #page-container #page > #player.off-screen {
   display: none!important;
-}
+}*/
 
 
 .flex-width-enabled #page,
