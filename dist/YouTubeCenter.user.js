@@ -37,7 +37,7 @@
       var script = document.createElement("script");
       script.setAttribute("type", "text/javascript");
       if (typeof func === "string") func = "function(){" + func + "}";
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 1);\n//# sourceURL=YouTubeCenter.js"));
       var __p = (document.body || document.head || document.documentElement);
       __p.appendChild(script);
       __p.removeChild(script);
@@ -8509,17 +8509,17 @@
                 ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
                 var f4 = document.createTextNode(" ");
                 var f5 = document.createElement("a");
-                if (0 === 0) {
+                if (1 === 0) {
                   f5.href = "http://userscripts.org/scripts/source/114002.user.js";
-                } else if (0 === 1) {
+                } else if (1 === 1) {
                   ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
-                } else if (0 === 2) {
+                } else if (1 === 2) {
                   ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
-                } else if (0 === 3) {
+                } else if (1 === 3) {
                   ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
-                } else if (0 === 4) {
+                } else if (1 === 4) {
                   ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
-                } else if (0 === 5) {
+                } else if (1 === 5) {
                   ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
                 }
                 f5.setAttribute("target", "_blank");
@@ -8530,7 +8530,7 @@
                 var f8 = document.createTextNode(" ");
                 var f9 = document.createElement("a");
                 f9.setAttribute("target", "_blank");
-                if (0 === 3) {
+                if (1 === 3) {
                   f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
                   f9.textContent = "addons.mozilla.org";
                 } else {
@@ -12399,7 +12399,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       });
     };
     var extensionCompatibilityChecker = function(){
-      if (injected && 0 === 0) {
+      if (injected && 1 === 0) {
         var content = document.createElement("div"),
             p1 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1")),
             p2 = document.createElement("br"),
@@ -12974,7 +12974,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
     })();
     con.log("At Scope End");
   };
-  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && 0 !== 2) {
+  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && 1 !== 2) {
     try {
       var __uw = (function(){
         var a;
@@ -12996,7 +12996,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
         
         _inject(___main_function);
       } else {
-        ___main_function(false, 0);
+        ___main_function(false, 1);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -13011,6 +13011,6 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       _inject(___main_function);
     }
   } else {
-    ___main_function(false, 0);
+    ___main_function(false, 1);
   }
 })();
