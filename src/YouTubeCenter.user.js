@@ -8899,24 +8899,10 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
             {
               "event": "click",
               "callback": function(){
-                if (loc.pathname === "/results") {
-                  if (ytcenter.settings.flexWidthOnPage) {
-                    $AddCSS(document.body, "flex-width-enabled");
-                  } else {
-                    $RemoveCSS(document.body, "flex-width-enabled");
-                  }
-                } else if (loc.pathname === "/") {
-                  if (ytcenter.settings.flexWidthOnPage) {
-                    $AddCSS(document.body, "flex-width-enabled");
-                  } else {
-                    $RemoveCSS(document.body, "flex-width-enabled");
-                  }
-                } else if (loc.pathname.indexOf("/feed/") === 0) {
-                  if (ytcenter.settings.flexWidthOnPage) {
-                    $AddCSS(document.body, "flex-width-enabled");
-                  } else {
-                    $RemoveCSS(document.body, "flex-width-enabled");
-                  }
+                if (ytcenter.settings.flexWidthOnPage && ytcenter.getPage() !== "watch") {
+                  $AddCSS(document.body, "flex-width-enabled");
+                } else {
+                  $RemoveCSS(document.body, "flex-width-enabled");
                 }
               }
             }
@@ -11876,6 +11862,9 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
     };
     ytcenter.getBodyClasses = function(){
       var classes = "";
+      if (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch") {
+        classes += " flex-width-enabled";
+      }
       if (ytcenter.settings.watch7centerpage) {
         classes += " ytcenter-site-center";
       }
@@ -11890,20 +11879,11 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       }
       if (loc.pathname === "/results") {
         classes += " ytcenter-site-search";
-        if (ytcenter.settings.flexWidthOnPage) {
-          classes += " flex-width-enabled";
-        }
       } else if (loc.pathname === "/watch") {
         classes += " ytcenter-site-watch";
         classes += " ytcenter-resize-aligned";
       } else if (loc.pathname === "/") {
-        if (ytcenter.settings.flexWidthOnPage) {
-          classes += " flex-width-enabled";
-        }
       } else if (loc.pathname.indexOf("/feed/") === 0) {
-        if (ytcenter.settings.flexWidthOnPage) {
-          classes += " flex-width-enabled";
-        }
       }
       return classes;
     };
@@ -11931,30 +11911,20 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       $RemoveCSS(document.body, "ytcenter-site-search");
       $RemoveCSS(document.body, "ytcenter-site-watch");
       $RemoveCSS(document.body, "ytcenter-resize-aligned");
-      $RemoveCSS(document.body, "flex-width-enabled");
+      
+      if (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch") {
+        $AddCSS(document.body, "flex-width-enabled");
+      } else {
+        $RemoveCSS(document.body, "flex-width-enabled");
+      }
       
       if (loc.pathname === "/results") {
         $AddCSS(document.body, "ytcenter-site-search");
-        if (ytcenter.settings.flexWidthOnPage) {
-          $AddCSS(document.body, "flex-width-enabled");
-        } else {
-          $RemoveCSS(document.body, "flex-width-enabled");
-        }
       } else if (loc.pathname === "/watch") {
         $AddCSS(document.body, "ytcenter-site-watch");
         $AddCSS(document.body, "ytcenter-resize-aligned");
       } else if (loc.pathname === "/") {
-        if (ytcenter.settings.flexWidthOnPage) {
-          $AddCSS(document.body, "flex-width-enabled");
-        } else {
-          $RemoveCSS(document.body, "flex-width-enabled");
-        }
       } else if (loc.pathname.indexOf("/feed/") === 0) {
-        if (ytcenter.settings.flexWidthOnPage) {
-          $AddCSS(document.body, "flex-width-enabled");
-        } else {
-          $RemoveCSS(document.body, "flex-width-enabled");
-        }
       } else {
         con.log("Pathname not indexed (" + loc.pathname + ")");
       }
@@ -12478,6 +12448,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
             ytcenter.player.updateResize();
           }
         }
+        ytcenter.applyBodyClasses();
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
