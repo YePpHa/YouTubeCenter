@@ -89,14 +89,8 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: auto!important;
   max-width: 1422px!important;
   min-width: 1003px!important;
-}
-
-.ytcenter-flex-width.ytcenter-site-center #page,
-body.ytcenter-flex-width.ytcenter-site-center #guide + #content {
-  max-width: 1422px!important;
-  min-width: 1003px!important;
-  width: auto!important;
 }*/
+
 
 .ytcenter-site-watch #page-container {
   display: table!important;
