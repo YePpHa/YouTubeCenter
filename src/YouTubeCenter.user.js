@@ -3278,13 +3278,21 @@
               try {
                 var cfg, errorType = "unknown";
                 if (spflink) {
-                  cfg = JSON.parse(r.responseText);
+                  try {
+                    cfg = JSON.parse(r.responseText);
+                  } catch (e) {
+                    cfg = eval("(" + r.responseText + ")");
+                  }
                   if (cfg.swfcfg) {
                     cfg = cfg.swfcfg;
                   } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
                     throw "unavailable";
                   } else {
-                    cfg = JSON.parse(r.responseText);
+                    try {
+                      cfg = JSON.parse(r.responseText);
+                    } catch (e) {
+                      cfg = eval("(" + r.responseText + ")");
+                    }
                     if (cfg && cfg.html && cfg.html.content) {
                       cfg = cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
                       cfg = JSON.parse(cfg.split(";</script>")[0]);
@@ -10426,7 +10434,34 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
     ytcenter.site = {};
     ytcenter.site.removeAdvertisement = function(cfg){
       cfg = cfg || ytcenter.player.getConfig();
-      var _ads = ['supported_without_ads', 'ad3_module', 'adsense_video_doc_id', 'allowed_ads', 'baseUrl', 'cafe_experiment_id', 'afv_inslate_ad_tag', 'advideo', 'ad_device', 'ad_channel_code_instream', 'ad_channel_code_overlay', 'ad_eurl', 'ad_flags', 'ad_host', 'ad_host_tier', 'ad_logging_flag', 'ad_preroll', 'ad_slots', 'ad_tag', 'ad_video_pub_id', 'aftv', 'afv', 'afv_ad_tag', 'afv_instream_max'];
+      var _ads = [
+        "supported_without_ads",
+        "ad3_module",
+        "adsense_video_doc_id",
+        "allowed_ads",
+        "baseUrl",
+        "cafe_experiment_id",
+        "afv_inslate_ad_tag",
+        "advideo",
+        "ad_device",
+        "ad_channel_code_instream",
+        "ad_channel_code_overlay",
+        "ad_eurl",
+        "ad_flags",
+        "ad_host",
+        "ad_host_tier",
+        "ad_logging_flag",
+        "ad_preroll",
+        "ad_slots",
+        "ad_tag",
+        "ad_video_pub_id",
+        "aftv",
+        "afv",
+        "afv_ad_tag",
+        "afv_instream_max",
+        "afv_ad_tag_restricted_to_instream",
+        "afv_video_min_cpm"
+      ];
       for (var i = 0; i < _ads.length; i++) {
         try {
           delete cfg.args[_ads[i]];
@@ -12487,6 +12522,11 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
             con.error(e);
           }
         });
+        ytcenter.player.listeners.addEventListener("onStateChange", function(){
+          if (!ytcenter.spf.__doUpdateConfig) return;
+          ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
+          ytcenter.spf.__doUpdateConfig = false;
+        });
         ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
         ytcenter.player.listeners.addEventListener("SIZE_CLICKED", function(large){
           function getSizeById(id) {
@@ -12544,9 +12584,10 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           console.error(e);
         }
       });
+      ytcenter.spf.__doUpdateConfig = false;
       ytcenter.spf.addEventListener("processed", function(data){
         if (!data.swfcfg) return;
-        //ytcenter.player.updateConfig(ytcenter.getPage(), data.swfcfg);
+        ytcenter.spf.__doUpdateConfig = true; // A hack to minimize the error of the SPF feature when calling updateConfig (delaying it to first onStateChange after processed).
         ytcenter.applyBodyClasses();
         
         ytcenter.placementsystem.clear();
