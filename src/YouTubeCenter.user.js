@@ -12562,6 +12562,10 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           $CreateResizeButton();
           
           initPlacement();
+          
+          if (ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentalLayotTopbarStatic)) {
+            (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+          }
         }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
