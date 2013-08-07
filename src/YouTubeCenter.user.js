@@ -7931,13 +7931,6 @@
         ytcenter.guide.observer.observe(ytcenter.guide.element, { childList: true });
       }
     };
-    ytcenter.hideFeedbackButton = function(hide){
-      if (document.getElementById("yt-hitchhiker-feedback") && hide) {
-        document.getElementById("yt-hitchhiker-feedback").style.display = "none";
-      } else if (document.getElementById("yt-hitchhiker-feedback") && !hide) {
-        document.getElementById("yt-hitchhiker-feedback").style.display = "";
-      }
-    };
     con.log("Initializing Placement System");
     ytcenter.placementsystem = (function(){
       var database = [];
@@ -8568,6 +8561,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      guideMode: "default", // [default, always_open, always_closed]
       enableYouTubeAutoSwitchToShareTab: false,
       ytExperimentalLayotTopbarStatic: false,
       videoThumbnailData: [],
@@ -8894,31 +8888,7 @@
             }
           ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#centering-page"
-        }/*, {
-"label": "SETTINGS_FIXGUIDENOTVISIBLE_LABEL",
-"type": "bool",
-"defaultSetting": "fixGuideNotVisible",
-"listeners": [
-{
-"event": "click",
-"callback": function(){
-ytcenter.fixGuideNotVisible(ytcenter.settings.fixGuideNotVisible);
-}
-}
-]
-}*//*, {
-"label": "SETTINGS_REMOVEFEEDBACK_LABEL",
-"type": "bool",
-"defaultSetting": "hideFeedbackButton",
-"listeners": [
-{
-"event": "click",
-"callback": function(){
-ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
-}
-}
-]
-}*/, {
+        }, {
           "label": "SETTINGS_REMOVEADVERTISEMENTS_LABEL",
           "type": "bool",
           "defaultSetting": "removeAdvertisements",
@@ -9008,6 +8978,22 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           "label": "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
           "type": "bool",
           "defaultSetting": "enableYouTubeAutoSwitchToShareTab"
+        }, {
+          "label": "SETTINGS_GUIDEMODE",
+          "type": "list",
+          "list": [
+            {
+              "value": "default",
+              "label": "SETTINGS_GUIDEMODE_DEFAULT"
+            }, {
+              "value": "always_open",
+              "label": "SETTINGS_GUIDEMODE_ALWAYS_OPEN"
+            }, {
+              "value": "always_closed",
+              "label": "SETTINGS_GUIDEMODE_ALWAYS_CLOSED"
+            }
+          ],
+          "defaultSetting": "guideMode"
         }, {
           "label": "SETTINGS_GUIDE_ALWAYS_HIDE",
           "type": "bool",
@@ -12109,7 +12095,71 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       }
       return classes;
     };
-    ytcenter.applyBodyClasses = function(){
+    ytcenter.guideMode = (function(){
+      var timer, a = -1, amount = 0, observer;
+      return function(){
+        //uw.clearInterval(timer);
+        if (observer)
+          observer.disconnect();
+        
+        var MutObs = ytcenter.getMutationObserver();
+        observer = new MutObs(function(){
+          con.log("[Guide Mode] Mutation");
+          if (ytcenter.settings.guideMode === "always_open") {
+            $RemoveCSS(document.getElementById("guide-main"), "collapsed");
+            document.getElementById("guide-main").children[1].style.display = "block";
+            document.getElementById("guide-main").children[1].style.height = "auto";
+          } else if (ytcenter.settings.guideMode === "always_closed") {
+            $AddCSS(document.getElementById("guide-main"), "collapsed");
+            document.getElementById("guide-main").children[1].style.display = "none";
+            document.getElementById("guide-main").children[1].style.height = "auto";
+          }
+        });
+        if (observer) {
+          var config = { childList: true, subtree: true };
+          if (document.getElementById("content"))
+            observer.observe(document.getElementById("content"), config);
+        }
+        if (ytcenter.settings.guideMode === "always_open") {
+          $RemoveCSS(document.getElementById("guide-main"), "collapsed");
+          document.getElementById("guide-main").children[1].style.display = "block";
+          document.getElementById("guide-main").children[1].style.height = "auto";
+        } else if (ytcenter.settings.guideMode === "always_closed") {
+          $AddCSS(document.getElementById("guide-main"), "collapsed");
+          document.getElementById("guide-main").children[1].style.display = "none";
+          document.getElementById("guide-main").children[1].style.height = "auto";
+        }
+        /*timer = uw.setInterval(function(){
+          if (ytcenter.settings.guideMode === "always_open") {
+            a = 0;
+          } else if (ytcenter.settings.guideMode === "always_closed") {
+            a = 1
+          }
+          
+          if ($HasCSS(document.getElementById("guide-main"), "collapsed")) {
+            if (a === 1) amount++;
+            else amount = 0;
+          } else {
+            if (a === 0) amount++;
+            else amount = 0;
+          }
+          
+          if (ytcenter.settings.guideMode === "always_open") {
+            $RemoveCSS(document.getElementById("guide-main"), "collapsed");
+            document.getElementById("guide-main").children[1].style.display = "block";
+            document.getElementById("guide-main").children[1].style.height = "auto";
+          } else if (ytcenter.settings.guideMode === "always_closed") {
+            $AddCSS(document.getElementById("guide-main"), "collapsed");
+            document.getElementById("guide-main").children[1].style.display = "none";
+            document.getElementById("guide-main").children[1].style.height = "auto";
+          }
+          
+          if (amount === 25)
+            uw.clearInterval(timer);
+        }, 200);*/
+      };
+    })();
+    ytcenter.applyClasses = function(){
       if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
         $AddCSS(document.body, "ytcenter-exp-topbar-static");
       } else {
@@ -12170,6 +12220,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
         if (ytcenter.settings.lightbulbAutoOff) {
           ytcenter.player.turnLightOff();
         }
+        ytcenter.guideMode();
       } else if (loc.pathname === "/") {
       } else if (loc.pathname.indexOf("/feed/") === 0) {
       } else {
@@ -12450,7 +12501,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
             (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
           }
         }
-        ytcenter.applyBodyClasses();
+        ytcenter.applyClasses();
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
@@ -12472,7 +12523,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           }
         }
         
-        ytcenter.applyBodyClasses();
+        ytcenter.applyClasses();
       });
       ytcenter.pageReadinessListener.addEventListener("onPlayerConfig", function(){
         var config;
@@ -12669,7 +12720,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       });
       ytcenter.spf.__doUpdateConfig = false;
       ytcenter.spf.addEventListener("processed", function(data){
-        ytcenter.applyBodyClasses();
+        ytcenter.applyClasses();
         
         if (data.swfcfg) {
           ytcenter.player.updateConfig(ytcenter.getPage(), data.swfcfg);
@@ -12682,6 +12733,12 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           } else {
             ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
             ytcenter.player.updateResize();
+          }
+          try {
+            ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
+            ytcenter.guide.setup();
+          } catch (e) {
+            con.error(e);
           }
           
           $CreateDownloadButton();
