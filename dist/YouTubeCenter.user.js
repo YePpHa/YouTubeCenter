@@ -10746,6 +10746,8 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
 
       config.args.theme = ytcenter.settings.playerTheme;
       config.args.color = ytcenter.settings.playerColor;
+        
+      config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
       
       if (page === "watch") {
         if (config.args.url_encoded_fmt_stream_map) {
@@ -10797,7 +10799,6 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
         if (typeof ytcenter.settings.autohide != "undefined") {
           config.args.autohide = ytcenter.settings.autohide;
         }
-        config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
 
         if (ytcenter.settings.bgcolor === "none") {
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", "#000000");
@@ -10918,7 +10919,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
     ytcenter.player.getAPI = function(){
       //if (uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_REFERENCE) return uw.yt.config_.PLAYER_REFERENCE;
       //if (!ytcenter.player.__getAPI) ytcenter.player.loadAPI();
-      return ytcenter.player.__getAPI;
+      return ytcenter.player.__getAPI; // Note: Never use yt.palyer.embed function to fetch the API. Just catch the API through onYouTubePlayerReady.
     };
     ytcenter.player.setPlayerSize = function(center){
       ytcenter.settings.player_wide = (center ? true : false);
@@ -12756,7 +12757,8 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
         });
         /*if (ytcenter.getPage() === "watch") {
           ytcenter.onReadyListenersInit();
-        } else */if (ytcenter.getPage() === "embed") {
+        } else */
+        if (ytcenter.getPage() === "embed") {
           //ytcenter.onReadyListenersInit();
           uw.onYouTubePlayerReady = function(api){
             con.log("[onYouTubePlayerReady]", arguments);
@@ -12787,6 +12789,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
             if (typeof api !== "string") {
               ytcenter.player.__getAPI = api;
               ytcenter.onReadyListenersInit();
+              con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
               //delete uw.onYouTubePlayerReady;
             }
