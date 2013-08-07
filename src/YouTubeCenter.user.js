@@ -8568,6 +8568,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      enableYouTubeAutoSwitchToShareTab: false,
       ytExperimentalLayotTopbarStatic: false,
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
@@ -9004,6 +9005,10 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       ],
       "SETTINGS_TAB_WATCH": [
         {
+          "label": "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
+          "type": "bool",
+          "defaultSetting": "enableYouTubeAutoSwitchToShareTab"
+        }, {
           "label": "SETTINGS_GUIDE_ALWAYS_HIDE",
           "type": "bool",
           "listeners": [
@@ -11162,9 +11167,13 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       __r.getMasterListener = function(a){
         return function(){
           con.log("[Player Listener] => " + a, arguments);
-          var i;
+          var i, w = {
+            getOriginalListener: function(){
+              return __r.originalListeners[a];
+            }
+          };
           for (i = 0; i < events[a].listeners.length; i++) {
-            events[a].listeners[i].apply(null, arguments);
+            events[a].listeners[i].apply(w, arguments);
           }
         };
       };
@@ -11178,6 +11187,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       };
       __r.initialized = false;
       __r.replacedListeners = {};
+      __r.originalListeners = {};
       __r.playerNumber = 1;
       __r.setup = function(){ // Should only be called in onReady
         if (__r.initialized) return;
@@ -11189,8 +11199,8 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
         __r.setupListeners();
         for (event in events) {
           if (events.hasOwnProperty(event)) {
-            api.addEventListener(event, events[event].masterListener);
             if (events[event].override) override = true;
+            else api.addEventListener(event, events[event].masterListener);
           }
         }
         if (override) {
@@ -11201,6 +11211,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
                 for (i = 1; i < maxIteration; i++) {
                   if (uw["ytPlayer" + event + "player" + i] && uw["ytPlayer" + event + "player" + i] !== events[event].masterListener) {
                     __r.replacedListeners["ytPlayer" + event + "player" + i] = uw["ytPlayer" + event + "player" + i];
+                    __r.originalListeners[event] = uw["ytPlayer" + event + "player" + i];
                     uw["ytPlayer" + event + "player" + i] = events[event].masterListener;
                   }
                 }
@@ -11712,18 +11723,18 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           if (playlistElement) playlistBar = playlistElement.children[0];
           
           if (playlistBar) {
-            playlistBar.style.width = __playlistWidth + "px";
+            playlistBar.style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
             playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
             playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
           }
-          
-          if (align && large) {
-            playlist.style.right = (maxInsidePlayerWidth - calcWidth) + "px";
-            playlist.style.left = "auto";
-          } else {
-            playlist.style.right = "0";
-            playlist.style.left = "auto";
+        
+        
+          if (document.getElementById("playlist-tray")) {
+            document.getElementById("playlist-tray").style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
           }
+          
+          playlist.style.right = "0";
+          playlist.style.left = "auto";
         }
         
         
@@ -12524,9 +12535,19 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           }
         }
         
+        ytcenter.player.listeners.setOverride("onStateChange", true);
         ytcenter.player.listeners.addEventListener("onStateChange", function(state){
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
             ytcenter.player.getAPI().playVideo();
+          }
+          try {
+            if (ytcenter.settings.enableYouTubeAutoSwitchToShareTab || (yt.www.watch.lists.getState() && yt.www.watch.lists.getState().autoPlay)) {
+              this.getOriginalListener()(state);
+            } else {
+              this.getOriginalListener()((state === 0 ? 2 : state));
+            }
+          } catch (e) {
+            con.error(e);
           }
         });
         ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
