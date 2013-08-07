@@ -136,10 +136,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: 100%!important;
 }
 
-.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page {
-  width: 1003px!important;
-}
-
 .ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-video,
 .ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-main {
   left: 0!important;
@@ -281,6 +277,10 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   }
   .ytcenter-site-watch.ytcenter-site-center.site-left-aligned #page.watch #player + #content {
     margin: 0 auto!important;
+  }
+
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page {
+    width: 1003px!important;
   }
 }
 @media screen and (max-width:1381px) {

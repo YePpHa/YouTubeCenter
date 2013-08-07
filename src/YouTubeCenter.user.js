@@ -12138,13 +12138,13 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
         con.error(e);
       }
       
-      $CreateDownloadButton();
+      /*$CreateDownloadButton();
       $CreateRepeatButton();
       $CreateLightButton();
       $CreateAspectButton();
       $CreateResizeButton();
       
-      initPlacement();
+      initPlacement();*/
       
       ytcenter.playlist = false;
       try {
@@ -12582,6 +12582,8 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
               ytcenter.onReadyListenersInit();
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
+              
+              ytcenter.placementsystem.clear();
               if (ytcenter.getPage() === "watch") {
                 if (ytcenter.settings["resize-default-playersize"] === "default") {
                   ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
