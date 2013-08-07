@@ -865,24 +865,29 @@
         var groups = (function(){
           var obj = {};
           for (var i = 0; i < ytcenter.video.format.length; i++) {
-            obj[ytcenter.video.format[i].type] = ytcenter.language.getLocale(ytcenter.video.format[i].name);
+            obj[ytcenter.video.format[i].type] = {
+              label: ytcenter.video.format[i].name,
+              key: ytcenter.video.format[i].key,
+              help: ytcenter.video.format[i].help
+            };
           }
           return obj;
         })();
         var sorted = {};
         for (var i = 0; i < ytcenter.video.streams.length; i++) {
+          if (ytcenter.video.streams[i].type.indexOf("video/mp4") === 0 && ytcenter.video.streams[i].size) continue;
           if (ytcenter.video.streams[i].type) {
             var f = ytcenter.video.streams[i].type.split(";")[0];
             if (groups.hasOwnProperty(f)) {
-              if (!sorted[groups[f]]) sorted[groups[f]] = [];
-              sorted[groups[f]].push(ytcenter.video.streams[i]);
+              if (!sorted[groups[f].label]) sorted[groups[f].label] = {streams: [], key: groups[f].key, help: groups[f].help};
+              sorted[groups[f].label].streams.push(ytcenter.video.streams[i]);
             } else {
-              if (!sorted['UNKNOWN']) sorted['UNKNOWN'] = [];
-              sorted['UNKNOWN'].push(ytcenter.video.streams[i]);
+              if (!sorted['UNKNOWN']) sorted['UNKNOWN'] = {streams: [], key: "unknown"};
+              sorted['UNKNOWN'].streams.push(ytcenter.video.streams[i]);
             }
           } else {
-            if (!sorted['UNKNOWN']) sorted['UNKNOWN'] = [];
-            sorted['UNKNOWN'].push(ytcenter.video.streams[i]);
+            if (!sorted['UNKNOWN']) sorted['UNKNOWN'] = {streams: [], key: "unknown"};
+            sorted['UNKNOWN'].streams.push(ytcenter.video.streams[i]);
           }
         }
         return sorted;
@@ -908,14 +913,32 @@
           title.style.fontSize = "0.9166em";
           title.style.paddingLeft = "9px";
           if (key !== "UNKNOWN") {
-            title.textContent = key;
-            title.className = "ytcenter-downloadmenu-" + key;
+            var __t = document.createTextNode(ytcenter.language.getLocale(key));
+            title.appendChild(__t);
+            ytcenter.language.addLocaleElement(__t, key, "@textContent");
+            title.className = "ytcenter-downloadmenu-" + stream_groups[key].key;
+            if (stream_groups[key].help) {
+              var help = document.createElement("a");
+              help.setAttribute("href", stream_groups[key].help);
+              help.setAttribute("target", "_blank");
+              help.setAttribute("style", "vertical-align: super; font-size: 10px");
+              help.appendChild(document.createTextNode('?'));
+
+              var replace = {
+                option: {
+                  toString: function() { return ytcenter.language.getLocale(key); }
+                }
+              };
+              help.setAttribute("title", $TextReplacer(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replace));
+              ytcenter.language.addLocaleElement(help, "SETTINGS_HELP_ABOUT", "title", replace);
+              title.appendChild(help);
+            }
           } else {
             title.className = "ytcenter-downloadmenu-unknown";
             title.textContent = ytcenter.language.getLocale("UNKNOWN");
             ytcenter.language.addLocaleElement(title, "UNKNOWN", "@textContent");
           }
-          
+          stream_groups[key] = stream_groups[key].streams; // Just lazy...
           menu.appendChild(title);
           
           for (var i = 0; i < stream_groups[key].length; i++) {
@@ -963,8 +986,12 @@
             _t.style.margin = "0";
             _t.style.padding = "0";
             
-            _td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
-            _td2.textContent = (is3D ? "&nbsp;3D" : "");
+            if (stream_groups[key][i].bitrate) {
+              _td.textContent = Math.round(parseInt(stream_groups[key][i].bitrate)/1000 + 0.5) + " Kbps";
+            } else {
+              _td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
+              _td2.textContent = (is3D ? "&nbsp;3D" : "");
+            }
             
             _tr.appendChild(_td);
             _tr.appendChild(_td2);
@@ -973,7 +1000,7 @@
             
             item.appendChild(_t);
             
-            ytcenter.events.addEvent("ui-refresh", (function(stream, _is3D){
+            ytcenter.events.addEvent("ui-refresh", (function(stream, _is3D, _td, _td2){
               return function(){
                 var stream_name = {
                   highres: ytcenter.language.getLocale("HIGHRES"),
@@ -983,10 +1010,14 @@
                   medium: ytcenter.language.getLocale("MEDIUM"),
                   small: ytcenter.language.getLocale("SMALL")
                 }[stream.quality];
-                _td.textContent = stream_name + ", " + (stream.dimension ? stream.dimension.split("x")[1] : "") + "p (" + (stream.dimension ? stream.dimension : "") + ")";
-                _td2.textContent = (_is3D ? "&nbsp;3D" : "");
+                if (stream.bitrate) {
+                  _td.textContent = Math.round(parseInt(stream.bitrate)/1000 + 0.5) + " Kbps";
+                } else {
+                  _td.textContent = stream_name + ", " + (stream.dimension ? stream.dimension.split("x")[1] : "") + "p (" + (stream.dimension ? stream.dimension : "") + ")";
+                  _td2.textContent = (_is3D ? "&nbsp;3D" : "");
+                }
               };
-            })(stream_groups[key][i], is3D));
+            })(stream_groups[key][i], is3D, _td, _td2));
             var li = document.createElement("li");
             li.className = "ytcenter-downloadmenu-" + (key === "UNKNOWN" ? "unknown" : key) + (is3D ? " ytcenter-menu-item-3d" : "");
             li.setAttribute("role", "menuitem");
@@ -7470,6 +7501,7 @@
         array[position] = head;
         return array;
       }
+      if (!signatureCipher) return "";
       var cipherArray = signatureCipher.split(""), i;
       decipherRecipe = decipherRecipe || ytcenter.utils._signatureDecipher;
       
@@ -10280,6 +10312,11 @@
         type: 'video/3gpp',
         name: 'SETTINGS_DOWNLOADFORMAT_LIST_3GP',
         key: '3gp'
+      }, {
+        type: 'audio/mp4',
+        name: 'SETTINGS_DOWNLOADFORMAT_LIST_AUDIO',
+        key: 'm4a',
+        help: 'https://github.com/YePpHa/YouTubeCenter/wiki/Download:Audio'
       }
     ];
     ytcenter.video.resolutions = {
@@ -10356,9 +10393,10 @@
         channelname: ytcenter.video.channelname,
         resolution: (ytcenter.video.resolutions.hasOwnProperty(stream.quality) ? ytcenter.video.resolutions[stream.quality] : ''),
         itag: stream.itag,
-        dimension: stream.dimension,
-        width: stream.dimension.split("x")[0],
-        height: stream.dimension.split("x")[1],
+        dimension: (stream.dimension ? stream.dimension : stream.size),
+        bitrate: stream.bitrate,
+        width: (stream.dimension ? stream.dimension.split("x")[0] : (stream.size ? stream.size.split("x")[0] : 0)),
+        height: (stream.dimension ? stream.dimension.split("x")[1] : (stream.size ? stream.size.split("x")[1] : 0)),
         format: (function(){
           for (var i = 0; i < ytcenter.video.format.length; i++) {
             if (stream.type.indexOf(ytcenter.video.format[i].type) == 0) {
@@ -10411,10 +10449,10 @@
     };
     ytcenter.video.downloadLink = function(stream){
       try {
-        return ytcenter.video.filename(stream) + "&cpn=" + encodeURIComponent(ytcenter.utils.crypt()) +"&signature=" + encodeURIComponent(stream.sig || ytcenter.utils.signatureDecipher(stream.s));
+        return ytcenter.video.filename(stream) + "&cpn=" + encodeURIComponent(ytcenter.utils.crypt()) + (stream.s || stream.sig ? "&signature=" + encodeURIComponent(stream.sig || ytcenter.utils.signatureDecipher(stream.s)) : "");
       } catch (e) {
         con.error(e);
-        return stream.url + "&signature=" + encodeURIComponent(stream.sig || ytcenter.utils.signatureDecipher(stream.s));
+        return stream.url + (stream.sig || stream.s ? "&signature=" + encodeURIComponent(stream.sig || ytcenter.utils.signatureDecipher(stream.s)) : "");
       }
     };
     ytcenter.video.download = (function(){
@@ -11883,7 +11921,7 @@
     })();
     ytcenter.player.getHighestStreamQuality = function(streams){
       var i, stream = streams[0], stream_dim, tmp_dim;
-      if (stream.dimension.indexOf("x") !== -1) {
+      if (stream.dimension && stream.dimension.indexOf("x") !== -1) {
         stream_dim = stream.dimension.split("x");
         stream_dim[0] = parseInt(stream_dim[0]);
         stream_dim[1] = parseInt(stream_dim[1]);
@@ -11892,6 +11930,7 @@
       }
       
       for (i = 1; i < streams.length; i++) {
+        if (!streams[i].dimension) continue;
         if (streams[i].dimension.indexOf("x") !== -1) {
           tmp_dim = streams[i].dimension.split("x");
           tmp_dim[0] = parseInt(tmp_dim[0]);
@@ -12041,10 +12080,27 @@
         }
         return b;
       };
+      var parser3 = function(u){
+        if (!u) return [];
+        var a = u.split(",");
+        var b = [];
+        for (var i = 0; i < a.length; i++) {
+          var c = {};
+          var d = a[i].split("&");
+          for (var j = 0; j < d.length; j++) {
+            var e = d[j].split("=");
+            c[e[0]] = unescape(e[1]);
+            if (e[0] === "type") c[e[0]] = c[e[0]].replace(/\+/g, " ");
+          }
+          b.push(c);
+        }
+        return b;
+      };
       var fmt = parser1(playerConfig.fmt_list);
       var streams = parser2(playerConfig.url_encoded_fmt_stream_map);
-      var a = [];
-      for (var i = 0; i < streams.length; i++) {
+      var adaptive_fmts = parser3(playerConfig.adaptive_fmts);
+      var a = [], i;
+      for (i = 0; i < streams.length; i++) {
         var fl = null;
         for (var j = 0; j < fmt.length; j++) {
           if (streams[i].itag !== fmt[j].itag) continue;
@@ -12060,6 +12116,10 @@
           a.push(coll);
         }
       }
+      for (i = 0; i < adaptive_fmts.length; i++) {
+        a.push(adaptive_fmts[i]);
+      }
+      
       return a;
     };
     ytcenter.getBodyClasses = function(){
