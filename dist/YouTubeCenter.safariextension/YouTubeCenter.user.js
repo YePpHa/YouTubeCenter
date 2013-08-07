@@ -11253,6 +11253,7 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
       }
     };
     ytcenter.player.fixHTML5 = function(){
+      return;
       if (ytcenter.player.getReference().api.getApiInterface) {
         var ref = ytcenter.player.getReference();
         var vid = ref.target.getElementsByTagName("video")[0];
@@ -11267,45 +11268,45 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
     ytcenter.player.aspect = function(option){
       ytcenter.player.getConfig().args.keywords = option;
       con.log("Keywords changed to " + ytcenter.player.getConfig().args.keywords);
-      var pl = ytcenter.player.getReference().api;
-      var muted = pl.isMuted();
-      var volume = pl.getVolume();
-      var rate = pl.getPlaybackRate();
-      var quality = pl.getPlaybackQuality();
-      var time = pl.getCurrentTime();
-      var state = pl.getPlayerState();
-      var dur = pl.getDuration();
+      var api = ytcenter.player.getAPI();
+      var muted = api.isMuted();
+      var volume = api.getVolume();
+      var rate = api.getPlaybackRate();
+      var quality = api.getPlaybackQuality();
+      var time = api.getCurrentTime();
+      var state = api.getPlayerState();
+      var dur = api.getDuration();
       if (state === 0) {
         time = dur + 60;
       }
       
-      var il = ytcenter.player.getReference().listener.addEventListener("onStateChange", function(s){
+      var il = ytcenter.player.listeners.addEventListener("onStateChange", function(s){
         if (ytcenter.html5) {
           ytcenter.player.fixHTML5();
         }
         if (s !== 1) return;
-        ytcenter.player.getReference().listener.removeEventListener("onStateChange", il);
+        ytcenter.player.listeners.removeEventListener("onStateChange", il);
         con.log("Setting player option to last player");
         if (state === -1) {
-          pl.stopVideo();
+          api.stopVideo();
         } else if (state === 2) {
-          pl.pauseVideo();
-          pl.seekTo(time);
+          api.pauseVideo();
+          api.seekTo(time);
         } else {
-          pl.seekTo(time);
+          api.seekTo(time);
         }
         
-        pl.setVolume(volume);
+        api.setVolume(volume);
         if (muted) {
-          pl.mute(muted);
+          api.mute(muted);
         }
-        pl.setPlaybackRate(rate);
-        pl.setPlaybackQuality(quality);
+        api.setPlaybackRate(rate);
+        api.setPlaybackQuality(quality);
         
         con.log("Made a live refresh");
       });
       
-      //ytcenter.player.getReference().api.loadVideoByPlayerVars(ytcenter.player.getConfig().args);
+      api.loadVideoByPlayerVars(ytcenter.player.getConfig().args);
     };
     ytcenter.player.currentResizeId;
     ytcenter.player.resizeCallback = [];
