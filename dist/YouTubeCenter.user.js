@@ -10633,6 +10633,15 @@
           api.unMute();
         }
         
+        ytcenter.playlist = false;
+        try {
+          if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
+            ytcenter.playlist = true;
+          }
+        } catch (e) {
+          con.error(e);
+        }
+        
         // Prevent Auto Play/Buffering
         if (ytcenter.playlist) {
           if (ytcenter.settings.preventPlaylistAutoBuffer) {
@@ -10842,6 +10851,15 @@
           config.args.dash = "0";
           config.args.dashmpd = "";
         }
+        ytcenter.playlist = false;
+        try {
+          if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
+            ytcenter.playlist = true;
+          }
+        } catch (e) {
+          con.error(e);
+        }
+        con.log("[Playlist] " + (ytcenter.playlist ? "Enabled" : "Disabled"));
         if (ytcenter.playlist) {
           if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
             config.args.autoplay = "0";
@@ -12308,7 +12326,7 @@
       
       ytcenter.playlist = false;
       try {
-        if (document.getElementById("watch7-playlist-container") || uw.location.search.indexOf("list=") !== -1) {
+        if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
           ytcenter.playlist = true;
         }
       } catch (e) {
@@ -12812,8 +12830,9 @@
           if (ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
             (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
           }
+          ytcenter.playlist = false;
           try {
-            if (document.getElementById("watch7-playlist-container") || uw.location.search.indexOf("list=") !== -1) {
+            if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
               ytcenter.playlist = true;
             }
           } catch (e) {
