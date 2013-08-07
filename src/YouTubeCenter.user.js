@@ -12515,16 +12515,6 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           }
         }
         
-        // Setting up the player listener enviorment.
-        ytcenter.player.listeners.addEventListener("onError", function(errorCode){
-          con.error("[onError] Reported error with code: " + errorCode);
-          
-          /*try {
-            ytcenter.player.getAPI().loadVideoByPlayerVars(uw.ytplayer.config.args);
-          } catch (e) {
-            con.error(e);
-          }*/
-        });
         ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
         ytcenter.player.listeners.addEventListener("SIZE_CLICKED", function(large){
           function getSizeById(id) {
@@ -12561,18 +12551,14 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
           
           ytcenter.events.performEvent("ui-refresh");
         });
-        /*if (ytcenter.getPage() === "watch") {
-          ytcenter.onReadyListenersInit();
-        } else */
+        
         if (ytcenter.getPage() === "embed") {
-          //ytcenter.onReadyListenersInit();
           uw.onYouTubePlayerReady = function(api){
             con.log("[onYouTubePlayerReady]", arguments);
             if (typeof api !== "string") {
               ytcenter.player.__getAPI = api;
               ytcenter.player.listeners.setup();
               ytcenter.player.updateConfig(ytcenter.getPage(), uw.yt.config_.PLAYER_CONFIG);
-              //delete uw.onYouTubePlayerReady;
             }
           };
         } else if (ytcenter.getPage() === "channel") {
@@ -12586,7 +12572,6 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
               } else {
                 ytcenter.player.config.updateConfig = true;
               }
-              //delete uw.onYouTubePlayerReady;
             }
           };
         } else {
@@ -12597,13 +12582,32 @@ ytcenter.hideFeedbackButton(ytcenter.settings.hideFeedbackButton);
               ytcenter.onReadyListenersInit();
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
-              //delete uw.onYouTubePlayerReady;
+              if (ytcenter.getPage() === "watch") {
+                if (ytcenter.settings["resize-default-playersize"] === "default") {
+                  ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
+                  ytcenter.player.updateResize();
+                } else {
+                  ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
+                  ytcenter.player.updateResize();
+                }
+                
+                $CreateDownloadButton();
+                $CreateRepeatButton();
+                $CreateLightButton();
+                $CreateAspectButton();
+                $CreateResizeButton();
+                
+                initPlacement();
+                
+                if (ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentalLayotTopbarStatic)) {
+                  (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+                }
+              }
             }
           };
         }
       });
       ytcenter.onReadyListenersInit = function(){
-        // Adding player onReady listener
         con.log("onReadyListenersInit");
         var api = ytcenter.player.getAPI();
         api.addEventListener("onReady", function(api){
