@@ -92,9 +92,9 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 }*/
 
 
-.ytcenter-site-watch #page-container {
+/*.ytcenter-site-watch #page-container {
   display: table!important;
-}
+}*/
 
 .ytcenter-site-watch.ytcenter-site-center #content,
 .site-left-aligned.ytcenter-site-center #page.watch #guide-container,
@@ -123,12 +123,21 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   margin: 0 auto!important;
 }
 
+.ytcenter-site-not-watch.ytcenter-site-center #page-container {
+  margin: 0 auto!important;
+  width: 1003px;
+}
+
 .ytcenter-site-watch.ytcenter-site-center #guide-container {
   left: 10px!important;
 }
 
 .ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed.ytcenter-resize-disaligned #page {
   width: 100%!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page {
+  width: 1003px!important;
 }
 
 .ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-video,
