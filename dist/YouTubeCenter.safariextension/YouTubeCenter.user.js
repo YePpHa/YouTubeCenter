@@ -9349,7 +9349,7 @@
           "label": "SETTINGS_COMMENTS_COUNTRY_ENABLE",
           "type": "bool",
           "defaultSetting": "commentCountryEnabled",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-on-comments"
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-for-comments"
         }, {
           "label": "SETTINGS_COMMENTS_COUNTRY_SHOW_FLAG",
           "type": "bool",
