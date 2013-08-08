@@ -3074,6 +3074,246 @@
       normal: "@styles-normal@",
       topbar: "@styles-topbar@"
     };
+    ytcenter.comments = (function(){
+      function getComments() {
+        var a = document.getElementsByClassName("comment"),
+            data = [], i, cacheData, d, sort = {}, tmp = [];
+        for (i = 0; i < a.length; i++) {
+          if (!a[i].getAttribute("data-author-id")) continue;
+          d = {
+            element: a[i],
+            userId: a[i].getAttribute("data-author-id")
+          };
+          data.push(d);
+        }
+        d = null;
+        for (i = 0; i < data.length; i++) {
+          if (!sort[data[i].userId]) {
+            sort[data[i].userId] = {elements: []};
+            tmp.push(data[i].userId);
+          }
+          sort[data[i].userId].elements.push(data[i].element);
+          if (!sort[data[i].userId].country) {
+            cacheData = getDataCacheById(a[i].getAttribute("data-author-id"));
+            if (cacheData) {
+              if (cacheData.country) sort[data[i].userId].country = cacheData.country;
+            }
+          }
+        }
+        data = [];
+        for (i = 0; i < tmp.length; i++) {
+          d = sort[tmp[i]];
+          d.id = tmp[i];
+          data.push(d);
+        }
+        
+        return data;
+      }
+      function addMetadata(comment) {
+        var i, metadata, countryMetadata;
+        if (isInCache(comment)) {
+          updateItemInCache(comment);
+        } else {
+          addNewDataToCache(comment);
+        }
+        for (i = 0; i < comment.elements.length; i++) {
+          metadata = comment.elements[i].getElementsByClassName("metadata")[0];
+          countryMetadata = document.createElement("span");
+          countryMetadata.className = "country";
+          countryMetadata.textContent = comment.country;
+          metadata.insertBefore(countryMetadata, metadata.children[1]);
+        }
+      }
+      function processItem(comment) {
+        var i;
+        if (comment.country) {
+          addMetadata(comment);
+        } else {
+          var country;
+          for (i = 0; i < comments.length; i++) {
+            if (comments[i].id === comment.id && comments[i].country) {
+              comment.country = comments[i].country;
+              break;
+            }
+          }
+          if (comment.country) {
+            addMetadata(comment);
+          } else {
+            ytcenter.getUserData(comment.id, function(data){
+              comment.country = data.entry.yt$location.$t;
+              addMetadata(comment);
+            });
+          }
+        }
+      }
+      function compareDifference(newData, oldData) {
+        var i, j, k, found, f, data = [], e, country;
+        for (i = 0; i < newData.length; i++) {
+          found = false;
+          for (j = 0; j < oldData.length; j++) {
+            if (newData[i].id === oldData[j].id) {
+              found = oldData[j].elements;
+              country = oldData[j].country;
+              break;
+            }
+          }
+          if (found) {
+            e = [];
+            for (j = 0; j < newData[i].elements.length; j++) {
+              f = false;
+              for (k = 0; k < found.length; k++) {
+                if (found[k] === newData[i].elements[j]) {
+                  f = true;
+                  break;
+                }
+              }
+              if (!f) {
+                e.push(newData[i].elements[j]);
+              }
+            }
+            if (e.length > 0) {
+              newData[i].elements = e;
+              if (country)
+                newData[i].country = country;
+              data.push(newData[i]);
+            }
+          } else {
+            data.push(newData[i]);
+          }
+        }
+        return data;
+      }
+      function updateItemInCache(data) {
+        var index = getDataCacheIndex(data);
+        if (data.country && !ytcenter.settings.commentData[index].country) {
+          ytcenter.settings.commentData[index].country = data.country;
+        }
+        ytcenter.saveSettings();
+      }
+      function updateReuse(data) {
+        var index = getDataCacheIndex(data);
+        if (index === -1) return;
+        ytcenter.settings.commentData[index].reuse++;
+        if (ytcenter.settings.commentData[index].reuse > 5)
+          ytcenter.settings.commentData[index].reuse = 5;
+        ytcenter.saveSettings();
+      }
+      function getDataCacheById(id) {
+        var i;
+        for (i = 0; i < ytcenter.settings.commentData.length; i++) {
+          if (id === ytcenter.settings.commentData[i].id) return ytcenter.settings.commentData[i];
+        }
+        return null;
+      }
+      function getDataCacheIndex(data) {
+        var i;
+        for (i = 0; i < ytcenter.settings.commentData.length; i++) {
+          if (data.id === ytcenter.settings.commentData[i].id) return i;
+        }
+        return -1;
+      }
+      function isInCache(data) {
+        return getDataCacheIndex(data) !== -1;
+      }
+      function addNewDataToCache(data) {
+        if (isInCache(data)) return;
+        var cacheSize = 75, nData = {};
+        while (ytcenter.settings.commentData.length >= cacheSize) removeOldestFromCache();
+        nData.id = data.id;
+        nData.reuse = 0;
+        nData.date = ytcenter.utils.now();
+        if (data.country) nData.country = data.country;
+        
+        ytcenter.settings.commentData.push(nData);
+        
+        ytcenter.saveSettings();
+      }
+      function calculateCacheLife(data) {
+        return 1000*60*10 + (1000*60*5)*(data.reused ? data.reused : 0);
+      }
+      function removeOldestFromCache() {
+        if (ytcenter.settings.commentData.length === 0) return;
+        var i, now = ytcenter.utils.now(), life, lifeRemaining, oldest = ytcenter.settings.commentData[0], j = 0;
+        for (i = 1; i < ytcenter.settings.commentData.length; i++) {
+          life = calculateCacheLife(ytcenter.settings.commentData[i]);
+          lifeRemaining = (ytcenter.settings.commentData[i].date + life) - now;
+          if (lifeRemaining < (oldest.date + calculateCacheLife(oldest)) - now) {
+            oldest = ytcenter.settings.commentData[i];
+            j = i;
+          }
+        }
+        ytcenter.settings.commentData.splice(j, 1);
+      }
+      function cacheChecker() {
+        if (ytcenter.settings.commentData.length === 0) return;
+        var i, now = ytcenter.utils.now(), life, nData = [];
+        
+        for (i = 0; i < ytcenter.settings.commentData.length; i++) {
+          life = calculateCacheLife(ytcenter.settings.commentData[i]);
+          if (now < ytcenter.settings.commentData[i].date + life) {
+            if (ytcenter.settings.commentData[i].reused < 5) ytcenter.settings.commentData[i].reused++;
+            nData.push(ytcenter.settings.commentData[i]);
+          }
+        }
+        ytcenter.settings.commentData = nData;
+        ytcenter.saveSettings();
+      }
+      
+      var __r = {}, comments = [], observer, observer2;
+      
+      __r.setupObserver = function(){
+        var config = { childList: true },
+            MutObs = ytcenter.getMutationObserver();
+        observer = new MutObs(function(mutations){
+          var c = compareDifference(getComments(), comments), i;
+          for (i = 0; i < c.length; i++) {
+            comments.push(c[i]);
+            updateReuse(c[i]);
+            processItem(c[i]);
+          }
+          if (document.getElementById("comments-view")) {
+            observer2.observe(document.getElementById("comments-view"), config);
+          }
+        });
+        observer2 = new MutObs(function(mutations){
+          var c = compareDifference(getComments(), comments), i;
+          for (i = 0; i < c.length; i++) {
+            comments.push(c[i]);
+            updateReuse(c[i]);
+            processItem(c[i]);
+          }
+        });
+        if (!observer) return;
+        if (document.getElementById("watch-discussion"))
+          observer.observe(document.getElementById("watch-discussion"), config);
+      };
+      __r.dispose = function(){
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        if (observer2) {
+          observer2.disconnect();
+          observer2 = null;
+        }
+      };
+      __r.setup = function(){
+        try {
+          var i;
+          cacheChecker();
+          comments = getComments();
+          for (i = 0; i < comments.length; i++) {
+            updateReuse(comments[i]);
+            processItem(comments[i]);
+          }
+          __r.setupObserver();
+        } catch (e) {
+          con.error(e);
+        }
+      };
+      
+      return __r;
+    })();
     ytcenter.getUserData = function(userId, callback){
       $XMLHTTPRequest({
         url: "https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json",
@@ -3910,7 +4150,7 @@
         ytcenter.settings.videoThumbnailData = nData;
         ytcenter.saveSettings();
       }
-      var __r = {}, observer, videoThumbs, dispacherAdded;
+      var __r = {}, observer, videoThumbs;
       __r.setupObserver = function(){
         /* Targets:
          ** #watch-related
@@ -8612,6 +8852,7 @@
       guideMode: "default", // [default, always_open, always_closed]
       enableYouTubeAutoSwitchToShareTab: false,
       ytExperimentalLayotTopbarStatic: false,
+      commentData: [],
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
       videoThumbnailQualityPosition: "topleft",
@@ -12207,10 +12448,10 @@
             document.getElementById("guide-main").children[1].style.height = "auto";
           }
         });
-        if (observer) {
+        if (observer && ytcenter.settings.guideMode !== "default") {
           var config = { childList: true, subtree: true };
-          if (document.getElementById("content"))
-            observer.observe(document.getElementById("content"), config);
+          if (document.getElementById("guide"))
+            observer.observe(document.getElementById("guide"), config);
         }
         if (ytcenter.settings.guideMode === "always_open") {
           $RemoveCSS(document.getElementById("guide-main"), "collapsed");
@@ -12221,34 +12462,6 @@
           document.getElementById("guide-main").children[1].style.display = "none";
           document.getElementById("guide-main").children[1].style.height = "auto";
         }
-        /*timer = uw.setInterval(function(){
-          if (ytcenter.settings.guideMode === "always_open") {
-            a = 0;
-          } else if (ytcenter.settings.guideMode === "always_closed") {
-            a = 1
-          }
-          
-          if ($HasCSS(document.getElementById("guide-main"), "collapsed")) {
-            if (a === 1) amount++;
-            else amount = 0;
-          } else {
-            if (a === 0) amount++;
-            else amount = 0;
-          }
-          
-          if (ytcenter.settings.guideMode === "always_open") {
-            $RemoveCSS(document.getElementById("guide-main"), "collapsed");
-            document.getElementById("guide-main").children[1].style.display = "block";
-            document.getElementById("guide-main").children[1].style.height = "auto";
-          } else if (ytcenter.settings.guideMode === "always_closed") {
-            $AddCSS(document.getElementById("guide-main"), "collapsed");
-            document.getElementById("guide-main").children[1].style.display = "none";
-            document.getElementById("guide-main").children[1].style.height = "auto";
-          }
-          
-          if (amount === 25)
-            uw.clearInterval(timer);
-        }, 200);*/
       };
     })();
     ytcenter.applyClasses = function(){
@@ -12874,6 +13087,7 @@
         $UpdateChecker();
         extensionCompatibilityChecker();
         ytcenter.thumbnail.setup();
+        ytcenter.comments.setup();
         
         if (document.getElementById("page")
          && $HasCSS(document.getElementById("page"), "channel")
