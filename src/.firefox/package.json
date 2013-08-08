@@ -9,7 +9,7 @@
   "icon": "icon.png",
   "icon64": "icon64.png",
   "permissions": {
-    "cross-domain-content": ["http://www.youtube.com/", "http://youtube.com/", "https://www.youtube.com/", "https://youtube.com/", "",
+    "cross-domain-content": ["http://www.youtube.com/", "http://youtube.com/", "https://www.youtube.com/", "https://youtube.com/",
                              "http://userscripts.org/", "http://s.ytimg.com/", "https://s.ytimg.com/"],
     "private-browsing": true
   }

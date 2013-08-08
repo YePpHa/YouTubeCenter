@@ -1,0 +1,51 @@
+<html>
+  <head></head>
+  <body>
+    <div id="drop" style="border: 1px solid #000; width:300px; height:300px;">
+      Drop Here
+    </div>
+    <textarea id="TEST"></textarea>
+    <div id="tmp"></div>
+    <script>
+      function run(file, next) {
+        var a = new FileReader();
+        a.onload = function(data){
+          var image = new Image();
+          image.src = data.target.result;
+          image.onload = function(){
+            var name = file.name.split(".");
+            name.pop();
+            name = name.join(".");
+            next(".ytcenter-flag-" + name + " {\n  width: " + this.width + "px;\n  height: " + this.height + "px;\n  background-image: url('" + data.target.result + "');\n}\n");
+          }
+          //document.getElementById("tmp").appendChild(image);
+        };
+        a.readAsDataURL(file);
+      }
+      document.getElementById("drop").addEventListener("dragover", function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+        document.getElementById("drop").style.border = "2px dashed rgb(130, 130, 130)";
+      }, false);
+      document.getElementById("drop").addEventListener("drop", function(e){
+        function _run(files, i) {
+          run(files[i], function(a){
+            css += a;
+            i += 1;
+            if (i < files.length)
+              _run(files, i);
+            else {
+              document.getElementById("TEST").value = css;
+              console.log(css);
+            }
+          });
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        var css = "";
+        _run(e.dataTransfer.files, 0);
+      }, false);
+    </script>
+  </body>
+</html>
