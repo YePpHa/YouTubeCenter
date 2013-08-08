@@ -5,6 +5,7 @@
       Drop Here
     </div>
     <textarea id="TEST"></textarea>
+    <textarea id="TEST2"></textarea>
     <div id="tmp"></div>
     <script>
       function run(file, next) {
@@ -16,7 +17,7 @@
             var name = file.name.split(".");
             name.pop();
             name = name.join(".");
-            next(".ytcenter-flag-" + name + " {\n  width: " + this.width + "px;\n  height: " + this.height + "px;\n  background-image: url('" + data.target.result + "');\n}\n");
+            next(name, "ytcenter-flag-" + name, ".ytcenter-flag-" + name + " {\n  width: " + this.width + "px;\n  height: " + this.height + "px;\n  background-image: url('" + data.target.result + "');\n}\n");
           }
           //document.getElementById("tmp").appendChild(image);
         };
@@ -30,20 +31,25 @@
       }, false);
       document.getElementById("drop").addEventListener("drop", function(e){
         function _run(files, i) {
-          run(files[i], function(a){
-            css += a;
+          run(files[i], function(a, b, c){
+            js += "  \"" + a + "\": \"" + b + "\",\n";
+            css += c;
             i += 1;
             if (i < files.length)
               _run(files, i);
             else {
+              js = "= {\n" + js;
+              js += "};";
               document.getElementById("TEST").value = css;
+              document.getElementById("TEST2").value = js;
+              console.log(js);
               console.log(css);
             }
           });
         }
         e.stopPropagation();
         e.preventDefault();
-        var css = "";
+        var css = "", js = "";
         _run(e.dataTransfer.files, 0);
       }, false);
     </script>
