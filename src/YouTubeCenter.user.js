@@ -8948,6 +8948,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      enableResize: true,
       guideMode: "default", // [default, always_open, always_closed]
       enableYouTubeAutoSwitchToShareTab: false,
       ytExperimentalLayotTopbarStatic: false,
@@ -10301,6 +10302,10 @@
       ],
       "SETTINGS_TAB_RESIZE": [
         {
+          "label": "SETTINGS_RESIZE_FEATURE_ENABLE",
+          "type": "bool",
+          "defaultSetting": "enableResize"
+        }, {
           "label": "SETTINGS_RESIZE_DEFAULT",
           "type": "defaultplayersizedropdown",
           "bind": "resize-playersizes",
@@ -11149,8 +11154,9 @@
 
       config.args.theme = ytcenter.settings.playerTheme;
       config.args.color = ytcenter.settings.playerColor;
-        
-      config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
+      
+      if (ytcenter.settings.enableResize)
+        config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
       
       if (page === "watch") {
         if (config.args.url_encoded_fmt_stream_map) {
@@ -11753,6 +11759,7 @@
         };
       }
       var updatescrollToPlayerButtonPosition = function(){
+        if (!ytcenter.settings.enableResize) return;
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           if (document.getElementById("yt-masthead-container") && !scrollToPlayerButton.parentNode) document.getElementById("yt-masthead-container").appendChild(scrollToPlayerButton);
         } else {
@@ -11763,6 +11770,10 @@
         }
       };
       var updatescrollToPlayerButtonVisibility = function(){
+        if (!ytcenter.settings.enableResize) {
+          scrollToPlayerButton.style.display = "none";
+          return;
+        }
         try {
           if (!ytcenter.settings['experimentalFeatureTopGuide']) {
             scrollToPlayerButton.style.borderBottom = "0px";
@@ -11805,6 +11816,7 @@
       scrollToPlayerButton.style.display = "block";
       scrollToPlayerButton.style.position = "absolute";
       scrollToPlayerButton.addEventListener("click", function(){
+        if (!ytcenter.settings.enableResize) return;
         if (ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
           var posY = 0,
               scrollElm = document.getElementById("player-api"),
@@ -11821,6 +11833,7 @@
       }, false);
       
       return function(){
+        if (!ytcenter.settings.enableResize) return;
         var _s = getSizeById(ytcenter.player.currentResizeId);
         ytcenter.player.resize(_s);
         if (_s.config.scrollToPlayer) {
@@ -11861,11 +11874,13 @@
       }
       var lastResizeId;
       ytcenter.player.resizeUpdater = function(){
+        if (!ytcenter.settings.enableResize) return;
         ytcenter.player.resize(getItemById(lastResizeId));
         ytcenter.player.updateResize_updateVisibility();
         ytcenter.player.updateResize_updatePosition();
       };
       ytcenter.player.isSelectedPlayerSizeById = function(id){
+        if (!ytcenter.settings.enableResize) return;
         try {
           if (lastResizeId === id)
             return true;
@@ -11874,6 +11889,7 @@
       };
       var __r_timeout;
       return function(item){
+        if (!ytcenter.settings.enableResize) return;
         try {
           if (typeof item !== "undefined") lastResizeId = item.id;
           if (typeof lastResizeId === "undefined") return;
@@ -11904,16 +11920,19 @@
       var maxInsidePlayerWidth = 985; // Is 1003px for the experimental design
       
       ytcenter.player._updateResize = function(){
+        if (!ytcenter.settings.enableResize) return;
         ytcenter.player._resize(_width, _height, _large, _align);
         ytcenter.player.updateResize_updateVisibility();
         ytcenter.player.updateResize_updatePosition();
       };
       ytcenter.events.addEvent("ui-refresh", function(){
+        if (!ytcenter.settings.enableResize) return;
         ytcenter.player._resize(_width, _height, _large, _align);
       });
       window.addEventListener("resize", (function(){
         var timer = null;
         return function(){
+          if (!ytcenter.settings.enableResize) return;
           if (timer !== null) uw.clearTimeout(timer);
           timer = uw.setTimeout(function(){
             ytcenter.events.performEvent("ui-refresh");
@@ -11921,6 +11940,7 @@
         };
       })(), false);
       return function(width, height, large, align){
+        if (!ytcenter.settings.enableResize) return;
         if (ytcenter.getPage() !== "watch") return;
         
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
@@ -12528,7 +12548,10 @@
         classes += " ytcenter-site-search";
       } else if (loc.pathname === "/watch") {
         classes += " ytcenter-site-watch";
-        classes += " ytcenter-resize-aligned";
+        if (ytcenter.settings.enableResize)
+          classes += " ytcenter-resize-aligned";
+        else
+          classes += " ytcenter-non-resize";
       } else if (loc.pathname === "/") {
       } else if (loc.pathname.indexOf("/feed/") === 0) {
       }
@@ -12647,7 +12670,9 @@
         $AddCSS(document.body, "ytcenter-site-search");
       } else if (loc.pathname === "/watch") {
         $AddCSS(document.body, "ytcenter-site-watch");
-        $AddCSS(document.body, "ytcenter-resize-aligned");
+        if (ytcenter.settings.enableResize)
+          $AddCSS(document.body, "ytcenter-resize-aligned");
+        else $AddCSS(document.body, "ytcenter-non-resize");
         if (ytcenter.settings.lightbulbAutoOff) {
           ytcenter.player.turnLightOff();
         }
@@ -13032,42 +13057,44 @@
             con.error(e);
           }
         });
-        ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
-        ytcenter.player.listeners.addEventListener("SIZE_CLICKED", function(large){
-          function getSizeById(id) {
-            var sizes = ytcenter.settings["resize-playersizes"];
-            for (var i = 0; i < sizes.length; i++) {
-              if (id === sizes[i].id) {
-                return sizes[i];
+        if (ytcenter.settings.enableResize) {
+          ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
+          ytcenter.player.listeners.addEventListener("SIZE_CLICKED", function(large){
+            function getSizeById(id) {
+              var sizes = ytcenter.settings["resize-playersizes"];
+              for (var i = 0; i < sizes.length; i++) {
+                if (id === sizes[i].id) {
+                  return sizes[i];
+                }
               }
+              return {
+                id: "default",
+                config: {
+                  align: true,
+                  height: "",
+                  large: false,
+                  scrollToPlayer: false,
+                  scrollToPlayerButton: false,
+                  width: ""
+                }
+              };
             }
-            return {
-              id: "default",
-              config: {
-                align: true,
-                height: "",
-                large: false,
-                scrollToPlayer: false,
-                scrollToPlayerButton: false,
-                width: ""
-              }
-            };
-          }
-          con.log("[Player Resize] Setting to " + (large ? "large" : "small") + "!");
-          if (large) {
-            ytcenter.player.setPlayerSize(true);
+            con.log("[Player Resize] Setting to " + (large ? "large" : "small") + "!");
+            if (large) {
+              ytcenter.player.setPlayerSize(true);
+              
+              ytcenter.player.currentResizeId = ytcenter.settings['resize-large-button'];
+              ytcenter.player.updateResize();
+            } else {
+              ytcenter.player.setPlayerSize(false);
+              
+              ytcenter.player.currentResizeId = ytcenter.settings['resize-small-button'];
+              ytcenter.player.updateResize();
+            }
             
-            ytcenter.player.currentResizeId = ytcenter.settings['resize-large-button'];
-            ytcenter.player.updateResize();
-          } else {
-            ytcenter.player.setPlayerSize(false);
-            
-            ytcenter.player.currentResizeId = ytcenter.settings['resize-small-button'];
-            ytcenter.player.updateResize();
-          }
-          
-          ytcenter.events.performEvent("ui-refresh");
-        });
+            ytcenter.events.performEvent("ui-refresh");
+          });
+        }
         
         if (ytcenter.getPage() === "embed") {
           uw.onYouTubePlayerReady = function(api){
