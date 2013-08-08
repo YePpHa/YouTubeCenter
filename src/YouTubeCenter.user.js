@@ -3074,6 +3074,15 @@
       normal: "@styles-normal@",
       topbar: "@styles-topbar@"
     };
+    ytcenter.getUserData = function(userId, callback){
+      $XMLHTTPRequest({
+        url: "https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json",
+        method: "GET",
+        onload: function(r){
+          callback((JSON && JSON.parse ? JSON.parse(r.responseText) : eval("(" + r.reponseText + ")")));
+        }
+      });
+    };
     ytcenter.getPage = function(){
       if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
         ytcenter.page = "watch";
@@ -10642,7 +10651,7 @@
         
         ytcenter.playlist = false;
         try {
-          if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
+          if (document.getElementById("watch7-playlist-data") || loc.search.indexOf("list=") !== -1) {
             ytcenter.playlist = true;
           }
         } catch (e) {
@@ -10860,7 +10869,7 @@
         }
         ytcenter.playlist = false;
         try {
-          if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
+          if (document.getElementById("watch7-playlist-data") || loc.search.indexOf("list=") !== -1) {
             ytcenter.playlist = true;
           }
         } catch (e) {
@@ -12331,7 +12340,7 @@
       
       ytcenter.playlist = false;
       try {
-        if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
+        if (document.getElementById("watch7-playlist-data") || loc.search.indexOf("list=") !== -1) {
           ytcenter.playlist = true;
         }
       } catch (e) {
@@ -12837,7 +12846,7 @@
           }
           ytcenter.playlist = false;
           try {
-            if (document.getElementById("watch7-playlist-data") || uw.loc.search.indexOf("list=") !== -1) {
+            if (document.getElementById("watch7-playlist-data") || loc.search.indexOf("list=") !== -1) {
               ytcenter.playlist = true;
             }
           } catch (e) {
