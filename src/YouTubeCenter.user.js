@@ -3305,6 +3305,7 @@
             videos = [],
             i, id, videoElement, cacheData, data;
         for (i = 0; i < vt.length; i++) {
+          if (ytcenter.utils.isChild(document.getElementById("playlist-tray"), vt[i])) continue;
           videoElement = vt[i].parentNode;
           data = null;
           cacheData = null;
@@ -7244,6 +7245,12 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.utils = {};
+    ytcenter.utils.isChild = function(parent, child){
+      while ((child = child.parentNode) !== parent) {
+        if (document.body === child || !child) return false;
+      }
+      return true;
+    };
     ytcenter.utils.escapeXML = function(str){
       return ytcenter.utils.replaceArray(str, ["<", ">", "&", "\"", "'"], ["&lt;", "&gt;", "&amp;", "&quot;", "&apos;"]);
     };
@@ -11779,7 +11786,13 @@
           playlist.style.left = "auto";
         }
         
-        
+        var creatorBar = document.getElementById("watch7-creator-bar");
+        if (creatorBar) {
+          creatorBar.style.width = Math.floor(calcWidth - 40 + 0.5) + "px";
+          if (document.getElementById("watch7-main-container")) {
+            document.getElementById("watch7-main-container").style.marginTop = "48px";
+          }
+        }
         
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
           // Guide
@@ -11924,14 +11937,6 @@
               p.style.margin = "";
             } else {
               p.style.margin = "0 auto";
-            }
-          }
-          var creatorBar = document.getElementById("watch7-creator-bar");
-          if (creatorBar) {
-            if (width !== "" || height !== "") {
-              creatorBar.style.width = Math.floor(calcWidth - 40 + 0.5) + "px";
-            } else {
-              creatorBar.style.width = "";
             }
           }
         }

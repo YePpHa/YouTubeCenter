@@ -803,3 +803,8 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   min-width: 1003px!important;
   width: auto!important;
 }
+
+#watch7-creator-bar {
+  position: relative;
+  z-index: 3;
+}
