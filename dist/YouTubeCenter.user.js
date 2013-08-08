@@ -3328,6 +3328,18 @@
       var __r = {}, comments = [], observer, observer2, observer3;
       
       __r.setupObserver = function(){
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        if (observer2) {
+          observer2.disconnect();
+          observer2 = null;
+        }
+        if (observer3) {
+          observer3.disconnect();
+          observer3 = null;
+        }
         var MutObs = ytcenter.getMutationObserver();
         observer = new MutObs(function(){
           var c = compareDifference(getComments(), comments), i;
@@ -12523,30 +12535,10 @@
       return classes;
     };
     ytcenter.guideMode = (function(){
-      var timer, a = -1, amount = 0, observer;
-      return function(){
-        //uw.clearInterval(timer);
-        if (observer)
-          observer.disconnect();
-        
-        var MutObs = ytcenter.getMutationObserver();
-        observer = new MutObs(function(){
-          con.log("[Guide Mode] Mutation");
-          if (ytcenter.settings.guideMode === "always_open") {
-            $RemoveCSS(document.getElementById("guide-main"), "collapsed");
-            document.getElementById("guide-main").children[1].style.display = "block";
-            document.getElementById("guide-main").children[1].style.height = "auto";
-          } else if (ytcenter.settings.guideMode === "always_closed") {
-            $AddCSS(document.getElementById("guide-main"), "collapsed");
-            document.getElementById("guide-main").children[1].style.display = "none";
-            document.getElementById("guide-main").children[1].style.height = "auto";
-          }
-        });
-        if (observer && ytcenter.settings.guideMode !== "default") {
-          var config = { childList: true, subtree: true };
-          if (document.getElementById("guide"))
-            observer.observe(document.getElementById("guide"), config);
-        }
+      function clickListener() {
+        clicked = true;
+      }
+      function updateGuide() {
         if (ytcenter.settings.guideMode === "always_open") {
           $RemoveCSS(document.getElementById("guide-main"), "collapsed");
           document.getElementById("guide-main").children[1].style.display = "block";
@@ -12556,6 +12548,46 @@
           document.getElementById("guide-main").children[1].style.display = "none";
           document.getElementById("guide-main").children[1].style.height = "auto";
         }
+      }
+      var timer, a = -1, amount = 0, observer, clicked = false;
+      return function(){
+        con.log("[Guide] Configurating the state updater!");
+        //uw.clearInterval(timer);
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        if (document.getElementsByClassName("guide-module-toggle")[0])
+            ytcenter.utils.removeEventListener(document.getElementsByClassName("guide-module-toggle")[0], "click", clickListener, false);
+        
+        var MutObs = ytcenter.getMutationObserver();
+        observer = new MutObs(function(mutations){
+          mutations.forEach(function(mutation){
+            if (mutation.type !== "attributes" || mutation.attributeName !== "class") return;
+            if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
+            if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
+            con.log("[Guide] Updating State!");
+            
+            uw.clearTimeout(timer);
+            
+            if (clicked) {
+              clicked = false;
+              return;
+            }
+            
+            timer = uw.setTimeout(function(){
+              updateGuide();
+            }, 500);
+          });
+        });
+        if (observer && ytcenter.settings.guideMode !== "default") {
+          var config = { attributes: true, attributeOldValue: true };
+          if (document.getElementById("guide-main"))
+            observer.observe(document.getElementById("guide-main"), config);
+          if (document.getElementsByClassName("guide-module-toggle")[0])
+            ytcenter.utils.addEventListener(document.getElementsByClassName("guide-module-toggle")[0], "click", clickListener, false);
+        }
+        updateGuide();
       };
     })();
     ytcenter.applyClasses = function(){
@@ -13168,6 +13200,8 @@
           } catch (e) {
             con.error(e);
           }
+          
+          ytcenter.comments.setup();
         }
         return [data];
       });
