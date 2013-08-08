@@ -8973,7 +8973,7 @@
       ytExperimentalLayotTopbarStatic: false,
       commentCountryData: [],
       commentCountryEnabled: true,
-      commentCountryShowFlag: false,
+      commentCountryShowFlag: true,
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
       videoThumbnailQualityPosition: "topleft",
