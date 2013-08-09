@@ -9217,6 +9217,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      removeRelatedVideosEndscreen: false,
       enableResize: true,
       guideMode: "default", // [default, always_open, always_closed]
       enableYouTubeAutoSwitchToShareTab: false,
@@ -9644,9 +9645,15 @@
       ],
       "SETTINGS_TAB_WATCH": [
         {
+          "label": "SETTINGS_REMOVE_RELATED_VIDEOS_ENDSCREEN",
+          "type": "bool",
+          "defaultSetting": "removeRelatedVideosEndscreen",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-endscreen"
+        }, {
           "label": "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
           "type": "bool",
-          "defaultSetting": "enableYouTubeAutoSwitchToShareTab"
+          "defaultSetting": "enableYouTubeAutoSwitchToShareTab",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#switch-to-share-tab-at-end-of-video"
         }, {
           "label": "SETTINGS_GUIDEMODE",
           "type": "list",
@@ -9662,7 +9669,8 @@
               "label": "SETTINGS_GUIDEMODE_ALWAYS_CLOSED"
             }
           ],
-          "defaultSetting": "guideMode"
+          "defaultSetting": "guideMode",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#guide-mode"
         }, {
           "label": "SETTINGS_GUIDE_ALWAYS_HIDE",
           "type": "bool",
@@ -11427,6 +11435,9 @@
 
       config.args.theme = ytcenter.settings.playerTheme;
       config.args.color = ytcenter.settings.playerColor;
+      
+      if (ytcenter.settings.removeRelatedVideosEndscreen)
+        delete config.args.endscreen_module;
       
       if (ytcenter.settings.enableResize)
         config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
