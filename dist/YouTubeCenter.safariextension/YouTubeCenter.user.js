@@ -8257,7 +8257,10 @@
       
       document.cookie = name + "=" + value + domain + path + expires;
     };
-    ytcenter.utils.getCookie = function(name){
+    ytcenter.utils.getCookie = function(key){
+      return ytcenter.utils.getCookies()[key];
+    };
+    ytcenter.utils.getCookies = function(){
       function trimLeft(obj){
         return obj.replace(/^\s+/, "");
       }
@@ -8291,7 +8294,6 @@
               cookies[name] = value;
           });
       }
-      if (name) return cookies[name];
       return cookies;
     };
     ytcenter.utils.assignId = (function(){
@@ -9052,7 +9054,9 @@
             name: ytcenter.storageName
           });
         } else {
-          var loaded = JSON.parse($LoadData(ytcenter.storageName, "{}"));
+          var data = $LoadData(ytcenter.storageName, "{}");
+          con.log(data);
+          var loaded = JSON.parse(data);
           for (var key in loaded) {
             if (loaded.hasOwnProperty(key)) {
               ytcenter.settings[key] = loaded[key];
@@ -9341,9 +9345,9 @@
       embed_enableVolume: false,
       embed_volume: 100,
       embed_mute: false,
-      resizeEnable: false,
+      resizeEnable: true,
       resizeSave: false,
-      aspectEnable: false,
+      aspectEnable: true,
       aspectSave: false,
       aspectValue: 'default',
       repeatShowIcon: true,
