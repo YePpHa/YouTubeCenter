@@ -11208,6 +11208,7 @@
         if (document.getElementById("page")) {
           document.getElementById("page").style.setProperty("margin-left", "auto", "important");
           document.getElementById("page").style.setProperty("margin-right", "auto", "important");
+          document.getElementById("page").style.setProperty("padding-left", "0", "important");
         }
       } else if (alignment === "left") {
         $RemoveCSS(document.body, "ytcenter-site-center");
@@ -13262,6 +13263,19 @@
             ytcenter.saveSettings();
             loc.reload();
           }
+        }
+        
+        if (ytcenter.settings["resize-default-playersize"] === "default") {
+          ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
+          ytcenter.player.updateResize();
+        } else {
+          ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
+          ytcenter.player.updateResize();
+        }
+
+        if (ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
+          if (document.getElementById("watch-headline-container") || document.getElementById("page-container"))
+            (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
         }
         
         ytcenter.applyClasses();
