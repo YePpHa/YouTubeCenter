@@ -8080,7 +8080,7 @@
               for (i = 1; i < a.length-1; i++) {
                 b = a[i];
                 if (b.indexOf("a.slice") !== -1) { // Slice
-                  con.log("Slice/Copy (" + b + ")");
+                  con.log("Slice/Clone (" + b + ")");
                   v = b.split("(")[1].split(")")[0];
                   con.log("=> " + v);
                   ytcenter.utils._signatureDecipher.push({func: "slice", value: parseInt(v)});
@@ -11860,24 +11860,63 @@
         if (!(event in events)) return;
         events[event].override = override;
       };
+      __r.getMasterWindowListener = function(a){
+        return function(){
+          var args = [], i;
+          for (i = 0; i < arguments.length; i++) {
+            args.push(arguments[i]);
+          }
+          args.push("ytcenter-override");
+          con.log("[Player Listener] Override => " + a + " =>", args);
+          events[a].masterListener.apply(null, args);
+        };
+      };
       __r.getMasterListener = function(a){
         return function(){
           con.log("[Player Listener] => " + a, arguments);
           var i, w = {
             getOriginalListener: function(){
-              return __r.originalListeners[a];
+              return function(){
+                __r.originalListeners[a].apply(null, arguments);
+              };
             }
-          };
-          for (i = 0; i < events[a].listeners.length; i++) {
-            events[a].listeners[i].apply(w, arguments);
+          }, b = __r.setupOverride();
+          if (events[a].override) {
+            if (0 < arguments.length && arguments[arguments.length - 1] === "ytcenter-override") {
+              for (i = 0; i < events[a].listeners.length; i++) {
+                events[a].listeners[i].apply(w, arguments);
+              }
+            } else {
+              con.error("[Player Listener] " + a + " => An override can't be called from YouTube!");
+            }
+          } else {
+            for (i = 0; i < events[a].listeners.length; i++) {
+              events[a].listeners[i].apply(w, arguments);
+            }
           }
         };
+      };
+      __r.setupOverride = function(){
+        if (!__r.initialized) return [];
+        var a = [] ,b;
+        for (event in __r.replacedListeners) {
+          if (__r.replacedListeners.hasOwnProperty(event)) {
+            b = event.replace(/player[0-9]+$/, "").replace(/^ytPlayer/, "");
+            if (uw[event] !== events[b].masterWindowListener) {
+              con.log("[Player Listener] YouTube Center injected listeners not present!");
+              uw[event] = events[b].masterWindowListener;
+              a.push(b);
+            }
+          }
+        }
+        return a;
       };
       __r.setupListeners = function(){
         var i, event;
         for (event in events) {
           if (events.hasOwnProperty(event)) {
             events[event].masterListener = __r.getMasterListener(event);
+            events[event].masterWindowListener = __r.getMasterWindowListener(event);
           }
         }
       };
@@ -11886,7 +11925,10 @@
       __r.originalListeners = {};
       __r.playerNumber = 1;
       __r.setup = function(){ // Should only be called in onReady
-        if (__r.initialized) return;
+        if (__r.initialized) {
+          __r.setupOverride();
+          return;
+        }
         __r.initialized = true;
         var api = ytcenter.player.getAPI(),
             override = false,
@@ -11896,7 +11938,7 @@
         for (event in events) {
           if (events.hasOwnProperty(event)) {
             if (events[event].override) override = true;
-            else api.addEventListener(event, events[event].masterListener);
+            api.addEventListener(event, events[event].masterListener);
           }
         }
         if (override) {
@@ -11905,10 +11947,10 @@
             for (event in events) {
               if (events.hasOwnProperty(event) && events[event].override) {
                 for (i = 1; i < maxIteration; i++) {
-                  if (uw["ytPlayer" + event + "player" + i] && uw["ytPlayer" + event + "player" + i] !== events[event].masterListener) {
+                  if (uw["ytPlayer" + event + "player" + i] && uw["ytPlayer" + event + "player" + i] !== events[event].masterWindowListener) {
                     __r.replacedListeners["ytPlayer" + event + "player" + i] = uw["ytPlayer" + event + "player" + i];
                     __r.originalListeners[event] = uw["ytPlayer" + event + "player" + i];
-                    uw["ytPlayer" + event + "player" + i] = events[event].masterListener;
+                    uw["ytPlayer" + event + "player" + i] = events[event].masterWindowListener;
                   }
                 }
               }
@@ -11917,7 +11959,6 @@
         }
       };
       __r.dispose = function(){
-        return;
         if (!__r.initialized) return;
         __r.initialized = false;
         var event,
@@ -11929,7 +11970,10 @@
         }
         for (event in __r.replacedListeners) {
           if (__r.replacedListeners.hasOwnProperty(event)) {
-            uw[event] = __r.replacedListeners[event];
+            if (uw[event] === events[event].masterListener)
+              uw[event] = __r.replacedListeners[event];
+            else
+              con.log("[Player Listener] YouTube Center injected listeners not present!");
           }
         }
       };
@@ -13420,11 +13464,14 @@
         } else {
           uw.onYouTubePlayerReady = function(api){
             con.log("[onYouTubePlayerReady]", arguments);
+            ytcenter.player.listeners.setupOverride();
             if (typeof api !== "string") {
               ytcenter.player.__getAPI = api;
               ytcenter.onReadyListenersInit();
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
+              
+              ytcenter.player.listeners.setup();
               
               ytcenter.placementsystem.clear();
               if (ytcenter.getPage() === "watch") {
@@ -13454,12 +13501,12 @@
       });
       ytcenter.onReadyListenersInit = function(){
         con.log("onReadyListenersInit");
+        
         var api = ytcenter.player.getAPI();
         api.addEventListener("onReady", function(api){
           if (typeof api === "string") return;
           ytcenter.player.__getAPI = api;
           
-          ytcenter.player.listeners.setup();
           if (ytcenter.getPage() === "watch") {
             ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
           }
