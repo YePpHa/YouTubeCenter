@@ -387,3 +387,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   position: relative;
   z-index: 3;
 }
+.ytcenter-site-center #page {
+  padding-left: 0!important;
+}
