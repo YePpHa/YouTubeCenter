@@ -12561,14 +12561,17 @@
               clg = 10;
             }
             ytcenter.guide.left = clg;
-            if (clientWidth <= 1325) {
-              document.getElementById("page-container").style.width = "100%";
-            } else {
-              document.getElementById("page-container").style.width = "";
+            if (document.getElementById("page-container")) {
+              if (clientWidth <= 1325) {
+                document.getElementById("page-container").style.width = "100%";
+              } else {
+                document.getElementById("page-container").style.width = "";
+              }
             }
           } else {
             ytcenter.guide.left = null;
-            document.getElementById("page-container").style.width = "";
+            if (document.getElementById("page-container"))
+              document.getElementById("page-container").style.width = "";
           }
           ytcenter.guide.update();
         }
@@ -12649,24 +12652,26 @@
           }
           
           var p = document.getElementById("player");
-          if (calcWidth > maxInsidePlayerWidth) {
-            p.style.margin = "";
-            if (align) {
-              p.style.marginLeft = "";
-            } else {
-              var ml = Math.floor(-(calcWidth - maxInsidePlayerWidth)/2 + 0.5);
-              if (document.getElementById("watch7-container")) {
-                var off = ytcenter.utils.getOffset(document.getElementById("watch7-container"));
-                if (-ml > off.left) ml = -off.left;
-              }
-              p.style.marginLeft = ml + "px";
-            }
-          } else {
-            p.style.marginLeft = "";
-            if (align) {
+          if (p) {
+            if (calcWidth > maxInsidePlayerWidth) {
               p.style.margin = "";
+              if (align) {
+                p.style.marginLeft = "";
+              } else {
+                var ml = Math.floor(-(calcWidth - maxInsidePlayerWidth)/2 + 0.5);
+                if (document.getElementById("watch7-container")) {
+                  var off = ytcenter.utils.getOffset(document.getElementById("watch7-container"));
+                  if (-ml > off.left) ml = -off.left;
+                }
+                p.style.marginLeft = ml + "px";
+              }
             } else {
-              p.style.margin = "0 auto";
+              p.style.marginLeft = "";
+              if (align) {
+                p.style.margin = "";
+              } else {
+                p.style.margin = "0 auto";
+              }
             }
           }
         }
