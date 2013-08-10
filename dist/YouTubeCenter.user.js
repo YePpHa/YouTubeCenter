@@ -3985,15 +3985,23 @@
                     }
                     if (cfg && cfg.html && cfg.html.content) {
                       cfg = cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
-                      cfg = JSON.parse(cfg.split(";</script>")[0]);
+                      cfg = cfg.split(";</script>")[0];
+                      try {
+                        cfg = JSON.parse(cfg);
+                      } catch (e) {
+                        cfg = eval("(" + cfg + ")");
+                      }
                     } else {
                       throw "unknown";
                     }
-                    cfg = cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
-                    cfg = JSON.parse(cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0]);
                   }
                 } else {
-                  cfg = JSON.parse(r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0]);
+                  cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
+                  try {
+                    cfg = JSON.parse(cfg);
+                  } catch (e) {
+                    cfg = eval("(" + cfg + ")");
+                  }
                 }
                 item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
                 try {
@@ -4025,7 +4033,15 @@
                   } else {
                     msg = "Error!";
                     con.error(e);
-                    con.error(r.responseText);
+                    try {
+                      con.error(JSON.parse(r.responseText));
+                    } catch (e) {
+                      try {
+                        con.error(eval("(" + r.responseText + ")"));
+                      } catch (e) {
+                        con.error(r.responseText);
+                      }
+                    }
                   }
                 }
                 con.error("[VideoThumbnail Quality] IO Error => " + msg);
@@ -4075,7 +4091,15 @@
                   } else {
                     msg = "Error!";
                     con.error(e);
-                    con.error(r.responseText);
+                    try {
+                      con.error(JSON.parse(r.responseText));
+                    } catch (e) {
+                      try {
+                        con.error(eval("(" + r.responseText + ")"));
+                      } catch (e) {
+                        con.error(r.responseText);
+                      }
+                    }
                   }
                 }
                 con.error("[VideoThumbnail Ratings] IO Error => " + msg);
@@ -8700,11 +8724,8 @@
       var rd = {
         init: function(whitelist, blacklist){
           try {
-            if (ytcenter.watch7) {
-              settings = ytcenter.settings.buttonPlacementWatch7;
-            } else {
-              settings = ytcenter.settings.buttonPlacement
-            }
+            settings = ytcenter.settings.buttonPlacementWatch7;
+            
             updateList();
             
             sandboxes = whitelist;
@@ -8855,6 +8876,8 @@
         clear: function(){
           database = [];
           rd.db = database;
+          if (ytcenter.placementsystem.ytcd && ytcenter.placementsystem.ytcd.parentNode)
+            ytcenter.placementsystem.ytcd.parentNode.removeChild(ytcenter.placementsystem.ytcd);
         }
       };
       return rd;
@@ -11962,7 +11985,7 @@
         if (!__r.initialized) return;
         __r.initialized = false;
         var event,
-            api = ytcenter.player.getAPI();
+            api = ytcenter.player.getAPI(), a;
         for (event in events) {
           if (events.hasOwnProperty(event)) {
             api.removeEventListener(event, events[event].masterListener);
@@ -11970,7 +11993,8 @@
         }
         for (event in __r.replacedListeners) {
           if (__r.replacedListeners.hasOwnProperty(event)) {
-            if (uw[event] === events[event].masterListener)
+            a = event.replace(/player[0-9]+$/, "").replace(/^ytPlayer/, "");
+            if (uw[event] === events[a].masterListener)
               uw[event] = __r.replacedListeners[event];
             else
               con.log("[Player Listener] YouTube Center injected listeners not present!");
@@ -12407,9 +12431,10 @@
           player.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
           player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";
           
-          playerAPI.style.width = playerWidth + "px";
-          playerAPI.style.height = playerHeight + "px";
-          
+          if (playerAPI) {
+            playerAPI.style.width = playerWidth + "px";
+            playerAPI.style.height = playerHeight + "px";
+          }
           if (!ytcenter.settings['experimentalFeatureTopGuide'] && content) {
             content.style.width = maxInsidePlayerWidth + "px";
           }
@@ -12430,7 +12455,7 @@
         // Content
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
           if (ytcenter.settings.watch7centerpage) {
-            if (clientWidth < calcWidth) {
+            if (clientWidth < calcWidth && contentMain) {
               var __w = Math.floor(clientWidth/2 - maxInsidePlayerWidth/2);
               if (__w < 180) __w = 180;
               if (clientWidth > 1165 && __w > 180) {
@@ -13125,7 +13150,7 @@
       // buttonPlacementWatch7
       var ytcd = document.createElement("div");
       ytcd.id = "watch7-ytcenter-buttons";
-      
+      ytcenter.placementsystem.ytcd = ytcd;
       document.getElementById("watch7-sentiment-actions").parentNode.insertBefore(ytcd, document.getElementById("watch7-sentiment-actions"));
       
       ytcenter.placementsystem.init([
@@ -13467,13 +13492,16 @@
             ytcenter.player.listeners.setupOverride();
             if (typeof api !== "string") {
               ytcenter.player.__getAPI = api;
+              
+              ytcenter.player.listeners.dispose();
+              ytcenter.player.listeners.setup();
+              
               ytcenter.onReadyListenersInit();
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
               
-              ytcenter.player.listeners.setup();
-              
               ytcenter.placementsystem.clear();
+              
               if (ytcenter.getPage() === "watch") {
                 if (ytcenter.settings["resize-default-playersize"] === "default") {
                   ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
@@ -13516,6 +13544,45 @@
       ytcenter.spf.addEventListener("received-before", function(url, data){
         if (data.swfcfg && data.swfcfg.args) {
           data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
+        } else if (data.html && data.html.content && data.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+          var a, i1, i2, content, tmp, tmp2, swfcfg;
+          try {
+            a = data.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
+            a = a.split(";</script>")[0];
+            try {
+              swfcfg = JSON.parse(a);
+            } catch (e) {
+              swfcfg = eval("(" + a + ")");
+            }
+            swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
+            content = data.html.content;
+            i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
+            i2 = content.indexOf(";</script>");
+            data.html.content = content.substring(0, i1 + "<script>var ytplayer = ytplayer || {};ytplayer.config = ".length) + JSON.stringify(swfcfg) + content.substring(i2);
+            /*
+            var getElementById = function(node, id){
+                  if (node && node.id === id)
+                    return node;
+                  var i, child;
+                  for (i = 0; i < node.childNodes.length; i++) {
+                    child = getElementById(node.childNodes[i], id);
+                    if (child) return child;
+                  }
+                },
+                s = document.createElement("div");
+            s.innerHTML = content;
+            
+            data.html["player-branded-banner"] = getElementById(s, "player-branded-banner").innerHTML;
+            data.html["player-unavailable"] = getElementById(s, "player-unavailable").innerHTML;
+            data.html["playlist"] = getElementById(s, "playlist").innerHTML;
+            data.html["playlist-tray"] = getElementById(s, "playlist-tray").innerHTML;
+            
+            data.attr['player-unavailable'] = {"class": getElementById(s, "player-unavailable").getAttribute("class")};
+            
+            s = null;*/
+          } catch (e) {
+            con.error(e);
+          }
         }
         if (data.attr && data.attr.body && data.attr.body["class"]) {
           data.attr.body["class"] = ytcenter.getBodyClasses() + " " + data.attr.body["class"];
