@@ -9245,7 +9245,7 @@
       fixfilename: false,
       flexWidthOnPage: false,
       enableAutoVideoQuality: true,
-      autoVideoQuality: 'medium',
+      autoVideoQuality: 'hd720',
       removeAdvertisements: true,
       preventAutoPlay: false,
       preventAutoBuffer: false,
@@ -13298,13 +13298,13 @@
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           if (!ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = false;
-            ytcenter.saveSettings();
+            ytcenter.saveSettings(false, false);
             loc.reload();
           }
         } else {
           if (ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = true;
-            ytcenter.saveSettings();
+            ytcenter.saveSettings(false, false);
             loc.reload();
           }
         }
