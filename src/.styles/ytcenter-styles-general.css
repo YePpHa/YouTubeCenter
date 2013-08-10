@@ -816,3 +816,11 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 .video-list .video-response a {
   position: absolute;
 }
+
+.watch7-playlist-bar {
+  width: 100%!important;
+}
+
+.watch7-playlist-bar-right {
+  width: auto!important;
+}
