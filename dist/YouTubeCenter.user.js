@@ -931,13 +931,13 @@
             title.textContent = ytcenter.language.getLocale("UNKNOWN");
             ytcenter.language.addLocaleElement(title, "UNKNOWN", "@textContent");
           }
-          stream_groups[key] = stream_groups[key].streams; // Just lazy...
+          //stream_groups[key] = stream_groups[key].streams; // Just lazy...
           menu.appendChild(title);
           
-          for (var i = 0; i < stream_groups[key].length; i++) {
-            var is3D = (stream_groups[key][i].stereo3d && stream_groups[key][i].stereo3d == 1 ? true : false);
+          for (var i = 0; i < stream_groups[key].streams.length; i++) {
+            var is3D = (stream_groups[key].streams[i].stereo3d && stream_groups[key].streams[i].stereo3d == 1 ? true : false);
             var item = document.createElement("a");
-            if (!stream_groups[key][i].url) {
+            if (!stream_groups[key].streams[i].url) {
               item.style.color = "#A7A7A7";
               item.style.display = "block";
               item.style.margin = "0";
@@ -948,7 +948,7 @@
             } else {
               item.className = "yt-uix-button-menu-item";
               item.setAttribute("target", "_blank");
-              item.href = ytcenter.video.downloadLink(stream_groups[key][i]);
+              item.href = ytcenter.video.downloadLink(stream_groups[key].streams[i]);
               var downloadStreamListener = (function(_stream){
                 return function(e){
                   if (!ytcenter.settings.downloadAsLinks) {
@@ -956,13 +956,13 @@
                     e.preventDefault();
                   }
                 };
-              })(stream_groups[key][i]);
+              })(stream_groups[key].streams[i]);
               item.addEventListener("click", downloadStreamListener, false);
               ytcenter.events.addEvent("ui-refresh", (function(__stream, item, _downloadStreamListener){
                 return function(){
                   item.href = ytcenter.video.downloadLink(__stream);
                 };
-              })(stream_groups[key][i], item, downloadStreamListener));
+              })(stream_groups[key].streams[i], item, downloadStreamListener));
             }
             
             var stream_name = {
@@ -972,17 +972,17 @@
               large: ytcenter.language.getLocale("LARGE"),
               medium: ytcenter.language.getLocale("MEDIUM"),
               small: ytcenter.language.getLocale("SMALL")
-            }[stream_groups[key][i].quality];
+            }[stream_groups[key].streams[i].quality];
             var _t = document.createElement("table"), _tb = document.createElement("tbody"), _tr = document.createElement("tr"),  _td = document.createElement("td"), _td2 = document.createElement("td");
             _t.style.width = "100%";
             _t.style.border = "0";
             _t.style.margin = "0";
             _t.style.padding = "0";
             
-            if (stream_groups[key][i].bitrate) {
-              _td.textContent = Math.round(parseInt(stream_groups[key][i].bitrate)/1000 + 0.5) + " Kbps";
+            if (stream_groups[key].streams[i].bitrate) {
+              _td.textContent = Math.round(parseInt(stream_groups[key].streams[i].bitrate)/1000 + 0.5) + " Kbps";
             } else {
-              _td.textContent = stream_name + ", " + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key][i].dimension ? stream_groups[key][i].dimension : "") + ")";
+              _td.textContent = stream_name + ", " + (stream_groups[key].streams[i].dimension ? stream_groups[key].streams[i].dimension.split("x")[1] : "") + "p (" + (stream_groups[key].streams[i].dimension ? stream_groups[key].streams[i].dimension : "") + ")";
               _td2.textContent = (is3D ? "&nbsp;3D" : "");
             }
             
@@ -1010,9 +1010,9 @@
                   _td2.textContent = (_is3D ? "&nbsp;3D" : "");
                 }
               };
-            })(stream_groups[key][i], is3D, _td, _td2));
+            })(stream_groups[key].streams[i], is3D, _td, _td2));
             var li = document.createElement("li");
-            li.className = "ytcenter-downloadmenu-" + (key === "UNKNOWN" ? "unknown" : key) + (is3D ? " ytcenter-menu-item-3d" : "");
+            li.className = "ytcenter-downloadmenu-" + (stream_groups[key].key === "UNKNOWN" ? "unknown" : stream_groups[key].key) + (is3D ? " ytcenter-menu-item-3d" : "");
             li.setAttribute("role", "menuitem");
             li.appendChild(item);
             menu.appendChild(li);
@@ -3959,7 +3959,7 @@
                     if (r.responseText.indexOf("<internalReason>") !== -1 && r.responseText.indexOf("</internalReason>") !== -1) {
                       msg = ytcenter.utils.unescapeXML(r.responseText.split("<internalReason>")[1].split("</internalReason>")[0]) + "!";
                     }
-                  } else if (r.responseText.indexOf("Too many") !== -1) {
+                  } else if (r.responseText.indexOf("<code>too_many_recent_calls</code>") !== -1 && r.responseText.indexOf("<domain>yt:quota</domain>") !== -1) {
                     msg = "Too many requests!";
                   } else {
                     msg = "Error!";
@@ -13368,15 +13368,6 @@
             if (document.getElementById("watch-headline-container") || document.getElementById("page-container"))
               (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
           }
-          
-          ytcenter.placementsystem.clear();
-          $CreateDownloadButton();
-          $CreateRepeatButton();
-          $CreateLightButton();
-          $CreateAspectButton();
-          $CreateResizeButton();
-          
-          initPlacement();
         } else if (page === "channel") {
           ytcenter.page = "channel";
           id = document.body.innerHTML.match(/\/v\/([0-9a-zA-Z_-]+)/)[1];
@@ -13431,6 +13422,17 @@
             ytcenter.player.config = config;
           }
           ytcenter.player.update(config);
+          if (ytcenter.getPage() === "watch") {
+            ytcenter.placementsystem.clear();
+            
+            $CreateDownloadButton();
+            $CreateRepeatButton();
+            $CreateLightButton();
+            $CreateAspectButton();
+            $CreateResizeButton();
+            
+            initPlacement();
+          }
         }
         
         ytcenter.player.listeners.setOverride("onStateChange", true);
