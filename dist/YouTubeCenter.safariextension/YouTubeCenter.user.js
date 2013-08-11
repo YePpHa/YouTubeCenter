@@ -3759,7 +3759,7 @@
             }
           ],
           preTester,
-          preTesterInterval = 50;
+          preTesterInterval = 100;
       __r.call = function(event){
         for (i = 0; i < events.length; i++) {
           if (events[i].event === event) {
