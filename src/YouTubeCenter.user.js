@@ -12327,8 +12327,8 @@
         
         width = width || "";
         height = height || "";
-        if (typeof large === "undefined") large = false;
-        if (typeof align === "undefined") align = false;
+        if (typeof large !== "boolean") large = false;
+        if (typeof align !== "boolean") align = false;
         _width = width;
         _height = height;
         _large = large;
@@ -12801,27 +12801,31 @@
       ytcenter.player.getAPI().writePlayer(type);
     };
     ytcenter.player.update = function(config){
-      var player = document.getElementById("movie_player") || document.getElementById("player1"),
-          flashvars = "";
-      for (var key in config.args) {
-        if (config.args.hasOwnProperty(key)) {
-          if (flashvars !== "") flashvars += "&";
-          flashvars += encodeURIComponent(key) + "=" + encodeURIComponent(config.args[key]);
+      try {
+        var player = document.getElementById("movie_player") || document.getElementById("player1"),
+            flashvars = "";
+        for (var key in config.args) {
+          if (config.args.hasOwnProperty(key)) {
+            if (flashvars !== "") flashvars += "&";
+            flashvars += encodeURIComponent(key) + "=" + encodeURIComponent(config.args[key]);
+          }
         }
-      }
-      con.log("[Player Update] Checking if player exists!");
-      if (player && player.tagName === "EMBED") {
-        player.setAttribute("flashvars", flashvars);
-        if (ytcenter.settings.flashWMode !== "none") {
-          player.setAttribute("wmode", ytcenter.settings.flashWMode);
+        con.log("[Player Update] Checking if player exists!");
+        if (player && player.tagName === "EMBED") {
+          player.setAttribute("flashvars", flashvars);
+          if (ytcenter.settings.flashWMode !== "none") {
+            player.setAttribute("wmode", ytcenter.settings.flashWMode);
+          }
+          
+          var clone = player.cloneNode(true);
+          player.style.display = "none";
+          player.src = "";
+          player.parentNode.replaceChild(clone, player);
+          player = clone;
+          con.log("[Player Update] Player has been cloned and replaced!");
         }
-        
-        var clone = player.cloneNode(true);
-        player.style.display = "none";
-        player.src = "";
-        player.parentNode.replaceChild(clone, player);
-        player = clone;
-        con.log("[Player Update] Player has been cloned and replaced!");
+      } catch (e) {
+        con.error(e);
       }
     };
     ytcenter.parseStreams = function(playerConfig){
@@ -13331,6 +13335,14 @@
               (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
           }
           
+          ytcenter.placementsystem.clear();
+          $CreateDownloadButton();
+          $CreateRepeatButton();
+          $CreateLightButton();
+          $CreateAspectButton();
+          $CreateResizeButton();
+          
+          initPlacement();
         } else if (page === "channel") {
           ytcenter.page = "channel";
           id = document.body.innerHTML.match(/\/v\/([0-9a-zA-Z_-]+)/)[1];
@@ -13461,25 +13473,6 @@
             } else {
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), uw.ytplayer.config);
-              ytcenter.placementsystem.clear();
-              
-              if (ytcenter.getPage() === "watch") {
-                /*if (ytcenter.settings["resize-default-playersize"] === "default") {
-                  ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
-                  ytcenter.player.updateResize();
-                } else {
-                  ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
-                  ytcenter.player.updateResize();
-                }*/
-                
-                $CreateDownloadButton();
-                $CreateRepeatButton();
-                $CreateLightButton();
-                $CreateAspectButton();
-                $CreateResizeButton();
-                
-                initPlacement();
-              }
             }
           }
         };

@@ -315,8 +315,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
     margin: 0 auto!important;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-container > #player,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-container > #player {
     margin: 0!important;
   }
   
@@ -344,19 +343,28 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
     width: 100%!important;
   }
   
-  .ytcenter-site-center #watch7-main-container {
+  .ytcenter-site-watch.ytcenter-site-center  #watch7-main-container {
     width: 985px !important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #watch7-main-container {
     margin: 0 !important;
   }
 
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #content #player  {
+  /*.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #content #player  {
     margin-left: -58px!important;
   }
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned #content #player  {
     margin-left: -190px!important;
+  }*/
+  
+  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #watch7-main-container {
+    margin-left: 58px!important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned #watch7-main-container {
+    margin-left: 190px!important;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #content,
   .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned #content,
   .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned #page > #player {
     padding-left: 58px!important;
@@ -369,7 +377,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   }
   
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #content,
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned #content,
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #page > #player  {
     padding-left: 190px!important;
   }
@@ -389,4 +396,9 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 
 .ytcenter-site-watch #player {
   overflow: auto;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player {
+  margin: 0 auto!important;
+  min-width: 0!important;
 }
