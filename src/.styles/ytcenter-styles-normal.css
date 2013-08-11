@@ -402,3 +402,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   margin: 0 auto!important;
   min-width: 0!important;
 }
+
+.ytcenter-site-watch.ytcenter-site-center #guide-container {
+  position: absolute!important;
+}

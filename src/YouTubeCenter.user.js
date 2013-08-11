@@ -9462,13 +9462,6 @@
             {
               "event": "click",
               "callback": function(){
-                if (ytcenter.watch7) {
-                  if (ytcenter.settings.watch7centerpage) {
-                    ytcenter.site.setPageAlignment("center");
-                  } else {
-                    ytcenter.site.setPageAlignment("left");
-                  }
-                }
                 ytcenter.events.performEvent("ui-refresh");
               }
             }
@@ -11170,31 +11163,6 @@
       }
       return cfg;
     };
-    ytcenter.site.setPageAlignment = function(alignment) {
-      if (!document.body) return;
-      if (alignment === "center") {
-        $AddCSS(document.body, "ytcenter-site-center");
-        if (document.getElementById("masthead-subnav")) {
-          document.getElementById("masthead-subnav").style.setProperty("margin-left", "auto", "important");
-          document.getElementById("masthead-subnav").style.setProperty("margin-right", "auto", "important");
-        }
-        if (document.getElementById("page")) {
-          document.getElementById("page").style.setProperty("margin-left", "auto", "important");
-          document.getElementById("page").style.setProperty("margin-right", "auto", "important");
-          document.getElementById("page").style.setProperty("padding-left", "0", "important");
-        }
-      } else if (alignment === "left") {
-        $RemoveCSS(document.body, "ytcenter-site-center");
-        if (document.getElementById("masthead-subnav")) {
-          document.getElementById("masthead-subnav").style.marginLeft = "";
-          document.getElementById("masthead-subnav").style.marginRight = "";
-        }
-        if (document.getElementById("page")) {
-          document.getElementById("page").style.marginLeft = "";
-          document.getElementById("page").style.marginRight = "";
-        }
-      }
-    };
     ytcenter.user = {};
     ytcenter.user.callChannelFeed = function(username, callback){
       $XMLHTTPRequest({
@@ -11441,6 +11409,7 @@
       }
     };
     ytcenter.player.modifyConfig = function(page, config){
+      if (page !== "watch" && page !== "embed" && page !== "channel") return;
       con.log("[Player modifyConfig] => " + page);
       if (ytcenter._tmp_embed) {
         config.args.fmt_list = ytcenter._tmp_embed.fmt_list;
@@ -12904,6 +12873,19 @@
       return a;
     };
     ytcenter.classManagement = {};
+    ytcenter.classManagement.applyClassesExceptElement = function(el){
+      var i;
+      for (i = 0; i < ytcenter.classManagement.db.length; i++) {
+        if (ytcenter.classManagement.db[i].element() && ytcenter.classManagement.db[i].element() !== el) {
+          if (ytcenter.classManagement.db[i].condition())
+            ytcenter.classManagement.db[i].element().className += " " + ytcenter.classManagement.db[i].className;
+          else
+            ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
+        } else if (!ytcenter.classManagement.db[i].element()) {
+          con.error("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+        }
+      }
+    };
     ytcenter.classManagement.applyClassesForElement = function(el){
       var i;
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
@@ -12912,6 +12894,8 @@
             ytcenter.classManagement.db[i].element().className += " " + ytcenter.classManagement.db[i].className;
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
+        } else if (!ytcenter.classManagement.db[i].element()) {
+          con.error("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
         }
       }
     };
@@ -12955,6 +12939,8 @@
       return a.join(" ");
     };
     ytcenter.classManagement.db = [
+      {element: function(){return document.getElementById("page");}, className: "", condition: function(){document.getElementById("page").style.setProperty("margin", "0 auto", "!important");return false;}},
+      {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(){return !ytcenter.settings.expandDescription;}},
       {element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(){return ytcenter.settings.removeAdvertisements;}},
@@ -13246,7 +13232,6 @@
           return;
         }
         ytcenter.classManagement.applyClassesForElement(document.body);
-        ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
         
         if (loc.pathname !== "/watch")
           ytcenter.player.turnLightOn();
@@ -13287,7 +13272,7 @@
         if (page === "embed") return;
         
         // UI
-        ytcenter.classManagement.applyClasses();
+        ytcenter.classManagement.applyClassesExceptElement(document.body);
         
         $CreateSettingsUI();
         $UpdateChecker();
@@ -13393,7 +13378,7 @@
           ytcenter.page = "normal";
         }
         
-        if (page !== "channel") {
+        if (page === "watch" || page === "embed") {
           if (uw.ytplayer && uw.ytplayer.config) {
             config = ytcenter.player.modifyConfig(ytcenter.getPage(), uw.ytplayer.config);
             uw.ytplayer.config = config;
@@ -13526,8 +13511,6 @@
         if (loc.pathname !== "/watch") {
             ytcenter.player.turnLightOn();
         } else {
-          ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
-          
           if (ytcenter.settings.lightbulbAutoOff)
             ytcenter.player.turnLightOff();
           ytcenter.guideMode();
