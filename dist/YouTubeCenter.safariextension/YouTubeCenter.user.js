@@ -641,26 +641,16 @@
       btn.setAttribute("role", "button");
       btn.setAttribute("type", "button");
       btn.setAttribute("onclick", ";return false;");
-      btn.className = "yt-uix-button yt-uix-tooltip" + (!ytcenter.watch7 ? " yt-uix-button-default" : " yt-uix-button-text") + (ytcenter.settings.autoActivateRepeat ? " ytcenter-uix-button-toggled" : "") + (ytcenter.settings.enableRepeat ? "" : " hid");
+      btn.className = "yt-uix-button yt-uix-tooltip" + (ytcenter.settings.autoActivateRepeat ? " ytcenter-uix-button-toggled" : " yt-uix-button-text") + (ytcenter.settings.enableRepeat ? "" : " hid");
       btn.addEventListener("click", function(){
-        if (ytcenter.watch7) {
-          if (ytcenter.doRepeat) {
-            $RemoveCSS(this, 'ytcenter-uix-button-toggled');
-            $AddCSS(this, 'yt-uix-button-text');
-            ytcenter.doRepeat = false;
-          } else {
-            $AddCSS(this, 'ytcenter-uix-button-toggled');
-            $RemoveCSS(this, 'yt-uix-button-text');
-            ytcenter.doRepeat = true;
-          }
+        if (ytcenter.doRepeat) {
+          $RemoveCSS(this, 'ytcenter-uix-button-toggled');
+          $AddCSS(this, 'yt-uix-button-text');
+          ytcenter.doRepeat = false;
         } else {
-          if (ytcenter.doRepeat) {
-            $RemoveCSS(this, 'yt-uix-button-toggled');
-            ytcenter.doRepeat = false;
-          } else {
-            $AddCSS(this, 'yt-uix-button-toggled');
-            ytcenter.doRepeat = true;
-          }
+          $AddCSS(this, 'ytcenter-uix-button-toggled');
+          $RemoveCSS(this, 'yt-uix-button-text');
+          ytcenter.doRepeat = true;
         }
       }, false);
       if (ytcenter.settings.autoActivateRepeat) {
@@ -668,7 +658,10 @@
       }
       
       var iconw = document.createElement("span");
-      iconw.className = "yt-uix-button-icon-wrapper" + (!ytcenter.settings.repeatShowIcon ? " hid" : "");
+      iconw.className = "yt-uix-button-icon-wrapper";
+      if (!ytcenter.settings.repeatShowIcon) {
+        iconw.style.display = "none";
+      }
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.repeatShowIcon) {
           iconw.style.display = "";
