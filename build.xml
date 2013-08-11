@@ -57,7 +57,7 @@
     <mkdir dir="${cert.chromePath}" />
   </target>
   
-  <target name="build-styles">
+  <target name="styles">
     <copy todir="${build}/${name.styles}">
       <fileset dir="${src.styles}/" />
     </copy>

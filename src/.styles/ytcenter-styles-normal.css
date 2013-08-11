@@ -123,8 +123,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   margin: 0 auto!important;
 }
 
-.ytcenter-site-not-watch.ytcenter-site-center #page-container {
-  margin: 0 auto!important;
+.ytcenter-site-not-watch.ytcenter-site-center #page {
   width: 1003px;
 }
 
