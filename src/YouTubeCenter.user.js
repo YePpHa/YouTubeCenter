@@ -239,9 +239,9 @@
       ytcenter.events.addEvent("ui-refresh", function(){
         btn.setAttribute("title", ytcenter.language.getLocale("BUTTON_ASPECT_TOOLTIP"));
         if (ytcenter.settings.aspectEnable) {
-          $RemoveCSS(btn, "hid");
+          ytcenter.utils.removeClass(btn, "hid");
         } else {
-          $AddCSS(btn, "hid");
+          ytcenter.utils.addClass(btn, "hid");
         }
       });
       
@@ -429,10 +429,10 @@
       itemLabel.addEventListener("click", function(){
         ytcenter.settings.aspectSave = !ytcenter.settings.aspectSave;
         if (ytcenter.settings.aspectSave) {
-          $AddCSS(itemCheckbox, "checked");
+          ytcenter.utils.addClass(itemCheckbox, "checked");
           ytcenter.settings.aspectValue = playerAspectTMP;
         } else {
-          $RemoveCSS(itemCheckbox, "checked");
+          ytcenter.utils.removeClass(itemCheckbox, "checked");
         }
         ytcenter.saveSettings();
       }, false);
@@ -549,9 +549,9 @@
       var btn = ytcenter.gui.createYouTubeButton("BUTTON_RESIZE_TOOLTIP", [btnLabel, arrow, menu]);
       btn.style.textAlign = "left";
       if (ytcenter.settings.resizeEnable) {
-        $RemoveCSS(btn, "hid");
+        ytcenter.utils.removeClass(btn, "hid");
       } else {
-        $AddCSS(btn, "hid");
+        ytcenter.utils.addClass(btn, "hid");
       }
       
       updateItems(ytcenter.settings["resize-playersizes"]);
@@ -564,9 +564,9 @@
       
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.resizeEnable) {
-          $RemoveCSS(btn, "hid");
+          ytcenter.utils.removeClass(btn, "hid");
         } else {
-          $AddCSS(btn, "hid");
+          ytcenter.utils.addClass(btn, "hid");
         }
       });
       
@@ -600,9 +600,9 @@
       var btn = document.createElement("button");
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.lightbulbEnable) {
-          $RemoveCSS(btn, "hid");
+          ytcenter.utils.removeClass(btn, "hid");
         } else {
-          $AddCSS(btn, "hid");
+          ytcenter.utils.addClass(btn, "hid");
         }
       });
       btn.setAttribute("onclick", ";return false;");
@@ -631,9 +631,9 @@
       btn.style.margin = "0 2px 0 0";
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.enableRepeat) {
-          $RemoveCSS(btn, 'hid');
+          ytcenter.utils.removeClass(btn, 'hid');
         } else {
-          $AddCSS(btn, 'hid');
+          ytcenter.utils.addClass(btn, 'hid');
         }
       });
       btn.title = ytcenter.language.getLocale("BUTTON_REPEAT_TOOLTIP");
@@ -644,12 +644,12 @@
       btn.className = "yt-uix-button yt-uix-tooltip" + (ytcenter.settings.autoActivateRepeat ? " ytcenter-uix-button-toggled" : " yt-uix-button-text") + (ytcenter.settings.enableRepeat ? "" : " hid");
       btn.addEventListener("click", function(){
         if (ytcenter.doRepeat) {
-          $RemoveCSS(this, 'ytcenter-uix-button-toggled');
-          $AddCSS(this, 'yt-uix-button-text');
+          ytcenter.utils.removeClass(this, 'ytcenter-uix-button-toggled');
+          ytcenter.utils.addClass(this, 'yt-uix-button-text');
           ytcenter.doRepeat = false;
         } else {
-          $AddCSS(this, 'ytcenter-uix-button-toggled');
-          $RemoveCSS(this, 'yt-uix-button-text');
+          ytcenter.utils.addClass(this, 'ytcenter-uix-button-toggled');
+          ytcenter.utils.removeClass(this, 'yt-uix-button-text');
           ytcenter.doRepeat = true;
         }
       }, false);
@@ -718,10 +718,10 @@
       g.style.margin = "0 2px 0 0";
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.enableDownload) {
-          $RemoveCSS(g, "hid");
+          ytcenter.utils.removeClass(g, "hid");
           g.style.display = "";
         } else {
-          $AddCSS(g, "hid");
+          ytcenter.utils.addClass(g, "hid");
           g.style.display = "none";
         }
       });
@@ -892,9 +892,9 @@
       menu.setAttribute("aria-haspopup", "true");
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.show3DInDownloadMenu) {
-          $RemoveCSS(menu, "ytcenter-menu-3d-hide");
+          ytcenter.utils.removeClass(menu, "ytcenter-menu-3d-hide");
         } else {
-          $AddCSS(menu, "ytcenter-menu-3d-hide");
+          ytcenter.utils.addClass(menu, "ytcenter-menu-3d-hide");
         }
       });
       
@@ -1031,10 +1031,10 @@
       ytcenter.language.addLocaleElement(mp3title, "BUTTON_DOWNLOAD_MENU_MP3SERVICES", "@textContent");
       ytcenter.events.addEvent("ui-refresh", function(){
         if (ytcenter.settings.mp3Services === '') {
-          $AddCSS(mp3title, 'hid');
+          ytcenter.utils.addClass(mp3title, 'hid');
           mp3title.style.display = "none";
         } else {
-          $RemoveCSS(mp3title, 'hid');
+          ytcenter.utils.removeClass(mp3title, 'hid');
           mp3title.style.display = "";
         }
       });
@@ -1100,10 +1100,10 @@
               }
             }
             if (f) {
-              $RemoveCSS(li, 'hid');
+              ytcenter.utils.removeClass(li, 'hid');
               li.style.display = "";
             } else {
-              $AddCSS(li, 'hid');
+              ytcenter.utils.addClass(li, 'hid');
               li.style.display = "none";
             }
           };
@@ -1183,13 +1183,13 @@
           tab.addEventListener("click", (function(tabs, tc, tabgroups){
             return function(){
               for (var i = 0; i < tabs.children.length; i++) {
-                $RemoveCSS(tabs.children[i].firstChild, "selected");
+                ytcenter.utils.removeClass(tabs.children[i].firstChild, "selected");
               }
               for (var i = 0; i < tabgroups.children.length; i++) {
-                $AddCSS(tabgroups.children[i], "hid");
+                ytcenter.utils.addClass(tabgroups.children[i], "hid");
               }
-              $AddCSS(this, "selected");
-              $RemoveCSS(tc, "hid");
+              ytcenter.utils.addClass(this, "selected");
+              ytcenter.utils.removeClass(tc, "hid");
               ytcenter.events.performEvent("ui-refresh");
             };
           })(tabs, tc, tabgroups), false);
@@ -1239,7 +1239,7 @@
         dialog.getHeader().style.borderBottom = "0";
         dialog.getBase().style.overflowY = "scroll";
         dialog.getFooter().style.display = "none";
-        $RemoveCSS(container, "hid");
+        ytcenter.utils.removeClass(container, "hid");
         ytcenter.utils.addEventListener(spanText, "click", function(){
           dialog.setVisibility(true);
         }, false);
@@ -1308,10 +1308,10 @@
           return function(){
             con.log("Settings Button -> " + toggled);
             if (toggled) {
-              $AddCSS(c, "hid");
+              ytcenter.utils.addClass(c, "hid");
               toggled = false;
             } else {
-              $RemoveCSS(c, "hid");
+              ytcenter.utils.removeClass(c, "hid");
               toggled = true;
             }
           };
@@ -2203,30 +2203,6 @@
       return null;
     }
     
-    function $AddCSS(elm, css) {
-      if (!elm) return;
-      var a = elm.className.split(" ");
-      if ($ArrayIndexOf(a, css) !== -1) return;
-      a.push(css);
-      elm.className = a.join(" ");
-    }
-    
-    function $RemoveCSS(elm, css) {
-      if (!elm) return false;
-      var a = elm.className.split(" ");
-      var na = [];
-      for (var i = 0; i < a.length; i++) {
-        if (a[i] === css) continue;
-        na.push(a[i]);
-      }
-      elm.className = na.join(" ");
-      return true;
-    }
-    
-    function $HasCSS(elm, css) {
-      return $ArrayIndexOf(elm.className.split(" "), css) !== -1;
-    }
-    
     function $ArrayIndexOf(arr, obj) {
       for (var i = 0; i < arr.length; i++) {
         if (arr[i] === obj) return i;
@@ -2474,7 +2450,7 @@
           het.title = "";
           het.setAttribute("data-button-action", "");
           het.setAttribute("data-tooltip-text", "");
-          $RemoveCSS(het, "yt-uix-tooltip");
+          ytcenter.utils.removeClass(het, "yt-uix-tooltip");
           for (var i = 0; i < het.children.length; i++) {
             hetr(het.children[i]);
           }
@@ -8291,14 +8267,28 @@
       }
       return _o;
     };
+    ytcenter.utils.cleanClasses = function(elm){
+      if (typeof elm === "undefined") return;
+      var classNames = elm.className.split(" "),
+          i, _new = [];
+      for (i = 0; i < classNames.length; i++) {
+        if (classNames[i] !== "" && !ytcenter.utils.inArray(_new, classNames[i])) {
+          _new.push(classNames[i]);
+        }
+      }
+      elm.className = _new.join(" ");
+    };
     ytcenter.utils.hasClass = function(elm, className){
-      var classNames = elm.className.split(" ");
-      for (var i = 0; i < classNames.length; i++) {
+      if (typeof elm === "undefined") return;
+      var classNames = elm.className.split(" "),
+          i;
+      for (i = 0; i < classNames.length; i++) {
         if (classNames[i] === className) return true;
       }
       return false;
     };
     ytcenter.utils.toggleClass = function(elm, className){
+      if (typeof elm === "undefined") return;
       if (ytcenter.utils.hasClass(elm, className)) {
         ytcenter.utils.removeClass(elm, className);
       } else {
@@ -8307,22 +8297,43 @@
     };
     ytcenter.utils.addClass = function(elm, className){
       if (typeof elm === "undefined") return;
-      var classNames = elm.className.split(" ");
-      var _new = [];
-      for (var i = 0; i < classNames.length; i++) {
-        if (classNames[i] === className || classNames[i] === "") continue; // Already present.
-        _new.push(classNames[i]);
+      var classNames = elm.className.split(" "),
+          addClassNames = className.split(" "),
+          _new = [],
+          i, j, found;
+      for (i = 0; i < addClassNames.length; i++) {
+        found = false;
+        for (j = 0; j < classNames.length; j++) {
+          if (addClassNames[i] === classNames[j]) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          _new.push(addClassNames[i]);
+        }
       }
-      _new.push(className);
-      elm.className = _new.join(" ");
+      elm.className += " " + _new.join(" ");
+      ytcenter.utils.cleanClasses(elm);
     };
     ytcenter.utils.removeClass = function(elm, className){
       if (typeof elm === "undefined") return;
-      var classNames = elm.className.split(" ");
-      var _new = [];
+      var classNames = elm.className.split(" "),
+          remClassNames = className.split(" "),
+          _new = [],
+          i, j, found;
       for (var i = 0; i < classNames.length; i++) {
-        if (classNames[i] === className || classNames[i] === "") continue; // Already present or empty.
-        _new.push(classNames[i]);
+        if (classNames[i] === "") continue;
+        found = false;
+        for (j = 0; j < remClassNames.length; j++) {
+          if (classNames[i] === remClassNames[j]) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          _new.push(classNames[i]);
+        }
       }
       elm.className = _new.join(" ");
     };
@@ -8394,7 +8405,8 @@
       return elm;
     };
     ytcenter.utils.inArray = function(arr, value){
-      for (var i = 0; i < arr.length; i++) {
+      var i;
+      for (i = 0; i < arr.length; i++) {
         if (arr[i] === value) return true;
       }
       return false;
@@ -8472,7 +8484,7 @@
       update: function() {
         var guideContainer = document.getElementById("guide-container");
         if (!ytcenter.guide.hidden) {
-          $RemoveCSS(guideContainer, "hid");
+          ytcenter.utils.removeClass(guideContainer, "hid");
           if (ytcenter.guide.top !== null) {
             guideContainer.style.setProperty("top", ytcenter.guide.top + "px", "important");
           } else {
@@ -8484,7 +8496,7 @@
             guideContainer.style.setProperty("left", "");
           }
         } else {
-          $AddCSS(guideContainer, "hid");
+          ytcenter.utils.addClass(guideContainer, "hid");
         }
       },
       checkMutations: function(mutations) {
@@ -8549,7 +8561,7 @@
             }
             if (oElm[i].classNames) {
               for (var j = 0; j < oElm[i].classNames.length; j++) {
-                $RemoveCSS(e, oElm[i].classNames[j]);
+                ytcenter.utils.removeClass(e, oElm[i].classNames[j]);
               }
             }
           }
@@ -8571,7 +8583,7 @@
             }
             if (nElm[i].classNames) {
               for (var j = 0; j < nElm[i].classNames.length; j++) {
-                $AddCSS(e, nElm[i].classNames[j]);
+                ytcenter.utils.addClass(e, nElm[i].classNames[j]);
               }
             }
           }
@@ -9057,7 +9069,7 @@
                 cbtn.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
                 cbtn.addEventListener("click", (function(updElement){
                   return function(){
-                    $AddCSS(updElement, 'hid');
+                    ytcenter.utils.addClass(updElement, 'hid');
                   };
                 })(updElement));
                 
@@ -9489,9 +9501,9 @@
               "event": "click",
               "callback": function(){
                 if (ytcenter.settings.flexWidthOnPage && ytcenter.getPage() !== "watch") {
-                  $AddCSS(document.body, "flex-width-enabled");
+                  ytcenter.utils.addClass(document.body, "flex-width-enabled");
                 } else {
-                  $RemoveCSS(document.body, "flex-width-enabled");
+                  ytcenter.utils.removeClass(document.body, "flex-width-enabled");
                 }
               }
             }
@@ -9506,9 +9518,9 @@
               "event": "click",
               "callback": function(){
                 if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
-                  $AddCSS(document.body, "ytcenter-exp-topbar-static");
+                  ytcenter.utils.addClass(document.body, "ytcenter-exp-topbar-static");
                 } else {
-                  $RemoveCSS(document.body, "ytcenter-exp-topbar-static");
+                  ytcenter.utils.removeClass(document.body, "ytcenter-exp-topbar-static");
                 }
               }
             }
@@ -10480,9 +10492,9 @@
               "callback": function(){
                 try {
                   if (ytcenter.placementsystem.toggleEnable()) {
-                    $AddCSS(this, "yt-uix-button-toggled");
+                    ytcenter.utils.addClass(this, "yt-uix-button-toggled");
                   } else {
-                    $RemoveCSS(this, "yt-uix-button-toggled");
+                    ytcenter.utils.removeClass(this, "yt-uix-button-toggled");
                   }
                 } catch (e) {
                   con.error(e);
@@ -11653,13 +11665,13 @@
           lightElement.style.zIndex = "3";
           lightElement.className = "hid";
           lightElement.addEventListener("click", function(){
-            $AddCSS(lightElement, "hid");
-            $RemoveCSS(document.body, "ytcenter-lights-off");
+            ytcenter.utils.addClass(lightElement, "hid");
+            ytcenter.utils.removeClass(document.body, "ytcenter-lights-off");
             ytcenter.player.isLightOn = false;
           }, false);
           ytcenter.player.turnLightOn = function(){
-            $AddCSS(lightElement, "hid");
-            $RemoveCSS(document.body, "ytcenter-lights-off");
+            ytcenter.utils.addClass(lightElement, "hid");
+            ytcenter.utils.removeClass(document.body, "ytcenter-lights-off");
             ytcenter.player.isLightOn = false;
           };
           document.body.appendChild(lightElement);
@@ -11669,8 +11681,8 @@
         lightElement.style.opacity = ytcenter.settings.lightbulbBackgroundOpaque/100;
         lightElement.style.filter = "alpha(opacity=" + ytcenter.settings.lightbulbBackgroundOpaque + ")";
         
-        $AddCSS(document.body, "ytcenter-lights-off");
-        $RemoveCSS(lightElement, "hid");
+        ytcenter.utils.addClass(document.body, "ytcenter-lights-off");
+        ytcenter.utils.removeClass(lightElement, "hid");
         ytcenter.player.isLightOn = true;
       };
     })();
@@ -11997,11 +12009,11 @@
       var dark = "dark-theme";
       if (ytcenter.html5) {
         if (theme === "dark") {
-          $RemoveCSS(ytcenter.player.getReference().target, light);
-          $AddCSS(ytcenter.player.getReference().target, dark);
+          ytcenter.utils.removeClass(ytcenter.player.getReference().target, light);
+          ytcenter.utils.addClass(ytcenter.player.getReference().target, dark);
         } else if (theme === "light") {
-          $RemoveCSS(ytcenter.player.getReference().target, dark);
-          $AddCSS(ytcenter.player.getReference().target, light);
+          ytcenter.utils.removeClass(ytcenter.player.getReference().target, dark);
+          ytcenter.utils.addClass(ytcenter.player.getReference().target, light);
         }
       }
     };
@@ -12012,11 +12024,11 @@
       var els = document.getElementsByClassName("html5-progress-bar"), i;
       for (i = 0; i < els.length; i++) {
         if (color === "red") {
-          $RemoveCSS(els[i], white);
-          $AddCSS(els[i], red);
+          ytcenter.utils.removeClass(els[i], white);
+          ytcenter.utils.addClass(els[i], red);
         } else if (color === "white") {
-          $RemoveCSS(els[i], red);
-          $AddCSS(els[i], white);
+          ytcenter.utils.removeClass(els[i], red);
+          ytcenter.utils.addClass(els[i], white);
         }
       }
     };
@@ -12196,6 +12208,34 @@
         updatescrollToPlayerButtonPosition();
       };
     })();
+    ytcenter.player.isPlayerAligned = function(){
+      function getSizeById(id) {
+        var sizes = ytcenter.settings["resize-playersizes"];
+        for (var i = 0; i < sizes.length; i++) {
+          if (id === sizes[i].id) {
+            return sizes[i];
+          }
+        }
+        return {
+          id: "default",
+          config: {
+            align: true,
+            height: "",
+            large: false,
+            scrollToPlayer: false,
+            scrollToPlayerButton: false,
+            width: ""
+          }
+        };
+      }
+      if (ytcenter.settings["resize-default-playersize"] === "default") {
+        ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
+      } else {
+        ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
+      }
+      var playerSize = getSizeById(ytcenter.player.currentResizeId);
+      return playerSize.align;
+    };
     ytcenter.player.resize = (function(){
       function getItemById(id) {
         for (var i = 0; i < ytcenter.settings["resize-playersizes"].length; i++) {
@@ -12301,34 +12341,34 @@
         var wc = document.getElementById("watch7-container");
         if (wc) {
           if (large) {
-            $AddCSS(wc, "watch-wide");
+            ytcenter.utils.addClass(wc, "watch-wide");
           } else {
-            $RemoveCSS(wc, "watch-wide");
+            ytcenter.utils.removeClass(wc, "watch-wide");
           }
         }
         var p = document.getElementById("player");
         if (p) {
           if (large) {
-            $AddCSS(p, "watch-medium");
+            ytcenter.utils.addClass(p, "watch-medium");
             if (!_playlist_toggled) {
-              $AddCSS(p, "watch-playlist-collapsed");
+              ytcenter.utils.addClass(p, "watch-playlist-collapsed");
             }
           } else {
-            $RemoveCSS(p, "watch-medium");
-            if ($HasCSS(p, "watch-playlist-collapsed")) {
+            ytcenter.utils.removeClass(p, "watch-medium");
+            if (ytcenter.utils.hasClass(p, "watch-playlist-collapsed")) {
               _playlist_toggled = false;
             } else {
               _playlist_toggled = true;
             }
-            $RemoveCSS(p, "watch-playlist-collapsed");
+            ytcenter.utils.removeClass(p, "watch-playlist-collapsed");
           }
         }
         if (align) {
-          $AddCSS(document.body, "ytcenter-resize-aligned");
-          $RemoveCSS(document.body, "ytcenter-resize-disaligned");
+          ytcenter.utils.addClass(document.body, "ytcenter-resize-aligned");
+          ytcenter.utils.removeClass(document.body, "ytcenter-resize-disaligned");
         } else {
-          $RemoveCSS(document.body, "ytcenter-resize-aligned");
-          $AddCSS(document.body, "ytcenter-resize-disaligned");
+          ytcenter.utils.removeClass(document.body, "ytcenter-resize-aligned");
+          ytcenter.utils.addClass(document.body, "ytcenter-resize-disaligned");
         }
         
         // Settings the sizes for small and large. If width and height is undefined
@@ -12953,7 +12993,8 @@
       {element: function(){return document.body;}, className: "ytcenter-site-not-watch", condition: function(){return loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-site-search", condition: function(){return loc.pathname === "/results";}},
       {element: function(){return document.body;}, className: "ytcenter-site-watch", condition: function(){return loc.pathname === "/watch";}},
-      {element: function(){return document.body;}, className: "ytcenter-resize-aligned", condition: function(){return loc.pathname === "/watch" && ytcenter.settings.enableResize;}},
+      {element: function(){return document.body;}, className: "ytcenter-resize-aligned", condition: function(){return loc.pathname === "/watch" && ytcenter.settings.enableResize && ytcenter.player.isPlayerAligned();}},
+      {element: function(){return document.body;}, className: "ytcenter-resize-disaligned", condition: function(){return loc.pathname === "/watch" && ytcenter.settings.enableResize && !ytcenter.player.isPlayerAligned();}},
       {element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
     ytcenter.guideMode = (function(){
@@ -12962,11 +13003,11 @@
       }
       function updateGuide() {
         if (ytcenter.settings.guideMode === "always_open") {
-          $RemoveCSS(document.getElementById("guide-main"), "collapsed");
+          ytcenter.utils.removeClass(document.getElementById("guide-main"), "collapsed");
           document.getElementById("guide-main").children[1].style.display = "block";
           document.getElementById("guide-main").children[1].style.height = "auto";
         } else if (ytcenter.settings.guideMode === "always_closed") {
-          $AddCSS(document.getElementById("guide-main"), "collapsed");
+          ytcenter.utils.addClass(document.getElementById("guide-main"), "collapsed");
           document.getElementById("guide-main").children[1].style.display = "none";
           document.getElementById("guide-main").children[1].style.height = "auto";
         }
@@ -13015,14 +13056,14 @@
     uw['ytcenter'] = ytcenter.unsafe;
     ytcenter.events.addEvent("ui-refresh", function(){
       if (ytcenter.settings.removeBrandingBanner) {
-        $AddCSS(document.body, "ytcenter-branding-remove-banner");
+        ytcenter.utils.addClass(document.body, "ytcenter-branding-remove-banner");
       } else {
-        $RemoveCSS(document.body, "ytcenter-branding-remove-banner");
+        ytcenter.utils.removeClass(document.body, "ytcenter-branding-remove-banner");
       }
       if (ytcenter.settings.removeBrandingBackground) {
-        $AddCSS(document.body, "ytcenter-branding-remove-background");
+        ytcenter.utils.addClass(document.body, "ytcenter-branding-remove-background");
       } else {
-        $RemoveCSS(document.body, "ytcenter-branding-remove-background");
+        ytcenter.utils.removeClass(document.body, "ytcenter-branding-remove-background");
       }
     });
     var extensionCompatibilityChecker = function(){
@@ -13087,7 +13128,7 @@
             {
               tagname: 'button',
               condition: function(elm, e){
-                return $HasCSS(e, "yt-uix-button") && elm == e;
+                return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
               },
               style: {
                 margin: '0px 2px 0px 0px'
@@ -13096,7 +13137,7 @@
             }, {
               tagname: 'span',
               condition: function(elm, e){
-                return $HasCSS(e, "yt-uix-button-group") && elm == e;
+                return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
               },
               style: {
                 margin: '0px 4px 0px 0px'
@@ -13113,7 +13154,7 @@
             {
               tagname: 'button',
               condition: function(elm, e){
-                return $HasCSS(e, "yt-uix-button") && elm == e;
+                return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
               },
               style: {
                 margin: '0px 2px 0px 0px'
@@ -13122,7 +13163,7 @@
             }, {
               tagname: 'span',
               condition: function(elm, e){
-                return $HasCSS(e, "yt-uix-button-group") && elm == e;
+                return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
               },
               style: {
                 margin: '0px 4px 0px 0px'
@@ -13241,11 +13282,11 @@
         ytcenter.player.shortcuts();
         
         if (document.getElementById("page")
-         && $HasCSS(document.getElementById("page"), "channel")
+         && ytcenter.utils.hasClass(document.getElementById("page"), "channel")
          && document.getElementById("content")
          && document.getElementById("content").children.length > 0
-         && $HasCSS(document.getElementById("content").children[0], "branded-page-v2-container")
-         && $HasCSS(document.getElementById("content").children[0], "branded-page-v2-flex-width")) {
+         && ytcenter.utils.hasClass(document.getElementById("content").children[0], "branded-page-v2-container")
+         && ytcenter.utils.hasClass(document.getElementById("content").children[0], "branded-page-v2-flex-width")) {
           document.body.className += " ytcenter-channelv2";
         }
       });

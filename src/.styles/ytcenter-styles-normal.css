@@ -406,3 +406,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-site-watch.ytcenter-site-center #guide-container {
   position: absolute!important;
 }
+
+.ytcenter-site-watch.ytcenter-site-center #player {
+  width: 985px; /* Default fallback size when the resize feature fails. */
+}
