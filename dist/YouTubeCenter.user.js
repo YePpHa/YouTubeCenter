@@ -4963,6 +4963,7 @@
       var debugText = "{}";
       var dbg = {};
       try {
+        dbg.injected = injected;
         dbg.identifier = 0;
         dbg.location = {
           hash: loc.hash,
@@ -12910,6 +12911,17 @@
       return a;
     };
     ytcenter.classManagement = {};
+    ytcenter.classManagement.applyClassesForElement = function(el){
+      var i;
+      for (i = 0; i < ytcenter.classManagement.db.length; i++) {
+        if (ytcenter.classManagement.db[i].element() === el) {
+          if (ytcenter.classManagement.db[i].condition())
+            ytcenter.classManagement.db[i].element().className += " " + ytcenter.classManagement.db[i].className;
+          else
+            ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
+        }
+      }
+    };
     ytcenter.classManagement.applyClasses = function(){
       var i;
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
@@ -13240,8 +13252,9 @@
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
         }
-        ytcenter.classManagement.applyClasses();
+        ytcenter.classManagement.applyClassesForElement(document.body);
         ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
+        
         if (loc.pathname !== "/watch")
           ytcenter.player.turnLightOn();
         else if (ytcenter.settings.lightbulbAutoOff)
@@ -13281,6 +13294,8 @@
         if (page === "embed") return;
         
         // UI
+        ytcenter.classManagement.applyClasses();
+        
         $CreateSettingsUI();
         $UpdateChecker();
         extensionCompatibilityChecker();
