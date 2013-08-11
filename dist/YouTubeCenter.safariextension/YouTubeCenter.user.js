@@ -11924,7 +11924,7 @@
       };
       __r.setupOverride = function(){
         if (!__r.initialized) return [];
-        var a = [] ,b;
+        var a = [], b, event;
         for (event in __r.replacedListeners) {
           if (__r.replacedListeners.hasOwnProperty(event)) {
             b = event.replace(/player[0-9]+$/, "").replace(/^ytPlayer/, "");
@@ -11958,7 +11958,9 @@
         __r.initialized = true;
         var api = ytcenter.player.getAPI(),
             override = false,
-            event;
+            event,
+            maxIteration = 100,
+            i;
         con.log("[Player Listener] Setting up enviorment");
         __r.setupListeners();
         for (event in events) {
@@ -11968,7 +11970,6 @@
           }
         }
         if (override) {
-          var maxIteration = 100, i;
           api.addEventListener("onReady", function(){
             for (event in events) {
               if (events.hasOwnProperty(event) && events[event].override) {
