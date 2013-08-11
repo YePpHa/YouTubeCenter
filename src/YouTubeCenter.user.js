@@ -3759,7 +3759,7 @@
             }
           ],
           preTester,
-          preTesterInterval = 50;
+          preTesterInterval = 75;
       __r.call = function(event){
         for (i = 0; i < events.length; i++) {
           if (events[i].event === event) {
@@ -11625,6 +11625,7 @@
       ytcenter.saveSettings();
     };
     ytcenter.player.turnLightOn = function(){};
+    ytcenter.player.isLightOn = false;
     ytcenter.player.turnLightOff = (function(){
       var lightElement;
       return function(){
@@ -11643,10 +11644,12 @@
           lightElement.addEventListener("click", function(){
             $AddCSS(lightElement, "hid");
             $RemoveCSS(document.body, "ytcenter-lights-off");
+            ytcenter.player.isLightOn = false;
           }, false);
           ytcenter.player.turnLightOn = function(){
             $AddCSS(lightElement, "hid");
             $RemoveCSS(document.body, "ytcenter-lights-off");
+            ytcenter.player.isLightOn = false;
           };
           document.body.appendChild(lightElement);
         }
@@ -11657,6 +11660,7 @@
         
         $AddCSS(document.body, "ytcenter-lights-off");
         $RemoveCSS(lightElement, "hid");
+        ytcenter.player.isLightOn = true;
       };
     })();
     ytcenter.player.checkHTML5Support = function(){
@@ -12402,7 +12406,7 @@
             playerHeight = Math.floor(calcHeight + pbh + 0.5);
         if (player) {
           player.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
-          player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";
+          /*player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";*/
           
           if (playerAPI) {
             playerAPI.style.width = playerWidth + "px";
@@ -12894,6 +12898,7 @@
       return a.join(" ");
     };
     ytcenter.classManagement.db = [
+      {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(){return !ytcenter.settings.expandDescription;}},
       {element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(){return ytcenter.settings.removeAdvertisements;}},
       {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(){return ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
@@ -13469,7 +13474,14 @@
           ytcenter.player.updateConfig(ytcenter.getPage(), data.swfcfg);
         }
         ytcenter.placementsystem.clear();
-        if (ytcenter.getPage() === "watch") {
+        if (loc.pathname !== "/watch") {
+            ytcenter.player.turnLightOn();
+        } else {
+          ytcenter.site.setPageAlignment((ytcenter.settings.watch7centerpage ? "center" : "left"));
+          
+          if (ytcenter.settings.lightbulbAutoOff)
+            ytcenter.player.turnLightOff();
+          ytcenter.guideMode();
           if (ytcenter.settings["resize-default-playersize"] === "default") {
             ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
             ytcenter.player.updateResize();
