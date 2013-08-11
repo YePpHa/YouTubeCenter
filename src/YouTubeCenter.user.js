@@ -10774,6 +10774,54 @@
               return ytcenter.debug();
             })();
           }
+        }, {
+          "type": "button",
+          "text": "SETTINGS_DEBUG_CREATEPASTE",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function() {
+                var content = document.createElement("div");
+
+                var text = document.createElement("p");
+                text.appendChild(document.createTextNode(ytcenter.language.getLocale("PASTEBIN_TEXT")));
+                text.setAttribute("style", "margin-bottom: 10px");
+
+                content.appendChild(text);
+
+                var pasteUrl = document.createElement("input");
+                pasteUrl.setAttribute("type", "text");
+                pasteUrl.setAttribute("class", "yt-uix-form-input-text");
+                pasteUrl.setAttribute("value", ytcenter.language.getLocale("PASTEBIN_LOADING"));
+                pasteUrl.setAttribute("readonly", "readonly");
+                pasteUrl.addEventListener("focus", function() { this.select(); }, false);
+
+                content.appendChild(pasteUrl);
+
+                ytcenter.dialog("PASTEBIN_TITLE", content).setVisibility(true);
+
+                $XMLHTTPRequest({
+                  method: "POST",
+                  url: "http://pastebin.com/api/api_post.php",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                  },
+                  data: [
+                    "api_dev_key=@pastebin-api-key@",
+                    "api_option=paste",
+                    "api_paste_private=1", // unlisted
+                    "api_paste_expire_date=1M", // 1 month
+                    "api_paste_format=javascript",
+                    "api_paste_name=" + escape("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
+                    "api_paste_code=" + escape(ytcenter.debug())
+                  ].join('&'),
+                  onload: function(response) {
+                    pasteUrl.value = response.responseText;
+                  }
+                });
+              }
+            }
+          ]
         }
       ],
       "SETTINGS_TAB_ABOUT": [
