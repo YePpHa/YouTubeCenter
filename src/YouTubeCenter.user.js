@@ -5080,7 +5080,7 @@
         dbg.settings = ytcenter.settings;
         dbg.ytcenter = {};
         dbg.ytcenter.video = ytcenter.video;
-        dbg.ytcenter.signatureDecoder = ytcenter.utils._signatureDecipher;
+        dbg.ytcenter.signatureDecipher = ytcenter.utils._signatureDecipher;
         dbg.ytcenter._signatureDecipher = ytcenter.utils.__signatureDecipher;
         try {
           dbg.ytcenter.player = {};
@@ -8100,7 +8100,7 @@
             if (response.responseText.match(regex2)) {
               con.log("[updateSignatureDecipher] First regex");
               a = regex2.exec(response.responseText)[0].split("{")[1].split("}")[0].split(";");
-              ytcenter.utils._signatureDecipher = []; // Clearing signatureDecoder
+              ytcenter.utils._signatureDecipher = []; // Clearing signatureDecipher
               for (i = 1; i < a.length-1; i++) {
                 b = a[i];
                 if (b.indexOf("a.slice") !== -1) { // Slice
@@ -9055,7 +9055,6 @@
           });
         } else {
           var data = $LoadData(ytcenter.storageName, "{}");
-          con.log(data);
           var loaded = JSON.parse(data);
           for (var key in loaded) {
             if (loaded.hasOwnProperty(key)) {
@@ -9365,8 +9364,8 @@
       channel_bgcolor: "default",
       player_wide: false,
       "resize-default-playersize": 'default',
-      "resize-small-button": "default_small",
-      "resize-large-button": "default_large",
+      "resize-small-button": "default_fit_to_content",
+      "resize-large-button": "default_720",
       "resize-playersizes": [
         {
           id: "default_small",
@@ -9389,7 +9388,7 @@
             scrollToPlayerButton: false
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_fit_to_content",
           config: {
             customName: "Fit to Content",
             width: "985px",
@@ -9400,7 +9399,7 @@
             scrollToPlayerButton: false,
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_collapse_player",
           config: {
             customName: "Collapse The Player",
             width: "640px",
@@ -9411,7 +9410,7 @@
             scrollToPlayerButton: false,
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_720",
           config: {
             customName: "720p",
             width: "1280px",
@@ -9422,7 +9421,7 @@
             scrollToPlayerButton: false
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_1080",
           config: {
             customName: "1080p",
             width: "1920px",
@@ -9433,7 +9432,7 @@
             scrollToPlayerButton: false
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_70_percent",
           config: {
             customName: "70%",
             width: "70%",
@@ -9444,7 +9443,7 @@
             scrollToPlayerButton: false
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_80_percent",
           config: {
             customName: "80%",
             width: "80%",
@@ -9455,7 +9454,7 @@
             scrollToPlayerButton: false
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_90_percent",
           config: {
             customName: "90%",
             width: "90%",
@@ -9466,7 +9465,7 @@
             scrollToPlayerButton: false
           }
         }, {
-          id: ytcenter.utils.assignId("default_"),
+          id: "default_100_percent",
           config: {
             customName: "Fill",
             width: "100%",
@@ -13568,27 +13567,6 @@
             i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
             i2 = content.indexOf(";</script>");
             data.html.content = content.substring(0, i1 + "<script>var ytplayer = ytplayer || {};ytplayer.config = ".length) + JSON.stringify(swfcfg) + content.substring(i2);
-            /*
-            var getElementById = function(node, id){
-                  if (node && node.id === id)
-                    return node;
-                  var i, child;
-                  for (i = 0; i < node.childNodes.length; i++) {
-                    child = getElementById(node.childNodes[i], id);
-                    if (child) return child;
-                  }
-                },
-                s = document.createElement("div");
-            s.innerHTML = content;
-            
-            data.html["player-branded-banner"] = getElementById(s, "player-branded-banner").innerHTML;
-            data.html["player-unavailable"] = getElementById(s, "player-unavailable").innerHTML;
-            data.html["playlist"] = getElementById(s, "playlist").innerHTML;
-            data.html["playlist-tray"] = getElementById(s, "playlist-tray").innerHTML;
-            
-            data.attr['player-unavailable'] = {"class": getElementById(s, "player-unavailable").getAttribute("class")};
-            
-            s = null;*/
           } catch (e) {
             con.error(e);
           }
