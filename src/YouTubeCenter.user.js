@@ -3860,30 +3860,50 @@
                 var cfg, errorType = "unknown";
                 if (spflink) {
                   try {
-                    cfg = JSON.parse(r.responseText);
-                  } catch (e) {
-                    cfg = eval("(" + r.responseText + ")");
-                  }
-                  if (cfg.swfcfg) {
-                    cfg = cfg.swfcfg;
-                  } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
-                    throw "unavailable";
-                  } else {
                     try {
                       cfg = JSON.parse(r.responseText);
                     } catch (e) {
                       cfg = eval("(" + r.responseText + ")");
                     }
-                    if (cfg && cfg.html && cfg.html.content) {
-                      cfg = cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
-                      cfg = cfg.split(";</script>")[0];
-                      try {
-                        cfg = JSON.parse(cfg);
-                      } catch (e) {
-                        cfg = eval("(" + cfg + ")");
-                      }
+                    if (cfg.swfcfg) {
+                      cfg = cfg.swfcfg;
+                    } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
+                      throw "unavailable";
                     } else {
-                      throw "unknown";
+                      try {
+                        cfg = JSON.parse(r.responseText);
+                      } catch (e) {
+                        cfg = eval("(" + r.responseText + ")");
+                      }
+                      if (cfg && cfg.html && cfg.html.content) {
+                        cfg = cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
+                        cfg = cfg.split(";</script>")[0];
+                        try {
+                          cfg = JSON.parse(cfg);
+                        } catch (e) {
+                          cfg = eval("(" + cfg + ")");
+                        }
+                      } else {
+                        throw "unknown";
+                      }
+                    }
+                  } catch (e) {
+                    if (r.responseText.indexOf("flashvars=\"") !== -1) {
+                      var a = r.responseText.split("flashvars=\"")[1].split("\"")[0].split("&amp;"),
+                          i;
+                      cfg = {};
+                      cfg.args = {};
+                      for (i = 0; i < a.length; i++) {
+                        cfg.args[decodeURIComponent(a[i].split("=")[0])] = decodeURIComponent(a[i].split("=")[1]);
+                      }
+                    } else if (r.responseText.indexOf("new yt.player.Application('p', {") !== -1) {
+                      cfg = {};
+                      cfg.args = r.responseText.split("new yt.player.Application('p', ")[1].split(");var fbetatoken")[0];
+                      try {
+                        cfg.args = JSON.parse(cfg.args);
+                      } catch (e) {
+                        cfg.args = eval("(" + cfg.args + ")");
+                      }
                     }
                   }
                 } else {
@@ -4953,6 +4973,8 @@
       try {
         dbg.injected = injected;
         dbg.identifier = @identifier@;
+        dbg.cookies = {};
+        dbg.cookies["VISITOR_INFO1_LIVE"] = ytcenter.utils.getCookie("VISITOR_INFO1_LIVE");
         dbg.location = {
           hash: loc.hash,
           host: loc.host,
@@ -5009,6 +5031,7 @@
         debugText = JSON.stringify(dbg);
       } catch (e) {
         con.error(e);
+        con.log("[Debug Text]", dbg);
         debugText = e.message;
       }
       return debugText;
@@ -13018,7 +13041,6 @@
         
         observer2 = new MutObs(function(mutations){
           mutations.forEach(function(mutation){
-            con.log("[Guide]", mutation);
             if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
               con.log("[Guide] Main Guide has been removed");
               main_guide = document.getElementById("guide-main");
@@ -13060,8 +13082,6 @@
               timer = uw.setTimeout(function(){
                 updateGuide();
               }, 500);
-            } else {
-              con.log("[Guide]", mutation);
             }
           });
         });
