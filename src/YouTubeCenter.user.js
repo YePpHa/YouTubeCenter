@@ -32,74 +32,79 @@
 // ==/UserScript==
 
 (function(){
-  function _inject(func) {
+  "use strict";
+  function inject(func) {
     try {
-      var script = document.createElement("script");
-      script.setAttribute("type", "text/javascript");
-      if (typeof func === "string") func = "function(){" + func + "}";
-      script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@);\n//# sourceURL=YouTubeCenter.js"));
-      var __p = (document.body || document.head || document.documentElement);
-      if (__p) {
-        __p.appendChild(script);
-        __p.removeChild(script);
+      var script = document.createElement("script"),
+          p = (document.body || document.head || document.documentElement);
+      if (!p) {
+        return;
       }
+      script.setAttribute("type", "text/javascript");
+      if (typeof func === "string") {
+        func = "function(){" + func + "}";
+      }
+      script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@);\n//# sourceURL=YouTubeCenter.js"));
+      p.appendChild(script);
+      p.removeChild(script);
     } catch (e) {}
   }
-  function _xhr(id, details) {
-    if (typeof GM_xmlhttpRequest !== "undefined") {
+  function injected_xhr(id, details) {
+    var xmlhttp, prop;
+    if (GM_xmlhttpRequest !== undefined) {
       GM_xmlhttpRequest(details);
       return true;
     } else {
-      var xmlhttp;
-      if (typeof XMLHttpRequest != "undefined") {
+      if (XMLHttpRequest !== undefined) {
         xmlhttp = new XMLHttpRequest();
-      } else if (typeof opera != "undefined" && typeof opera.XMLHttpRequest != "undefined") {
+      } else if (opera !== undefined && opera.XMLHttpRequest !== undefined) {
         xmlhttp = new opera.XMLHttpRequest();
-      } else if (typeof uw != "undefined" && typeof uw.XMLHttpRequest != "undefined") {
+      } else if (uw !== undefined && uw.XMLHttpRequest !== undefined) {
         xmlhttp = new uw.XMLHttpRequest();
       } else {
-        _inject("window.ytcenter.xhr.onerror(" + d.id + ", {})");
+        inject("window.ytcenter.xhr.onerror(" + id + ", {})");
         return false;
       }
       xmlhttp.onreadystatechange = function(){
         var responseState = {
           responseXML: '',
-          responseText: (xmlhttp.readyState == 4 ? xmlhttp.responseText : ''),
+          responseText: (xmlhttp.readyState === 4 ? xmlhttp.responseText : ''),
           readyState: xmlhttp.readyState,
-          responseHeaders: (xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
-          status: (xmlhttp.readyState == 4 ? xmlhttp.status : 0),
-          statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : '')
+          responseHeaders: (xmlhttp.readyState === 4 ? xmlhttp.getAllResponseHeaders() : ''),
+          status: (xmlhttp.readyState === 4 ? xmlhttp.status : 0),
+          statusText: (xmlhttp.readyState === 4 ? xmlhttp.statusText : '')
         };
-        _inject("window.ytcenter.xhr.onreadystatechange(" + id + ", " + JSON.stringify(responseState) + ")");
-        if (xmlhttp.readyState == 4) {
+        inject("window.ytcenter.xhr.onreadystatechange(" + id + ", " + JSON.stringify(responseState) + ")");
+        if (xmlhttp.readyState === 4) {
           if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
-            _inject("window.ytcenter.xhr.onload(" + id + ", " + JSON.stringify(responseState) + ")");
+            inject("window.ytcenter.xhr.onload(" + id + ", " + JSON.stringify(responseState) + ")");
           }
           if (xmlhttp.status < 200 || xmlhttp.status >= 300) {
-            _inject("window.ytcenter.xhr.onerror(" + id + ", " + JSON.stringify(responseState) + ")");
+            inject("window.ytcenter.xhr.onerror(" + id + ", " + JSON.stringify(responseState) + ")");
           }
         }
       };
       try {
         xmlhttp.open(details.method, details.url);
       } catch(e) {
-        _inject("window.ytcenter.xhr.onerror(" + id + ", {responseXML:'',responseText:'',readyState:4,responseHeaders:'',status:403,statusText:'Forbidden'})");
+        inject("window.ytcenter.xhr.onerror(" + id + ", {responseXML:'',responseText:'',readyState:4,responseHeaders:'',status:403,statusText:'Forbidden'})");
         return false;
       }
       if (details.headers) {
-        for (var prop in details.headers) {
-          xmlhttp.setRequestHeader(prop, details.headers[prop]);
+        for (prop in details.headers) {
+          if (details.headers.hasOwnProperty(prop)) {
+            xmlhttp.setRequestHeader(prop, details.headers[prop]);
+          }
         }
       }
-      xmlhttp.send((typeof(details.data) !== 'undefined') ? details.data : null);
+      xmlhttp.send((details.data !== undefined ? details.data : null));
       return true;
     }
-    return false;
   }
   
-  var ___main_function = function(injected, identifier){
+  var main_function = function(injected, identifier){
     "use strict";
-    console.log("Script was " + (injected ? "injected" : " not injected") + ".");
+    //console.log("Script was " + (injected ? "injected" : " not injected") + ".");
     /** Injected
      * True, if it's injected into the page to compensate for the missing unsafeWindow variable.
      ** Identifier
@@ -117,7 +122,7 @@
         return true;
       } else {
         try {
-          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") === -1)) {
+          if (GM_getValue !== undefined && (GM_getValue.toString !== undefined || GM_getValue.toString().indexOf("not supported") !== -1)) {
             con.log("Saving " + key + " using GM_setValue");
             GM_setValue(key, value);
             if (GM_getValue(key, null) === value) return true; // validation
@@ -126,7 +131,7 @@
           con.error(e);
         }
         try {
-          if (typeof localStorage !== "undefined") {
+          if (localStorage !== undefined) {
             con.log("Saving " + key + " using localStorage");
             localStorage[key] = value;
             if (localStorage[key] === value) return true; // validation
@@ -135,7 +140,7 @@
           con.error(e);
         }
         try {
-          if (typeof uw.localStorage !== "undefined") {
+          if (uw.localStorage !== undefined) {
             con.log("Saving " + key + " using uw.localStorage");
             uw.localStorage[key] = value;
             if (uw.localStorage[key] === value) return true; // validation
@@ -144,7 +149,7 @@
           con.error(e);
         }
         try {
-          if (typeof document.cookie !== "undefined") {
+          if (document.cookie !== undefined) {
             con.log("Saving " + key + " using document.cookie");
             ytcenter.utils.setCookie(key, value, null, "/", 1000*24*60*60*1000);
             if (ytcenter.utils.getCookie(name) === value) return true; // validation
@@ -201,8 +206,8 @@
     }
     function $UpdateChecker() {
       if (!ytcenter.settings.enableUpdateChecker) return;
-      var curr = (new Date().getTime());
-      var c = curr - 1000*60*60*parseInt(ytcenter.settings.updateCheckerInterval);
+      var curr = (new Date().getTime()),
+          c = curr - 1000*60*60*parseInt(ytcenter.settings.updateCheckerInterval);
       con.log("Checking for updates in " + ((ytcenter.settings.updateCheckerLastUpdate - c)/1000/60/60) + " hours...");
       if (c >= ytcenter.settings.updateCheckerLastUpdate) {
         con.log("Checking for updates now...");
@@ -213,15 +218,16 @@
     }
     
     function $HasAttribute(elm, attr) {
-      for (var i = 0; i < elm.attributes.length; i++) {
+      var i;
+      for (i = 0; i < elm.attributes.length; i++) {
         if (elm.attributes[i].name == attr) return true;
       }
       return false;
     }
     
     function $GetOffset(elm) {
-      var x = 0;
-      var y = 0;
+      var x = 0,
+          y = 0;
       while (elm != null) {
         y += elm.offsetTop;
         x += elm.offsetLeft;
@@ -3492,7 +3498,7 @@
         if (data.country && !ytcenter.settings.commentCountryData[index].country) {
           ytcenter.settings.commentCountryData[index].country = data.country;
         }
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
       function updateReuse(data) {
         var index = getDataCacheIndex(data);
@@ -3500,7 +3506,7 @@
         ytcenter.settings.commentCountryData[index].reused++;
         if (ytcenter.settings.commentCountryData[index].reused > 10)
           ytcenter.settings.commentCountryData[index].reused = 10;
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
       function getDataCacheById(id) {
         var i;
@@ -3530,7 +3536,7 @@
         
         ytcenter.settings.commentCountryData.push(nData);
         
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
       function calculateCacheLife(data) {
         return 1000*60*60*24*7 + (1000*60*60*24*2)*(data.reused ? data.reused : 0);
@@ -3560,7 +3566,7 @@
           }
         }
         ytcenter.settings.commentCountryData = nData;
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
       
       var __r = {}, comments = [], observer, observer2, observer3;
@@ -3789,13 +3795,21 @@
       return __r;
     })();
     ytcenter.thumbnail = (function(){
+      function getPlaylistVideoThumbs() {
+        var pt = document.getElementById("watch7-playlist-tray"),
+            thumbs;
+        if (pt) {
+          return pt.getElementsByClassName("video-thumb");
+        }
+        return [];
+      }
       function getVideoThumbs() {
         var linkRegex = /v=([a-zA-Z0-9-_]+)/,
             vt = document.getElementsByClassName("video-thumb"),
             videos = [],
             i, id, videoElement, cacheData, data;
         for (i = 0; i < vt.length; i++) {
-          if (ytcenter.utils.isChild(document.getElementById("playlist-tray"), vt[i])) continue;
+          if (ytcenter.utils.inArray(playlistVideoThumbs, vt[i])) continue;
           videoElement = vt[i].parentNode;
           data = null;
           cacheData = null;
@@ -4343,7 +4357,7 @@
           ytcenter.settings.videoThumbnailData[index].likes = data.likes;
           ytcenter.settings.videoThumbnailData[index].dislikes = data.dislikes;
         }
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
       function updateReuse(data) {
         var index = getDataCacheIndex(data);
@@ -4351,7 +4365,7 @@
         ytcenter.settings.videoThumbnailData[index].reused++;
         if (ytcenter.settings.videoThumbnailData[index].reused > 5)
           ytcenter.settings.videoThumbnailData[index].reused = 5;
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
       function getDataCacheById(id) {
         var i;
@@ -4383,7 +4397,7 @@
         
         ytcenter.settings.videoThumbnailData.push(nData);
         
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
       function calculateCacheLife(data) {
         return 1000*60*10 + (1000*60*5)*(data.reused ? data.reused : 0);
@@ -4413,9 +4427,9 @@
           }
         }
         ytcenter.settings.videoThumbnailData = nData;
-        ytcenter.saveSettings();
+        ytcenter.saveSettings(false, true);
       }
-      var __r = {}, observer, videoThumbs;
+      var __r = {}, observer, videoThumbs, playlistVideoThumbs;
       __r.setupObserver = function(){
         /* Targets:
          ** #watch-related
@@ -4447,6 +4461,7 @@
         try {
           var i;
           cacheChecker();
+          playlistVideoThumbs = getPlaylistVideoThumbs();
           videoThumbs = getVideoThumbs();
           for (i = 0; i < videoThumbs.length; i++) {
             updateReuse(videoThumbs[i]);
@@ -7761,12 +7776,6 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.utils = {};
-    ytcenter.utils.isChild = function(parent, child){
-      while ((child = child.parentNode) !== parent) {
-        if (document.body === child || !child) return false;
-      }
-      return true;
-    };
     ytcenter.utils.escapeXML = function(str){
       return ytcenter.utils.replaceArray(str, ["<", ">", "&", "\"", "'"], ["&lt;", "&gt;", "&amp;", "&quot;", "&apos;"]);
     };
@@ -8183,6 +8192,7 @@
       for (var i = 0; i < a.length; i++) {
         if (a[i] === v) return i;
       }
+      return -1;
     };
     ytcenter.utils.inArray = function(a, v){
       for (var i = 0; i < a.length; i++) {
@@ -8860,7 +8870,7 @@
                   uw.clearInterval(languageUpdateInterval);
                   con.log("YouTube configuration data is inaccessible; giving up on language auto-detection.");
                 }
-              }).bind(this), 50);
+              }).bind(this), 500);
             } else {
               con.log("Language set to " + lang + " because auto-detection failed unexpectedly");
             }
@@ -8982,7 +8992,7 @@
     ytcenter.saveSettings_timeout_obj;
     ytcenter.saveSettings_timeout = 300;
     ytcenter.saveSettings = function(async, timeout){
-      if (typeof timeout === "undefined") timeout = true;
+      if (typeof timeout === "undefined") timeout = false;
       var __ss = function(){
         con.log("[Storage] Saving Settings");
         if (identifier === 3) {
@@ -9475,6 +9485,7 @@
               "event": "click",
               "callback": function(){
                 ytcenter.events.performEvent("ui-refresh");
+                ytcenter.classManagement.applyClasses();
               }
             }
           ],
@@ -11609,37 +11620,7 @@
       
       return config;
     };
-    /*ytcenter.player.__createAPI;
-    ytcenter.player.createAPI = function(el){
-      con.log("[API] Creating API");
-      if (el) {
-        var list = [], api = {}, i;
-        list = el.getApiInterface();
-        for (i = 0; i < list.length; i++) {
-          api[list[i]] = ytcenter.utils.bind(el[list[i]], uw);
-        }
-        return api;
-      } else {
-        if (ytcenter.player.__createAPI) return ytcenter.player.__createAPI;
-        //return ytcenter.player.createAPI(document.getElementById("movie_player"));
-        var config;
-        if (uw.ytplayer && uw.ytplayer.config) {
-          config = uw.ytplayer.config;
-        } else if (uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG) {
-          config = uw.yt.config_.PLAYER_CONFIG;
-        } else {
-          config = ytcenter.player.config;
-        }
-        //ytcenter.player.__createAPI = uw.yt.player.embed("player-api", config);
-        return ytcenter.player.__createAPI;
-      }
-    };*/
-    /*ytcenter.player.loadAPI = function(el){
-      ytcenter.player.__getAPI = ytcenter.player.createAPI(el);
-    };*/
     ytcenter.player.getAPI = function(){
-      //if (uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_REFERENCE) return uw.yt.config_.PLAYER_REFERENCE;
-      //if (!ytcenter.player.__getAPI) ytcenter.player.loadAPI();
       return ytcenter.player.__getAPI; // Note: Never use yt.palyer.embed function to fetch the API. Just catch the API through onYouTubePlayerReady.
     };
     ytcenter.player.setPlayerSize = function(center){
@@ -12511,6 +12492,7 @@
                 document.getElementById("watch7-main-container").style.margin = "";
             }
           } else {
+            ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
             contentMain.style.setProperty("margin-left", "", "important");
             if (document.getElementById("watch7-main-container"))
               document.getElementById("watch7-main-container").style.margin = "";
@@ -13645,6 +13627,8 @@
         var a;
         try {
           a = unsafeWindow === window ? false : unsafeWindow;
+        } catch (e) {
+          console.error(e);
         } finally {
           return a || window;
         }
@@ -13654,28 +13638,32 @@
           try {
             var d = JSON.parse(e.data);
             if (d.method === "CrossOriginXHR") {
-              _xhr(d.id, d.arguments[0]);
+              injected_xhr(d.id, d.arguments[0]);
             }
           } catch (e) {}
         }, false);
         
-        _inject(___main_function);
+        inject(main_function);
       } else {
-        ___main_function(false, @identifier@);
+        try {
+          main_function(false, @identifier@);
+        } catch (e) {
+          console.error("DOH", e);
+        }
       }
     } catch (e) {
       window.addEventListener("message", function(e){
         try {
           var d = JSON.parse(e.data);
           if (d.method === "CrossOriginXHR") {
-            _xhr(d.id, d.arguments[0]);
+            injected_xhr(d.id, d.arguments[0]);
           }
         } catch (e) {}
       }, false);
       
-      _inject(___main_function);
+      inject(main_function);
     }
   } else {
-    ___main_function(false, @identifier@);
+    main_function(false, @identifier@);
   }
 })();
