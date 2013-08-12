@@ -3858,8 +3858,8 @@
             onload: function(r){
               try {
                 var cfg, errorType = "unknown";
-                if (spflink) {
-                  try {
+                try {
+                  if (spflink) {
                     try {
                       cfg = JSON.parse(r.responseText);
                     } catch (e) {
@@ -3887,31 +3887,31 @@
                         throw "unknown";
                       }
                     }
-                  } catch (e) {
-                    if (r.responseText.indexOf("flashvars=\"") !== -1) {
-                      var a = r.responseText.split("flashvars=\"")[1].split("\"")[0].split("&amp;"),
-                          i;
-                      cfg = {};
-                      cfg.args = {};
-                      for (i = 0; i < a.length; i++) {
-                        cfg.args[decodeURIComponent(a[i].split("=")[0])] = decodeURIComponent(a[i].split("=")[1]);
-                      }
-                    } else if (r.responseText.indexOf("new yt.player.Application('p', {") !== -1) {
-                      cfg = {};
-                      cfg.args = r.responseText.split("new yt.player.Application('p', ")[1].split(");var fbetatoken")[0];
-                      try {
-                        cfg.args = JSON.parse(cfg.args);
-                      } catch (e) {
-                        cfg.args = eval("(" + cfg.args + ")");
-                      }
+                  } else {
+                    cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
+                    try {
+                      cfg = JSON.parse(cfg);
+                    } catch (e) {
+                      cfg = eval("(" + cfg + ")");
                     }
                   }
-                } else {
-                  cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
-                  try {
-                    cfg = JSON.parse(cfg);
-                  } catch (e) {
-                    cfg = eval("(" + cfg + ")");
+                } catch (e) {
+                  if (r.responseText.indexOf("flashvars=\"") !== -1) {
+                    var a = r.responseText.split("flashvars=\"")[1].split("\"")[0].split("&amp;"),
+                        i, b;
+                    cfg = {args: {}};
+                    for (i = 0; i < a.length; i++) {
+                      b = a[i].split("=");
+                      cfg.args[decodeURIComponent(b[0])] = decodeURIComponent(b[1]);
+                    }
+                  } else if (r.responseText.indexOf("new yt.player.Application('p', {") !== -1) {
+                    cfg = {};
+                    cfg.args = r.responseText.split("new yt.player.Application('p', ")[1].split(");var fbetatoken")[0];
+                    try {
+                      cfg.args = JSON.parse(cfg.args);
+                    } catch (e) {
+                      cfg.args = eval("(" + cfg.args + ")");
+                    }
                   }
                 }
                 item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
@@ -12989,6 +12989,14 @@
       return a.join(" ");
     };
     ytcenter.classManagement.db = [
+      {element: function(){return document.getElementById("masthead-subnav");}, className: "", condition: function(){
+        if (ytcenter.settings.watch7centerpage) {
+          document.getElementById("masthead-subnav").style.setProperty("margin-left", "auto", "important");
+        } else {
+          document.getElementById("masthead-subnav").style.setProperty("margin-left", "", "");
+        }
+        return false;
+      }},
       {element: function(){return document.getElementById("page");}, className: "", condition: function(){document.getElementById("page").style.setProperty("margin", "0 auto", "!important");return false;}},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
