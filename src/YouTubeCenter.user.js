@@ -12503,10 +12503,10 @@
             playerHeight = Math.floor(calcHeight + pbh + 0.5),
             playlist_el = document.getElementById("playlist");
         if (playlist_el) {
-          playlist_el.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
+          playlist_el.style.width = (large ? playerWidth : maxInsidePlayerWidth) + "px";
         }
         if (player) {
-          player.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
+          player.style.width = (large ? playerWidth : maxInsidePlayerWidth) + "px";
           /*player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";*/
           
           if (playerAPI) {
