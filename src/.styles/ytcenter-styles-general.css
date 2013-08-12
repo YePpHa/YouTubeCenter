@@ -673,19 +673,19 @@ body.ytcenter-branding-remove-background #guide-container.branded {
 }
 
 .ytcenter-uix-button-toggled {
-  border-color: #c6c6c6;
-  background-color: #e9e9e9;
-  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,.20);
-  -ms-box-shadow: inset 0 1px 1px rgba(0,0,0,.20);
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.20);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.20);
-  filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#fff8f8f8,EndColorStr=#ffeeeeee);
-  background-image: -moz-linear-gradient(top,#f8f8f8 0,#eee 100%);
-  background-image: -ms-linear-gradient(top,#f8f8f8 0,#eee 100%);
-  background-image: -o-linear-gradient(top,#f8f8f8 0,#eee 100%);
-  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0,#f8f8f8),color-stop(100%,#eee));
-  background-image: -webkit-linear-gradient(top,#f8f8f8 0,#eee 100%);
-  background-image: linear-gradient(to bottom,#f8f8f8 0,#eee 100%);
+  border-color: #c6c6c6!important;
+	background-color: #e9e9e9!important;
+	-moz-box-shadow: inset 0 1px 1px rgba(0,0,0,.20)!important;
+	-ms-box-shadow: inset 0 1px 1px rgba(0,0,0,.20)!important;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.20)!important;
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.20)!important;
+	filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#fff8f8f8,EndColorStr=#ffeeeeee)!important;
+	background-image: -moz-linear-gradient(top,#f8f8f8 0,#eee 100%)!important;
+	background-image: -ms-linear-gradient(top,#f8f8f8 0,#eee 100%)!important;
+	background-image: -o-linear-gradient(top,#f8f8f8 0,#eee 100%)!important;
+	background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0,#f8f8f8),color-stop(100%,#eee))!important;
+	background-image: -webkit-linear-gradient(top,#f8f8f8 0,#eee 100%)!important;
+	background-image: linear-gradient(to bottom,#f8f8f8 0,#eee 100%)!important;
 }
 
 .ytcenter-align {
