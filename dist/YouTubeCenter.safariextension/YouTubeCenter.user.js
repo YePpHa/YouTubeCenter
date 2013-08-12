@@ -12994,41 +12994,74 @@
           document.getElementById("guide-main").children[1].style.height = "auto";
         }
       }
-      var timer, a = -1, amount = 0, observer, clicked = false;
+      var timer, observer, observer2, clicked = false, main_guide, guide_container,
+          config = { attributes: true, attributeOldValue: true },
+          confi2 = { childList: true, subtree: true };
       return function(){
         con.log("[Guide] Configurating the state updater!");
-        //uw.clearInterval(timer);
         if (observer) {
           observer.disconnect();
           observer = null;
         }
+        if (observer2) {
+          observer2.disconnect();
+          observer2 = null;
+        }
         if (document.getElementsByClassName("guide-module-toggle")[0])
-            ytcenter.utils.removeEventListener(document.getElementsByClassName("guide-module-toggle")[0], "click", clickListener, false);
+          ytcenter.utils.removeEventListener(document.getElementsByClassName("guide-module-toggle")[0], "click", clickListener, false);
         
         var MutObs = ytcenter.getMutationObserver();
+        observer2 = new MutObs(function(mutations){
+          mutations.forEach(function(mutation){
+            con.log("[Guide]", mutation);
+            if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
+              con.log("[Guide] Main Guide has been removed");
+              main_guide = document.getElementById("guide-main");
+              guide_container = document.getElementById("guide-container");
+              if (main_guide) {
+                observer.disconnect();
+                observer.observe(main_guide, config);
+              }
+              if (clicked) {
+                clicked = false;
+                return;
+              }
+              updateGuide();
+            } else {
+              con.log("[Guide] Main Guide is still intact");
+            }
+          });
+        });
         observer = new MutObs(function(mutations){
           mutations.forEach(function(mutation){
-            if (mutation.type !== "attributes" || mutation.attributeName !== "class") return;
-            if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
-            if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
-            con.log("[Guide] Updating State!");
-            
-            uw.clearTimeout(timer);
-            
-            if (clicked) {
-              clicked = false;
-              return;
+            if (mutation.type === "attributes" && mutation.attributeName === "class") {
+              con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
+              if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
+              if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
+              con.log("[Guide] Updating State!");
+              
+              uw.clearTimeout(timer);
+              
+              if (clicked) {
+                clicked = false;
+                return;
+              }
+              
+              timer = uw.setTimeout(function(){
+                updateGuide();
+              }, 500);
+            } else {
+              con.log("[Guide]", mutation);
             }
-            
-            timer = uw.setTimeout(function(){
-              updateGuide();
-            }, 500);
           });
         });
         if (observer && ytcenter.settings.guideMode !== "default") {
-          var config = { attributes: true, attributeOldValue: true };
-          if (document.getElementById("guide-main"))
-            observer.observe(document.getElementById("guide-main"), config);
+          if (document.getElementById("guide"))
+            observer2.observe(document.getElementById("guide"), confi2);
+          main_guide = document.getElementById("guide-main");
+          guide_container = document.getElementById("guide-container");
+          if (main_guide)
+            observer.observe(main_guide, config);
           if (document.getElementsByClassName("guide-module-toggle")[0])
             ytcenter.utils.addEventListener(document.getElementsByClassName("guide-module-toggle")[0], "click", clickListener, false);
         }
@@ -13260,7 +13293,6 @@
           ytcenter.player.turnLightOn();
         else if (ytcenter.settings.lightbulbAutoOff)
           ytcenter.player.turnLightOff();
-        ytcenter.guideMode();
         ytcenter.player.shortcuts();
         
         if (document.getElementById("page")
@@ -13496,7 +13528,7 @@
         };
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
-        //ytcenter.classManagement.applyClasses();
+        ytcenter.guideMode();
       });
       ytcenter.spf.addEventListener("received-before", function(url, data){
         if (data.swfcfg && data.swfcfg.args) {
