@@ -12435,7 +12435,11 @@
             contentMain = document.getElementById("watch7-main"),
             playlist = document.getElementById("watch7-playlist-tray-container"),
             playerWidth = Math.floor(calcWidth + 0.5),
-            playerHeight = Math.floor(calcHeight + pbh + 0.5);
+            playerHeight = Math.floor(calcHeight + pbh + 0.5),
+            playlist_el = document.getElementById("playlist");
+        if (playlist_el) {
+          playlist_el.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
+        }
         if (player) {
           player.style.width = (align ? maxInsidePlayerWidth : playerWidth) + "px";
           /*player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";*/
@@ -12994,7 +12998,7 @@
           document.getElementById("guide-main").children[1].style.height = "auto";
         }
       }
-      var timer, observer, observer2, clicked = false, main_guide, guide_container,
+      var timer, observer, observer2, clicked = false, main_guide, guide_container, guideToggle, MutObs = ytcenter.getMutationObserver(),
           config = { attributes: true, attributeOldValue: true },
           confi2 = { childList: true, subtree: true };
       return function(){
@@ -13007,10 +13011,10 @@
           observer2.disconnect();
           observer2 = null;
         }
-        if (document.getElementsByClassName("guide-module-toggle")[0])
-          ytcenter.utils.removeEventListener(document.getElementsByClassName("guide-module-toggle")[0], "click", clickListener, false);
+        guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
+        if (guideToggle)
+          ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
         
-        var MutObs = ytcenter.getMutationObserver();
         observer2 = new MutObs(function(mutations){
           mutations.forEach(function(mutation){
             con.log("[Guide]", mutation);
@@ -13022,6 +13026,11 @@
                 observer.disconnect();
                 observer.observe(main_guide, config);
               }
+              if (guideToggle)
+                ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
+              guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
+              if (guideToggle)
+                ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
               if (clicked) {
                 clicked = false;
                 return;
@@ -13062,8 +13071,8 @@
           guide_container = document.getElementById("guide-container");
           if (main_guide)
             observer.observe(main_guide, config);
-          if (document.getElementsByClassName("guide-module-toggle")[0])
-            ytcenter.utils.addEventListener(document.getElementsByClassName("guide-module-toggle")[0], "click", clickListener, false);
+          if (guideToggle)
+            ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
         }
         updateGuide();
       };
