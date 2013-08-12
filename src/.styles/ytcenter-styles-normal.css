@@ -394,10 +394,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   padding-left: 0!important;
 }
 
-.ytcenter-site-watch #player {
-  overflow: auto;
-}
-
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player {
   margin: 0 auto!important;
   min-width: 0!important;
