@@ -1,6 +1,5 @@
  - yt.player.embed("player-api", ytplayer.config).writePlayer("flash|html5"); Will change the player to either flash or html5. Make this into an option, but will require some testing of the timing.
  - Add http://www.listentoyoutube.com/
- - Prevent when a video ends to switch the about tab to the share tab.
  - Extend the guide. So that it will include a link to the "Favorites", "Indbox" and "History".
  - Unify http:// and https:// settings.
  - YouTubeInAudio.com (320 kbp/s)  doesn't work anymore.
@@ -38,3 +37,8 @@
  - Hide all feeds on the homepage
  - Option to use classic pagination.
  - Make an option to set the topbar on YouTube to be fixed.
+
+
+
+I have some feature suggestions I'd like you to take a look at, YePpHa.
+In light of the new feature to display the likes from a video, I think it might be nice to auto hide or not display videos with a user-configurable like ratio (so, any video with say 10 thumbs down to 1 thumbs up will be auto hidden), assuming this is possible. It would also be really cool to display the description of the suggestion videos on hovering. It would also be nice to hide the unrelated videos-- the ones suggested to you only (again, assuming this is possible.) It might also be nice to have a tutorial mode-- So when you're watching a video tutorial and you move your mouse out of the window the video automatically pauses, and then continues when you move your mouse back. This would be great for things like Photoshop tutorials where you have to do a lot of clicking back and forth for every action (again, assuming it's possible). I would also be really cool if the script automatically downloads and updates a new version, but still tells you that it's been updated. This next suggestion I remember seeing in a YouTube layout beta a few years ago, but it was never implemented. If I recall correctly, when making a search, if you hovered over the link or thumbnail, a small preview of the video (perhaps 200 or 250 pixels wide by 100 pixels tall) would display. As an annoyance fixer, it'd be nice to have the link to the inbox in the drop down menu by one's username display the number of everything in the inbox, not just private messages. As someone who gets a HUGE amount of comment replies, but not that many PMs, this bothers me.
