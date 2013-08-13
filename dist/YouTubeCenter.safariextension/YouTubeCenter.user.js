@@ -9628,6 +9628,14 @@
         }, {
           "label": "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
           "type": "bool",
+          "listeners": [
+            {
+              "event": "change",
+              "callback": function(){
+                ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
+              }
+            }
+          ],
           "defaultSetting": "enableYouTubeAutoSwitchToShareTab",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#switch-to-share-tab-at-end-of-video"
         }, {
@@ -11785,6 +11793,12 @@
     ytcenter.player.setConfig = function(config){
       ytcenter.player._config = config;
     };
+    ytcenter.player.setYTConfig = function(config){
+      uw.yt.setConfig(config);
+    };
+    ytcenter.player.getYTConfig = function(config){
+      uw.yt.getConfig(config);
+    };
     ytcenter.player.getConfig = function(){
       try {
         return uw.ytplayer.config;
@@ -12125,19 +12139,6 @@
         }
       }
     };
-    ytcenter.player.fixHTML5 = function(){
-      return;
-      if (ytcenter.player.getReference().api.getApiInterface) {
-        var ref = ytcenter.player.getReference();
-        var vid = ref.target.getElementsByTagName("video")[0];
-        var apiInterface = ref.api.getApiInterface();
-        for (var i = 0; i < apiInterface.length; i++) {
-          if (!vid[apiInterface[i]]) {
-            vid[apiInterface[i]] = ref.api[apiInterface[i]];
-          }
-        }
-      }
-    };
     ytcenter.player.aspect = function(option){
       ytcenter.player.getConfig().args.keywords = option;
       con.log("Keywords changed to " + ytcenter.player.getConfig().args.keywords);
@@ -12154,9 +12155,6 @@
       }
       
       var il = ytcenter.player.listeners.addEventListener("onStateChange", function(s){
-        if (ytcenter.html5) {
-          ytcenter.player.fixHTML5();
-        }
         if (s !== 1) return;
         ytcenter.player.listeners.removeEventListener("onStateChange", il);
         con.log("Setting player option to last player");
@@ -13646,6 +13644,7 @@
         }
         
         if (page === "watch") {
+          ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
           if (uw.ytplayer && uw.ytplayer.config) {
             config = ytcenter.player.modifyConfig(ytcenter.getPage(), uw.ytplayer.config);
             uw.ytplayer.config = config;
@@ -13667,22 +13666,10 @@
           $CreateResizeButton();
           
           initPlacement();
-        }
-        
-        if (ytcenter.getPage() === "watch") {
-          ytcenter.player.listeners.setOverride("onStateChange", true);
-          ytcenter.player.listeners.addEventListener("onStateChange", function(state){
+          
+          ytcenter.player.listeners.addEventListener("onStateChange", function(state, b){
             if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
               ytcenter.player.getAPI().playVideo();
-            }
-            try {
-              if (ytcenter.settings.enableYouTubeAutoSwitchToShareTab || (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState && uw.yt.www.watch.lists.getState() && uw.yt.www.watch.lists.getState().autoPlay)) {
-                this.getOriginalListener()(state);
-              } else {
-                this.getOriginalListener()((state === 0 ? 2 : state));
-              }
-            } catch (e) {
-              con.error(e);
             }
           });
           ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
