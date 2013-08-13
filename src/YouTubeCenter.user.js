@@ -12706,9 +12706,6 @@
         var creatorBar = document.getElementById("watch7-creator-bar");
         if (creatorBar) {
           creatorBar.style.width = Math.round(calcWidth - 40) + "px";
-          if (document.getElementById("watch7-main-container")) {
-            document.getElementById("watch7-main-container").style.marginTop = "48px";
-          }
         }
         
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
@@ -13152,6 +13149,7 @@
         }
         return false;
       }},
+      {element: function(){return document.getElementById("watch7-creator-bar");}, className: "clearfix", condition: function(){return false;}},
       {element: function(){return document.getElementById("page");}, className: "", condition: function(){document.getElementById("page").style.setProperty("margin", "0 auto", "!important");return false;}},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
