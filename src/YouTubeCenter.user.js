@@ -51,15 +51,15 @@
   }
   function injected_xhr(id, details) {
     var xmlhttp, prop;
-    if (GM_xmlhttpRequest !== undefined) {
+    if (typeof GM_xmlhttpRequest !== "undefined") {
       GM_xmlhttpRequest(details);
       return true;
     } else {
-      if (XMLHttpRequest !== undefined) {
+      if (typeof XMLHttpRequest !== "undefined") {
         xmlhttp = new XMLHttpRequest();
-      } else if (opera !== undefined && opera.XMLHttpRequest !== undefined) {
+      } else if (typeof opera !== "undefined" && typeof opera.XMLHttpRequest !== "undefined") {
         xmlhttp = new opera.XMLHttpRequest();
-      } else if (uw !== undefined && uw.XMLHttpRequest !== undefined) {
+      } else if (typeof uw !== "undefined" && typeof uw.XMLHttpRequest !== "undefined") {
         xmlhttp = new uw.XMLHttpRequest();
       } else {
         inject("window.ytcenter.xhr.onerror(" + id + ", {})");
@@ -97,7 +97,7 @@
           }
         }
       }
-      xmlhttp.send((details.data !== undefined ? details.data : null));
+      xmlhttp.send((typeof details.data !== "undefined" ? details.data : null));
       return true;
     }
   }
@@ -122,7 +122,7 @@
         return true;
       } else {
         try {
-          if (GM_getValue !== undefined && (GM_getValue.toString !== undefined || GM_getValue.toString().indexOf("not supported") !== -1)) {
+          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString !== "undefined" || GM_getValue.toString().indexOf("not supported") !== -1)) {
             con.log("Saving " + key + " using GM_setValue");
             GM_setValue(key, value);
             if (GM_getValue(key, null) === value) return true; // validation
@@ -131,7 +131,7 @@
           con.error(e);
         }
         try {
-          if (localStorage !== undefined) {
+          if (typeof localStorage !== "undefined") {
             con.log("Saving " + key + " using localStorage");
             localStorage[key] = value;
             if (localStorage[key] === value) return true; // validation
@@ -140,7 +140,7 @@
           con.error(e);
         }
         try {
-          if (uw.localStorage !== undefined) {
+          if (typeof uw.localStorage !== "undefined") {
             con.log("Saving " + key + " using uw.localStorage");
             uw.localStorage[key] = value;
             if (uw.localStorage[key] === value) return true; // validation
@@ -149,7 +149,7 @@
           con.error(e);
         }
         try {
-          if (document.cookie !== undefined) {
+          if (typeof document.cookie !== "undefined") {
             con.log("Saving " + key + " using document.cookie");
             ytcenter.utils.setCookie(key, value, null, "/", 1000*24*60*60*1000);
             if (ytcenter.utils.getCookie(name) === value) return true; // validation
@@ -9201,6 +9201,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      compatibilityCheckerForChromeDisable: false,
       removeRelatedVideosEndscreen: false,
       enableResize: true,
       guideMode: "default", // [default, always_open, always_closed]
@@ -13273,8 +13274,9 @@
       }
     });
     var extensionCompatibilityChecker = function(){
-      if (injected && @identifier@ === 0) {
-        var content = document.createElement("div"),
+      if (injected && @identifier@ === 0 && !ytcenter.settings.compatibilityCheckerForChromeDisable) {
+        var alert,
+            content = document.createElement("div"),
             p1 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1")),
             p2 = document.createElement("br"),
             p3 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT2")),
@@ -13285,7 +13287,9 @@
             p8 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_MOREINFO1")),
             p9 = document.createTextNode(" "),
             p10 = document.createElement("a"),
-            p11 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT"));
+            p11 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT")),
+            p12 = document.createElement("br"),
+            p13 = document.createElement("a");
         
         
         p5.textContent = ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT3");
@@ -13296,6 +13300,22 @@
         p10.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Chrome:CompatibilityError";
         p10.setAttribute("target", "_blank");
         
+        p13.textContent = ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DONT_SHOW_AGAIN");
+        p13.href = "#";
+        p13.style.cssFloat = "right";
+        
+        ytcenter.utils.addEventListener(p13, "click", function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          
+          alert.setVisibility(false);
+          
+          ytcenter.settings.compatibilityCheckerForChromeDisable = true;
+          ytcenter.saveSettings();
+          
+          return false;
+        }, false);
+        
         ytcenter.language.addLocaleElement(p1, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1", "@textContent");
         ytcenter.language.addLocaleElement(p3, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT2", "@textContent");
         ytcenter.language.addLocaleElement(p5, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT3", "@textContent");
@@ -13303,6 +13323,7 @@
         ytcenter.language.addLocaleElement(p8, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_MOREINFO1", "@textContent");
         ytcenter.language.addLocaleElement(p10, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_MOREINFO2", "@textContent");
         ytcenter.language.addLocaleElement(p11, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DOT", "@textContent");
+        ytcenter.language.addLocaleElement(p13, "ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_DONT_SHOW_AGAIN", "@textContent");
         
         content.appendChild(p1);
         content.appendChild(p2);
@@ -13315,8 +13336,11 @@
         content.appendChild(p9);
         content.appendChild(p10);
         content.appendChild(p11);
+        content.appendChild(p12);
+        content.appendChild(p13);
         
-        ytcenter.alert("error", content, false).setVisibility(true);
+        alert = ytcenter.alert("error", content, false);
+        alert.setVisibility(true);
       }
     };
     var initPlacement = function(){
