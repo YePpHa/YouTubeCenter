@@ -12275,7 +12275,8 @@
           window.scrollTo(0, posY - mp.offsetHeight + (document.getElementById("yt-masthead-container").offsetHeight + 2));
           uw.setTimeout(function(){
             document.getElementById("masthead-positioner").style.top = -(document.getElementById("yt-masthead-container").offsetHeight + 1) + "px";
-          }, 350);
+            ytcenter.player._mastheadHeightListenerUpdate && ytcenter.player._mastheadHeightListenerUpdate();
+          }, 750);
         } else {
           document.getElementById("player-api").scrollIntoView();
         }
@@ -12297,7 +12298,8 @@
             window.scrollTo(0, posY - mp.offsetHeight + (document.getElementById("yt-masthead-container").offsetHeight + 2));
             uw.setTimeout(function(){
               document.getElementById("masthead-positioner").style.top = -(document.getElementById("yt-masthead-container").offsetHeight + 1) + "px";
-            }, 350);
+              ytcenter.player._mastheadHeightListenerUpdate && ytcenter.player._mastheadHeightListenerUpdate();
+            }, 750);
           } else {
             document.getElementById("player-api").scrollIntoView();
           }
@@ -12399,6 +12401,48 @@
       var playerBarHeightBoth = 35;
       var maxInsidePlayerWidth = 985; // Is 1003px for the experimental design
       
+      ytcenter.player._mastheadHeightListener = function(){
+        if (document.getElementById("masthead-positioner-height-offset") && document.getElementById("masthead-positioner")) {
+          var posOffset = document.getElementById("masthead-positioner-height-offset"),
+              positioner = document.getElementById("masthead-positioner"),
+              height,
+              top,
+              update = function(){
+                height = posOffset.offsetHeight || posOffset.clientHeight;
+                document.getElementById("appbar-guide-menu").style.top = ((height - 1) + top) + "px";
+              },
+              MutObs = ytcenter.getMutationObserver(),
+              observer = new MutObs(function(mutations){
+                mutations.forEach(function(mutation){
+                  if (mutation.type === "attributes" && mutation.attributeName === "style") {
+                    top = positioner.style.top ? parseInt(positioner.style.top) : 0;
+                    update();
+                    ytcenter.events.performEvent("resize-update");
+                  }
+                });
+              });
+          observer.observe(posOffset, { attributes: true });
+          window.addEventListener("scroll", (function(){
+            var lastTop = -1,
+                running = false;
+            return function(){
+              if (running && lastTop === top) return;
+              running = true;
+              uw.setTimeout(function(){
+                top = positioner.style.top ? parseInt(positioner.style.top) : 0;
+                update();
+                running = false;
+              }, 50);
+            };
+          })(), false);
+          ytcenter.player._mastheadHeightListenerUpdate = function(){
+            top = positioner.style.top ? parseInt(positioner.style.top) : 0;
+            update();
+          };
+          ytcenter.player._mastheadHeightListener = null;
+        }
+      };
+      
       ytcenter.player._updateResize = function(){
         if (!ytcenter.settings.enableResize) return;
         ytcenter.player._resize(_width, _height, _large, _align);
@@ -12419,7 +12463,7 @@
           if (!ytcenter.settings.enableResize) return;
           if (timer !== null) uw.clearTimeout(timer);
           timer = uw.setTimeout(function(){
-            ytcenter.events.performEvent("ui-refresh");
+            ytcenter.events.performEvent("resize-update");
           }, 100);
         };
       })(), false);
@@ -12429,6 +12473,7 @@
         
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           maxInsidePlayerWidth = 1003;
+          ytcenter.player._mastheadHeightListener && ytcenter.player._mastheadHeightListener();
         }
         
         width = width || "";
@@ -12529,7 +12574,7 @@
           calcWidth = parseInt(width);
         }
         if (height.match(/%$/) && height.length > 1) {
-          var mp = document.getElementById("masthead-positioner");
+          var mp = document.getElementById("masthead-positioner-height-offset");
           calcHeight = parseInt(height)/100*clientHeight;
           if (ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
             calcHeight -= (mp.offsetHeight || mp.clientHeight) - (document.getElementById("yt-masthead-container").offsetHeight + 2);
@@ -13758,6 +13803,7 @@
           if (ytcenter.settings.lightbulbAutoOff)
             ytcenter.player.turnLightOff();
           ytcenter.guideMode();
+          ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
           if (ytcenter.settings["resize-default-playersize"] === "default") {
             ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
             ytcenter.player.updateResize();
