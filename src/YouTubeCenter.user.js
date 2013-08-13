@@ -1659,13 +1659,13 @@
           
           _slide.addEventListener("valuechange", (function(status_elm){
             return function(newvalue){
-              status_elm.value = Math.floor(newvalue + 0.5);
+              status_elm.value = Math.round(newvalue);
             };
           })(_text));
           
           _slide.addEventListener("change", (function(status_elm, recipe){
             return function(newvalue){
-              status_elm.value = Math.floor(newvalue + 0.5);
+              status_elm.value = Math.round(newvalue);
               ytcenter.settings[recipe.defaultSetting] = status_elm.value;
               ytcenter.saveSettings();
             };
@@ -1674,13 +1674,13 @@
           _text.addEventListener("input", (function(_slide){
             return function(){
               if (this.value === '') this.value = "0";
-              this.value = Math.floor(_slide.setValue(this.value) + 0.5);
+              this.value = Math.round(_slide.setValue(this.value));
             };
           })(_slide), false);
           _text.addEventListener("change", (function(_slide, recipe){
             return function(){
               if (this.value === '') this.value = "0";
-              this.value = Math.floor(_slide.setValue(this.value) + 0.5);
+              this.value = Math.round(_slide.setValue(this.value));
               ytcenter.settings[recipe.defaultSetting] = this.value;
               ytcenter.saveSettings(true);
             };
@@ -3050,7 +3050,8 @@
       general: "@styles-general@",
       normal: "@styles-normal@",
       topbar: "@styles-topbar@",
-      flags: "@styles-flags@"
+      flags: "@styles-flags@",
+      html5player: "@styles-html5player@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -7176,7 +7177,7 @@
           if (isNaN(parseInt(widthInput.value))) {
             heightInput.value = "";
           } else if (aspectRatio !== 0) {
-            heightInput.value = Math.floor(parseInt(widthInput.value)/aspectRatio + 0.5);
+            heightInput.value = Math.round(parseInt(widthInput.value)/aspectRatio);
           }
         });
         
@@ -7219,7 +7220,7 @@
           if (isNaN(parseInt(heightInput.value))) {
             widthInput.value = "";
           } else if (aspectRatio !== 0) {
-            widthInput.value = Math.floor(parseInt(heightInput.value)*aspectRatio + 0.5);
+            widthInput.value = Math.round(parseInt(heightInput.value)*aspectRatio);
           }
         });
         
@@ -8147,9 +8148,9 @@
       }
       if (widthType === "px" && heightType === "px") {
         if (!isNaN(parseInt(width)) && isNaN(parseInt(height))) {
-          calcHeight = Math.floor(calcWidth/player_ratio + 0.5);
+          calcHeight = Math.round(calcWidth/player_ratio);
         } else if (isNaN(parseInt(width)) && !isNaN(parseInt(height))) {
-          calcWidth = Math.floor(calcHeight*player_ratio + 0.5);
+          calcWidth = Math.round(calcHeight*player_ratio);
         }
       }
       return [calcWidth, calcHeight];
@@ -9695,6 +9696,16 @@
               "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
             }
           ],
+          "listeners" : [
+            {
+              "event": "change",
+              "callback": function(){
+                if (ytcenter.page === "watch") {
+                  ytcenter.player.setAutoHide(ytcenter.settings.autohide);
+                }
+              }
+            }
+          ],
           "defaultSetting": "autohide",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-hide-bar"
         }, {
@@ -9945,6 +9956,16 @@
               "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
             }
           ],
+          "listeners" : [
+            {
+              "event": "change",
+              "callback": function(){
+                if (ytcenter.page === "channel") {
+                  ytcenter.player.setAutoHide(ytcenter.settings.channel_autohide);
+                }
+              }
+            }
+          ],
           "defaultSetting": "channel_autohide"
         }, {
           "label": "SETTINGS_DASHPLAYBACK",
@@ -10111,6 +10132,16 @@
             }, {
               "value": "3",
               "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
+            }
+          ],
+          "listeners" : [
+            {
+              "event": "change",
+              "callback": function(){
+                if (ytcenter.page === "embed") {
+                  ytcenter.player.setAutoHide(ytcenter.settings.embed_autohide);
+                }
+              }
             }
           ],
           "defaultSetting": "embed_autohide"
@@ -11324,15 +11355,6 @@
       if (page === "watch") {
         ytcenter.player.updateResize();
         
-        ytcenter.player.setTheme(ytcenter.settings.playerTheme);
-        ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
-        if (ytcenter.settings.playerTheme) {
-          config.args.theme = ytcenter.settings.playerTheme;
-        }
-        if (ytcenter.settings.playerColor) {
-          config.args.color = ytcenter.settings.playerColor;
-        }
-        
         if (ytcenter.settings.enableAutoVideoQuality) {
           if (api.getPlaybackQuality() !== config.args.vq) {
             con.log("[Player Update] Quality => " + config.args.vq);
@@ -11380,9 +11402,6 @@
           }
         }
       } else if (page === "channel") {
-        ytcenter.player.setTheme(ytcenter.settings.channel_playerTheme);
-        ytcenter.player.setProgressColor(ytcenter.settings.channel_playerColor);
-        
         if (ytcenter.settings.channel_enableVolume) {
           if (ytcenter.settings.channel_volume < 0) {
             ytcenter.settings.channel_volume = 0;
@@ -11413,8 +11432,6 @@
           api.setPlaybackQuality(config.args.vq);
         }
       } else if (page === "embed") {
-        ytcenter.player.setTheme(ytcenter.settings.embed_playerTheme);
-        ytcenter.player.setProgressColor(ytcenter.settings.embed_playerColor);
         
         if (ytcenter.settings.embed_enableVolume) {
           if (ytcenter.settings.embed_volume < 0) {
@@ -11506,9 +11523,6 @@
       if (config.html5) ytcenter.html5 = true;
       else ytcenter.html5 = false;
       con.log("[Player Type] " + (ytcenter.html5 ? "HTML5" : "Flash"));
-
-      config.args.theme = ytcenter.settings.playerTheme;
-      config.args.color = ytcenter.settings.playerColor;
       
       if (ytcenter.settings.removeRelatedVideosEndscreen)
         delete config.args.endscreen_module;
@@ -11601,6 +11615,12 @@
             config.args.autoplay = "1";
           }
         }
+        config.args.theme = ytcenter.settings.playerTheme;
+        config.args.color = ytcenter.settings.playerColor;
+        
+        ytcenter.player.setTheme(ytcenter.settings.playerTheme);
+        ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
+        ytcenter.player.setAutoHide(ytcenter.settings.autohide);
       } else if (page === "embed") {
         if (ytcenter.settings.embed_enableAutoVideoQuality) {
           config.args.vq = ytcenter.player.getQuality(ytcenter.settings.embed_autoVideoQuality, streams);
@@ -11625,6 +11645,9 @@
         
         config.args.theme = ytcenter.settings.embed_playerTheme;
         config.args.color = ytcenter.settings.embed_playerColor;
+        ytcenter.player.setTheme(ytcenter.settings.playerTheme);
+        ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
+        ytcenter.player.setAutoHide(ytcenter.settings.embed_autohide);
         
         if (ytcenter.settings.embed_dashPlayback) {
           config.args.dash = "1";
@@ -11668,6 +11691,11 @@
         
         config.args.theme = ytcenter.settings.channel_playerTheme;
         config.args.color = ytcenter.settings.channel_playerColor;
+        
+        ytcenter.player.setTheme(ytcenter.settings.playerTheme);
+        ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
+        ytcenter.player.setAutoHide(ytcenter.settings.channel_autohide);
+        
         config.args.enablejsapi = "1";
         
         if (ytcenter.settings.channel_bgcolor === "none") {
@@ -12050,25 +12078,43 @@
       };
       return __r;
     })();
-    ytcenter.player.setTheme = function(theme){
-      con.log("Setting player theme to " + theme);
-      var light = "light-theme";
-      var dark = "dark-theme";
-      if (ytcenter.html5) {
-        if (theme === "dark") {
-          ytcenter.utils.removeClass(ytcenter.player.getReference().target, light);
-          ytcenter.utils.addClass(ytcenter.player.getReference().target, dark);
-        } else if (theme === "light") {
-          ytcenter.utils.removeClass(ytcenter.player.getReference().target, dark);
-          ytcenter.utils.addClass(ytcenter.player.getReference().target, light);
-        }
+    ytcenter.player.setAutoHide = function(autohide){
+      if (!ytcenter.html5) return;
+      con.log("[HTML5 Player] Setting autohide to " + autohide);
+      if (autohide === "0") {
+        ytcenter.utils.addClass(ytcenter.player.getReference().target, "autohide-off");
+        ytcenter.utils.removeClass(ytcenter.player.getReference().target, "autohide-on autohide-fade autohide-auto");
+      } else if (autohide === "1") {
+        ytcenter.utils.addClass(ytcenter.player.getReference().target, "autohide-on");
+        ytcenter.utils.removeClass(ytcenter.player.getReference().target, "autohide-off autohide-fade autohide-auto");
+      } else if (autohide === "2") {
+        ytcenter.utils.addClass(ytcenter.player.getReference().target, "autohide-fade");
+        ytcenter.utils.removeClass(ytcenter.player.getReference().target, "autohide-on autohide-off autohide-auto");
+      } else if (autohide === "3") {
+        ytcenter.utils.addClass(ytcenter.player.getReference().target, "autohide-auto");
+        ytcenter.utils.removeClass(ytcenter.player.getReference().target, "autohide-on autohide-fade autohide-off");
       }
+      ytcenter.events.performEvent("resize-update");
     };
+    ytcenter.player.setTheme = function(theme){
+      if (!ytcenter.html5) return;
+      con.log("[HTML5 Player] Setting player theme to " + theme);
+      var light = "light-theme",
+          dark = "dark-theme";
+      if (theme === "dark") {
+        ytcenter.utils.removeClass(ytcenter.player.getReference().target, light);
+        ytcenter.utils.addClass(ytcenter.player.getReference().target, dark);
+      } else if (theme === "light") {
+        ytcenter.utils.removeClass(ytcenter.player.getReference().target, dark);
+        ytcenter.utils.addClass(ytcenter.player.getReference().target, light);
+      }
+  };
     ytcenter.player.setProgressColor = function(color){
-      con.log("Setting player progress color to " + color);
-      var white = "white";
-      var red = "red";
-      var els = document.getElementsByClassName("html5-progress-bar"), i;
+      if (!ytcenter.html5) return;
+      con.log("[HTML5 Player] Setting player progress color to " + color);
+      var white = "white",
+          red = "red",
+          els = document.getElementsByClassName("html5-progress-bar"), i;
       for (i = 0; i < els.length; i++) {
         if (color === "red") {
           ytcenter.utils.removeClass(els[i], white);
@@ -12365,6 +12411,10 @@
         if (!ytcenter.settings.enableResize) return;
         ytcenter.player._resize(_width, _height, _large, _align);
       });
+      ytcenter.events.addEvent("resize-update", function(){
+        if (!ytcenter.settings.enableResize) return;
+        ytcenter.player._resize(_width, _height, _large, _align);
+      });
       window.addEventListener("resize", (function(){
         var timer = null;
         return function(){
@@ -12441,15 +12491,18 @@
         var _pbh = 0;
         var pbh_changed = false;
         if (ytcenter.html5) {
-          if (ytcenter.player.getConfig().args.autohide === "0") {
-            pbh = 26;
-            _pbh = 26;
-          } else if (ytcenter.player.getConfig().args.autohide === "1" || ytcenter.player.getConfig().args.autohide === "3") {
+          if (ytcenter.settings.autohide === "0") {
+            pbh = playerBarHeightBoth;
+            _pbh = playerBarHeightBoth;
+          } else if (ytcenter.settings.autohide === "1") {
             pbh = playerBarHeightNone;
             _pbh = playerBarHeightNone;
-          } else if (ytcenter.player.getConfig().args.autohide === "2") {
+          } else if (ytcenter.settings.autohide === "2") {
             pbh = playerBarHeight;
             _pbh = playerBarHeight;
+          } else if (ytcenter.settings.autohide === "3") {
+            pbh = playerBarHeightProgress;
+            _pbh = playerBarHeightProgress;
           }
         } else {
           if (ytcenter.player.getConfig().args.autohide === "0") {
@@ -12490,14 +12543,14 @@
         }
         if (!isNaN(calcWidth) && isNaN(calcHeight) && !calcedHeight) {
           calcedHeight = true;
-          if (player_ratio !== 0) calcHeight = Math.floor(calcWidth/player_ratio + 0.5);
+          if (player_ratio !== 0) calcHeight = Math.round(calcWidth/player_ratio);
           else calcHeight = calcWidth;
         } else if (isNaN(calcWidth) && !isNaN(calcHeight) && !calcedWidth) {
           calcedWidth = true;
           if (height.indexOf("%") !== -1 && height.match(/%$/) && height !== "%") {
-            calcWidth = Math.floor((calcHeight - _pbh)*player_ratio + 0.5);
+            calcWidth = Math.round((calcHeight - _pbh)*player_ratio);
           } else {
-            calcWidth = Math.floor(calcHeight*player_ratio + 0.5);
+            calcWidth = Math.round(calcHeight*player_ratio);
           }
         }
         
@@ -12511,8 +12564,8 @@
             content = document.getElementById("watch7-main-container"),
             contentMain = document.getElementById("watch7-main"),
             playlist = document.getElementById("watch7-playlist-tray-container"),
-            playerWidth = Math.floor(calcWidth + 0.5),
-            playerHeight = Math.floor(calcHeight + pbh + 0.5),
+            playerWidth = Math.round(calcWidth),
+            playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist");
         if (playlist_el) {
           playlist_el.style.width = (large ? playerWidth : maxInsidePlayerWidth) + "px";
@@ -12583,12 +12636,12 @@
         if (playlist) {
           var playlistElement = document.getElementById("watch7-playlist-data"),
               playlistBar,
-              __playlistWidth = Math.floor(calcWidth + 0.5),
+              __playlistWidth = Math.round(calcWidth),
               __playlistRealWidth = __playlistWidth*0.5;
           if (__playlistRealWidth < 275) __playlistRealWidth = 275;
           else if (__playlistRealWidth > 400) __playlistRealWidth = 400;
           playlist.style.width = (large ? __playlistRealWidth + "px" : "auto");
-          playlist.style.height = Math.floor(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh) + 0.5) + "px";
+          playlist.style.height = Math.round(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh)) + "px";
           
           if (playlistElement) playlistBar = playlistElement.children[0];
           
@@ -12609,7 +12662,7 @@
         
         var creatorBar = document.getElementById("watch7-creator-bar");
         if (creatorBar) {
-          creatorBar.style.width = Math.floor(calcWidth - 40 + 0.5) + "px";
+          creatorBar.style.width = Math.round(calcWidth - 40) + "px";
           if (document.getElementById("watch7-main-container")) {
             document.getElementById("watch7-main-container").style.marginTop = "48px";
           }
@@ -12671,8 +12724,8 @@
         var wp = document.getElementById("player-api");
         if (wp) {
           if (width !== "" || height !== "") {
-            wp.style.width = Math.floor(calcWidth + 0.5) + "px";
-            wp.style.height = Math.floor(calcHeight + pbh + 0.5) + "px";
+            wp.style.width = Math.round(calcWidth) + "px";
+            wp.style.height = Math.round(calcHeight + pbh) + "px";
           } else {
             wp.style.width = "";
             wp.style.height = "";
@@ -12683,7 +12736,7 @@
               wp.style.marginLeft = "";
             } else {
               var wvOffset = $GetOffset(document.getElementById("player"));
-              var mLeft = Math.floor(-(calcWidth - maxInsidePlayerWidth)/2 + 0.5);
+              var mLeft = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
               if (-mLeft > wvOffset[0]) mLeft = -wvOffset[0];
               wp.style.marginLeft = mLeft + "px";
             }
@@ -12716,11 +12769,11 @@
             
             var playlistTrayContainer = document.getElementById("watch7-playlist-tray-container");
             if (playlistTrayContainer) {
-              var __h = Math.floor(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh) + 0.5);
+              var __h = Math.round(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh));
               playlistTrayContainer.style.height = __h + "px";
               var playlistTray = document.getElementById("watch7-playlist-tray");
               if (playlistTray) {
-                playlistTray.style.height = Math.floor(__h - (large ? 0 : 27) + 0.5) + "px";
+                playlistTray.style.height = Math.round(__h - (large ? 0 : 27)) + "px";
               }
               playlistTrayContainer.style.width = (large ? __playlistRealWidth : maxInsidePlayerWidth - __playlistWidth) + "px";
               
@@ -12749,7 +12802,7 @@
               if (align) {
                 p.style.marginLeft = "";
               } else {
-                var ml = Math.floor(-(calcWidth - maxInsidePlayerWidth)/2 + 0.5);
+                var ml = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
                 if (document.getElementById("watch7-container")) {
                   var off = ytcenter.utils.getOffset(document.getElementById("watch7-container"));
                   if (-ml > off.left) ml = -off.left;
@@ -13379,6 +13432,7 @@
         }
         $AddStyle(ytcenter.css.general);
         $AddStyle(ytcenter.css.flags);
+        $AddStyle(ytcenter.css.html5player);
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           $AddStyle(ytcenter.css.topbar);
         } else {
