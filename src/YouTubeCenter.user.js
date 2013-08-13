@@ -3781,10 +3781,15 @@
               __r.update();
             }, preTesterInterval);
           } else {
-            con.log("[PageReadinessListener] At event => " + events[i].event);
-            events[i].called = true;
-            for (j = 0; j < events[i].callbacks.length; j++) {
-              events[i].callbacks[j]();
+            try {
+              con.log("[PageReadinessListener] At event => " + events[i].event);
+              events[i].called = true;
+              for (j = 0; j < events[i].callbacks.length; j++) {
+                events[i].callbacks[j]();
+              }
+            } catch (e) {
+              con.error("[PageReadinessListener] " + events[i].event);
+              con.error(e);
             }
           }
         }
@@ -9941,12 +9946,12 @@
             }
           ],
           "defaultSetting": "channel_autohide"
-        }/*, {
+        }, {
           "label": "SETTINGS_DASHPLAYBACK",
           "type": "bool",
           "defaultSetting": "channel_dashPlayback",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
-        }*/, {
+        }, {
           "label": "SETTINGS_PLAYERTHEME_LABEL",
           "type": "list",
           "list": [
@@ -11669,6 +11674,13 @@
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", "#000000");
         } else if (ytcenter.settings.channel_bgcolor !== "default" && ytcenter.settings.channel_bgcolor.indexOf("#") === 0) {
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", ytcenter.settings.channel_bgcolor);
+        }
+        
+        if (document.getElementById("upsell-video")) {
+          var swf_config = JSON.parse(document.getElementById("upsell-video").getAttribute("data-swf-config").replace(/&amp;/g, "&").replace(/&quot;/g, "\""));
+          swf_config.args = config.args;
+          config = swf_config;
+          document.getElementById("upsell-video").setAttribute("data-swf-config", JSON.stringify(config).replace(/&/g, "&amp;").replace(/"/g, "&quot;"));
         }
       }
       
@@ -13524,7 +13536,9 @@
           }
         } else if (page === "channel") {
           ytcenter.page = "channel";
-          if (document.body.innerHTML.indexOf("/v/") !== -1) {
+          if (document.body.innerHTML.indexOf("data-video-id=\"" !== -1)) {
+            id = document.body.innerHTML.match(/data-video-id=\"(.*?)\"/)[1];
+          } else if (document.body.innerHTML.indexOf("/v/") !== -1) {
             id = document.body.innerHTML.match(/\/v\/([0-9a-zA-Z_-]+)/)[1];
           } else if (document.body.innerHTML.indexOf("\/v\/" !== -1)) {
             id = document.body.innerHTML.match(/\\\/v\\\/([0-9a-zA-Z_-]+)/)[1];
