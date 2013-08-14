@@ -854,3 +854,60 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   margin-bottom: 0!important;
   overflow: hidden;
 }
+
+/* Thumbnail */
+.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
+.ytcenter-thumbnail-timecode-pos-topleft .video-time {
+  top: 2px!important;
+  left: 2px!important;
+}
+.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button,
+.ytcenter-thumbnail-timecode-pos-topright .video-time {
+  top: 2px!important;
+  right: 2px!important;
+}
+.ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button,
+.ytcenter-thumbnail-timecode-pos-bottomleft .video-time {
+  bottom: 2px!important;
+  left: 2px!important;
+}
+.ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button,
+.ytcenter-thumbnail-timecode-pos-bottomright .video-time {
+  bottom: 2px!important;
+  right: 2px!important;
+}
+
+
+.ytcenter-thumbnail-watchlater-visible-always .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-hide_hover:hover .addto-watch-later-button {
+  display: block !important;
+  opacity: 1 !important;
+}
+.ytcenter-thumbnail-timecode-visible-always .video-time,
+.ytcenter-thumbnail-timecode-visible-hide_hover:hover .video-time {
+  display: block !important;
+  opacity: 0.75 !important;
+  filter: alpha(opacity=75) !important;
+}
+
+.ytcenter-thumbnail-watchlater-visible-show_hover .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-never .addto-watch-later-button,
+.ytcenter-thumbnail-timecode-visible-show_hover .video-time,
+.ytcenter-thumbnail-timecode-visible-never .video-time,
+.ytcenter-thumbnail-watchlater-visible-hide_hover:hover .addto-watch-later-button,
+.ytcenter-thumbnail-timecode-visible-hide_hover:hover .video-time {
+  display: none!important;
+  opacity: 0 !important;
+  filter: alpha(opacity=0) !important;
+}
+
+.ytcenter-thumbnail-watchlater-visible-show_hover:hover .addto-watch-later-button{
+  display: block !important;
+  opacity: 1 !important;
+  filter: alpha(opacity=100) !important;
+}
+.ytcenter-thumbnail-timecode-visible-show_hover:hover .video-time {
+  display: block !important;
+  opacity: 0.75 !important;
+  filter: alpha(opacity=75) !important;
+}
