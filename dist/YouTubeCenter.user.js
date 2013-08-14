@@ -13193,11 +13193,16 @@
       __r.getCollapsedItems = function(feed){
         return feed.getElementsByClassName("feed-item-collapsed-items");
       };
+      __r.getShowMoreButton = function(feed){
+        var a = feed.getElementsByClassName("feed-item-expander-button");
+        if (a && a.length > 0 && a[0])
+          return a[0];
+        return null;
+      };
       __r.setup = function(){
-        uw.disposeIntelligentFeeds = __r.dispose;
         __r.dispose();
         con.log("[Intelligent Feeds] Setting up!");
-        var shelf, items, i, j, shelfWrappers, collapsedItem, feedCollapsedContainer;
+        var shelf, items, i, j, shelfWrappers, collapsedItem, feedCollapsedContainer, showMoreButton;
         feed = __r.getFeeds();
         for (i = 0; i < feed.length; i++) {
           items = __r.getItems(feed[i]);
@@ -13205,6 +13210,7 @@
           shelfWrappers = __r.getShelfWrappers(feed[i]);
           collapsedItem = __r.getCollapsedItems(feed[i]);
           feedCollapsedContainer = __r.getFeedCollapsedContainer(feed[i]);
+          showMoreButton = __r.getShowMoreButton(feed[i]);
           
           if (items && items.length > 0
               && shelf && shelf.length > 0 && shelf[0]
@@ -13217,6 +13223,11 @@
             for (j = 0; j < items.length; j++) {
               shelf.appendChild(items[j]);
             }
+            if (showMoreButton) {
+              showMoreButton.setAttribute("data-original-textContent", showMoreButton.textContent);
+              showMoreButton.textContent = showMoreButton.textContent.replace(/( [0-9]+)|([0-9]+ )|([0-9]+)/, "");
+            }
+            
             if (!observer) {
               observer = new MutObs(function(mutations){
                 mutations.forEach(function(mutation){
@@ -13238,11 +13249,12 @@
         if (observer) observer.disconnect();
         observer = null;
         if (feed) {
-          var shelves, items, i, j, k, frag, _items;
+          var shelves, items, i, j, k, frag, _items, showMoreButton;
           for (i = 0; i < feed.length; i++) {
             if (ytcenter.utils.hasClass(feed[i], "ytcenter-intelligentfeed")) {
               shelves = __r.getShelves(feed[i]);
               items = __r.getItems(feed[i]);
+              showMoreButton = __r.getShowMoreButton(feed[i]);
               frag = [];
               _items = [];
               
@@ -13258,6 +13270,10 @@
                 for (k = 0; k < _items[j].length; k++) {
                   shelves[j].appendChild(_items[j][k]);
                 }
+              }
+              if (showMoreButton) {
+                showMoreButton.textContent = showMoreButton.getAttribute("data-original-textContent");
+                showMoreButton.removeAttribute("data-original-textContent");
               }
               ytcenter.utils.removeClass(feed[i], "ytcenter-intelligentfeed ytcenter-intelligentfeed-minimized");
             }
