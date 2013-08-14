@@ -3032,6 +3032,20 @@
     con.log("Initializing Functions");
     
     var yt, ytcenter = {};
+    ytcenter.unload = (function(){
+      var unloads = [];
+      
+      window.addEventListener("unload", function(){
+        var i;
+        for (i = 0; i < unloads.length; i++) {
+          if (typeof unloads[i] === "function") unloads[i]();
+          else con.error("[Unload] Couldn't unload!", unloads[i]);
+        }
+      }, false);
+      return function(unload){
+        unloads.push(unload);
+      };
+    })();
     ytcenter.version = "1.33.0";
     ytcenter.revision = 125;
     ytcenter.icon = {};
@@ -3573,6 +3587,18 @@
       }
       
       var __r = {}, comments = [], observer, observer2, observer3;
+      
+      ytcenter.unload(function(){
+        if (observer) {
+          observer.disconnect();
+        }
+        if (observer2) {
+          observer2.disconnect();
+        }
+        if (observer3) {
+          observer3.disconnect();
+        }
+      });
       
       __r.setupObserver = function(){
         if (observer) {
@@ -4491,6 +4517,7 @@
           observer = null;
         }
       };
+      ytcenter.unload(__r.dispose);
       __r.setup = function(){
         try {
           var i;
@@ -7889,18 +7916,38 @@
       var left = Math.max(document.body.scrollLeft, document.documentElement.scrollLeft);
       return {top:top,left:left};
     };
-    ytcenter.utils.addEventListener = function(elm, event, callback, useCapture){
-      if (elm.addEventListener) {
-        elm.addEventListener(event, callback, useCapture || false);
-      } else if (elm.attachEvent) {
-        elm.attachEvent("on" + event, callback);
-      }
-    };
-    ytcenter.utils.removeEventListener = function(elm, event, callback, useCapture){
-      if (elm.removeEventListener) {
-        elm.removeEventListener(event, callback, useCapture || false);
-      }
-    };
+    ytcenter.utils.addEventListener = (function(){
+      var listeners = [];
+      ytcenter.unload(function(){
+        var i;
+        for (i = 0; i < listeners.length; i++) {
+          if (listeners[i].elm.removeEventListener) {
+            listeners[i].elm.removeEventListener(listeners[i].event, listeners[i].callback, listeners[i].useCapture);
+          }
+        }
+        listeners = [];
+      });
+      ytcenter.utils.removeEventListener = function(elm, event, callback, useCapture){
+        var i;
+        if (elm.removeEventListener) {
+          elm.removeEventListener(event, callback, useCapture || false);
+        }
+        for (i = 0; i < listeners.length; i++) {
+          if (listeners[i].elm === elm && listeners[i].event === event && listeners[i].callback === callback && listeners[i].useCapture === useCapture) {
+            listeners.splice(i, 1);
+            break;
+          }
+        }
+      };
+      return function(elm, event, callback, useCapture){
+        listeners.push({elm: elm, event: event, callback: callback, useCapture: useCapture});
+        if (elm.addEventListener) {
+          elm.addEventListener(event, callback, useCapture || false);
+        } else if (elm.attachEvent) {
+          elm.attachEvent("on" + event, callback);
+        }
+      };
+    })();
     ytcenter.utils.getRGB = function(h, s, v){
       h = h/360 * 6;
       s = s/100;
@@ -9254,7 +9301,7 @@
       enableDownload: true,
       downloadQuality: 'highres',
       downloadFormat: 'mp4',
-      downloadAsLinks: false,
+      downloadAsLinks: true,
       show3DInDownloadMenu: false,
       enableRepeat: true,
       repeatSave: false,
@@ -11402,15 +11449,19 @@
           if (ytcenter.settings.preventPlaylistAutoBuffer) {
             api.stopVideo();
           } else if (ytcenter.settings.preventPlaylistAutoPlay) {
+            api.mute();
             api.playVideo();
             api.pauseVideo();
+            !ytcenter.settings.mute && api.isMuted && api.unMute();
           }
         } else {
           if (ytcenter.settings.preventAutoBuffer) {
             api.stopVideo();
           } else if (ytcenter.settings.preventAutoPlay) {
+            api.mute();
             api.playVideo();
             api.pauseVideo();
+            !ytcenter.settings.mute && api.isMuted && api.unMute();
           }
         }
       } else if (page === "channel") {
@@ -12426,6 +12477,12 @@
                 });
               });
           observer.observe(posOffset, { attributes: true });
+          ytcenter.unload(function(){
+            if (observer) {
+              observer.disconnect();
+              observer = null;
+            }
+          });
           window.addEventListener("scroll", (function(){
             var lastTop = -1,
                 running = false;
@@ -13031,6 +13088,7 @@
             var e = d[j].split("=");
             c[e[0]] = unescape(e[1]);
             if (e[0] === "type") c[e[0]] = c[e[0]].replace(/\+/g, " ");
+            //if (e[0] === "url") c[e[0]] = c[e[0]].replace(/^(http:)|(https:)/g, "");
           }
           b.push(c);
         }
@@ -13174,7 +13232,12 @@
     ];
     ytcenter.intelligentFeed = (function(){
       var __r = {}, observer, config = { attributes: true }, MutObs = ytcenter.getMutationObserver(), feed;
-      
+      ytcenter.unload(function(){
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      });
       __r.getFeeds = function(){
         return document.getElementsByClassName("feed-item-main");
       };
@@ -13300,6 +13363,16 @@
       var timer, observer, observer2, clicked = false, main_guide, guide_container, guideToggle, MutObs = ytcenter.getMutationObserver(),
           config = { attributes: true, attributeOldValue: true },
           confi2 = { childList: true, subtree: true };
+      ytcenter.unload(function(){
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        if (observer2) {
+          observer2.disconnect();
+          observer2 = null;
+        }
+      });
       return function(){
         con.log("[Guide] Configurating the state updater!");
         if (observer) {
@@ -14038,6 +14111,16 @@
       }
       
       ytcenter.pageReadinessListener.setup();
+      
+      try {
+        ytcenter.unload(function(){
+          if (ytcenter.guide.observer) {
+            ytcenter.guide.observer.disconnect();
+          }
+        });
+      } catch (e) {
+        con.error(e);
+      }
     })();
     con.log("At Scope End");
   };
@@ -14068,6 +14151,7 @@
         try {
           main_function(false, 0);
         } catch (e) {
+          console.error(e);
           console.error("[Main Function]", e);
         }
       }
