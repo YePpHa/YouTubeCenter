@@ -3391,7 +3391,6 @@
               countryMetadata.style.color = "#999";
               countryMetadata.textContent = comment.country;
             }
-            metadata.insertBefore(countryMetadata, metadata.children[1]);
           } else {
             metadata = comment.elements[i].getElementsByClassName("metadata")[0];
             countryMetadata = document.createElement("span");
@@ -3407,7 +3406,13 @@
             } else {
               countryMetadata.textContent = comment.country;
             }
+          }
+          if (ytcenter.settings.commentCountryPosition === "before_username") {
+            metadata.insertBefore(countryMetadata, metadata.children[0]);
+          } else if (ytcenter.settings.commentCountryPosition === "after_username") {
             metadata.insertBefore(countryMetadata, metadata.children[1]);
+          } else if (ytcenter.settings.commentCountryPosition === "last") {
+            metadata.appendChild(countryMetadata);
           }
         }
       }
@@ -9260,6 +9265,7 @@
       commentCountryData: [],
       commentCountryEnabled: true,
       commentCountryShowFlag: true,
+      commentCountryPosition: "after_username", // ["before_username", "after_username", "last"]
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
       videoThumbnailQualityPosition: "topleft",
@@ -9632,6 +9638,22 @@
           "label": "SETTINGS_COMMENTS_COUNTRY_SHOW_FLAG",
           "type": "bool",
           "defaultSetting": "commentCountryShowFlag"
+        }, {
+          "label": "SETTINGS_COMMENTS_COUNTRY_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "before_username",
+              "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_BEFORE_USERNAME"
+            }, {
+              "value": "after_username",
+              "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_AFTER_USERNAME"
+            }, {
+              "value": "last",
+              "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_LAST"
+            }
+          ],
+          "defaultSetting": "commentCountryPosition"
         }, {
           "type": "import/export settings"
         }, {
