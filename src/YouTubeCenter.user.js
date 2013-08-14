@@ -3904,7 +3904,7 @@
                   }
                 } catch (e) {
                   if (r.responseText.indexOf("flashvars=\"") !== -1) {
-                    var a = r.responseText.split("flashvars=\"")[1].split("\"")[0].split("&amp;"),
+                    var a = r.responseText.split("flashvars=\"")[1].split("\"")[0].replace(/&amp;/g, "&").replace(/&quot;/g, "\"").split("&"),
                         i, b;
                     cfg = {args: {}};
                     for (i = 0; i < a.length; i++) {
@@ -13948,7 +13948,7 @@
         try {
           main_function(false, @identifier@);
         } catch (e) {
-          console.error("DOH", e);
+          console.error("[Main Function]", e);
         }
       }
     } catch (e) {
