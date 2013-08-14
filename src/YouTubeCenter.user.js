@@ -3673,6 +3673,9 @@
       if (loc.href.indexOf(".youtube.com/watch?") !== -1) {
         ytcenter.page = "watch";
         return "watch";
+      } else if (loc.href.indexOf(".youtube.com/") !== -1 && (loc.pathname === "/" || loc.pathname === "/feed/what_to_watch")) {
+        ytcenter.page = "feed_what_to_watch";
+        return "feed_what_to_watch";
       } else if (loc.href.indexOf(".youtube.com/embed/") !== -1) {
         ytcenter.page = "embed";
         return "embed";
@@ -13169,6 +13172,100 @@
       {element: function(){return document.body;}, className: "ytcenter-resize-disaligned", condition: function(){return loc.pathname === "/watch" && ytcenter.settings.enableResize && !ytcenter.player.isPlayerAligned();}},
       {element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
+    ytcenter.intelligentFeed = (function(){
+      var __r = {}, observer, config = { attributes: true }, MutObs = ytcenter.getMutationObserver(), feed;
+      
+      __r.getFeeds = function(){
+        return document.getElementsByClassName("feed-item-main");
+      };
+      __r.getItems = function(feed){
+        return feed.getElementsByClassName("yt-uix-shelfslider-item");
+      };
+      __r.getShelfWrappers = function(feed){
+        return feed.getElementsByClassName("shelf-wrapper");
+      };
+      __r.getShelves = function(feed){
+        return feed.getElementsByClassName("yt-uix-shelfslider-list");
+      };
+      __r.getFeedCollapsedContainer = function(feed){
+        return feed.getElementsByClassName("feed-item-collapsed-container");
+      };
+      __r.getCollapsedItems = function(feed){
+        return feed.getElementsByClassName("feed-item-collapsed-items");
+      };
+      __r.setup = function(){
+        uw.disposeIntelligentFeeds = __r.dispose;
+        __r.dispose();
+        con.log("[Intelligent Feeds] Setting up!");
+        var shelf, items, i, j, shelfWrappers, collapsedItem, feedCollapsedContainer;
+        feed = __r.getFeeds();
+        for (i = 0; i < feed.length; i++) {
+          items = __r.getItems(feed[i]);
+          shelf = __r.getShelves(feed[i]);
+          shelfWrappers = __r.getShelfWrappers(feed[i]);
+          collapsedItem = __r.getCollapsedItems(feed[i]);
+          feedCollapsedContainer = __r.getFeedCollapsedContainer(feed[i]);
+          
+          if (items && items.length > 0
+              && shelf && shelf.length > 0 && shelf[0]
+              && shelfWrappers && shelfWrappers.length > 0
+              && feedCollapsedContainer && feedCollapsedContainer.length > 0 && feedCollapsedContainer[0]) {
+            ytcenter.utils.addClass(feed[i], "ytcenter-intelligentfeed ytcenter-intelligentfeed-minimized");
+            con.log("[Intelligent Feeds] There are " + items.length + " items and " + shelf.length + " shelves!");
+            
+            shelf = shelf[0];
+            for (j = 0; j < items.length; j++) {
+              shelf.appendChild(items[j]);
+            }
+            if (!observer) {
+              observer = new MutObs(function(mutations){
+                mutations.forEach(function(mutation){
+                  if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                    if (ytcenter.utils.hasClass(mutation.target, "expanded")) {
+                      ytcenter.utils.removeClass(mutation.target.parentNode.parentNode, "ytcenter-intelligentfeed-minimized");
+                    } else if (ytcenter.utils.hasClass(mutation.target, "collapsed")) {
+                      ytcenter.utils.addClass(mutation.target.parentNode.parentNode, "ytcenter-intelligentfeed-minimized");
+                    }
+                  }
+                });
+              });
+            }
+            observer.observe(feedCollapsedContainer[0], config);
+          }
+        }
+      };
+      __r.dispose = function(){
+        if (observer) observer.disconnect();
+        observer = null;
+        if (feed) {
+          var shelves, items, i, j, k, frag, _items;
+          for (i = 0; i < feed.length; i++) {
+            if (ytcenter.utils.hasClass(feed[i], "ytcenter-intelligentfeed")) {
+              shelves = __r.getShelves(feed[i]);
+              items = __r.getItems(feed[i]);
+              frag = [];
+              _items = [];
+              
+              con.log("[Intelligent Feeds] Reordering " + items.length + " items to " + shelves.length + " shelves!");
+              
+              for (j = 0; j < items.length; j++) {
+                var n = Math.floor(j/(items.length/shelves.length));
+                if (!_items[n]) _items[n] = [];
+                _items[n].push(items[j]);
+              }
+              
+              for (j = 0; j < _items.length; j++) {
+                for (k = 0; k < _items[j].length; k++) {
+                  shelves[j].appendChild(_items[j][k]);
+                }
+              }
+              ytcenter.utils.removeClass(feed[i], "ytcenter-intelligentfeed ytcenter-intelligentfeed-minimized");
+            }
+          }
+        }
+      };
+      return __r;
+    })();
     ytcenter.guideMode = (function(){
       function clickListener() {
         clicked = true;
@@ -13614,6 +13711,10 @@
         }
         
         
+        if (page === "feed_what_to_watch") {
+          ytcenter.intelligentFeed.setup();
+        }
+        
         var id, config;
         if (page === "watch") {
           ytcenter.page = "watch";
@@ -13820,7 +13921,10 @@
         }
         ytcenter.placementsystem.clear();
         if (loc.pathname !== "/watch") {
-            ytcenter.player.turnLightOn();
+          if (ytcenter.getPage() === "feed_what_to_watch") {
+            ytcenter.intelligentFeed.setup();
+          }
+          ytcenter.player.turnLightOn();
         } else {
           if (ytcenter.settings.lightbulbAutoOff)
             ytcenter.player.turnLightOff();

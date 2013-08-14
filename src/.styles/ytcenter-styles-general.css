@@ -833,3 +833,24 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 .ytcenter-site-watch #player {
   overflow: auto;
 }
+
+.ytcenter-intelligentfeed .shelf-wrapper,
+.ytcenter-intelligentfeed .feed-item-collapsed-container .feed-item-collapsed-items {
+  display: none;
+}
+.ytcenter-intelligentfeed .shelf-wrapper:first-child {
+  display: block;
+}
+
+.ytcenter-intelligentfeed.ytcenter-intelligentfeed-minimized .shelf-wrapper:first-child {
+  max-height: 338px;
+}
+.ytcenter-intelligentfeed .feed-item-main-content .yt-uix-shelfslider-item {
+  float: left;
+  margin-bottom: 10px;
+  height: 159px;
+}
+.ytcenter-intelligentfeed .feed-item-main-content .shelf-wrapper {
+  margin-bottom: 0!important;
+  overflow: hidden;
+}
