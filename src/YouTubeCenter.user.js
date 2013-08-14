@@ -4314,6 +4314,14 @@
         
         item.content.appendChild(wrapper);
       }
+      function applyWatchLaterSettings(item) {
+        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-pos-" + ytcenter.settings.videoThumbnailWatchLaterPosition);
+        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-visible-" + ytcenter.settings.videoThumbnailWatchLaterVisible);
+      }
+      function applyTimeCodeSettings(item) {
+        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-" + ytcenter.settings.videoThumbnailTimeCodePosition);
+        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
+      }
       function processItemHeavyLoad(item) {
         if (!ytcenter.settings.videoThumbnailQualityBar) return;
         if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail") {
@@ -4509,6 +4517,8 @@
             updateReuse(vt[i]);
             processItem(vt[i]);
             processItemHeavyLoad(vt[i]);
+            applyWatchLaterSettings(vt[i]);
+            applyTimeCodeSettings(vt[i]);
           }
         });
         if (!observer) return;
@@ -4533,6 +4543,8 @@
             updateReuse(videoThumbs[i]);
             processItem(videoThumbs[i]);
             processItemHeavyLoad(videoThumbs[i]);
+            applyWatchLaterSettings(videoThumbs[i]);
+            applyTimeCodeSettings(videoThumbs[i]);
           }
           __r.setupObserver();
         } catch (e) {
@@ -9279,6 +9291,10 @@
       videoThumbnailRatingsCountPosition: "bottomleft",
       videoThumbnailRatingsCountDownloadAt: "page_start",
       videoThumbnailRatingsCountVisible: "show_hover",
+      videoThumbnailWatchLaterPosition: "bottomright",
+      videoThumbnailWatchLaterVisible: "show_hover",
+      videoThumbnailTimeCodePosition: "bottomright",
+      videoThumbnailTimeCodeVisible: "hide_hover",
       dashPlayback: true,
       embed_dashPlayback: true,
       channel_dashPlayback: true,
@@ -10571,6 +10587,106 @@
             }
           ],
           "defaultSetting": "videoThumbnailRatingsCountVisible",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_WATCH_LATER",
+          "style": {
+            "fontWeight": "bold"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "topleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+            }, {
+              "value": "topright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+            }, {
+              "value": "bottomleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+            }, {
+              "value": "bottomright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailWatchLaterPosition",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
+          "type": "list",
+          "list": [
+            {
+              "value": "always",
+              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+            }, {
+              "value": "show_hover",
+              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+            }, {
+              "value": "hide_hover",
+              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+            }, {
+              "value": "never",
+              "label": "SETTINGS_THUMBVIDEO_NEVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailWatchLaterVisible",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBVIDEO_TIME_CODE",
+          "style": {
+            "fontWeight": "bold"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_POSITION",
+          "type": "list",
+          "list": [
+            {
+              "value": "topleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+            }, {
+              "value": "topright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+            }, {
+              "value": "bottomleft",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+            }, {
+              "value": "bottomright",
+              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+            }
+          ],
+          "defaultSetting": "videoThumbnailTimeCodePosition",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
+          "type": "list",
+          "list": [
+            {
+              "value": "always",
+              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+            }, {
+              "value": "show_hover",
+              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+            }, {
+              "value": "hide_hover",
+              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+            }, {
+              "value": "never",
+              "label": "SETTINGS_THUMBVIDEO_NEVER"
+            }
+          ],
+          "defaultSetting": "videoThumbnailTimeCodeVisible",
           "style": {
             "marginLeft": "12px"
           }
