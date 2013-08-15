@@ -11105,8 +11105,8 @@
                     "api_paste_private=1", // unlisted
                     "api_paste_expire_date=1M", // 1 month
                     "api_paste_format=javascript",
-                    "api_paste_name=" + escape("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
-                    "api_paste_code=" + escape(ytcenter.debug())
+                    "api_paste_name=" + encodeURIComponent("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
+                    "api_paste_code=" + encodeURIComponent(ytcenter.debug())
                   ].join('&'),
                   onload: function(response) {
                     pasteUrl.value = response.responseText;
