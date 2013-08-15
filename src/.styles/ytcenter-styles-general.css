@@ -579,9 +579,9 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   vertical-align: top;
 }
 
-.video-list-item>a {
+/*.video-list-item > a {
   width: 100%;
-}
+}*/
 
 .resize-options {
   width: 335px;
@@ -657,7 +657,9 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   margin-top: 0px!important;
 }
 
-.ytcenter-branding-remove-banner #watch7-branded-banner,.ytcenter-branding-remove-banner #player-branded-banner {
+.ytcenter-branding-remove-banner #watch7-branded-banner,
+.ytcenter-branding-remove-banner #player-branded-banner,
+.ytcenter-branding-remove-banner #player-branded-banner-legacy {
   display: none!important;
 }
 

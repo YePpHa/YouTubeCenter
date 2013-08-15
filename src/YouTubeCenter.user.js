@@ -5490,11 +5490,11 @@
             bgOverlay.parentNode.removeChild(bgOverlay);
             document.body.appendChild(bgOverlay);
           }
-          if (document.getElementById("player-api")) document.getElementById("player-api").style.visibility = "hidden";
+          if (document.getElementById("player-api") || document.getElementById("player-api-legacy")) (document.getElementById("player-api") || document.getElementById("player-api-legacy")).style.visibility = "hidden";
         } else {
           if (root.parentNode) root.parentNode.removeChild(root);
           if (bgOverlay.parentNode) bgOverlay.parentNode.removeChild(bgOverlay);
-          if (document.getElementById("player-api") && !___parent_dialog) document.getElementById("player-api").style.visibility = "";
+          if ((document.getElementById("player-api") || document.getElementById("player-api-legacy")) && !___parent_dialog) (document.getElementById("player-api") || document.getElementById("player-api-legacy")).style.visibility = "";
         }
       };
       __r.setFocus = function(focus){
@@ -12425,9 +12425,9 @@
           if (document.getElementById("yt-masthead-container") && !scrollToPlayerButton.parentNode)
             document.getElementById("yt-masthead-container").appendChild(scrollToPlayerButton);
         } else {
-          if (document.getElementById("player") && !scrollToPlayerButton.parentNode)
-            document.getElementById("player").appendChild(scrollToPlayerButton);
-          if (scrollToPlayerButton && document.getElementById("player-api"))
+          if ((document.getElementById("player") || document.getElementById("player-legacy")) && !scrollToPlayerButton.parentNode)
+            (document.getElementById("player") || document.getElementById("player-legacy")).appendChild(scrollToPlayerButton);
+          if (scrollToPlayerButton && (document.getElementById("player-api") || document.getElementById("player-api-legacy")))
             scrollToPlayerButton.style.right = "10px";
           scrollToPlayerButton.style.top = (document.getElementById("watch7-playlist-data") ? "-13" : "-28") + "px";
         }
@@ -12454,7 +12454,7 @@
               scrollToPlayerButton.style.display = "none";
             }
           } else {
-            if (document.getElementById("player") && !scrollToPlayerButton.parentNode) document.getElementById("player").appendChild(scrollToPlayerButton);
+            if ((document.getElementById("player") || document.getElementById("player-legacy")) && !scrollToPlayerButton.parentNode) (document.getElementById("player") || document.getElementById("player-legacy")).appendChild(scrollToPlayerButton);
             var _s = getSizeById(ytcenter.player.currentResizeId);
             if (_s.config.scrollToPlayerButton) {
               scrollToPlayerButton.style.display = "block";
@@ -12482,8 +12482,8 @@
         if (!ytcenter.settings.enableResize) return;
         if (ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
           var posY = 0,
-              scrollElm = document.getElementById("player-api"),
-              t = ytcenter.utils.getOffset(document.getElementById("player-api")).top,
+              scrollElm = (document.getElementById("player-api") || document.getElementById("player-api-legacy")),
+              t = ytcenter.utils.getOffset((document.getElementById("player-api") || document.getElementById("player-api-legacy"))).top,
               mp = document.getElementById("masthead-positioner");
           while (scrollElm != null) {
             posY += scrollElm.offsetTop;
@@ -12495,7 +12495,7 @@
             ytcenter.player._mastheadHeightListenerUpdate && ytcenter.player._mastheadHeightListenerUpdate();
           }, 750);
         } else {
-          document.getElementById("player-api").scrollIntoView();
+          (document.getElementById("player-api") || document.getElementById("player-api-legacy")).scrollIntoView();
         }
       }, false);
       
@@ -12506,7 +12506,7 @@
         if (_s.config.scrollToPlayer) {
           if (ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
             var posY = 0,
-                scrollElm = document.getElementById("player-api"),
+                scrollElm = (document.getElementById("player-api") || document.getElementById("player-api-legacy")),
                 mp = document.getElementById("masthead-positioner");
             while (scrollElm != null) {
               posY += scrollElm.offsetTop;
@@ -12518,7 +12518,7 @@
               ytcenter.player._mastheadHeightListenerUpdate && ytcenter.player._mastheadHeightListenerUpdate();
             }, 750);
           } else {
-            document.getElementById("player-api").scrollIntoView();
+            (document.getElementById("player-api") || document.getElementById("player-api-legacy")).scrollIntoView();
           }
         }
         
@@ -12717,7 +12717,7 @@
             ytcenter.utils.removeClass(wc, "watch-wide");
           }
         }
-        var p = document.getElementById("player");
+        var p = (document.getElementById("player") || document.getElementById("player-legacy"));
         if (p) {
           if (large) {
             ytcenter.utils.addClass(p, "watch-medium");
@@ -12825,14 +12825,14 @@
         
         
         // Player Dimension
-        var player = document.getElementById("player"),
-            playerAPI = document.getElementById("player-api"),
+        var player = document.getElementById("player") || document.getElementById("player-legacy"),
+            playerAPI = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
             content = document.getElementById("watch7-main-container"),
             contentMain = document.getElementById("watch7-main"),
             playlist = document.getElementById("watch7-playlist-tray-container"),
             playerWidth = Math.round(calcWidth),
             playerHeight = Math.round(calcHeight + pbh),
-            playlist_el = document.getElementById("playlist");
+            playlist_el = document.getElementById("playlist") || document.getElementById("playlist-legacy");
         if (playlist_el) {
           playlist_el.style.width = (large ? playerWidth : maxInsidePlayerWidth) + "px";
         }
@@ -12918,8 +12918,8 @@
           }
         
         
-          if (document.getElementById("playlist-tray")) {
-            document.getElementById("playlist-tray").style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
+          if (document.getElementById("playlist-tray") || document.getElementById("playlist-tray-legacy")) {
+            (document.getElementById("playlist-tray") || document.getElementById("playlist-tray-legacy")).style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
           }
           
           playlist.style.right = "0";
@@ -12984,7 +12984,7 @@
         }
         
         // Player
-        var wp = document.getElementById("player-api");
+        var wp = document.getElementById("player-api") || document.getElementById("player-api-legacy");
         if (wp) {
           if (width !== "" || height !== "") {
             wp.style.width = Math.round(calcWidth) + "px";
@@ -12998,7 +12998,7 @@
             if (align) {
               wp.style.marginLeft = "";
             } else {
-              var wvOffset = $GetOffset(document.getElementById("player"));
+              var wvOffset = $GetOffset(document.getElementById("player") || document.getElementById("player-legacy"));
               var mLeft = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
               if (-mLeft > wvOffset[0]) mLeft = -wvOffset[0];
               wp.style.marginLeft = mLeft + "px";
@@ -13058,7 +13058,7 @@
             }
           }
           
-          var p = document.getElementById("player");
+          var p = document.getElementById("player") || document.getElementById("player-legacy");
           if (p) {
             if (calcWidth > maxInsidePlayerWidth) {
               p.style.margin = "";
@@ -13954,7 +13954,7 @@
         
         /* bodyInteractive should only be used for the UI, use the other listeners for player configuration */
         if (page === "embed") {
-          document.getElementById("player").style.display = "none";
+          (document.getElementById("player") || document.getElementById("player-legacy")).style.display = "none";
           if (uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG) {
             ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), uw.yt.config_.PLAYER_CONFIG);
           }
@@ -13962,7 +13962,7 @@
             ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config);
             ytcenter.player.update(ytcenter.player.config);
             
-            document.getElementById("player").style.display = "";
+            (document.getElementById("player") || document.getElementById("player-legacy")).style.display = "";
           };
           if (ytcenter._tmp_embed.loaded) {
             ytcenter._tmp_embed._callback();
