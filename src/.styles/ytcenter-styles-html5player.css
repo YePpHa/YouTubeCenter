@@ -1,3 +1,7 @@
+.html5-video-player .html5-scrubber-track {
+  z-index: auto!important;
+}
+
 .html5-video-player.autohide-off .html5-video-container {
   bottom: 35px!important;
 }
