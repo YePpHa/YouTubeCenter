@@ -4250,6 +4250,7 @@
         var tableQuality = {
               "error": errorMessage,
               "auto": errorMessage,
+              "tiny": "144p",
               "small": "240p",
               "medium": "360p",
               "large": "480p",
@@ -4260,6 +4261,7 @@
             tableBackground = {
               "error": "#b00",
               "auto": "#b00",
+              "tiny": "#7e587e",
               "small": "#aaa",
               "medium": "#0aa",
               "large": "#00f",
@@ -4270,6 +4272,7 @@
             tableColor = {
               "error": "#fff",
               "auto": "#fff",
+              "tiny": "#fff",
               "small": "#fff",
               "medium": "#fff",
               "large": "#fff",
