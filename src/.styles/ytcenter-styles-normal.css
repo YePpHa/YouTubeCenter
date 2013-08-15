@@ -15,7 +15,8 @@
   padding-left: 25px;
 }
 
-.player-disable #player {
+.player-disable #player,
+.player-disable #player-legacy {
   display: none!important;
 }
 
@@ -100,6 +101,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .site-left-aligned.ytcenter-site-center #page.watch #guide-container,
 .site-left-aligned.ytcenter-site-center .watch7-playlist,
 .site-left-aligned.ytcenter-site-center #player,
+.site-left-aligned.ytcenter-site-center #player-legacy,
 .site-left-aligned.ytcenter-site-center #watch7-main-container {
   -moz-transition: margin-left 0s ease-in-out;
   -ms-transition: margin-left 0s ease-in-out;
@@ -108,8 +110,12 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   transition: margin-left 0s ease-in-out;
 }
 
+#watch7-playlist-tray {
+  overflow: auto!important;
+}
 
-#playlist {
+#playlist,
+#playlist-legacy {
   margin-right: 0px!important;
 }
 
@@ -184,6 +190,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 }
 
 .ytcenter-resize-disaligned #player,
+.ytcenter-resize-disaligned #player-legacy,
 .ytcenter-site-center.ytcenter-resize-disaligned #watch7-playlist-data {
   padding-left: 0!important;
 }
@@ -213,7 +220,8 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: 100%;
 }
 
-.ytcenter-resize-disaligned.ytcenter-site-center #player-api {
+.ytcenter-resize-disaligned.ytcenter-site-center #player-api,
+.ytcenter-resize-disaligned.ytcenter-site-center #player-api-legacy {
   margin: 0 auto;
 }
 /* New */
@@ -221,13 +229,15 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: 985px;
 }
 
-.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #content #watch7-main-container {
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #content #watch7-main-container,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player-legacy + #content #watch7-main-container {
   width: 985px!important;
 }
 
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container,
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-main-container,
-.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page #content #player {
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page #content #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page #content #player-legacy {
   padding-left: 0 !important;
 }
 .ytcenter-site-watch.ytcenter-site-center.site-left-aligned #page.watch #guide + #content {
@@ -235,7 +245,9 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 }
 
 .ytcenter-site-center.ytcenter-site-watch.ytcenter-resize-aligned #player,
-.ytcenter-site-watch.ytcenter-resize-disaligned #player {
+.ytcenter-site-watch.ytcenter-resize-disaligned #player,
+.ytcenter-site-center.ytcenter-site-watch.ytcenter-resize-aligned #player-legacy,
+.ytcenter-site-watch.ytcenter-resize-disaligned #player-legacy {
   margin: 0 auto;
 }
 
@@ -261,7 +273,8 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 }
 
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #watch7-main,
-.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player {
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
   max-width: 985px;
 }
 
@@ -278,12 +291,17 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player-legacy,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player-legacy,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
     padding-left: 0 !important;
     padding-top: 0 !important;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch #player + #content,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch #player + #content {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch #player + #content,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch #player-legacy + #content,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch #player-legacy + #content {
     margin: 0 auto!important;
   }
 
@@ -291,35 +309,44 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
     width: 1003px!important;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #watch7-main,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
     margin: 0 auto!important;
   }
 }
 @media screen and (max-width:1381px) {
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #watch7-main-container #watch7-main,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player-legacy + #watch7-main-container #watch7-main,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #content {
     padding-left: 190px;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player-legacy {
     padding-left: 190px;
   }
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #content #player  {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #content #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #content #player-legacy  {
     margin: auto!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #content {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #content,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player-legacy + #content {
     padding-left: 190px;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch > #player,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch > #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch > #player-legacy,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch > #player-legacy {
     margin: 0 auto!important;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-container > #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-container > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-container > #player-legacy {
     margin: 0!important;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page > #player-legacy {
     width: auto!important;
   }
 }
@@ -350,13 +377,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #watch7-main-container {
     margin: 0 !important;
   }
-
-  /*.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #content #player  {
-    margin-left: -58px!important;
-  }
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned #content #player  {
-    margin-left: -190px!important;
-  }*/
   
   .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned #watch7-main-container {
     margin-left: 58px!important;
@@ -366,18 +386,22 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   }
   
   .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned #content,
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned #page > #player {
+  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned #page > #player,
+  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned #page > #player-legacy {
     padding-left: 58px!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player {
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player,
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player-legacy {
     padding-left: 0!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #content #player {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #content #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #content #player-legacy {
     margin-left: 0!important;
   }
   
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #content,
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #page > #player  {
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #page > #player,
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #page > #player-legacy  {
     padding-left: 190px!important;
   }
   
@@ -386,7 +410,8 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   }
 }
 
-.ytcenter-site-watch.ytcenter-non-resize #player {
+.ytcenter-site-watch.ytcenter-non-resize #player,
+.ytcenter-site-watch.ytcenter-non-resize #player-legacy {
   position: relative;
   z-index: 3;
 }
@@ -394,7 +419,8 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   padding-left: 0!important;
 }
 
-.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player {
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player-legacy {
   margin: 0 auto!important;
   min-width: 0!important;
 }
@@ -404,6 +430,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 }
 
 .ytcenter-site-watch.ytcenter-site-center #player,
+.ytcenter-site-watch.ytcenter-site-center #player-legacy,
 .ytcenter-site-watch.ytcenter-site-center #watch7-main-container {
   width: 985px; /* Default fallback size when the resize feature fails. */
 }
