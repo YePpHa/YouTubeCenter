@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            YouTube Center
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         1.33.0
+// @version         1.33.1
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/icons/logo-48x48.png
@@ -26,7 +26,7 @@
 // @grant           GM_log
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
-// @updateVersion   125
+// @updateVersion   126
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
@@ -2708,7 +2708,6 @@
             details.onerror = false;
           }
           __rootCall_db.push(entry);
-          con.log("[Firefox XHR] Sending data to background.");
           self.port.emit("xhr", JSON.stringify({
             id: id,
             details: details
@@ -3058,8 +3057,8 @@
         unloads.push(unload);
       };
     })();
-    ytcenter.version = "1.33.0";
-    ytcenter.revision = 125;
+    ytcenter.version = "1.33.1";
+    ytcenter.revision = 126;
     ytcenter.icon = {};
     ytcenter.page = "none";
     ytcenter._tmp_embed = {loaded: false, onReady: false};
@@ -5064,12 +5063,8 @@
         dbg.ytcenter.video = ytcenter.video;
         dbg.ytcenter.signatureDecipher = ytcenter.utils._signatureDecipher;
         dbg.ytcenter._signatureDecipher = ytcenter.utils.__signatureDecipher;
-        try {
-          dbg.ytcenter.player = {};
-          dbg.ytcenter.player.config = ytcenter.player.getConfig();
-        } catch (e) {
-          dbg.ytcenter.player.config = {};
-        }
+        dbg.ytcenter.player = {};
+        dbg.ytcenter.player.config = ytcenter.player.config;
         try {
           dbg.ytcenter.player.apiinterface = ytcenter.player.getReference().api.getApiInterface();
         } catch (e) {
@@ -9077,8 +9072,6 @@
         } else if (identifier === 5) {
           var id = ytcenter.storage_db.length;
           ytcenter.storage_db.push(function(storage){
-            con.log("Storage =>");
-            con.log(storage);
             if (typeof storage === "string")
               storage = JSON.parse(storage);
             for (var key in storage) {
@@ -9227,15 +9220,15 @@
                 if (0 === 0) {
                   f5.href = "http://userscripts.org/scripts/source/114002.user.js";
                 } else if (0 === 1) {
-                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
+                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
                 } else if (0 === 2) {
-                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
+                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
                 } else if (0 === 3) {
-                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
+                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
                 } else if (0 === 4) {
-                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
+                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
                 } else if (0 === 5) {
-                  ft.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
+                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
                 }
                 f5.setAttribute("target", "_blank");
                 f5.textContent = "YouTube Center v" + ver;
@@ -9290,7 +9283,7 @@
       enableYouTubeAutoSwitchToShareTab: false,
       ytExperimentalLayotTopbarStatic: false,
       commentCountryData: [],
-      commentCountryEnabled: true,
+      commentCountryEnabled: false,
       commentCountryShowFlag: true,
       commentCountryPosition: "after_username", // ["before_username", "after_username", "last"]
       videoThumbnailData: [],
@@ -12799,7 +12792,7 @@
         if (height.match(/%$/) && height.length > 1) {
           var mp = document.getElementById("masthead-positioner-height-offset");
           calcHeight = parseInt(height)/100*clientHeight;
-          if (ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+          if (mp && ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
             calcHeight -= (mp.offsetHeight || mp.clientHeight) - (document.getElementById("yt-masthead-container").offsetHeight + 2);
           }
           pbh = 0;
@@ -12893,7 +12886,7 @@
             }
           } else {
             ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
-            contentMain.style.setProperty("margin-left", "", "important");
+            if (contentMain) contentMain.style.setProperty("margin-left", "", "important");
             if (document.getElementById("watch7-main-container"))
               document.getElementById("watch7-main-container").style.margin = "";
           }
@@ -12911,7 +12904,7 @@
           
           if (playlistElement) playlistBar = playlistElement.children[0];
           
-          if (playlistBar) {
+          if (playlistBar && playlistBar.children[0] && playlistBar.children[1]) {
             playlistBar.style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
             playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
             playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
@@ -12998,7 +12991,7 @@
             if (align) {
               wp.style.marginLeft = "";
             } else {
-              var wvOffset = $GetOffset(document.getElementById("player-legacy") || document.getElementById("player"));
+              var wvOffset = $GetOffset(player);
               var mLeft = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
               if (-mLeft > wvOffset[0]) mLeft = -wvOffset[0];
               wp.style.marginLeft = mLeft + "px";
@@ -13025,7 +13018,7 @@
           var playlistElement = document.getElementById("watch7-playlist-data"),
               playlistBar;
           if (playlistElement) playlistBar = playlistElement.children[0];
-          if (playlistBar) {
+          if (playlistBar && playlistBar.children[0] && playlistBar.children[1]) {
             playlistBar.style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
             playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
             playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
