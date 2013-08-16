@@ -4089,6 +4089,8 @@
                               + (ytcenter.settings.videoThumbnailRatingsBarVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "");
           if (!ytcenter.utils.hasClass(item.videoThumb, "yt-thumb-fluid") && item.videoThumb.className.match(/yt-thumb-[0-9]+/)) {
             barLength = /yt-thumb-([0-9]+)/.exec(item.videoThumb.className)[1] + "px";
+          } else if (item.videoThumb.style.width && parseInt(item.videoThumb.style.width) > 0) {
+            barLength = item.videoThumb.style.width;
           } else {
             barLength = "100%";
           }
@@ -11172,7 +11174,8 @@
             ],
             "nl": [],
             "pl": [
-              {name: "Piotr"}
+              {name: "Piotr"},
+              {name: "kasper93"}
             ],
             "pt-BR": [
               {name: "Thiago R. M. Pereira"},
@@ -11198,6 +11201,9 @@
             ],
             "UA": [
               {name: "SPIDER-T1"}
+            ],
+            "vi": [
+              {name: "Tuấn Phạm"}
             ],
             "zh-CN": [
               {name: "小酷"},
@@ -13380,7 +13386,13 @@
         return false;
       }},
       {element: function(){return document.getElementById("watch7-creator-bar");}, className: "clearfix", condition: function(){return false;}},
-      {element: function(){return document.getElementById("page");}, className: "", condition: function(){document.getElementById("page").style.setProperty("margin", "0 auto", "!important");return false;}},
+      {element: function(){return document.getElementById("page");}, className: "", condition: function(){
+        if (ytcenter.settings.watch7centerpage)
+          document.getElementById("page").style.setProperty("margin", "0 auto", "!important");
+        else
+          document.getElementById("page").style.setProperty("margin", "");
+        return false;
+      }},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(){return !ytcenter.settings.expandDescription;}},
