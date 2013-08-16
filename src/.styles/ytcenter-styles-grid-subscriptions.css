@@ -1,0 +1,73 @@
+/* Should only be enabled if the body has the class ytcenter-grid-subscriptions */
+
+
+/* Removes the recommend channels (second column) */
+/* Removes the bubble thingy... */
+.ytcenter-grid-subscriptions .branded-page-v2-secondary-col,
+.ytcenter-grid-subscriptions .feed-item-container .feed-author-bubble-container {
+  display: none!important;
+}
+
+/* Makes the awesomium work */
+.ytcenter-grid-subscriptions .branded-page-v2-primary-col {
+  overflow: visible!important;
+  float: left!important;
+}
+
+/* Removes padding from the list items */
+.ytcenter-grid-subscriptions .feed-item-container {
+  padding: 0!important;
+  width: 185px!important;
+  height: 200px!important;
+  float: left;
+  margin: -2px 0 0 10px!important;
+  border: 0!important;
+}
+
+.ytcenter-grid-subscriptions .feed-item-header {
+  display: none!important;
+  position: absolute!important;
+  top: 110px!important;
+}
+
+.ytcenter-grid-subscriptions .feed-item-action-menu {
+  top: 8px!important;
+  right: 0px!important;
+}
+
+.ytcenter-grid-subscriptions .yt-lockup-meta {
+  margin: 0!important;
+}
+
+/* Removes margin from item main div */
+.ytcenter-grid-subscriptions .feed-item-container .feed-item-main {
+  margin: 0!important;
+  border: 0!important;
+}
+
+.ytcenter-grid-subscriptions .feed-item-container .feed-item-main .yt-lockup-content {
+  float: left!important;
+  width: 100%!important;
+}
+
+/*.ytcenter-grid-subscriptions .feed-container {
+  margin-left: 16px!important;
+}*/
+
+.ytcenter-grid-subscriptions .yt-lockup-badges {
+  display: none!important;
+}
+
+/* Clear the float */
+.ytcenter-grid-subscriptions .feed-load-more-container,
+.ytcenter-grid-subscriptions .feed-page .feed-list-item:last-child::after {
+  clear: both;
+}
+
+.ytcenter-grid-subscriptions .feed-page .feed-list-item:last-child::before,
+.ytcenter-grid-subscriptions .feed-page .feed-list-item:last-child::after {
+  content: '.';
+  display: block;
+  height: 0;
+  visibility: hidden;
+}

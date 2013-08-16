@@ -3076,7 +3076,8 @@
       normal: "@styles-normal@",
       topbar: "@styles-topbar@",
       flags: "@styles-flags@",
-      html5player: "@styles-html5player@"
+      html5player: "@styles-html5player@",
+      gridSubscriptions: "@styles-grid-subscriptions@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -9281,6 +9282,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      gridSubscriptionsPage: true,
       compatibilityCheckerForChromeDisable: false,
       removeRelatedVideosEndscreen: false,
       enableResize: true,
@@ -13393,6 +13395,7 @@
           document.getElementById("page").style.setProperty("margin", "");
         return false;
       }},
+      {element: function(){return document.body;}, className: "ytcenter-grid-subscriptions", condition: function(){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage;}},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(){return !ytcenter.settings.expandDescription;}},
@@ -13889,6 +13892,8 @@
         $AddStyle(ytcenter.css.general);
         $AddStyle(ytcenter.css.flags);
         $AddStyle(ytcenter.css.html5player);
+        $AddStyle(ytcenter.css.gridSubscriptions);
+        
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           $AddStyle(ytcenter.css.topbar);
         } else {
