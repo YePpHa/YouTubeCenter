@@ -3329,6 +3329,28 @@
       "zm": "ytcenter-flag-zm",
       "zw": "ytcenter-flag-zw"
     };
+    ytcenter.videoHistory = (function(){
+      var __r = {};
+      __r.isVideoWatched = function(id){
+        var i;
+        for (i = 0; i < ytcenter.settings.watchedVideos.length; i++) {
+          if (ytcenter.settings.watchedVideos[i] === id) {
+            return true;
+          }
+        }
+        return false;
+      };
+      __r.addVideo = function(id){
+        if (__r.isVideoWatched(id)) return;
+        if (ytcenter.settings.watchedVideosLimit < ytcenter.settings.watchedVideos.length) {
+          ytcenter.settings.watchedVideos.splice(0, ytcenter.settings.watchedVideos.length - ytcenter.settings.watchedVideosLimit);
+        }
+        ytcenter.settings.watchedVideos.push(id);
+        ytcenter.settings.saveSettings();
+      };
+      
+      return __r;
+    })();
     ytcenter.comments = (function(){
       function getComments(channel) {
         if (typeof channel !== "boolean") channel = false;
@@ -4339,6 +4361,18 @@
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-" + ytcenter.settings.videoThumbnailTimeCodePosition);
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
       }
+      function applyWatchedMessage(item) {
+        if (ytcenter.settings.gridSubscriptionsPage && loc.pathname === "/feed/subscriptions" && ytcenter.videoHistory.isVideoWatched(item.id) && !ytcenter.utils.hasClass(item.content, "ytcenter-video-watched")) {
+          var watchedElement = document.createElement("div");
+          watchedElement.className = "ytcenter-video-watched-content";
+          watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
+          ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
+          
+          item.content.className += " ytcenter-video-watched";
+          item.content.appendChild(watchedElement);
+          item.content.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.className += " ytcenter-video-watched-wrapper";
+        }
+      }
       function processItemHeavyLoad(item) {
         if (!ytcenter.settings.videoThumbnailQualityBar) return;
         if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail") {
@@ -4536,6 +4570,7 @@
             processItemHeavyLoad(vt[i]);
             applyWatchLaterSettings(vt[i]);
             applyTimeCodeSettings(vt[i]);
+            applyWatchedMessage(vt[i]);
           }
         });
         if (!observer) return;
@@ -4562,6 +4597,7 @@
             processItemHeavyLoad(videoThumbs[i]);
             applyWatchLaterSettings(videoThumbs[i]);
             applyTimeCodeSettings(videoThumbs[i]);
+            applyWatchedMessage(videoThumbs[i]);
           }
           __r.setupObserver();
         } catch (e) {
@@ -9282,6 +9318,9 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      hideWatchedVideos: false,
+      watchedVideos: [],
+      watchedVideosLimit: 500,
       gridSubscriptionsPage: true,
       compatibilityCheckerForChromeDisable: false,
       removeRelatedVideosEndscreen: false,
@@ -9660,6 +9699,34 @@
             }
           ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#set-experimental-topbar-to-static"
+        }, {
+          "type": "horizontalRule"
+        }, {
+          "label": "SETTINGS_GRIDSUBSCRIPTIONS",
+          "type": "bool",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                ytcenter.classManagement.applyClasses();
+              }
+            }
+          ],
+          "defaultSetting": "gridSubscriptionsPage"
+        }, {
+          "label": "SETTINGS_HIDEWATCHEDVIDEOS",
+          "type": "bool",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                ytcenter.classManagement.applyClasses();
+              }
+            }
+          ],
+          "defaultSetting": "hideWatchedVideos"
+        }, {
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_COMMENTS_COUNTRY_ENABLE",
           "type": "bool",
@@ -13169,13 +13236,6 @@
         return true;
       }
     };
-    ytcenter.player.apiReady = function(){
-      try {
-        ytcenter.player.getReference().api.getPlayerState();
-        return true;
-      } catch (e) {}
-      return false;
-    };
     ytcenter.player._original_update = undefined;
     ytcenter.player._appliedBefore = false;
     ytcenter.player._onPlayerLoadedBefore = false;
@@ -13395,6 +13455,7 @@
           document.getElementById("page").style.setProperty("margin", "");
         return false;
       }},
+      {element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage && ytcenter.settings.hideWatchedVideos;}},
       {element: function(){return document.body;}, className: "ytcenter-grid-subscriptions", condition: function(){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage;}},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
@@ -14110,6 +14171,7 @@
           
             ytcenter.player.update(ytcenter.player.config);
           }
+          ytcenter.videoHistory.addVideo(config.args.video_id);
           
           ytcenter.placementsystem.clear();
           
@@ -14204,6 +14266,7 @@
         
         if (data.swfcfg) {
           ytcenter.player.updateConfig(ytcenter.getPage(), data.swfcfg);
+          ytcenter.videoHistory.addVideo(data.swfcfg.args.video_id);
         }
         ytcenter.placementsystem.clear();
         if (loc.pathname !== "/watch") {

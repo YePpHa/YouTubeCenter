@@ -28,7 +28,7 @@
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
   
-  <property name="sdk.chrome" value="C:/Users/Jeppe Rune Mortensen/AppData/Local/Google/Chrome/Application/chrome.exe" />
+  <property name="sdk.chrome" value="C:/Users/Jeppe Rune Mortensen/AppData/Local/Chromium/Application/chrome.exe" />
   <property name="sdk.maxthon" value="${basedir}/SDK/maxthon.exe" />
   <property name="sdk.yuicompressor" value="${basedir}/SDK/yuicompressor-2.4.7.jar" />
   

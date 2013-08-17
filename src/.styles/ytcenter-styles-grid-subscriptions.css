@@ -71,3 +71,24 @@
   height: 0;
   visibility: hidden;
 }
+
+
+.ytcenter-video-watched-content {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background: none repeat scroll 0% 0% rgba(0, 0, 0, 0.6);
+  width: 100%;
+  z-index: 3;
+  color: #fff;
+  padding: 5px;
+  font-weight: bold;
+}
+.ytcenter-video-watched  {
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+}
+
+.ytcenter-hide-watched-videos .ytcenter-video-watched-wrapper {
+  display: none;
+}
