@@ -4328,12 +4328,15 @@
           
           item.content.className += " ytcenter-video-watched";
           item.content.appendChild(watchedElement);
-          a = item.content;
+          a = item.content, b;
           for (i = 0; i < 10; i++) {
             a = a.parentNode;
-            if (a.tagName === "LI" || !a) break;
+            if (a.tagName === "LI" || !a) {
+              b = a;
+              break;
+            }
           }
-          if (a) a.className += " ytcenter-video-watched-wrapper";
+          if (b) b.className += " ytcenter-video-watched-wrapper";
         }
       }
       function subscriptionGrid(item) {
@@ -9356,7 +9359,7 @@
       videoThumbnailCacheSize: 75,
       commentCacheSize: 150,
       watchedVideosIndicator: true,
-      hideWatchedVideos: true,
+      hideWatchedVideos: false,
       watchedVideos: [],
       watchedVideosLimit: 500,
       gridSubscriptionsPage: true,
