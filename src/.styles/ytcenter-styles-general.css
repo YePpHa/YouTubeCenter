@@ -869,23 +869,52 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 }
 
 /* Thumbnail */
+.ytcenter-thumbnail-quality {
+  position: absolute;
+  vertical-align: middle;
+  padding: 2px 4px;
+  line-height: 14px;
+  font-weight: bold;
+  font-size: 11px;
+  zoom: 1;
+  border-radius: 2px;
+}
+
+
 .ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
-.ytcenter-thumbnail-timecode-pos-topleft .video-time {
+.ytcenter-thumbnail-timecode-pos-topleft .video-time,
+.ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
+.ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
   top: 2px!important;
   left: 2px!important;
 }
+
+.ytcenter-video-watched-wrapper .ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
+.ytcenter-video-watched-wrapper .ytcenter-thumbnail-timecode-pos-topleft .video-time,
+.ytcenter-video-watched-wrapper .ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
+.ytcenter-video-watched-wrapper .ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
+  top: 24px!important;
+  left: 2px!important;
+}
+
 .ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button,
-.ytcenter-thumbnail-timecode-pos-topright .video-time {
+.ytcenter-thumbnail-timecode-pos-topright .video-time,
+.ytcenter-thumbnail-quality-pos-topright .ytcenter-thumbnail-quality,
+.ytcenter-thumbnail-ratingcount-pos-topright .ytcenter-thumbnail-ratingcount {
   top: 2px!important;
   right: 2px!important;
 }
 .ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button,
-.ytcenter-thumbnail-timecode-pos-bottomleft .video-time {
+.ytcenter-thumbnail-timecode-pos-bottomleft .video-time,
+.ytcenter-thumbnail-quality-pos-bottomleft .ytcenter-thumbnail-quality,
+.ytcenter-thumbnail-ratingcount-pos-bottomleft .ytcenter-thumbnail-ratingcount {
   bottom: 2px!important;
   left: 2px!important;
 }
 .ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button,
-.ytcenter-thumbnail-timecode-pos-bottomright .video-time {
+.ytcenter-thumbnail-timecode-pos-bottomright .video-time,
+.ytcenter-thumbnail-quality-pos-bottomright .ytcenter-thumbnail-quality,
+.ytcenter-thumbnail-ratingcount-pos-bottomright .ytcenter-thumbnail-ratingcount {
   bottom: 2px!important;
   right: 2px!important;
 }
