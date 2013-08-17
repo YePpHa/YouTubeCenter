@@ -18,7 +18,7 @@
 .ytcenter-grid-subscriptions .feed-item-container {
   padding: 0!important;
   width: 185px!important;
-  height: 200px!important;
+  height: 210px!important;
   float: left;
   margin: -2px 0 0 10px!important;
   border: 0!important;
@@ -28,6 +28,14 @@
   display: none!important;
   position: absolute!important;
   top: 110px!important;
+}
+
+.ytcenter-grid-subscriptions .ytcenter-grid-subscriptions-username {
+  margin-bottom: 5px;
+}
+
+.ytcenter-grid-subscriptions .feed-item-header .feed-item-time {
+  display: none!important;
 }
 
 .ytcenter-grid-subscriptions .feed-item-action-menu {

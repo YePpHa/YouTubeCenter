@@ -4336,6 +4336,19 @@
           if (a) a.className += " ytcenter-video-watched-wrapper";
         }
       }
+      function subscriptionGrid(item) {
+        var username = item.content.parentNode.parentNode.parentNode.parentNode.getElementsByClassName("yt-user-name")[0],
+            metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
+            usernameWrapper = document.createElement("div"), i;
+        usernameWrapper.appendChild(ytcenter.utils.textReplace(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
+        usernameWrapper.className = "ytcenter-grid-subscriptions-username";
+        metadata.parentNode.insertBefore(usernameWrapper, metadata);
+        
+        ytcenter.events.addEvent("language-refresh", function(){
+          usernameWrapper.innerHTML = "";
+          usernameWrapper.appendChild(ytcenter.utils.textReplace(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
+        });
+      }
       function processItemHeavyLoad(item) {
         if (!ytcenter.settings.videoThumbnailQualityBar) return;
         if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail") {
@@ -4533,6 +4546,9 @@
             processItemHeavyLoad(vt[i]);
             applyWatchLaterSettings(vt[i]);
             applyTimeCodeSettings(vt[i]);
+            if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
+              subscriptionGrid(vt[i]);
+            }
             if (ytcenter.settings.watchedVideosIndicator) {
               applyWatchedMessage(vt[i]);
             }
@@ -4562,6 +4578,9 @@
             processItemHeavyLoad(videoThumbs[i]);
             applyWatchLaterSettings(videoThumbs[i]);
             applyTimeCodeSettings(videoThumbs[i]);
+            if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
+              subscriptionGrid(videoThumbs[i]);
+            }
             if (ytcenter.settings.watchedVideosIndicator) {
               applyWatchedMessage(videoThumbs[i]);
             }
@@ -7876,6 +7895,46 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.utils = {};
+    ytcenter.utils.isNode = function(a){
+      if (typeof Node === "object") {
+        return a instanceof Node;
+      } else if (a && typeof a === "object" && typeof a.nodeType === "number" && typeof a.nodeName === "string") {
+        return true;
+      }
+      return false;
+    };
+    ytcenter.utils.escapeRegExp = function(str) {
+      return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+    };
+    /** This will replace strings in a text with other strings or HTML elements.
+     * replacer :  {
+     *                "__REPLACEDSTRING__": document.createElement("div"),
+     *                "{REPLACESTRING}": "ANOTHER STRING"
+     *             }
+     */
+    ytcenter.utils.textReplace = function(text, replacer){
+      var frag = document.createDocumentFragment(),
+          regex, arr = [];
+      for (key in replacer) {
+        if (replacer.hasOwnProperty(key)) {
+          arr.push(ytcenter.utils.escapeRegExp(key));
+        }
+      }
+      regex = new RegExp(arr.join("|") + "|.", "g");
+      text.replace(regex, function(matched){
+        if (replacer[matched]) {
+          if (ytcenter.utils.isNode(replacer[matched])) {
+            frag.appendChild(replacer[matched]);
+          } else {
+            frag.appendChild(document.createTextNode(replacer[matched]));
+          }
+        } else {
+          frag.appendChild(document.createTextNode(matched));
+        }
+      });
+      
+      return frag;
+    };
     ytcenter.utils.escapeXML = function(str){
       return ytcenter.utils.replaceArray(str, ["<", ">", "&", "\"", "'"], ["&lt;", "&gt;", "&amp;", "&quot;", "&apos;"]);
     };
@@ -8951,6 +9010,7 @@
         replace = replace || {};
         db.push([elm, name, type, replace]);
       };
+      
       __r.getLanguage = function(language){
         return ytcenter.languages[language];
       };
@@ -14401,7 +14461,6 @@
         try {
           a = unsafeWindow === window ? false : unsafeWindow;
         } catch (e) {
-          console.error(e);
         } finally {
           return a || window;
         }
@@ -14421,8 +14480,6 @@
         try {
           main_function(false, @identifier@);
         } catch (e) {
-          console.error(e);
-          console.error("[Main Function]", e);
         }
       }
     } catch (e) {
