@@ -93,10 +93,15 @@
   font-weight: bold!important;
   font-size: 12px!important;
   text-align: left!important;
+  display: none;
 }
 .ytcenter-video-watched  {
   opacity: 0.3;
   filter: alpha(opacity=30);
+}
+
+.ytcenter-video-watched .ytcenter-video-watched-content {
+  display: block;
 }
 
 .ytcenter-hide-watched-videos .ytcenter-video-watched-wrapper {
