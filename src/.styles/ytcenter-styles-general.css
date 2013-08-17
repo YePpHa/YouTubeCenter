@@ -825,6 +825,15 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   margin: 0 auto !important;
 }
 
+.ytcenter-site-center.flex-width-enabled #header {
+  padding-left: 0!important;
+}
+
+.flex-width-enabled #header #masthead-subnav,
+.flex-width-enabled #header #masthead-subnav ul {
+  width: 100%!important;
+}
+
 #watch7-creator-bar {
   position: relative;
   z-index: 3;
