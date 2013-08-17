@@ -83,6 +83,7 @@
   color: #fff;
   padding: 5px;
   font-weight: bold;
+  font-size: 12px!important;
 }
 .ytcenter-video-watched  {
   opacity: 0.3;

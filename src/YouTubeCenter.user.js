@@ -3583,8 +3583,8 @@
       }
       function addNewDataToCache(data) {
         if (isInCache(data)) return;
-        var cacheSize = 150, nData = {};
-        while (ytcenter.settings.commentCountryData.length >= cacheSize) removeOldestFromCache();
+        var nData = {};
+        while (ytcenter.settings.commentCountryData.length >= ytcenter.settings.commentCacheSize) removeOldestFromCache();
         nData.id = data.id;
         nData.reused = 0;
         nData.date = ytcenter.utils.now();
@@ -4192,7 +4192,8 @@
               dislikeIcon = document.createElement("img");
           numLikesDislikes.className = "video-extras-likes-dislikes"
                                      + (ytcenter.settings.videoThumbnailRatingsCountVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
-                                     + (ytcenter.settings.videoThumbnailRatingsCountVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "");
+                                     + (ytcenter.settings.videoThumbnailRatingsCountVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "")
+                                     + " ytcenter-thumbnail-ratingcount";
           numLikesDislikes.style.background = "#000";
           numLikesDislikes.style.opacity = "0.75";
           numLikesDislikes.style.filter = "alpha(opacity=75)";
@@ -4247,24 +4248,7 @@
           }
           
           numLikesDislikes.style.position = "absolute";
-          switch (ytcenter.settings.videoThumbnailRatingsCountPosition) {
-            case "topleft":
-              numLikesDislikes.style.top = "2px";
-              numLikesDislikes.style.left = "2px";
-              break;
-            case "topright":
-              numLikesDislikes.style.top = "2px";
-              numLikesDislikes.style.right = "2px";
-              break;
-            case "bottomleft":
-              numLikesDislikes.style.bottom = "2px";
-              numLikesDislikes.style.left = "2px";
-              break;
-            case "bottomright":
-              numLikesDislikes.style.bottom = "2px";
-              numLikesDislikes.style.right = "2px";
-              break;
-          }
+          item.content.className += " ytcenter-thumbnail-ratingcount-pos-" + ytcenter.settings.videoThumbnailRatingsCountPosition;
           item.content.appendChild(numLikesDislikes);
         } catch (e) {
           con.error("[Id=" + item.id + "] Likes: " + likes + ", " + dislikes);
@@ -4317,39 +4301,13 @@
         }
             
         wrapper.className = (ytcenter.settings.videoThumbnailQualityVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
-                          + (ytcenter.settings.videoThumbnailQualityVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "");
+                          + (ytcenter.settings.videoThumbnailQualityVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "")
+                          + " ytcenter-thumbnail-quality";
         wrapper.textContent = text;
+        item.content.className += " ytcenter-thumbnail-quality-pos-" + ytcenter.settings.videoThumbnailQualityPosition;
         
-        wrapper.style.position = "absolute";
-        switch (ytcenter.settings.videoThumbnailQualityPosition) {
-          case "topleft":
-            wrapper.style.top = "2px";
-            wrapper.style.left = "2px";
-            break;
-          case "topright":
-            wrapper.style.top = "2px";
-            wrapper.style.right = "2px";
-            break;
-          case "bottomleft":
-            wrapper.style.bottom = "2px";
-            wrapper.style.left = "2px";
-            break;
-          case "bottomright":
-            wrapper.style.bottom = "2px";
-            wrapper.style.right = "2px";
-            break;
-        }
-        wrapper.style.verticalAlign = "middle";
-        /*wrapper.style.opacity = "0.75";
-        wrapper.style.filter = "alpha(opacity=75)";*/
-        wrapper.style.padding = "2px 4px";
-        wrapper.style.lineHeight = "14px";
-        wrapper.style.fontWeight = "bold";
-        wrapper.style.fontSize = "11px";
-        wrapper.style.zoom = "1";
         wrapper.style.background = background;
         wrapper.style.color = color;
-        wrapper.style.borderRadius = "2px";
         
         item.content.appendChild(wrapper);
       }
@@ -4362,15 +4320,20 @@
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
       }
       function applyWatchedMessage(item) {
-        if (ytcenter.settings.gridSubscriptionsPage && loc.pathname === "/feed/subscriptions" && ytcenter.videoHistory.isVideoWatched(item.id) && !ytcenter.utils.hasClass(item.content, "ytcenter-video-watched")) {
-          var watchedElement = document.createElement("div");
+        if (ytcenter.videoHistory.isVideoWatched(item.id) && !ytcenter.utils.hasClass(item.content, "ytcenter-video-watched")) {
+          var watchedElement = document.createElement("div"), a, i;
           watchedElement.className = "ytcenter-video-watched-content";
           watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
           ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
           
           item.content.className += " ytcenter-video-watched";
           item.content.appendChild(watchedElement);
-          item.content.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.className += " ytcenter-video-watched-wrapper";
+          a = item.content;
+          for (i = 0; i < 10; i++) {
+            a = a.parentNode;
+            if (a.tagName === "LI" || !a) break;
+          }
+          if (a) a.className += " ytcenter-video-watched-wrapper";
         }
       }
       function processItemHeavyLoad(item) {
@@ -4510,8 +4473,8 @@
       }
       function addNewDataToCache(data) {
         if (isInCache(data)) return;
-        var cacheSize = 75, nData = {};
-        while (ytcenter.settings.videoThumbnailData.length >= cacheSize) removeOldestFromCache();
+        var nData = {};
+        while (ytcenter.settings.videoThumbnailData.length >= ytcenter.settings.videoThumbnailCacheSize) removeOldestFromCache();
         nData.id = data.id;
         nData.reused = 0;
         nData.date = ytcenter.utils.now();
@@ -9322,6 +9285,8 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      videoThumbnailCacheSize: 75,
+      commentCacheSize: 150,
       watchedVideosIndicator: true,
       hideWatchedVideos: true,
       watchedVideos: [],
@@ -9705,8 +9670,6 @@
           ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#set-experimental-topbar-to-static"
         }, {
-          "type": "horizontalRule"
-        }, {
           "label": "SETTINGS_GRIDSUBSCRIPTIONS",
           "type": "bool",
           "listeners": [
@@ -9718,6 +9681,8 @@
             }
           ],
           "defaultSetting": "gridSubscriptionsPage"
+        }, {
+          "type": "horizontalRule"
         }, {
           "label": "SETTINGS_WATCHEDVIDEOS_INDICATOR",
           "type": "bool",
@@ -13498,7 +13463,7 @@
           document.getElementById("page").style.setProperty("margin", "");
         return false;
       }},
-      {element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage && ytcenter.settings.hideWatchedVideos;}},
+      {element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(){return ytcenter.settings.gridSubscriptionsPage && ytcenter.settings.hideWatchedVideos;}},
       {element: function(){return document.body;}, className: "ytcenter-grid-subscriptions", condition: function(){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage;}},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(){return ytcenter.player.isLightOn;}},
