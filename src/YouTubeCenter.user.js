@@ -4570,7 +4570,9 @@
             processItemHeavyLoad(vt[i]);
             applyWatchLaterSettings(vt[i]);
             applyTimeCodeSettings(vt[i]);
-            applyWatchedMessage(vt[i]);
+            if (ytcenter.settings.watchedVideosIndicator) {
+              applyWatchedMessage(vt[i]);
+            }
           }
         });
         if (!observer) return;
@@ -4597,7 +4599,9 @@
             processItemHeavyLoad(videoThumbs[i]);
             applyWatchLaterSettings(videoThumbs[i]);
             applyTimeCodeSettings(videoThumbs[i]);
-            applyWatchedMessage(videoThumbs[i]);
+            if (ytcenter.settings.watchedVideosIndicator) {
+              applyWatchedMessage(videoThumbs[i]);
+            }
           }
           __r.setupObserver();
         } catch (e) {
@@ -9318,7 +9322,8 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
-      hideWatchedVideos: false,
+      watchedVideosIndicator: true,
+      hideWatchedVideos: true,
       watchedVideos: [],
       watchedVideosLimit: 500,
       gridSubscriptionsPage: true,
@@ -9714,6 +9719,10 @@
           ],
           "defaultSetting": "gridSubscriptionsPage"
         }, {
+          "label": "SETTINGS_WATCHEDVIDEOS_INDICATOR",
+          "type": "bool",
+          "defaultSetting": "watchedVideosIndicator"
+        }, {
           "label": "SETTINGS_HIDEWATCHEDVIDEOS",
           "type": "bool",
           "listeners": [
@@ -9725,6 +9734,40 @@
             }
           ],
           "defaultSetting": "hideWatchedVideos"
+        }, {
+          "text": "SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY",
+          "type": "button",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                var msgElm = document.createElement("h3");
+                msgElm.style.fontWeight = "normal";
+                msgElm.textContent = ytcenter.language.getLocale("SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY_CONTENT");
+                ytcenter.language.addLocaleElement(msgElm, "SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY_CONTENT", "@textContent");
+                
+                var dialog = ytcenter.dialog("SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY", msgElm, [
+                  {
+                    label: "CONFIRM_CANCEL",
+                    primary: false,
+                    callback: function(){
+                      dialog.setVisibility(false);
+                    }
+                  }, {
+                    label: "CONFIRM_CLEAN",
+                    primary: true,
+                    callback: function(){
+                      ytcenter.settings.watchedVideos = [];
+                      ytcenter.saveSettings();
+                      loc.reload();
+                      dialog.setVisibility(false);
+                    }
+                  }
+                ]);
+                dialog.setVisibility(true);
+              }
+            }
+          ]
         }, {
           "type": "horizontalRule"
         }, {
