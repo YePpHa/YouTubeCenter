@@ -3340,6 +3340,16 @@
         }
         return false;
       };
+      __r.removeVideo = function(id){
+        var i;
+        for (i = 0; i < ytcenter.settings.watchedVideos.length; i++) {
+          if (ytcenter.settings.watchedVideos[i] === id) {
+            ytcenter.settings.watchedVideos.splice(i, 1);
+            ytcenter.saveSettings();
+            break;
+          }
+        }
+      };
       __r.addVideo = function(id){
         if (__r.isVideoWatched(id)) return;
         if (ytcenter.settings.watchedVideosLimit < ytcenter.settings.watchedVideos.length) {
@@ -4320,14 +4330,17 @@
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
       }
       function applyWatchedMessage(item) {
-        if (ytcenter.videoHistory.isVideoWatched(item.id) && !ytcenter.utils.hasClass(item.content, "ytcenter-video-watched")) {
+        var ivw = ytcenter.videoHistory.isVideoWatched(item.id),
+            hc = ytcenter.utils.hasClass(item.content, "ytcenter-video-watched");
+        if (ivw && !hc) {
           var watchedElement = document.createElement("div"), a, i;
-          watchedElement.className = "ytcenter-video-watched-content";
-          watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
-          ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
-          
-          item.content.className += " ytcenter-video-watched";
-          item.content.appendChild(watchedElement);
+          if (item.content.getElementsByClassName("ytcenter-video-watched-content").length === 0) {
+            watchedElement.className = "ytcenter-video-watched-content";
+            watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
+            ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
+            item.content.appendChild(watchedElement);
+          }
+          ytcenter.utils.addClass(item.content, "ytcenter-video-watched");
           a = item.content, b;
           for (i = 0; i < 10; i++) {
             a = a.parentNode;
@@ -4336,16 +4349,62 @@
               break;
             }
           }
-          if (b) b.className += " ytcenter-video-watched-wrapper";
+          if (b) ytcenter.utils.addClass(b, "ytcenter-video-watched-wrapper");
+        } else if (!ivw && hc) {
+          var a = item.content, b;
+          ytcenter.utils.removeClass(item.content, "ytcenter-video-watched");
+          for (i = 0; i < 10; i++) {
+            a = a.parentNode;
+            if (a.tagName === "LI" || !a) {
+              b = a;
+              break;
+            }
+          }
+          if (b) ytcenter.utils.removeClass(b, "ytcenter-video-watched-wrapper");
         }
       }
       function subscriptionGrid(item) {
         var username = item.content.parentNode.parentNode.parentNode.parentNode.getElementsByClassName("yt-user-name")[0],
             metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
-            usernameWrapper = document.createElement("div"), i;
+            actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
+            usernameWrapper = document.createElement("div"), i, am, li, s;
         usernameWrapper.appendChild(ytcenter.utils.textReplace(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
         usernameWrapper.className = "ytcenter-grid-subscriptions-username";
         metadata.parentNode.insertBefore(usernameWrapper, metadata);
+        
+        if (ytcenter.settings.watchedVideosIndicator) {
+          am = actionMenu.getElementsByTagName("ul")[0];
+          li = document.createElement("li");
+          li.setAttribute("role", "menuitem");
+          s = document.createElement("span");
+          s.className = "dismiss-menu-choice yt-uix-button-menu-item";
+          s.setAttribute("onclick", ";return false;");
+          if (ytcenter.videoHistory.isVideoWatched(item.id)) {
+            s.textContent = ytcenter.language.getLocale("VIDEOWATCHED_REMOVE");
+          } else {
+            s.textContent = ytcenter.language.getLocale("VIDEOWATCHED_ADD");
+          }
+          ytcenter.utils.addEventListener(li, "click", function(){
+            if (ytcenter.videoHistory.isVideoWatched(item.id)) {
+              ytcenter.videoHistory.removeVideo(item.id);
+              s.textContent = ytcenter.language.getLocale("VIDEOWATCHED_ADD");
+            } else {
+              ytcenter.videoHistory.addVideo(item.id);
+              s.textContent = ytcenter.language.getLocale("VIDEOWATCHED_REMOVE");
+            }
+            applyWatchedMessage(item);
+          }, false);
+          
+          li.appendChild(s);
+          am.insertBefore(li, am.children[0]);
+          ytcenter.events.addEvent("language-refresh", function(){
+            if (ytcenter.videoHistory.isVideoWatched(item.id)) {
+              s.textContent = ytcenter.language.getLocale("VIDEOWATCHED_REMOVE");
+            } else {
+              s.textContent = ytcenter.language.getLocale("VIDEOWATCHED_ADD");
+            }
+          });
+        }
         
         ytcenter.events.addEvent("language-refresh", function(){
           usernameWrapper.innerHTML = "";
@@ -4552,7 +4611,7 @@
             if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
               subscriptionGrid(vt[i]);
             }
-            if (ytcenter.settings.watchedVideosIndicator) {
+            if ((loc.pathname === "/" && loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
               applyWatchedMessage(vt[i]);
             }
           }
@@ -4584,7 +4643,7 @@
             if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
               subscriptionGrid(videoThumbs[i]);
             }
-            if (ytcenter.settings.watchedVideosIndicator) {
+            if ((loc.pathname === "/" && loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
               applyWatchedMessage(videoThumbs[i]);
             }
           }
