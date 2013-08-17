@@ -3346,7 +3346,7 @@
           ytcenter.settings.watchedVideos.splice(0, ytcenter.settings.watchedVideos.length - ytcenter.settings.watchedVideosLimit);
         }
         ytcenter.settings.watchedVideos.push(id);
-        ytcenter.settings.saveSettings();
+        ytcenter.saveSettings();
       };
       
       return __r;
@@ -11213,15 +11213,24 @@
             {
               "event": "click",
               "callback": function() {
-                var content = document.createElement("div");
+                var content = document.createElement("div"), text, pasteUrl,
+                    data = [
+                      "api_dev_key=@pastebin-api-key@",
+                      "api_option=paste",
+                      "api_paste_private=1", // unlisted
+                      "api_paste_expire_date=1M", // 1 month
+                      "api_paste_format=javascript",
+                      "api_paste_name=" + encodeURIComponent("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
+                      "api_paste_code=" + encodeURIComponent(ytcenter.debug())
+                    ].join('&');
 
-                var text = document.createElement("p");
+                text = document.createElement("p");
                 text.appendChild(document.createTextNode(ytcenter.language.getLocale("PASTEBIN_TEXT")));
                 text.setAttribute("style", "margin-bottom: 10px");
 
                 content.appendChild(text);
 
-                var pasteUrl = document.createElement("input");
+                pasteUrl = document.createElement("input");
                 pasteUrl.setAttribute("type", "text");
                 pasteUrl.setAttribute("class", "yt-uix-form-input-text");
                 pasteUrl.setAttribute("value", ytcenter.language.getLocale("PASTEBIN_LOADING"));
@@ -11238,15 +11247,9 @@
                   headers: {
                     "Content-Type": "application/x-www-form-urlencoded"
                   },
-                  data: [
-                    "api_dev_key=@pastebin-api-key@",
-                    "api_option=paste",
-                    "api_paste_private=1", // unlisted
-                    "api_paste_expire_date=1M", // 1 month
-                    "api_paste_format=javascript",
-                    "api_paste_name=" + encodeURIComponent("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
-                    "api_paste_code=" + encodeURIComponent(ytcenter.debug())
-                  ].join('&'),
+                  data: data,
+                  contentType: "application/x-www-form-urlencoded", // Firefox Addon
+                  content: data, // Firefox Addon
                   onload: function(response) {
                     pasteUrl.value = response.responseText;
                   }
