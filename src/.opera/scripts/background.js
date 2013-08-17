@@ -35,7 +35,7 @@ function xhr(details) {
     }
   }
   xmlhttp.send((typeof(details.data) != 'undefined') ? details.data : null);
-  return true
+  return true;
 }
 
 opera.extension.onmessage = function(e) {
