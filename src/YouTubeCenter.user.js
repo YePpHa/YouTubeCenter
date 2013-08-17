@@ -7914,7 +7914,7 @@
      */
     ytcenter.utils.textReplace = function(text, replacer){
       var frag = document.createDocumentFragment(),
-          regex, arr = [];
+          regex, arr = [], tmp = "";
       for (key in replacer) {
         if (replacer.hasOwnProperty(key)) {
           arr.push(ytcenter.utils.escapeRegExp(key));
@@ -7923,15 +7923,23 @@
       regex = new RegExp(arr.join("|") + "|.", "g");
       text.replace(regex, function(matched){
         if (replacer[matched]) {
+          if (tmp !== "") {
+            frag.appendChild(document.createTextNode(tmp));
+            tmp = "";
+          }
           if (ytcenter.utils.isNode(replacer[matched])) {
             frag.appendChild(replacer[matched]);
           } else {
-            frag.appendChild(document.createTextNode(replacer[matched]));
+            frag.appendChild(replacer[matched]);
           }
         } else {
-          frag.appendChild(document.createTextNode(matched));
+          tmp += matched;
         }
       });
+      if (tmp !== "") {
+        frag.appendChild(document.createTextNode(tmp));
+        tmp = "";
+      }
       
       return frag;
     };
