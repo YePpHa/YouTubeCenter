@@ -121,43 +121,21 @@
         window.external.mxGetRuntime().storage.setConfig(key, value);
         return true;
       } else {
-        try {
-          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") !== -1)) {
-            con.log("Saving " + key + " using GM_setValue");
-            GM_setValue(key, value);
-            if (GM_getValue(key, null) === value) return true; // validation
-          }
-        } catch (e) {
-          con.error(e);
+        if (ytcenter.storageType === 3) {
+          GM_setValue(key, value);
+          if (GM_getValue(key, null) === value) return true;
+        } else if (ytcenter.storageType === 2) {
+          localStorage[key] = value;
+          if (localStorage[key] === value) return true; // validation
+        } else if (ytcenter.storageType === 1) {
+          uw.localStorage[key] = value;
+          if (uw.localStorage[key] === value) return true; // validation
+        } else if (ytcenter.storageType === 0) {
+          ytcenter.utils.setCookie(key, value, null, "/", 1000*24*60*60*1000);
+          if (ytcenter.utils.getCookie(name) === value) return true; // validation
+        } else {
+          con.error("[Storage] Unknown Storage Type!");
         }
-        try {
-          if (typeof localStorage !== "undefined") {
-            con.log("Saving " + key + " using localStorage");
-            localStorage[key] = value;
-            if (localStorage[key] === value) return true; // validation
-          }
-        } catch (e) {
-          con.error(e);
-        }
-        try {
-          if (typeof uw.localStorage !== "undefined") {
-            con.log("Saving " + key + " using uw.localStorage");
-            uw.localStorage[key] = value;
-            if (uw.localStorage[key] === value) return true; // validation
-          }
-        } catch (e) {
-          con.error(e);
-        }
-        try {
-          if (typeof document.cookie !== "undefined") {
-            con.log("Saving " + key + " using document.cookie");
-            ytcenter.utils.setCookie(key, value, null, "/", 1000*24*60*60*1000);
-            if (ytcenter.utils.getCookie(name) === value) return true; // validation
-          }
-        } catch (e) {
-          con.error(e);
-        }
-        con.error("Couldn't save data!");
         return false;
       }
     }
@@ -166,41 +144,19 @@
       if (identifier === 2) {
         return window.external.mxGetRuntime().storage.getConfig(key);
       } else {
-        try {
-          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") === -1)) {
-            con.log("Loading " + key + " using GM_getValue");
-            var d = GM_getValue(key, null);
-            if (d !== null) return d;
-          }
-        } catch (e) {
-          con.error(e);
+        if (ytcenter.storageType === 3) {
+          var d = GM_getValue(key, null);
+          if (d !== null) return d;
+        } else if (ytcenter.storageType === 2) {
+          if (localStorage[key]) return localStorage[key];
+        } else if (ytcenter.storageType === 1) {
+          if (uw.localStorage[key]) return uw.localStorage[key];
+        } else if (ytcenter.storageType === 0) {
+          var d = ytcenter.utils.getCookie(name);
+          if (d) return d;
+        } else {
+          con.error("[Storage] Unknown Storage Type!");
         }
-        try {
-          if (typeof localStorage != "undefined") {
-            con.log("Loading " + key + " using localStorage");
-            if (localStorage[key]) return localStorage[key];
-          }
-        } catch (e) {
-          con.error(e);
-        }
-        try {
-          if (typeof uw.localStorage != "undefined") {
-            con.log("Loading " + key + " using uw.localStorage");
-            if (uw.localStorage[key]) return uw.localStorage[key];
-          }
-        } catch (e) {
-          con.error(e);
-        }
-        try {
-          if (typeof document.cookie != "undefined") {
-            con.log("Loading " + key + " using document.cookie");
-            var d = ytcenter.utils.getCookie(name);
-            if (d) return d;
-          }
-        } catch (e) {
-          con.error(e);
-        }
-        con.error("Couldn't load data!");
         return def;
       }
     }
@@ -5128,6 +5084,7 @@
       try {
         dbg.injected = injected;
         dbg.identifier = @identifier@;
+        dbg.storageType = ytcenter.storageType;
         dbg.cookies = {};
         dbg.cookies["VISITOR_INFO1_LIVE"] = ytcenter.utils.getCookie("VISITOR_INFO1_LIVE");
         dbg.location = {
@@ -7957,6 +7914,80 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.utils = {};
+    ytcenter.utils.getStorageType = function(){
+      if (identifier === 2) {
+        con.log("[Storage] Using Maxthon's storage option!");
+        return 6;
+      } else if (identifier === 3) {
+        con.log("[Storage] Using Firefox's storage option!");
+        return 5;
+      } else if (identifier === 5) {
+        con.log("[Storage] Using Opera's storage option!");
+        return 4;
+      } else if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") === -1)) {
+        con.log("[Storage] Using Greasemonkey's storage option!");
+        return 3;
+      } else if (typeof localStorage !== "undefined") {
+        con.log("[Storage] Using localStorage's storage option!");
+        return 2;
+      } else if (typeof uw.localStorage !== "undefined") {
+        con.log("[Storage] Using unsafeWindow localStorage's storage option!");
+        return 1;
+      } else if (typeof document.cookie !== "undefined") {
+        con.log("[Storage] Using cookie's storage option!");
+        return 0;
+      } else {
+        con.error("[Storage] Unknown Storage!");
+        return -1;
+      }
+    };
+    ytcenter.storageType = ytcenter.utils.getStorageType();
+    ytcenter.utils.setterGetterClassCompatible = function(){
+      function A() {
+        this.__defineGetter__("test", function(){
+          a_getter = true;
+          return a_confirm;
+        });
+        this.__defineSetter__("test", function(value){
+          a_setter = value === a_confirm;
+        });
+      }
+      try {
+        var a_getter = false, a_setter = false, a_instance, a_confirm = "WORKS";
+        a_instance = new A();
+        if (a_confirm === a_instance.test) {
+          a_instance.test = a_confirm;
+          if (a_getter && a_setter)
+            return true;
+        }
+      } catch (e) {
+        con.error(e);
+        return false;
+      }
+      return false;
+    };
+    ytcenter.utils.setterGetterObjectCompatible = function(){
+      try {
+        var a = {
+          get test() {
+            a_getter = true;
+            return a_confirm;
+          },
+          set config(value) {
+            a_setter = value === a_confirm;
+          }
+        }, a_getter = false, a_setter = false, a_confirm = "WORKS";
+        if (a_confirm === a.test) {
+          a.test = a_confirm;
+          if (a_getter && a_setter)
+            return true;
+        }
+      } catch (e) {
+        con.error(e);
+        return false;
+      }
+      return false;
+    };
     ytcenter.utils.isNode = function(a){
       if (typeof Node === "object") {
         return a instanceof Node;
@@ -9262,7 +9293,7 @@
             }), "http://www.youtube.com");
           } else {
             if (!$SaveData(ytcenter.storageName, JSON.stringify(ytcenter.settings))) {
-              //
+              con.error("[Settings] Couldn't save settings.");
             }
           }
         }
@@ -13991,16 +14022,38 @@
         } else {
           if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.args)
             ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), uw.ytplayer.config);
-          uw.ytplayer = new PlayerConfig(function(config){
-            if (config) {
-              ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
-              if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
-            } else {
-              ytcenter.player.config = config;
-            }
-          }, function(){
-            return ytcenter.player.config;
-          });
+          if (ytcenter.utils.setterGetterClassCompatible()) {
+            con.log("[PlayerConfig Hijacker] Using Class Setter Getter Method");
+            uw.ytplayer = new PlayerConfig(function(config){
+              if (config) {
+                ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
+                if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
+              } else {
+                ytcenter.player.config = config;
+              }
+            }, function(){
+              return ytcenter.player.config;
+            });
+          } else if (ytcenter.utils.setterGetterObjectCompatible()) {
+            con.log("[PlayerConfig Hijacker] Using Object Setter Getter Method");
+            uw.ytplayer= {
+              get config() {
+                return ytcenter.player.config;
+              },
+              set config(config) {
+                if (config) {
+                  ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
+                  if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
+                } else {
+                  ytcenter.player.config = config;
+                }
+              }
+            };
+          } else {
+            con.log("[PlayerConfig Hijacker] Setter Getter Method not suppoted!");
+            ytcenter.player.config = uw.ytplayer.config;
+            ytcenter.player.disablePlayerUpdate = false;
+          }
         }
       } catch (e) {
         con.error(e);

@@ -1,3 +1,8 @@
+ - Change the video suggestions column into an uploader's 20 latest uploaded videos.
+ - Disable info, like/share, video responses, comments, video suggestions column. Show just the video.
+ - Download a video without loading it (through the thumbnail).
+ - Hide buttons: "Add To", "Statistics", "Report".
+ - Option to change the height of the ratingbar on thumbnails.
  - Remove spam comments (contians bit.ly links and etc.).
  - Option to remove play icon in the title.
  - Integrate the Google Spreadsheet API for Java to convert the translations to a json file.
