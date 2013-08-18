@@ -14060,9 +14060,9 @@
             }, function(){
               return ytcenter.player.config;
             });
-          } else if (ytcenter.utils.setterGetterObjectCompatible()) {
+          }/* else if (ytcenter.utils.setterGetterObjectCompatible()) {
             con.log("[PlayerConfig Hijacker] Using Object Setter Getter Method");
-            uw.ytplayer= {
+            uw.ytplayer = {
               get config() {
                 return ytcenter.player.config;
               },
@@ -14075,7 +14075,7 @@
                 }
               }
             };
-          } else {
+          }*/ else {
             con.log("[PlayerConfig Hijacker] Setter Getter Method not suppoted!");
             ytcenter.player.config = uw.ytplayer.config;
             ytcenter.player.disablePlayerUpdate = false;
@@ -14083,6 +14083,8 @@
         }
       } catch (e) {
         con.error(e);
+        ytcenter.player.config = uw.ytplayer.config;
+        ytcenter.player.disablePlayerUpdate = false;
       }
       ytcenter.pageReadinessListener.waitfor = function(){
         return __settingsLoaded;
