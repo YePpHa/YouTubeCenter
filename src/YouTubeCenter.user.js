@@ -4287,9 +4287,9 @@
       }
       function applyWatchedMessage(item) {
         var ivw = ytcenter.videoHistory.isVideoWatched(item.id),
-            hc = ytcenter.utils.hasClass(item.content, "ytcenter-video-watched");
+            hc = ytcenter.utils.hasClass(item.content, "ytcenter-video-watched"), a, i, b, watchedElement;
         if (ivw && !hc) {
-          var watchedElement = document.createElement("div"), a, i;
+          watchedElement = document.createElement("div");
           if (item.content.getElementsByClassName("ytcenter-video-watched-content").length === 0) {
             watchedElement.className = "ytcenter-video-watched-content";
             watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
@@ -4297,7 +4297,7 @@
             item.content.appendChild(watchedElement);
           }
           ytcenter.utils.addClass(item.content, "ytcenter-video-watched");
-          a = item.content, b;
+          a = item.content;
           for (i = 0; i < 10; i++) {
             a = a.parentNode;
             if (a.tagName === "LI" || !a) {
@@ -4307,7 +4307,7 @@
           }
           if (b) ytcenter.utils.addClass(b, "ytcenter-video-watched-wrapper");
         } else if (!ivw && hc) {
-          var a = item.content, b;
+          a = item.content;
           ytcenter.utils.removeClass(item.content, "ytcenter-video-watched");
           for (i = 0; i < 10; i++) {
             a = a.parentNode;
