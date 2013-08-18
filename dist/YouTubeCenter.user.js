@@ -122,7 +122,7 @@
         return true;
       } else {
         try {
-          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString !== "undefined" || GM_getValue.toString().indexOf("not supported") !== -1)) {
+          if (typeof GM_getValue !== "undefined" && (typeof GM_getValue.toString === "undefined" || GM_getValue.toString().indexOf("not supported") !== -1)) {
             con.log("Saving " + key + " using GM_setValue");
             GM_setValue(key, value);
             if (GM_getValue(key, null) === value) return true; // validation
