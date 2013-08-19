@@ -11826,8 +11826,10 @@
     ytcenter.player.config = ytcenter.player.config || {}; // Only used if YouTube's configs can't be accessed.
     ytcenter.player.updateConfig = function(page, config){
       if (ytcenter._tmp_embed && page === "embed") {
-        config.args.fmt_list = ytcenter._tmp_embed.fmt_list;
-        config.args.url_encoded_fmt_stream_map = ytcenter._tmp_embed.url_encoded_fmt_stream_map;
+        if (ytcenter._tmp_embed.fmt_list)
+          config.args.fmt_list = ytcenter._tmp_embed.fmt_list;
+        if (ytcenter._tmp_embed.url_encoded_fmt_stream_map)
+          config.args.url_encoded_fmt_stream_map = ytcenter._tmp_embed.url_encoded_fmt_stream_map;
       }
       var api = ytcenter.player.getAPI();
       con.log("[Config Update] Updating as page " + page);
@@ -11915,7 +11917,6 @@
           api.setPlaybackQuality(config.args.vq);
         }
       } else if (page === "embed") {
-        
         if (ytcenter.settings.embed_enableVolume) {
           if (ytcenter.settings.embed_volume < 0) {
             ytcenter.settings.embed_volume = 0;
@@ -11978,8 +11979,10 @@
       if (page !== "watch" && page !== "embed" && page !== "channel") return;
       con.log("[Player modifyConfig] => " + page);
       if (ytcenter._tmp_embed && page === "embed") {
-        config.args.fmt_list = ytcenter._tmp_embed.fmt_list;
-        config.args.url_encoded_fmt_stream_map = ytcenter._tmp_embed.url_encoded_fmt_stream_map;
+        if (ytcenter._tmp_embed.fmt_list)
+          config.args.fmt_list = ytcenter._tmp_embed.fmt_list;
+        if (ytcenter._tmp_embed.url_encoded_fmt_stream_map)
+          config.args.url_encoded_fmt_stream_map = ytcenter._tmp_embed.url_encoded_fmt_stream_map;
       }
       if (config.args.url_encoded_fmt_stream_map && config.args.fmt_list) {
         var streams = ytcenter.parseStreams(config.args);
@@ -13489,40 +13492,50 @@
     ytcenter.parseStreams = function(playerConfig){
       if (playerConfig.url_encoded_fmt_stream_map === "") return [];
       var parser1 = function(f){
-        var a = f.split(",");
-        var r = [];
-        for (var i = 0; i < a.length; i++) {
-          var b = a[i].split("/");
-          var itag = b.shift();
-          var dimension = b.shift();
-          var minMajorFlashVersion = b.shift();
-          var minMinorFlashVersion = b.shift();
-          var revisionVersion = b.shift();
-          r.push({
-            itag: itag,
-            dimension: dimension,
-            flashVersion: {
-              minMajor: minMajorFlashVersion,
-              minMinor: minMinorFlashVersion,
-              revision: revisionVersion
-            }
-          });
+        var a, r = [];
+        try {
+          var a = f.split(",");
+          for (var i = 0; i < a.length; i++) {
+            var b = a[i].split("/");
+            var itag = b.shift();
+            var dimension = b.shift();
+            var minMajorFlashVersion = b.shift();
+            var minMinorFlashVersion = b.shift();
+            var revisionVersion = b.shift();
+            r.push({
+              itag: itag,
+              dimension: dimension,
+              flashVersion: {
+                minMajor: minMajorFlashVersion,
+                minMinor: minMinorFlashVersion,
+                revision: revisionVersion
+              }
+            });
+          }
+        } catch (e) {
+          con.error("[parseStreams] Error =>");
+          con.error(e);
         }
         return r;
       };
       var parser2 = function(u){
-        var a = u.split(",");
-        var b = [];
-        for (var i = 0; i < a.length; i++) {
-          var c = {};
-          var d = a[i].split("&");
-          for (var j = 0; j < d.length; j++) {
-            var e = d[j].split("=");
-            c[e[0]] = unescape(e[1]);
-            if (e[0] === "type") c[e[0]] = c[e[0]].replace(/\+/g, " ");
-            //if (e[0] === "url") c[e[0]] = c[e[0]].replace(/^(http:)|(https:)/g, "");
+        var a, b = [];
+        try {
+          a = u.split(",");
+          for (var i = 0; i < a.length; i++) {
+            var c = {};
+            var d = a[i].split("&");
+            for (var j = 0; j < d.length; j++) {
+              var e = d[j].split("=");
+              c[e[0]] = unescape(e[1]);
+              if (e[0] === "type") c[e[0]] = c[e[0]].replace(/\+/g, " ");
+              //if (e[0] === "url") c[e[0]] = c[e[0]].replace(/^(http:)|(https:)/g, "");
+            }
+            b.push(c);
           }
-          b.push(c);
+        } catch (e) {
+          con.error("[parseStreams] Error =>");
+          con.error(e);
         }
         return b;
       };
@@ -14576,10 +14589,11 @@
               ytcenter._tmp_embed.dash = o.dash;
               ytcenter._tmp_embed.dashmpd = o.dashmpd;
               ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
-              ytcenter.video.streams = ytcenter.parseStreams(o);
-              ytcenter.player.config.args.fmt_list = o.fmt_list;
-              ytcenter.player.config.args.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
-              
+              if (o.url_encoded_fmt_stream_map) {
+                ytcenter.video.streams = ytcenter.parseStreams(o);
+                ytcenter.player.config.args.fmt_list = o.fmt_list;
+                ytcenter.player.config.args.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
+              }
               if (ytcenter._tmp_embed.callback) {
                 ytcenter._tmp_embed.callback();
               }
