@@ -14599,6 +14599,7 @@
               }
             } else {
               con.error("[Embed] Couldn't load video data!");
+              (document.getElementById("player-legacy") || document.getElementById("player")).style.display = "";
             }
           },
           onerror: function(){
