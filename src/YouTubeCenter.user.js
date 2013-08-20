@@ -7935,6 +7935,9 @@
     ytcenter.experiments.isTopGuide = function(){
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
+    ytcenter.experiments.isFixedTopbar = function(){
+      return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
+    };
     ytcenter.utils = {};
     ytcenter.utils.getStorageType = function(){
       if (identifier === 2) {
