@@ -9339,133 +9339,140 @@
     ytcenter.checkForUpdates = (function(){
       var updElement;
       return function(success, error){
-        con.log("Checking for updates...");
-        if (typeof error == "undefined") {
-          error = function(){};
-        }
-        $XMLHTTPRequest({
-          method: "GET",
-          url: "http://userscripts.org/scripts/source/114002.meta.js",
-          headers: {
-            "Content-Type": "text/plain"
-          },
-          onload: (function(success){
-            return function(response){
-              con.log("Got Update Response");
-              var rev = -1,
-                  ver = "-1"
-              if (response && response.responseText) {
-                rev =  parseInt(/^\/\/ @updateVersion\s+([0-9]+)$/m.exec(response.responseText)[1], 10);
-                ver = /^\/\/ @version\s+([a-zA-Z0-9.,-_]+)$/m.exec(response.responseText)[1];
-              } else {
-                con.log("Couldn't parse revision and version from the update page.");
-              }
-              if (rev > ytcenter.revision) {
-                con.log("New update available");
-                if (typeof updElement != "undefined") {
-                  ytcenter.discardElement(updElement);
-                }
-                updElement = document.createElement("div");
-                updElement.className = "yt-alert yt-alert-default yt-alert-warn";
-                updElement.style.margin = "0 auto";
-                var ic = document.createElement("div");
-                ic.className = "yt-alert-icon";
-                var icon = document.createElement("img");
-                icon.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
-                icon.className = "icon master-sprite";
-                icon.setAttribute("alt", "Alert icon");
-                ic.appendChild(icon);
-                updElement.appendChild(ic);
-                var c = document.createElement("div");
-                c.className = "yt-alert-buttons";
-                var cbtn = document.createElement("button");
-                cbtn.setAttribute("type", "button");
-                cbtn.setAttribute("role", "button");
-                cbtn.setAttribute("onclick", ";return false;");
-                cbtn.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
-                cbtn.addEventListener("click", (function(updElement){
-                  return function(){
-                    ytcenter.utils.addClass(updElement, 'hid');
-                  };
-                })(updElement));
-                
-                var cbtnt = document.createElement("span");
-                cbtnt.className = "yt-uix-button-content";
-                cbtnt.textContent = "Close ";
-                cbtn.appendChild(cbtnt);
-                c.appendChild(cbtn);
-                updElement.appendChild(c);
-                
-                var cn = document.createElement("div");
-                cn.className = "yt-alert-content";
-                
-                var cnt = document.createElement("span");
-                cnt.className = "yt-alert-vertical-trick";
-                
-                var cnme = document.createElement("div");
-                cnme.className = "yt-alert-message";
-                var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
-                ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
-                var f2 = document.createElement("br");
-                var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
-                ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
-                var f4 = document.createTextNode(" ");
-                var f5 = document.createElement("a");
-                if (0 === 0) {
-                  f5.href = "http://userscripts.org/scripts/source/114002.user.js";
-                } else if (0 === 1) {
-                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
-                } else if (0 === 2) {
-                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
-                } else if (0 === 3) {
-                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
-                } else if (0 === 4) {
-                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
-                } else if (0 === 5) {
-                  f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
-                }
-                f5.setAttribute("target", "_blank");
-                f5.textContent = "YouTube Center v" + ver;
-                var f6 = document.createTextNode(" ");
-                var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
-                ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
-                var f8 = document.createTextNode(" ");
-                var f9 = document.createElement("a");
-                f9.setAttribute("target", "_blank");
-                if (0 === 3) {
-                  f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
-                  f9.textContent = "addons.mozilla.org";
+        // If it's the Chrome/Opera addon and the browser is Opera, or if it's the Firefox addon it will not check for updates!
+        if ((0 === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || 0 === 3) {
+          con.log("[UpdateChecker] UpdateChecker has been disabled!");
+          if (typeof error == "function")
+            error();
+        } else {
+          con.log("Checking for updates...");
+          if (typeof error == "undefined") {
+            error = function(){};
+          }
+          $XMLHTTPRequest({
+            method: "GET",
+            url: "http://userscripts.org/scripts/source/114002.meta.js",
+            headers: {
+              "Content-Type": "text/plain"
+            },
+            onload: (function(success){
+              return function(response){
+                con.log("Got Update Response");
+                var rev = -1,
+                    ver = "-1"
+                if (response && response.responseText) {
+                  rev =  parseInt(/^\/\/ @updateVersion\s+([0-9]+)$/m.exec(response.responseText)[1], 10);
+                  ver = /^\/\/ @version\s+([a-zA-Z0-9.,-_]+)$/m.exec(response.responseText)[1];
                 } else {
-                  f9.href = "http://userscripts.org/scripts/show/114002";
-                  f9.textContent = "userscripts.org";
+                  con.log("Couldn't parse revision and version from the update page.");
                 }
-                
-                cnme.appendChild(f1);
-                cnme.appendChild(f2);
-                cnme.appendChild(f3);
-                cnme.appendChild(f4);
-                cnme.appendChild(f5);
-                cnme.appendChild(f6);
-                cnme.appendChild(f7);
-                cnme.appendChild(f8);
-                cnme.appendChild(f9);
-                
-                cn.appendChild(cnt);
-                cn.appendChild(cnme);
-                updElement.appendChild(cn);
-                
-                document.getElementById("alerts").appendChild(updElement);
-              } else {
-                con.log("No new updates available");
-              }
-              if (success) {
-                con.log("Calling update callback");
-                success(response);
-              }
-            };
-          })(success),
-          onerror: error
-        });
+                if (rev > ytcenter.revision) {
+                  con.log("New update available");
+                  if (typeof updElement != "undefined") {
+                    ytcenter.discardElement(updElement);
+                  }
+                  updElement = document.createElement("div");
+                  updElement.className = "yt-alert yt-alert-default yt-alert-warn";
+                  updElement.style.margin = "0 auto";
+                  var ic = document.createElement("div");
+                  ic.className = "yt-alert-icon";
+                  var icon = document.createElement("img");
+                  icon.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+                  icon.className = "icon master-sprite";
+                  icon.setAttribute("alt", "Alert icon");
+                  ic.appendChild(icon);
+                  updElement.appendChild(ic);
+                  var c = document.createElement("div");
+                  c.className = "yt-alert-buttons";
+                  var cbtn = document.createElement("button");
+                  cbtn.setAttribute("type", "button");
+                  cbtn.setAttribute("role", "button");
+                  cbtn.setAttribute("onclick", ";return false;");
+                  cbtn.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
+                  cbtn.addEventListener("click", (function(updElement){
+                    return function(){
+                      ytcenter.utils.addClass(updElement, 'hid');
+                    };
+                  })(updElement));
+                  
+                  var cbtnt = document.createElement("span");
+                  cbtnt.className = "yt-uix-button-content";
+                  cbtnt.textContent = "Close ";
+                  cbtn.appendChild(cbtnt);
+                  c.appendChild(cbtn);
+                  updElement.appendChild(c);
+                  
+                  var cn = document.createElement("div");
+                  cn.className = "yt-alert-content";
+                  
+                  var cnt = document.createElement("span");
+                  cnt.className = "yt-alert-vertical-trick";
+                  
+                  var cnme = document.createElement("div");
+                  cnme.className = "yt-alert-message";
+                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
+                  ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
+                  var f2 = document.createElement("br");
+                  var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
+                  ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
+                  var f4 = document.createTextNode(" ");
+                  var f5 = document.createElement("a");
+                  if (0 === 0) {
+                    f5.href = "http://userscripts.org/scripts/source/114002.user.js";
+                  } else if (0 === 1) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
+                  } else if (0 === 2) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
+                  } else if (0 === 3) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
+                  } else if (0 === 4) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
+                  } else if (0 === 5) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
+                  }
+                  f5.setAttribute("target", "_blank");
+                  f5.textContent = "YouTube Center v" + ver;
+                  var f6 = document.createTextNode(" ");
+                  var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
+                  ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
+                  var f8 = document.createTextNode(" ");
+                  var f9 = document.createElement("a");
+                  f9.setAttribute("target", "_blank");
+                  if (0 === 3) {
+                    f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
+                    f9.textContent = "addons.mozilla.org";
+                  } else {
+                    f9.href = "http://userscripts.org/scripts/show/114002";
+                    f9.textContent = "userscripts.org";
+                  }
+                  
+                  cnme.appendChild(f1);
+                  cnme.appendChild(f2);
+                  cnme.appendChild(f3);
+                  cnme.appendChild(f4);
+                  cnme.appendChild(f5);
+                  cnme.appendChild(f6);
+                  cnme.appendChild(f7);
+                  cnme.appendChild(f8);
+                  cnme.appendChild(f9);
+                  
+                  cn.appendChild(cnt);
+                  cn.appendChild(cnme);
+                  updElement.appendChild(cn);
+                  
+                  document.getElementById("alerts").appendChild(updElement);
+                } else {
+                  con.log("No new updates available");
+                }
+                if (success) {
+                  con.log("Calling update callback");
+                  success(response);
+                }
+              };
+            })(success),
+            onerror: error
+          });
+        }
       };
     })();
     con.log("default settings initializing");

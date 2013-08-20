@@ -9342,6 +9342,8 @@
         // If it's the Chrome/Opera addon and the browser is Opera, or if it's the Firefox addon it will not check for updates!
         if ((@identifier@ === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || @identifier@ === 3) {
           con.log("[UpdateChecker] UpdateChecker has been disabled!");
+          if (typeof error == "function")
+            error();
         } else {
           con.log("Checking for updates...");
           if (typeof error == "undefined") {
