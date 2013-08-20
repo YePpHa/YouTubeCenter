@@ -9853,6 +9853,11 @@
           ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flex-width-on-page"
         }, {
+          "label": "SETTINGS_YTSPF",
+          "type": "bool",
+          "defaultSetting": "ytspf",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#spf"
+        }, {
           "label": "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC",
           "type": "bool",
           "defaultSetting": "ytExperimentalLayotTopbarStatic",
