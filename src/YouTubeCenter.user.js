@@ -2806,6 +2806,10 @@
         configSetter(value);
       });
     }
+    function SPF() {
+      this.__defineGetter__("enabled", function(){return true;});
+      this.__defineSetter__("enabled", function(value){});
+    }
     
     var console_debug = true; // Disable this to stop YouTube Center from writing in the console log.
     var _console = [];
@@ -2824,6 +2828,7 @@
         }());
       }
     })();
+    uw.ytspf = new SPF();
     loc = (function(){
       try {
         if (typeof location !== "undefined") return location;
@@ -2832,7 +2837,6 @@
       } catch (e) {}
     })();
     if (loc.href.indexOf("http://apiblog.youtube.com/") === 0 || loc.href.indexOf("https://apiblog.youtube.com/") === 0) return;
-    
     if (typeof console !== "undefined" && typeof console.log !== "undefined") {
       con = {};
       for (var key in console) {
@@ -9480,6 +9484,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      ytspf: true,
       videoThumbnailCacheSize: 75,
       commentCacheSize: 150,
       watchedVideosIndicator: true,
@@ -14481,6 +14486,9 @@
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
         ytcenter.guideMode();
+      });
+      ytcenter.spf.addEventListener("requested-before", function(){
+        if (!ytcenter.settings.ytspf) throw new Error("SPF is disabled!");
       });
       ytcenter.spf.addEventListener("received-before", function(url, data){
         if (data.swfcfg && data.swfcfg.args) {
