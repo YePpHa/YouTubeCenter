@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            YouTube Center
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         1.33.3
+// @version         1.33.3.1
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/icons/logo-48x48.png
@@ -26,7 +26,7 @@
 // @grant           GM_log
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
-// @updateVersion   135
+// @updateVersion   136
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
@@ -3013,8 +3013,8 @@
         unloads.push(unload);
       };
     })();
-    ytcenter.version = "1.33.3";
-    ytcenter.revision = 135;
+    ytcenter.version = "1.33.3.1";
+    ytcenter.revision = 136;
     ytcenter.icon = {};
     ytcenter.page = "none";
     ytcenter._tmp_embed = {loaded: false, onReady: false};
