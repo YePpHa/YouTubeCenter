@@ -16,6 +16,7 @@
 }
 
 .html5-video-player.autohide-on .html5-video-container,
+body[data-player-size=fullscreen] .html5-video-player .html5-video-container,
 body[data-player-size=fullscreen] .hide-controls.autohide-fade.buffering-mode .html5-video-container,
 body[data-player-size=fullscreen] .hide-controls.autohide-fade.playing-mode .html5-video-container,
 body[data-player-size=fullscreen] .hide-controls. autohide-auto.buffering-mode .html5-video-container,
