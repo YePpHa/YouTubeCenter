@@ -1,8 +1,8 @@
 /* $Topbar Static */
-body.ytcenter-exp-topbar-static div#masthead-positioner {
+.ytcenter-exp-topbar-static #masthead-positioner {
   position: static !important
 }
-body.ytcenter-exp-topbar-static div#masthead-positioner-height-offset {
+.ytcenter-exp-topbar-static #masthead-positioner-height-offset {
   display: none !important
 }
 
