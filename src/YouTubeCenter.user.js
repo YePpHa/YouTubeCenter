@@ -1084,12 +1084,13 @@
       ytcenter.placementsystem.registerElement(g, "@downloadgroup");
     }
     function $CreateSettingsUI() {
+      var isExpDialog = ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar'] || ytcenter.settings['settingsDialogMode'];
       var container = document.createElement("div");
       container.id = "ytcenter-settings";
       var root = document.createElement("div");
-      root.setAttribute("style", (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar'] || ytcenter.settings['settingsDialogMode'] ? "margin: -15px -20px 0;" : "background:#ededed;margin-bottom: 10px;") + "padding-top: 7px;border-bottom: 1px solid #e6e6e6;");
+      root.setAttribute("style", (isExpDialog ? "margin: -15px -20px 0;" : "background:#ededed;margin-bottom: 10px;") + "padding-top: 7px;border-bottom: 1px solid #e6e6e6;");
       
-      if (!ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings['ytExperimentFixedTopbar'] && !ytcenter.settings['settingsDialogMode']) {
+      if (!isExpDialog) {
         var header = document.createElement("div");
         header.setAttribute("style", "padding:10px 35px 0;font-size:18px;font-weight:bold");
         header.textContent = ytcenter.language.getLocale("SETTINGS_TITLE");
@@ -1101,10 +1102,10 @@
       if (!ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings['ytExperimentFixedTopbar'] && !ytcenter.settings['settingsDialogMode']) {
         tabsContainer.setAttribute("style", "padding: 0px 50px;");
       }
-      container.className = "hid";
-      container.setAttribute("style", "position:relative;width:" + (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar'] || ytcenter.settings['settingsDialogMode'] ? "975px" : "100%") + ";background:#ffffff;" + (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar'] ? "" : "border-bottom:1px solid #dbdbdb;"));
+      container.className = "hid" + (isExpDialog ? " ytcenter-exp-settings-dialog" : "");
+      container.setAttribute("style", "position:relative;width:" + (isExpDialog ? "975px" : "100%") + ";background:#ffffff;" + (isExpDialog ? "" : "border-bottom:1px solid #dbdbdb;"));
       var content = document.createElement("div");
-      if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar'] || ytcenter.settings['settingsDialogMode']) {
+      if (isExpDialog) {
         content.style.marginTop = "10px";
       }
       root.appendChild(tabsContainer);
@@ -1172,7 +1173,7 @@
       if (document.getElementById("masthead-user-expander")) {
         document.getElementById("masthead-user-expander").style.verticalAlign = "middle";
       }
-      if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar'] || ytcenter.settings['settingsDialogMode']) {
+      if (isExpDialog) {
         var appbar = document.getElementById("appbar-settings-menu"),
             liSettings = document.createElement("li"),
             spanText = document.createElement("span"),
