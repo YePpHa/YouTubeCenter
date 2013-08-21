@@ -3088,7 +3088,8 @@
       topbar: "@styles-topbar@",
       flags: "@styles-flags@",
       html5player: "@styles-html5player@",
-      gridSubscriptions: "@styles-grid-subscriptions@"
+      gridSubscriptions: "@styles-grid-subscriptions@",
+      images: "@styles-images@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -5167,6 +5168,9 @@
       var debugText = "{}";
       var dbg = {};
       try {
+        dbg.htmlelements = {};
+        if (document.body)
+          dbg.htmlelements.body = {className: document.body.className};
         dbg.injected = injected;
         dbg.identifier = @identifier@;
         dbg.storageType = ytcenter.storageType;
@@ -5300,25 +5304,6 @@
       
       return __r;
     };
-    ytcenter.welcome /*NOT SURE WHAT TO REALLY CALL THIS ATM :I */ = (function(){
-      var a = {};
-      a.setLaunchStatus = function(launch){
-        ytcenter.settings['welcome_launched'] = launch;
-        ytcenter.saveSettings();
-      };
-      a.hasBeenLaunched = function(){
-        return ytcenter.settings['welcome_launched'] ? true : false;
-      };
-      a.setVisibility = function(visible){
-        if (visible) {
-          ytcenter.utils.addClass(document.body, "player-disable");
-        } else {
-          ytcenter.utils.removeClass(document.body, "player-disable");
-        }
-      };
-      
-      return a;
-    })();
     ytcenter.spf = (function(){
       var _obj = {},
       listeners = {
@@ -5668,7 +5653,7 @@
       var bg = document.createElement("div");
       bg.id = "yt-dialog-bg";
       bg.className = "yt-dialog-bg";
-      bg.style.height = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) + "px";
+      bg.style.height = "100%";
       bg.style.position = "absolute";
       return bg;
     };
@@ -5706,6 +5691,100 @@
       ]);
       dialog.setVisibility(true);
     };
+    ytcenter.settingsPanel = (function(){
+      var a = {};
+      
+      a.setVisibility = function(visible){
+        
+      };
+      
+      return a;
+    });
+    ytcenter.welcome = (function(){
+      var a = {}, dialog, b = document.createElement("div"),
+          img1 = document.createElement("div"), img1src = document.createElement("img"), wikilink = document.createElement("a");
+      img1.className = "ytcenter-image-welcome-settings-repeater";
+      img1src.className = "ytcenter-image-welcome-settings clearfix";
+      img1src.style.cssFloat = "right";
+      img1src.style.backgroundPosition = "right";
+      img1src.style.width = "100%";
+      img1src.src = "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif";
+      img1.appendChild(img1src);
+      wikilink.href = "https://github.com/YePpHa/YouTubeCenter/wiki";
+      wikilink.setAttribute("target", "_blank");
+      wikilink.textContent = "wiki"; // ytcenter.language.getLocale("WELCOME_CONTENT_WIKI");
+      a.createDialog = function(){
+        if (dialog) return;
+        b.appendChild(ytcenter.utils.textReplace(
+            "YouTube Center have many new features just waiting for you to try out. YouTube Center has by default set the settings, but to get the full experience of YouTube Center you will have to configurate the settings to your own need.{lb}{lb}"
+          + "To access the YouTube Center settings you only have to click on the button as shown in the picture below (marked with a red glow).{lb}{lb}"
+          + "{img1}{lb}{lb}"
+          + "If you want to know more about YouTube Center visit the {wiki-url} for more information.{sectionbreak}"
+          + "If you appreciate my work I would be grateful if you would donate.{lb}"
+          + "{donate}",
+          {
+            "{lb}": function(){
+              return document.createElement("br");
+            },
+            "{sectionbreak}": function(){
+              var c = document.createElement("div");
+              c.style.marginTop = "76px";
+              return c;
+            },
+            "{img1}": img1,
+            "{wiki-url}": wikilink,
+            "{donate}": "[DONATE BUTTON]"
+          }
+        ));
+        dialog = ytcenter.dialog("WELCOME_TITLE", b, [
+          {
+            label: "DIALOG_CLOSE",
+            primary: false,
+            callback: function(){
+              try {
+                a.setLaunchStatus(true);
+                a.setVisibility(false);
+              } catch (e) {
+                con.error(e);
+              }
+            }
+          }, {
+            label: "WELCOME_CONFIRM_SETTINGS",
+            primary: true,
+            callback: function(){
+              try {
+                a.setLaunchStatus(true);
+                a.setVisibility(false);
+                ytcenter.settingsPanel.setVisibility(true);
+              } catch (e) {
+                con.error(e);
+              }
+            }
+          }
+        ]);
+        dialog.setWidth("630px");
+      };
+      
+      a.setLaunchStatus = function(launch){
+        ytcenter.settings['welcome_launched'] = launch;
+        ytcenter.saveSettings();
+      };
+      a.hasBeenLaunched = function(){
+        return ytcenter.settings['welcome_launched'] ? true : false;
+      };
+      a.setVisibility = function(visible){
+        a.createDialog();
+        
+        if (visible) {
+          ytcenter.utils.addClass(document.body, "player-disable");
+        } else {
+          ytcenter.utils.removeClass(document.body, "player-disable");
+        }
+        dialog.setVisibility(visible);
+      };
+      
+      return a;
+    })();
     ytcenter.dragdrop = function(list){
       function getItemIndex(item) {
         for (var i = 0; i < list.children.length; i++) {
@@ -8108,10 +8187,21 @@
             frag.appendChild(document.createTextNode(tmp));
             tmp = "";
           }
-          if (ytcenter.utils.isNode(replacer[matched])) {
+          if (typeof replacer[matched] === "function") {
+            var a = replacer[matched]();
+            if (typeof a === "string") {
+              frag.appendChild(document.createTextNode(a));
+            } else if (ytcenter.utils.isNode(a)) {
+              frag.appendChild(a);
+            } else {
+              con.error("[TextReplace] Unknown type of replacer!");
+            }
+          } else if (typeof replacer[matched] === "string") {
+            frag.appendChild(document.createTextNode(replacer[matched]));
+          } else if (ytcenter.utils.isNode(replacer[matched])) {
             frag.appendChild(replacer[matched]);
           } else {
-            frag.appendChild(replacer[matched]);
+            con.error("[TextReplace] Unknown type of replacer!");
           }
         } else {
           tmp += matched;
@@ -9543,7 +9633,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
-      settingsDialogMode: false,
+      settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
       ytspf: true,
       videoThumbnailCacheSize: 75,
@@ -14283,6 +14373,7 @@
         $AddStyle(ytcenter.css.flags);
         $AddStyle(ytcenter.css.html5player);
         $AddStyle(ytcenter.css.gridSubscriptions);
+        $AddStyle(ytcenter.css.images);
         
         if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) {
           $AddStyle(ytcenter.css.topbar);
@@ -14298,6 +14389,11 @@
         }
         ytcenter.classManagement.applyClassesForElement(document.body);
         
+        try {
+          //ytcenter.welcome.setVisibility(true);
+        } catch (e) {
+          con.error(e);
+        }
         if (loc.pathname !== "/watch")
           ytcenter.player.turnLightOn();
         else if (ytcenter.settings.lightbulbAutoOff)

@@ -1,0 +1,63 @@
+{
+ "enable_e10s": false, 
+ "is-sdk-bundled": true, 
+ "jetpackID": "jid1-cwbvBTE216jjpg@jetpack", 
+ "loader": "addon-sdk/lib/sdk/loader/cuddlefish.js", 
+ "main": "main", 
+ "mainPath": "youtube-center/main", 
+ "manifest": {
+  "youtube-center/main": {
+   "docsSHA256": null, 
+   "jsSHA256": "45784c3002422c77b5bf9a1bed500c274c2a9f9c16d7469b9c968dba09994dd3", 
+   "moduleName": "main", 
+   "packageName": "youtube-center", 
+   "requirements": {
+    "page-mod": "sdk/page-mod", 
+    "request": "sdk/request", 
+    "self": "sdk/self", 
+    "simple-storage": "sdk/simple-storage"
+   }, 
+   "sectionName": "lib"
+  }
+ }, 
+ "metadata": {
+  "addon-sdk": {
+   "description": "Add-on development made easy.", 
+   "keywords": [
+    "javascript", 
+    "engine", 
+    "addon", 
+    "extension", 
+    "xulrunner", 
+    "firefox", 
+    "browser"
+   ], 
+   "license": "MPL 2.0", 
+   "name": "addon-sdk"
+  }, 
+  "youtube-center": {
+   "author": "Jeppe Rune Mortensen", 
+   "description": "YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.", 
+   "license": "MPL 2.0", 
+   "main": "main", 
+   "name": "youtube-center", 
+   "permissions": {
+    "cross-domain-content": [
+     "http://www.youtube.com/", 
+     "http://youtube.com/", 
+     "https://www.youtube.com/", 
+     "https://youtube.com/", 
+     "http://userscripts.org/", 
+     "http://s.ytimg.com/", 
+     "https://s.ytimg.com/"
+    ], 
+    "private-browsing": true
+   }, 
+   "version": "1.33.3"
+  }
+ }, 
+ "name": "youtube-center", 
+ "sdkVersion": "1.14", 
+ "staticArgs": {}, 
+ "verbose": false
+}
