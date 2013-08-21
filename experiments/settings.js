@@ -10,8 +10,33 @@
  * The options will be much more customizeable, where you will be able to add modules (This part is still not been planned 100% yet).
  ***/
 
+function Module(name) {
+  this.name = name;
+}
 
-var ytcenter = ytcenter || {};
+function Settings() {
+  this.modules = [];
+}
+
+Settings.prototype.addModule = function(module){
+  this.modules.push(module);
+  return module.length - 1;
+};
+
+function Category(label) {
+  this.label = label;
+  this.enabled = true;
+  this.visible = true;
+  this.subcategories = [];
+}
+
+function SubCategory(label) {
+  this.label = label;
+  this.enabled = true;
+  this.visible = true;
+  this.options = [];
+}
+
 ytcenter.settings = (function(){
   var a = {}, categories = [], subcategories = [], options = [];
   
