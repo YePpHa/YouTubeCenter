@@ -14,6 +14,10 @@
 .ytcenter-settings-content > div {
   padding-left: 25px;
 }
+.exp-fixed-masthead .ytcenter-settings-content,
+.exp-fixed-masthead .ytcenter-settings-content > div {
+  padding-left: 0px;
+}
 
 .player-disable #player,
 .player-disable #player-legacy {
@@ -44,6 +48,13 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-site-center .ytcenter-settings-header {
   margin: 0 auto;
   width: 1103px;
+}
+
+.exp-fixed-masthead.ytcenter-site-center .ytcenter-settings-content,
+.exp-fixed-masthead.ytcenter-site-center .ytcenter-settings-title,
+.exp-fixed-masthead.ytcenter-site-center .ytcenter-settings-header {
+  margin: 0 auto;
+  width: auto;
 }
 
 .ytcenter-site-center #page-container > #page {
