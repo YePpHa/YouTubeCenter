@@ -14,9 +14,24 @@
 .ytcenter-settings-content > div {
   padding-left: 25px;
 }
-.exp-fixed-masthead .ytcenter-settings-content,
-.exp-fixed-masthead .ytcenter-settings-content > div {
-  padding-left: 0px;
+
+.ytcenter-exp-settings-dialog .ytcenter-settings-content,
+.ytcenter-exp-settings-dialog .ytcenter-settings-content > div {
+  padding-left: 0px!important;
+}
+
+.ytcenter-exp-settings-dialog .ytcenter-settings-content h2 {
+  border-bottom: inherit!important;
+  margin: inherit!important;
+  padding: inherit!important;
+  color: inherit!important;
+  font-size: inherit!important;
+  line-height: inherit!important;
+  overflow: inherit!important;
+  white-space: inherit!important;
+  word-wrap: inherit!important;
+  -o-text-overflow: inherit!important;
+  text-overflow: inherit!important;
 }
 
 .player-disable #player,
@@ -50,9 +65,9 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: 1103px;
 }
 
-.exp-fixed-masthead.ytcenter-site-center .ytcenter-settings-content,
-.exp-fixed-masthead.ytcenter-site-center .ytcenter-settings-title,
-.exp-fixed-masthead.ytcenter-site-center .ytcenter-settings-header {
+.ytcenter-site-center .ytcenter-exp-settings-dialog .ytcenter-settings-content,
+.ytcenter-site-center .ytcenter-exp-settings-dialog .ytcenter-settings-title,
+.ytcenter-site-center .ytcenter-exp-settings-dialog .ytcenter-settings-header {
   margin: 0 auto;
   width: auto;
 }
