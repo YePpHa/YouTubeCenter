@@ -1197,6 +1197,9 @@
         ytcenter.utils.addEventListener(closeButton, "click", function(){
           dialog.setVisibility(false);
         }, false);
+        ytcenter.settingsControlVisibility = function(visible){
+          dialog.setVisibility(visible);
+        };
         dialog.getHeader().appendChild(closeButton);
         dialog.getHeader().style.margin = "0 -20px -10px";
         dialog.getHeader().style.borderBottom = "0";
@@ -1315,20 +1318,20 @@
         ytuixbc.textContent = "  ";
         
         btn.appendChild(ytuixbc);
-        
-        btn.addEventListener("click", (function(c){
-          var toggled = false;
-          return function(){
-            con.log("Settings Button -> " + toggled);
-            if (toggled) {
-              ytcenter.utils.addClass(c, "hid");
-              toggled = false;
-            } else {
-              ytcenter.utils.removeClass(c, "hid");
-              toggled = true;
-            }
-          };
-        })(container), false);
+        ytcenter.settingsControlVisibility = function(visible){
+          if (!visible) {
+            ytcenter.utils.addClass(container, "hid");
+          } else {
+            ytcenter.utils.removeClass(container, "hid");
+          }
+        };
+        btn.addEventListener("click", function(){
+          if (!ytcenter.utils.hasClass(container, "hid")) {
+            ytcenter.utils.addClass(container, "hid");
+          } else {
+            ytcenter.utils.removeClass(container, "hid");
+          }
+        }, false);
         if (document.getElementById("masthead-user")) {
           document.getElementById("masthead-user").appendChild(btn);
         } else if (document.getElementById("yt-masthead-user")) {
@@ -5702,7 +5705,7 @@
     });
     ytcenter.welcome = (function(){
       var a = {}, dialog, b = document.createElement("div"),
-          img1 = document.createElement("div"), img1src = document.createElement("img"), wikilink = document.createElement("a");
+          img1 = document.createElement("div"), img1src = document.createElement("img"), wikilink = document.createElement("a"), donatelink = document.createElement("a");
       img1.className = "ytcenter-image-welcome-settings-repeater";
       img1src.className = "ytcenter-image-welcome-settings clearfix";
       img1src.style.cssFloat = "right";
@@ -5712,16 +5715,18 @@
       img1.appendChild(img1src);
       wikilink.href = "https://github.com/YePpHa/YouTubeCenter/wiki";
       wikilink.setAttribute("target", "_blank");
-      wikilink.textContent = "wiki"; // ytcenter.language.getLocale("WELCOME_CONTENT_WIKI");
+      donatelink.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Donate";
+      donatelink.setAttribute("target", "_blank");
       a.createDialog = function(){
         if (dialog) return;
+        donatelink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_DONATE");
+        wikilink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_WIKI");
         b.appendChild(ytcenter.utils.textReplace(
             "YouTube Center have many new features just waiting for you to try out. YouTube Center has by default set the settings, but to get the full experience of YouTube Center you will have to configurate the settings to your own need.{lb}{lb}"
           + "To access the YouTube Center settings you only have to click on the button as shown in the picture below (marked with a red glow).{lb}{lb}"
           + "{img1}{lb}{lb}"
           + "If you want to know more about YouTube Center visit the {wiki-url} for more information.{sectionbreak}"
-          + "If you appreciate my work I would be grateful if you would donate.{lb}"
-          + "{donate}",
+          + "If you appreciate my work I would be grateful if you would {donate}.",
           {
             "{lb}": function(){
               return document.createElement("br");
@@ -5733,7 +5738,7 @@
             },
             "{img1}": img1,
             "{wiki-url}": wikilink,
-            "{donate}": "[DONATE BUTTON]"
+            "{donate}": donatelink
           }
         ));
         dialog = ytcenter.dialog("WELCOME_TITLE", b, [
@@ -5755,6 +5760,7 @@
               try {
                 a.setLaunchStatus(true);
                 a.setVisibility(false);
+                ytcenter.settingsControlVisibility(true);
                 ytcenter.settingsPanel.setVisibility(true);
               } catch (e) {
                 con.error(e);
@@ -14390,7 +14396,8 @@
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         try {
-          //ytcenter.welcome.setVisibility(true);
+          if (!ytcenter.welcome.hasBeenLaunched())
+            ytcenter.welcome.setVisibility(true);
         } catch (e) {
           con.error(e);
         }
