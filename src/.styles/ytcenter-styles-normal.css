@@ -20,6 +20,10 @@
   padding-left: 0px!important;
 }
 
+.ytcenter-exp-settings-dialog .yt-uix-form-textarea {
+  width: 100% !important;
+}
+
 .ytcenter-exp-settings-dialog .ytcenter-settings-content h2 {
   border-bottom: inherit!important;
   margin: inherit!important;
