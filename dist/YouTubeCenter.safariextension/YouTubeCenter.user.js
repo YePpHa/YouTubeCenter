@@ -12052,7 +12052,7 @@
         // Prevent Auto Play/Buffering
         if (ytcenter.playlist) {
           if (ytcenter.settings.preventPlaylistAutoBuffer) {
-            api.stopVideo();
+            //api.stopVideo();
           } else if (ytcenter.settings.preventPlaylistAutoPlay) {
             api.mute();
             api.playVideo();
@@ -12061,7 +12061,7 @@
           }
         } else {
           if (ytcenter.settings.preventAutoBuffer) {
-            api.stopVideo();
+            //api.stopVideo();
           } else if (ytcenter.settings.preventAutoPlay) {
             api.mute();
             api.playVideo();
@@ -12087,7 +12087,7 @@
         }
         
         if (ytcenter.settings.channel_preventAutoBuffer) {
-          api.stopVideo();
+          //api.stopVideo();
         } else if (ytcenter.settings.channel_preventAutoPlay) {
           api.playVideo();
           api.pauseVideo();
