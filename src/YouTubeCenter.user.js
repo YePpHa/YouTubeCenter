@@ -2882,7 +2882,8 @@
         }());
       }
     })();
-    uw.ytspf = new SPF();
+    uw.ytspf = uw.ytspf || new SPF();
+    if (uw.ytspf.enabled === false) uw.ytspf.enabled = true;
     loc = (function(){
       try {
         if (typeof location !== "undefined") return location;
