@@ -14513,7 +14513,7 @@
           if (ytcenter.spf.isEnabled()) {
             if (ytcenter.spf.isReadyToInject() && !ytcenter.spf.isInjected()) {
               ytcenter.spf.inject();
-            } else if (!ytcenter.spf.isReadyToInject() && !ytcenter.spf.isInjected()) {
+            } else if (!ytcenter.spf.isReadyToInject() && !ytcenter.spf.isInjected() && document.readyState !== "complete") {
               uw.setTimeout(_spf_timer, 1000);
             }
           }
