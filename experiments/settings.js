@@ -1,4 +1,4 @@
-/*** module: settings.js
+/*** module settings.js
  * This will replace the old settings when it's finished.
  * The settings will be put into a dialog as the experimental dialog is at the moment.
  * ********************************************************************************************
@@ -9,6 +9,22 @@
  * The subcategories will be the same as the categories in the old settings.
  * The options will be much more customizeable, where you will be able to add modules (This part is still not been planned 100% yet).
  ***/
+/** Option  It should be easy to add new options.
+ * The option will contain a label if the label is specified otherwise it will not be added.
+ * The "defaultSetting" will be available as it currently is.
+ * The "args" will be added, which will be a way to pass more arguments to the module (if needed or required).
+ * The "type" will be replaced with "module", which will be a function with the prefix "ytcenter.modules.*".
+ * Everything is optional except for the type, which is needed to add the option to the settings.
+ **/
+/** Module  Handles the option like what happens when I click on that checkbox or input some text in a textfield...
+ * When the module (function) is called. It need to have the following arguments passed:
+ ** defaultSetting  Needs the defaultSetting to set the default settings.
+ * The module needs to return an object with:
+ ** element An element, which will be added to the settings.
+ ** bind  A function, where a callback function is passed. When an update which requires YouTube Center to save settings this callback function is called.
+ ** update  A function, which will be called whenever a value needs to be changed in the module. In an instance where the settings has changed and the module needs to update with the changes.
+ **/
+
 
 /* Settings up fake YouTube Center enviorment */
 var ytcenter = {};
@@ -312,6 +328,39 @@ ytcenter.dialogOverlay = function(){
 };
 
 
+/***** Module part *****/
+ytcenter.module = {};
+ytcenter.bool = function(defaultSetting){
+  function update(checked) {
+    checkboxInput.checked = checked;
+    if (checked) {
+      ytcenter.utils.addClass(checkboxOuter, "checked");
+    } else {
+      ytcenter.utils.removeClass(checkboxOuter, "checked");
+    }
+  }
+  function bind(callback) {
+    ytcenter.utils.addEventListener(checkboxInput, "change", function(){
+      callback(checkboxInput.checked);
+    }, false);
+  }
+  var frag = document.createDocumentFragment(),
+      checkboxOuter = document.createElement("span"),
+      checkboxInput = document.createElement("input"),
+      checkboxOverlay = document.createElement("span");
+  if (typeof defaultSetting !== "boolean") defaultSetting = false; // Just to make sure it's a boolean!
+  checkboxOuter.className = "yt-uix-form-input-checkbox-container" + (defaultSetting ? " checked" : "");
+  checkboxInput.className = "yt-uix-form-input-checkbox";
+  checkboxOverlay.className = "yt-uix-form-input-checkbox-element";
+  checkboxInput.checked = defaultSetting;
+  checkboxInput.setAttribute("type", "checkbox");
+  
+  return {
+    element: frag,
+    bind: bind,
+    update: update
+  };
+};
 
 /**** Settings part ****/
 ytcenter.settings = (function(){
@@ -340,7 +389,14 @@ ytcenter.settings = (function(){
     return a.getSubCategory(id);
   };
   a.createOption = function(){
-    
+    var id = options.length;
+    options.push({
+      id: id,
+      label: label,
+      enabled: true,
+      visible: true
+    });
+    return a.getOption(id);
   };
   a.getCategory = function(id){
     if (categories.length <= id || id < 0) throw new Error("[Settings Category] Category with specified id doesn't exist!");
@@ -385,9 +441,24 @@ ytcenter.settings = (function(){
     };
   };
   a.getOption = function(id){
-    throw new Error("[Settings getOption] Not implemented!");
+    return {
+      getId: function(){
+        return id;
+      },
+      setVisibility: function(visible){
+        subcat.visible = visible;
+      },
+      setEnabled: function(enabled){
+        subcat.enabled = enabled;
+      }
+    };
   };
-  
+  a.createOptionsForLayout = function(subcat){
+    var frag = document.createDocumentFragment();
+    
+    
+    return frag;
+  };
   a.createLayout = function(){
     var frag = document.createDocumentFragment(),
         categoryList = document.createElement("ul"),
@@ -447,7 +518,7 @@ ytcenter.settings = (function(){
         itemTextContent.textContent = ytcenter.language.getLocale(subcat.label);
         ytcenter.language.addLocaleElement(itemTextContent, subcat.label, "@textContent");
         
-        content.textContent = category.id + "=>" + subcat.id;
+        content.appendChild(a.createOptionsForLayout(subcat));
         
         liItemLink.appendChild(itemTextContent);
         liItem.appendChild(liItemLink);
