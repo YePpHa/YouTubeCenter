@@ -617,6 +617,8 @@
       }, false);
       if (ytcenter.settings.autoActivateRepeat) {
         ytcenter.doRepeat = true;
+      } else {
+        ytcenter.doRepeat = false;
       }
       
       var iconw = document.createElement("span");
