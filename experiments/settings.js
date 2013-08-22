@@ -7,13 +7,14 @@
  * ********************************************************************************************
  * The categories will be placed to the left side as the guide is on YouTube. The categories will use the same red design as the guide.
  * The subcategories will be the same as the categories in the old settings.
- * The options will be much more customizeable, where you will be able to add modules (This part is still not been planned 100% yet).
+ * The options will be much more customizeable, where you will be able to add modules.
  ***/
 /** Option  It should be easy to add new options.
  * The option will contain a label if the label is specified otherwise it will not be added.
  * The "defaultSetting" will be available as it currently is.
  * The "args" will be added, which will be a way to pass more arguments to the module (if needed or required).
  * The "type" will be replaced with "module", which will be a function with the prefix "ytcenter.modules.*".
+ * The "help" will still be present in this version.
  * Everything is optional except for the type, which is needed to add the option to the settings.
  **/
 /** Module  Handles the option like what happens when I click on that checkbox or input some text in a textfield...
@@ -328,9 +329,24 @@ ytcenter.dialogOverlay = function(){
 };
 
 
+/******************************* END OF YOUTUBE CENTER PLACEHOLDERS *******************************/
+
+
+
 /***** Module part *****/
-ytcenter.module = {};
-ytcenter.bool = function(defaultSetting){
+ytcenter.modules = {};
+ytcenter.modules.line = function(){
+  var frag = document.createDocumentFragment(),
+      hr = document.createElement("hr");
+  hr.className = "yt-horizontal-rule";
+  frag.appendChild(hr);
+  return {
+    element: frag,
+    bind: function(){},
+    update: function(){}
+  };
+};
+ytcenter.modules.bool = function(option){
   function update(checked) {
     checkboxInput.checked = checked;
     if (checked) {
@@ -347,13 +363,29 @@ ytcenter.bool = function(defaultSetting){
   var frag = document.createDocumentFragment(),
       checkboxOuter = document.createElement("span"),
       checkboxInput = document.createElement("input"),
-      checkboxOverlay = document.createElement("span");
-  if (typeof defaultSetting !== "boolean") defaultSetting = false; // Just to make sure it's a boolean!
-  checkboxOuter.className = "yt-uix-form-input-checkbox-container" + (defaultSetting ? " checked" : "");
+      checkboxOverlay = document.createElement("span"),
+      checked = option.defaultSetting;
+  if (typeof checked !== "boolean") checked = false; // Just to make sure it's a boolean!
+  checkboxOuter.className = "yt-uix-form-input-checkbox-container" + (checked ? " checked" : "");
   checkboxInput.className = "yt-uix-form-input-checkbox";
   checkboxOverlay.className = "yt-uix-form-input-checkbox-element";
-  checkboxInput.checked = defaultSetting;
+  checkboxInput.checked = checked;
   checkboxInput.setAttribute("type", "checkbox");
+  checkboxInput.setAttribute("value", checked);
+  checkboxOuter.appendChild(checkboxInput);
+  checkboxOuter.appendChild(checkboxOverlay);
+  
+  ytcenter.utils.addEventListener(checkboxOuter, "click", function(){
+    checked = !checked;
+    if (checked) {
+      ytcenter.utils.addClass(checkboxOuter, "checked");
+    } else {
+      ytcenter.utils.removeClass(checkboxOuter, "checked");
+    }
+    checkboxInput.setAttribute("value", checked);
+  }, false);
+  
+  frag.appendChild(checkboxOuter);
   
   return {
     element: frag,
@@ -388,11 +420,15 @@ ytcenter.settings = (function(){
     });
     return a.getSubCategory(id);
   };
-  a.createOption = function(){
+  a.createOption = function(defaultSetting, module, label, args, help){
     var id = options.length;
     options.push({
       id: id,
       label: label,
+      args: args,
+      defaultSetting: defaultSetting,
+      module: module,
+      help: help,
       enabled: true,
       visible: true
     });
@@ -433,7 +469,7 @@ ytcenter.settings = (function(){
         subcat.enabled = enabled;
       },
       addOption: function(option){
-        subcat.options.push(option);
+        subcat.options.push(options[option.getId()]);
       },
       select: function(){
         if (cat.select) cat.select();
@@ -441,21 +477,61 @@ ytcenter.settings = (function(){
     };
   };
   a.getOption = function(id){
+    if (options.length <= id || id < 0) throw new Error("[Settings Options] Option with specified id doesn't exist!");
+    var option = options[id];
     return {
       getId: function(){
         return id;
       },
+      getLabel: function(){
+        return option.label;
+      },
+      getDefaultSetting: function(){
+        return option.defaultSetting;
+      },
+      getModule: function(){
+        return option.module;
+      },
+      getHelp: function(){
+        return option.help;
+      },
       setVisibility: function(visible){
-        subcat.visible = visible;
+        option.visible = visible;
       },
       setEnabled: function(enabled){
-        subcat.enabled = enabled;
+        option.enabled = enabled;
       }
     };
   };
   a.createOptionsForLayout = function(subcat){
     var frag = document.createDocumentFragment();
     
+    subcat.options.forEach(function(option){
+      var optionWrapper = document.createElement("div"),
+          label, module, moduleContainer;
+      if (option.label && option.label !== "") {
+        label = document.createElement("span");
+        label.className = "ytcenter-settings-option-label";
+        label.textContent = ytcenter.language.getLocale(option.label);
+        ytcenter.language.addLocaleElement(label, option.label, "@textContent");
+        optionWrapper.appendChild(label);
+      }
+      if (!option.module)
+        throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ") doesn't have module!");
+      if (!ytcenter.modules[option.module])
+        throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ", " + option.module + ") are using an non existing module!");
+
+      moduleContainer = document.createElement("span");
+      module = ytcenter.modules[option.module](option);
+      moduleContainer.appendChild(module.element);
+      
+      module.bind(function(value){
+        console.log("[Placeholder] Saves " + option.defaultSetting + " with value: " + value);
+      });
+      
+      optionWrapper.appendChild(moduleContainer);
+      frag.appendChild(optionWrapper);
+    });
     
     return frag;
   };
@@ -654,10 +730,11 @@ about.addSubCategory(about_share);
 about.addSubCategory(about_donate);
 
 // Creating options
-//...
+var option_test = ytcenter.settings.createOption("TEST_SETTING", "bool", "Testing this");
+
 
 // Linking options to subcategories
-//...
+general_subcat1.addOption(option_test);
 
 /*// Creating settings element
 var dialog = ytcenter.settings.createDialog();

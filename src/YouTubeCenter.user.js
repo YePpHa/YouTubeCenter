@@ -14717,7 +14717,7 @@
         } else if (data.html && data.html.player && data.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
           var a, i1, i2, content, tmp, tmp2, swfcfg;
           try {
-            a = data.player.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
+            a = data.html.player.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
             a = a.split(";</script>")[0];
             try {
               swfcfg = JSON.parse(a);
@@ -14725,10 +14725,10 @@
               swfcfg = eval("(" + a + ")");
             }
             swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
-            content = data.player.content;
+            content = data.html.player;
             i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
             i2 = content.indexOf(";</script>");
-            data.player.content = content.substring(0, i1 + "<script>var ytplayer = ytplayer || {};ytplayer.config = ".length) + JSON.stringify(swfcfg) + content.substring(i2);
+            data.html.player = content.substring(0, i1 + "<script>var ytplayer = ytplayer || {};ytplayer.config = ".length) + JSON.stringify(swfcfg) + content.substring(i2);
           } catch (e) {
             con.error(e);
           }

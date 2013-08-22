@@ -94,6 +94,14 @@
 .ytcenter-settings-subcat-content-wrapper {
   position: relative;
   padding: 8px 8px 20px;
-  min-width: 460px;
-  max-width: 812px;
+  width: 812px;
+}
+
+.ytcenter-settings-option-label {
+  display: inline-block;
+  width: 260px;
+  color: #555;
+}
+.ytcenter-settings-option-label.ytcenter-disabled {
+  color: #B9B9B9
 }
