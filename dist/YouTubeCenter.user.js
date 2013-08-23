@@ -12954,7 +12954,7 @@
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           if (document.getElementById("appbar-menu") && !scrollToPlayerButton.parentNode)
             document.getElementById("appbar-menu").insertBefore(scrollToPlayerButton, document.getElementById("appbar-menu").children[0]);
-        } else if (tcenter.settings['ytExperimentFixedTopbar']) {
+        } else if (ytcenter.settings['ytExperimentFixedTopbar']) {
           if (document.getElementById("yt-masthead-container") && !scrollToPlayerButton.parentNode)
             document.getElementById("yt-masthead-container").appendChild(scrollToPlayerButton);
         } else {
@@ -14392,7 +14392,8 @@
         }
       } catch (e) {
         con.error(e);
-        ytcenter.player.config = uw.ytplayer.config;
+        if (uw && uw.ytplayer && uw.ytplayer.config)
+          ytcenter.player.config = uw.ytplayer.config;
         ytcenter.player.disablePlayerUpdate = false;
       }
       ytcenter.pageReadinessListener.waitfor = function(){
