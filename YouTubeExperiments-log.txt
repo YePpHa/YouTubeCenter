@@ -3,7 +3,7 @@ Player => merging the quality, annotations and size button into one:
 SPF => Ajax Page Loading (Very common)
   VISITOR_INFO1_LIVE=kyfKgKeGGh0;
 Fixed Topbar => Centers the layout, so YouTube Center doesn't need to do it. Fixes the topbar to the top of the screen.
-  VISITOR_INFO1_LIVE=aB3Y1ObEv38;
+  VISITOR_INFO1_LIVE=Gapj9bz_H8M;
 Fixed Topbar v2
   VISITOR_INFO1_LIVE=JX5TVkqGL3I;
 Ads Removed

@@ -1,3 +1,11 @@
+#page,
+#player,
+#player-legacy,
+#content {
+  left: auto!important;
+  margin-left: auto!important;
+}
+
 a .ytcenter-video-thumb-show-hover {
   display: none;
 }
