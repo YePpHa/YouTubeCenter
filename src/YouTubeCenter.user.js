@@ -142,7 +142,7 @@
 
     function $LoadData(key, def) {
       if (identifier === 2) {
-        return window.external.mxGetRuntime().storage.getConfig(key) || {};
+        return window.external.mxGetRuntime().storage.getConfig(key);
       } else {
         if (ytcenter.storageType === 3) {
           var d = GM_getValue(key, null);
