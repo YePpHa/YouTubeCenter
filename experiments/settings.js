@@ -355,7 +355,8 @@ ytcenter.language.db = {
   COLORPICKER_COLOR_HTMLCODE: "HTML Code",
   COLORPICKER_CANCEL: "Cancel",
   COLORPICKER_SAVE: "Save",
-  COLORPICKER_TITLE: "Color Picker"
+  COLORPICKER_TITLE: "Color Picker",
+  SETTINGS_HELP_ABOUT: "Help about {option}."
 };
 ytcenter.language.getLocale = function(lang){
   return ytcenter.language.db[lang] || lang;
@@ -1357,7 +1358,7 @@ ytcenter.settings = (function(){
           help.setAttribute("target", "_blank");
           help.setAttribute("href", option.help);
           help.appendChild(document.createTextNode('?'));
-          replaceHelp = { option: function() { return ytcenter.language.getLocale(option.label); } };
+          replaceHelp = { "{option}": function() { return ytcenter.language.getLocale(option.label); } };
           help.setAttribute("title", ytcenter.utils.replaceTextToText(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replaceHelp));
           ytcenter.language.addLocaleElement(help, "SETTINGS_HELP_ABOUT", "title", replaceHelp);
           label.appendChild(help);
