@@ -1,7 +1,9 @@
 /* $Topbar Static */
+.ytcenter-lights-off #masthead-positioner,
 .ytcenter-exp-topbar-static #masthead-positioner {
   position: static !important
 }
+.ytcenter-lights-off #masthead-positioner-height-offset,
 .ytcenter-exp-topbar-static #masthead-positioner-height-offset {
   display: none !important
 }

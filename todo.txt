@@ -1,3 +1,7 @@
+ - Player size set offset (relative, absolute)
+ - Ability to remove elements from page.
+ - Users should be able to use decimals when they customize their player size.
+ - Add option to use proxfree
  - Change the video suggestions column into an uploader's 20 latest uploaded videos.
  - Disable info, like/share, video responses, comments, video suggestions column. Show just the video.
  - Download a video without loading it (through the thumbnail).
@@ -46,7 +50,26 @@
  - Option to use classic pagination.
  - Make an option to set the topbar on YouTube to be fixed.
 
+---------------------------------------
+I have been using YTC for a while now and I am impressed by all the nice featues that get added from version to version. 
+However there are still some minor annoyances to me:
 
+The icons in the playlist topbar are in the right position when the player width is bigger than ~800 pixels (back/next button are in the mid right, repeat, random, dropdown button on the right side). But if I resize my browser window smaller than 800px, the buttons on the right will be cut off. 
+I think the problem is that the back/next buttons and the others on the right are basically one element that is not scaled correctly. It just needs to move more to the left when making the window very small.
+
+Next thing is the player position: it would be nice if we (or rather I) could define an x-/y-offset for the player (maybe add it to the custom player sizes tab?). This would fix the annoying tiny white space for me between YouTube's topbar and the player (setting the marin-top of the #player-class to -16px fixed it for me).
+
+Oh, and to add something to that: is it possible to implement decimal values for player size in percent (like 90.5)?
+
+Now the like button: whenever I press it, it switches the tab below it to the Share tab. Would be nice if it wouldn't do that.
+
+And is it possible to disable/remove specific elements on the player page like comments, suggested videos on the right side, etc.?
+
+Last but not least the translation. I am using the German translation and a the moment, it is not entirely translated (which is not a problem) but when I open YTC settings, there is a lot of tabs (General, Player, Channel,...) and since most German words are longer than English ones, the tabs get displayed in two rows (happens only when page centering is enabled). 
+This will probably be fixed as soon as everything is translated again (I'd be willing to help at any time) so this is just a minor bug.
+
+That's it for now. I will add more if I remember some other ideas. :)
+-------------------------------------
 
 I have some feature suggestions I'd like you to take a look at, YePpHa.
 In light of the new feature to display the likes from a video, I think it might be nice to auto hide or not display videos with a user-configurable like ratio (so, any video with say 10 thumbs down to 1 thumbs up will be auto hidden), assuming this is possible. It would also be really cool to display the description of the suggestion videos on hovering. It would also be nice to hide the unrelated videos-- the ones suggested to you only (again, assuming this is possible.) It might also be nice to have a tutorial mode-- So when you're watching a video tutorial and you move your mouse out of the window the video automatically pauses, and then continues when you move your mouse back. This would be great for things like Photoshop tutorials where you have to do a lot of clicking back and forth for every action (again, assuming it's possible). I would also be really cool if the script automatically downloads and updates a new version, but still tells you that it's been updated. This next suggestion I remember seeing in a YouTube layout beta a few years ago, but it was never implemented. If I recall correctly, when making a search, if you hovered over the link or thumbnail, a small preview of the video (perhaps 200 or 250 pixels wide by 100 pixels tall) would display. As an annoyance fixer, it'd be nice to have the link to the inbox in the drop down menu by one's username display the number of everything in the inbox, not just private messages. As someone who gets a HUGE amount of comment replies, but not that many PMs, this bothers me.
