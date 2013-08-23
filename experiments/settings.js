@@ -1,4 +1,4 @@
-/*** module settings.js
+﻿/*** module settings.js
  * This will replace the old settings when it's finished.
  * The settings will be put into a dialog as the experimental dialog is at the moment.
  * ********************************************************************************************
@@ -25,1193 +25,6 @@
  ** bind  A function, where a callback function is passed. When an update which requires YouTube Center to save settings this callback function is called.
  ** update  A function, which will be called whenever a value needs to be changed in the module. In an instance where the settings has changed and the module needs to update with the changes.
  **/
-
-
-/* Settings up fake YouTube Center enviorment */
-var uw = window,
-    ytcenter = {};
-ytcenter.version = "2.0";
-ytcenter.settings = {};
-ytcenter.events = {};
-ytcenter.events.performEvent = function(){};
-ytcenter.events.addEvent = function(){};
-ytcenter.io = {};
-/* BlobBuilder.js
- * A BlobBuilder implementation.
- * 2012-04-21
- *
- * By Eli Grey, http://eligrey.com
- * License: X11/MIT
- * See LICENSE.md
- */
-/*! @source http://purl.eligrey.com/github/BlobBuilder.js/blob/master/BlobBuilder.js */
-ytcenter.io.FakeBlobBuilder = function(){return (function() {
-  "use strict";
-  var get_class = function(object) {
-    return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
-  },
-  FakeBlobBuilder = function(){
-    this.data = [];
-  },
-  FakeBlob = function(data, type, encoding) {
-    this.data = data;
-    this.size = data.length;
-    this.type = type;
-    this.encoding = encoding;
-  },
-  FBB_proto = FakeBlobBuilder.prototype,
-  FB_proto = FakeBlob.prototype,
-  FileReaderSync = uw.FileReaderSync,
-  FileException = function(type) {
-    this.code = this[this.name = type];
-  },
-  file_ex_codes = (
-    "NOT_FOUND_ERR SECURITY_ERR ABORT_ERR NOT_READABLE_ERR ENCODING_ERR "
-    + "NO_MODIFICATION_ALLOWED_ERR INVALID_STATE_ERR SYNTAX_ERR"
-  ).split(" "),
-  file_ex_code = file_ex_codes.length,
-  
-  real_URL = (function(){
-    var a;
-    try {
-      a = URL || uw.URL || webkitURL || uw.webkitURL || uw;
-    } catch (e) {
-      try {
-        a = uw.URL || webkitURL || uw.webkitURL || uw;
-      } catch (e) {
-        try {
-          a = webkitURL || uw.webkitURL || uw;
-        } catch (e) {
-          try {
-            a = uw.webkitURL || uw;
-          } catch (e) {
-            a = uw;
-          }
-        }
-      }
-    }
-    if (uw.navigator && uw.navigator.getUserMedia) {
-      if (!a) a = {};
-      if (!a.createObjectURL) a.createObjectURL = function(obj){return obj;}
-      if (!a.revokeObjectURL) a.revokeObjectURL = function(){};
-    }
-    return a;
-  })(),
-  real_create_object_URL = real_URL.createObjectURL,
-  real_revoke_object_URL = real_URL.revokeObjectURL,
-  URL = real_URL,
-  btoa = uw.btoa,
-  atob = uw.atob,
-  can_apply_typed_arrays = false,
-  can_apply_typed_arrays_test = function(pass) {
-    can_apply_typed_arrays = !pass;
-  },
-  ArrayBuffer = uw.ArrayBuffer,
-  Uint8Array = uw.Uint8Array;
-  FakeBlobBuilder.fake = FB_proto.fake = true;
-  while (file_ex_code--) {
-    FileException.prototype[file_ex_codes[file_ex_code]] = file_ex_code + 1;
-  }
-  try {
-    if (Uint8Array) {
-      can_apply_typed_arrays_test.apply(0, new Uint8Array(1));
-    }
-  } catch (ex) {}
-  if (!real_URL.createObjectURL) {
-    URL = {};
-  }
-  URL.createObjectURL = function(blob) {
-    var type = blob.type,
-        data_URI_header;
-    if (type === null) {
-      type = "application/octet-stream";
-    }
-    if (blob instanceof FakeBlob) {
-      data_URI_header = "data:" + type;
-      if (blob.encoding === "base64") {
-        return data_URI_header + ";base64," + blob.data;
-      } else if (blob.encoding === "URI") {
-        return data_URI_header + "," + decodeURIComponent(blob.data);
-      }
-      if (btoa) {
-        try {
-          return data_URI_header + ";base64," + btoa(blob.data);
-        } catch (e) {
-          return data_URI_header + "," + encodeURIComponent(blob.data);
-        }
-      } else {
-        return data_URI_header + "," + encodeURIComponent(blob.data);
-      }
-    } else if (real_create_object_URL) {
-      return real_create_object_URL.call(real_URL, blob);
-    }
-  };
-  URL.revokeObjectURL = function(object_URL) {
-    if (object_URL.substring(0, 5) !== "data:" && real_revoke_object_URL) {
-      real_revoke_object_URL.call(real_URL, object_URL);
-    }
-  };
-  FBB_proto.append = function(data/*, endings*/) {
-    var bb = this.data;
-    // decode data to a binary string
-    if (Uint8Array && data instanceof ArrayBuffer) {
-      if (can_apply_typed_arrays) {
-        bb.push(String.fromCharCode.apply(String, new Uint8Array(data)));
-      } else {
-        var str = "",
-            buf = new Uint8Array(data),
-            i = 0,
-            buf_len = buf.length;
-        for (; i < buf_len; i++) {
-          str += String.fromCharCode(buf[i]);
-        }
-      }
-    } else if (get_class(data) === "Blob" || get_class(data) === "File") {
-      if (FileReaderSync) {
-        var fr = new FileReaderSync;
-        bb.push(fr.readAsBinaryString(data));
-      } else {
-        // async FileReader won't work as BlobBuilder is sync
-        throw new FileException("NOT_READABLE_ERR");
-      }
-    } else if (data instanceof FakeBlob) {
-      if (data.encoding === "base64" && atob) {
-        bb.push(atob(data.data));
-      } else if (data.encoding === "URI") {
-        bb.push(decodeURIComponent(data.data));
-      } else if (data.encoding === "raw") {
-        bb.push(data.data);
-      }
-    } else {
-      if (typeof data !== "string") {
-        data += ""; // convert unsupported types to strings
-      }
-      // decode UTF-16 to binary string
-      bb.push(unescape(encodeURIComponent(data)));
-    }
-  };
-  FBB_proto.getBlob = function(type) {
-    if (!arguments.length) {
-      type = null;
-    }
-    return new FakeBlob(this.data.join(""), type, "raw");
-  };
-  FBB_proto.toString = function() {
-    return "[object BlobBuilder]";
-  };
-  FB_proto.slice = function(start, end, type) {
-    var args = arguments.length;
-    if (args < 3) {
-      type = null;
-    }
-    return new FakeBlob(
-      this.data.slice(start, args > 1 ? end : this.data.length),
-      type,
-      this.encoding
-    );
-  };
-  FB_proto.toString = function() {
-    return "[object Blob]";
-  };
-  return FakeBlobBuilder;
-}());};
-ytcenter.io.BlobBuilder = (function(){
-  var a;
-  try {
-    a = BlobBuilder || uw.WebKitBlobBuilder || uw.MozBlobBuilder || uw.MSBlobBuilder;
-  } catch (e) {
-    try {
-      a = uw.WebKitBlobBuilder || uw.MozBlobBuilder || uw.MSBlobBuilder;
-    } catch (e) {
-      try {
-        a = uw.MozBlobBuilder || uw.MSBlobBuilder;;
-      } catch (e) {
-        a = uw.MSBlobBuilder;
-      }
-    }
-  }
-  if (typeof a === "undefined") a = ytcenter.io.FakeBlobBuilder();
-  return a;
-})();
-
-/* FileSaver.js
- * A saveAs() FileSaver implementation.
- * 2013-01-23
- *
- * By Eli Grey, http://eligrey.com
- * License: X11/MIT
- * See LICENSE.md
- */
-/*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
-ytcenter.io.fakeSaveAs = function(){return (function() {
-  "use strict";
-  // only get URL when necessary in case BlobBuilder.js hasn't overridden it yet
-  var get_URL = function() {
-        return (function(){
-          var a;
-          try {
-            a = URL || uw.URL || webkitURL || uw.webkitURL || uw;
-          } catch (e) {
-            try {
-              a = uw.URL || webkitURL || uw.webkitURL || uw;
-            } catch (e) {
-              try {
-                a = webkitURL || uw.webkitURL || uw;
-              } catch (e) {
-                try {
-                  a = uw.webkitURL || uw;
-                } catch (e) {
-                  a = uw;
-                }
-              }
-            }
-          }
-          
-          if (uw.navigator && uw.navigator.getUserMedia) {
-            if (!a) a = {};
-            if (!a.createObjectURL) a.createObjectURL = function(obj){return obj;}
-            if (!a.revokeObjectURL) a.revokeObjectURL = function(){};
-          }
-          return a;
-        })();
-      },
-      URL = (function(){
-        var a;
-        try {
-          a = URL || uw.URL || webkitURL || uw.webkitURL || uw;
-        } catch (e) {
-          try {
-            a = uw.URL || webkitURL || uw.webkitURL || uw;
-          } catch (e) {
-            try {
-              a = webkitURL || uw.webkitURL || uw;
-            } catch (e) {
-              try {
-                a = uw.webkitURL || uw;
-              } catch (e) {
-                a = uw;
-              }
-            }
-          }
-        }
-        if (uw.navigator && uw.navigator.getUserMedia) {
-          if (!a) a = {};
-          if (!a.createObjectURL) a.createObjectURL = function(obj){return obj;}
-          if (!a.revokeObjectURL) a.revokeObjectURL = function(){};
-        }
-        return a;
-      })(),
-      save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
-      can_use_save_link =  !uw.externalHost && "download" in save_link,
-      click = function(node) {
-        var event = document.createEvent("MouseEvents");
-        event.initMouseEvent(
-          "click", true, false, uw, 0, 0, 0, 0, 0,
-          false, false, false, false, 0, null
-        );
-        node.dispatchEvent(event);
-      },
-      webkit_req_fs = uw.webkitRequestFileSystem,
-      req_fs = uw.requestFileSystem || webkit_req_fs || uw.mozRequestFileSystem,
-      throw_outside = function (ex) {
-        (uw.setImmediate || uw.setTimeout)(function() {
-          throw ex;
-        }, 0);
-      },
-      force_saveable_type = "application/octet-stream",
-      fs_min_size = 0,
-      deletion_queue = [],
-      process_deletion_queue = function() {
-        var i = deletion_queue.length;
-        while (i--) {
-          var file = deletion_queue[i];
-          if (typeof file === "string") { // file is an object URL
-            URL.revokeObjectURL(file);
-          } else { // file is a File
-            file.remove();
-          }
-        }
-        deletion_queue.length = 0; // clear queue
-      },
-      dispatch = function(filesaver, event_types, event) {
-        event_types = [].concat(event_types);
-        var i = event_types.length;
-        while (i--) {
-          var listener = filesaver["on" + event_types[i]];
-          if (typeof listener === "function") {
-            try {
-              listener.call(filesaver, event || filesaver);
-            } catch (ex) {
-              throw_outside(ex);
-            }
-          }
-        }
-      },
-      FileSaver = function(blob, name) {
-        // First try a.download, then web filesystem, then object URLs
-        var filesaver = this,
-            type = blob.type,
-            blob_changed = false,
-            object_url,
-            target_view,
-            get_object_url = function() {
-              var object_url = get_URL().createObjectURL(blob);
-              deletion_queue.push(object_url);
-              return object_url;
-            },
-            dispatch_all = function() {
-              dispatch(filesaver, "writestart progress write writeend".split(" "));
-            },
-            // on any filesys errors revert to saving with object URLs
-            fs_error = function() {
-              // don't create more object URLs than needed
-              if (blob_changed || !object_url) {
-                object_url = get_object_url(blob);
-              }
-              if (target_view) {
-                target_view.location.href = object_url;
-              } else {
-                            window.open(object_url, "_blank");
-                        }
-              filesaver.readyState = filesaver.DONE;
-              dispatch_all();
-            },
-            abortable = function(func) {
-              return function() {
-                if (filesaver.readyState !== filesaver.DONE) {
-                  return func.apply(this, arguments);
-                }
-              };
-            },
-            create_if_not_found = {create: true, exclusive: false},
-            slice;
-        filesaver.readyState = filesaver.INIT;
-        if (!name) {
-          name = "download";
-        }
-        if (can_use_save_link) {
-          object_url = get_object_url(blob);
-          save_link.href = object_url;
-          save_link.download = name;
-          click(save_link);
-          filesaver.readyState = filesaver.DONE;
-          dispatch_all();
-          return;
-        }
-        // Object and web filesystem URLs have a problem saving in Google Chrome when
-        // viewed in a tab, so I force save with application/octet-stream
-        // http://code.google.com/p/chromium/issues/detail?id=91158
-        if (uw.chrome && type && type !== force_saveable_type) {
-          slice = blob.slice || blob.webkitSlice;
-          blob = slice.call(blob, 0, blob.size, force_saveable_type);
-          blob_changed = true;
-        }
-        // Since I can't be sure that the guessed media type will trigger a download
-        // in WebKit, I append .download to the filename.
-        // https://bugs.webkit.org/show_bug.cgi?id=65440
-        if (webkit_req_fs && name !== "download") {
-          name += ".download";
-        }
-        if (type === force_saveable_type || webkit_req_fs) {
-          target_view = uw;
-        }
-        if (!req_fs) {
-          fs_error();
-          return;
-        }
-        fs_min_size += blob.size;
-        req_fs(uw.TEMPORARY, fs_min_size, abortable(function(fs) {
-          fs.root.getDirectory("saved", create_if_not_found, abortable(function(dir) {
-            var save = function() {
-              dir.getFile(name, create_if_not_found, abortable(function(file) {
-                file.createWriter(abortable(function(writer) {
-                  writer.onwriteend = function(event) {
-                    target_view.location.href = file.toURL();
-                    deletion_queue.push(file);
-                    filesaver.readyState = filesaver.DONE;
-                    dispatch(filesaver, "writeend", event);
-                  };
-                  writer.onerror = function() {
-                    var error = writer.error;
-                    if (error.code !== error.ABORT_ERR) {
-                      fs_error();
-                    }
-                  };
-                  "writestart progress write abort".split(" ").forEach(function(event) {
-                    writer["on" + event] = filesaver["on" + event];
-                  });
-                  writer.write(blob);
-                  filesaver.abort = function() {
-                    writer.abort();
-                    filesaver.readyState = filesaver.DONE;
-                  };
-                  filesaver.readyState = filesaver.WRITING;
-                }), fs_error);
-              }), fs_error);
-            };
-            dir.getFile(name, {create: false}, abortable(function(file) {
-              // delete file if it already exists
-              file.remove();
-              save();
-            }), abortable(function(ex) {
-              if (ex.code === ex.NOT_FOUND_ERR) {
-                save();
-              } else {
-                fs_error();
-              }
-            }));
-          }), fs_error);
-        }), fs_error);
-      },
-      FS_proto = FileSaver.prototype,
-      saveAs = function(blob, name) {
-        return new FileSaver(blob, name);
-      };
-  FS_proto.abort = function() {
-    var filesaver = this;
-    filesaver.readyState = filesaver.DONE;
-    dispatch(filesaver, "abort");
-  };
-  FS_proto.readyState = FS_proto.INIT = 0;
-  FS_proto.WRITING = 1;
-  FS_proto.DONE = 2;
-
-  FS_proto.error =
-  FS_proto.onwritestart =
-  FS_proto.onprogress =
-  FS_proto.onwrite =
-  FS_proto.onabort =
-  FS_proto.onerror =
-  FS_proto.onwriteend =
-    null;
-
-  window.addEventListener("unload", process_deletion_queue, false);
-  return saveAs;
-}(self));};
-ytcenter.io.saveAs = (function(){
-  var a;
-  try {
-    a = saveAs || (navigator.msSaveBlob && navigator.msSaveBlob.bind(navigator));
-  } catch (e) {
-    try {
-      a = (navigator.msSaveBlob && navigator.msSaveBlob.bind(navigator));
-    } catch (e) {}
-  }
-  if (typeof a === "undefined") a = ytcenter.io.fakeSaveAs();
-  return a;
-})();
-ytcenter.gui = {};
-ytcenter.gui.icons = {};
-ytcenter.gui.icons.cog = "data:image/png;base64,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";
-ytcenter.gui.createMiddleAlignHack = function(content){
-  var e = document.createElement("div"),
-      a = document.createElement("span");
-  a.className = "yt-dialog-align";
-  content.style.verticalAlign = "middle";
-  content.style.display = "inline-block";
-  
-  e.appendChild(a);
-  e.appendChild(content);
-  return e;
-};
-ytcenter.gui.createYouTubeButtonIcon = function(src){
-  var wrapper = document.createElement("span");
-  wrapper.className = "yt-uix-button-icon-wrapper";
-  
-  var img = document.createElement("img");
-  img.src = src;
-  img.alt = "";
-  img.style.marginLeft = "3px";
-  
-  wrapper.appendChild(img);
-  return wrapper;
-};
-ytcenter.gui.createYouTubeButtonArrow = function(){
-  var img = document.createElement("img");
-  img.className = "yt-uix-button-arrow";
-  img.src = "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif";
-  img.alt = "";
-  
-  return img;
-};
-ytcenter.gui.createYouTubeTextInput = function(){
-  var elm = document.createElement("input");
-  elm.setAttribute("type", "text");
-  elm.className = "yt-uix-form-input-text";
-  
-  return elm;
-};
-ytcenter.gui.createYouTubeCheckBox = function(selected){
-  if (typeof selected === "undefined") selected = false;
-  var cw = document.createElement("span");
-  cw.className = "yt-uix-form-input-checkbox-container" + (selected ? " checked" : "");
-  cw.style.height = "auto";
-  var checkbox = document.createElement("input");
-  checkbox.setAttribute("type", "checkbox");
-  checkbox.setAttribute("value", "true");
-  checkbox.className = "yt-uix-form-input-checkbox";
-  if (selected) checkbox.checked = true;
-  var elm = document.createElement("span");
-  elm.className = "yt-uix-form-input-checkbox-element";
-  cw.appendChild(checkbox);
-  cw.appendChild(elm);
-  
-  return cw;
-};
-ytcenter.gui.createYouTubeButtonText = function(text){
-  var wrapper = document.createElement("span");
-  wrapper.className = "yt-uix-button-content";
-  
-  wrapper.textContent = text;
-  return wrapper;
-};
-ytcenter.gui.createYouTubeButtonTextLabel = function(label){
-  var wrapper = document.createElement("span");
-  wrapper.className = "yt-uix-button-content";
-  wrapper.textContent = ytcenter.language.getLocale(label);
-  ytcenter.language.addLocaleElement(wrapper, label, "@textContent");
-  
-  return wrapper;
-};
-ytcenter.gui.createYouTubeButton = function(title, content, styles){
-  var btn = document.createElement("button");
-  if (typeof title === "string" && title !== "") {
-    btn.setAttribute("title", ytcenter.language.getLocale(title));
-    ytcenter.language.addLocaleElement(btn, title, "title");
-  }
-  btn.setAttribute("role", "button");
-  btn.setAttribute("type", "button");
-  btn.setAttribute("onclick", ";return false;");
-  btn.className = "yt-uix-tooltip-reverse yt-uix-button yt-uix-button-text yt-uix-tooltip";
-  
-  if (typeof styles !== "undefined") {
-    for (var key in styles) {
-      if (styles.hasOwnProperty(key)) {
-        btn.style[key] = styles[key];
-      }
-    }
-  }
-  
-  for (var i = 0; i < content.length; i++) {
-    btn.appendChild(content[i]);
-  }
-  return btn;
-};
-ytcenter.gui.createYouTubeDefaultButton = function(title, content, styles){
-  var btn = document.createElement("button");
-  if (title !== "") {
-    btn.setAttribute("title", ytcenter.language.getLocale(title));
-    ytcenter.language.addLocaleElement(btn, title, "title");
-  }
-  btn.setAttribute("role", "button");
-  btn.setAttribute("type", "button");
-  btn.setAttribute("onclick", ";return false;");
-  btn.className = "yt-uix-button yt-uix-button-default yt-uix-tooltip";
-  
-  if (typeof styles !== "undefined") {
-    for (var key in styles) {
-      if (styles.hasOwnProperty(key)) {
-        btn.style[key] = styles[key];
-      }
-    }
-  }
-  
-  for (var i = 0; i < content.length; i++) {
-    btn.appendChild(content[i]);
-  }
-  return btn;
-};
-ytcenter.gui.createYouTubePrimaryButton = function(title, content, styles){
-  var btn = document.createElement("button");
-  if (title !== "") {
-    btn.setAttribute("title", ytcenter.language.getLocale(title));
-    ytcenter.language.addLocaleElement(btn, title, "title");
-  }
-  btn.setAttribute("role", "button");
-  btn.setAttribute("type", "button");
-  btn.setAttribute("onclick", ";return false;");
-  btn.setAttribute("class", "yt-uix-tooltip-reverse yt-uix-button yt-uix-button-primary yt-uix-tooltip");
-  
-  if (typeof styles !== "undefined") {
-    for (var key in styles) {
-      if (styles.hasOwnProperty(key)) {
-        btn.style[key] = styles[key];
-      }
-    }
-  }
-  
-  for (var i = 0; i < content.length; i++) {
-    btn.appendChild(content[i]);
-  }
-  return btn;
-};
-ytcenter.gui.createYouTubeButtonGroup = function(buttons){
-  // <span style="margin: 0px 4px 0px 0px;" class="yt-uix-button-group yt-uix-tooltip-reverse"> start end
-  var wrapper = document.createElement("span");
-  wrapper.className = "yt-uix-button-group";
-  
-  for (var i = 0; i < buttons.length; i++) {
-    if (i == 0) {
-      ytcenter.utils.addClass(buttons[i], "start");
-    } else {
-      ytcenter.utils.removeClass(buttons[i], "start");
-    }
-    if (i === buttons.length-1) {
-      ytcenter.utils.addClass(buttons[i], "end");
-    } else {
-      ytcenter.utils.removeClass(buttons[i], "end");
-    }
-    wrapper.appendChild(buttons[i]);
-  }
-  
-  return wrapper;
-};
-ytcenter.gui.createYouTubeGuideHelpBoxAfter = function(){
-  var after = document.createElement("div");
-  after.className = "after";
-  
-  return after;
-};
-ytcenter.gui.createMask = function(zIndex){
-  zIndex = zIndex || "4";
-  var iframe = document.createElement("iframe");
-  iframe.setAttribute("frameborder", "0");
-  iframe.setAttribute("src", "");
-  iframe.style.position = "absolute";
-  iframe.style.top = "0px";
-  iframe.style.left = "0px";
-  iframe.style.width = "100%";
-  iframe.style.height = "100%";
-  iframe.style.overflow = "hidden";
-  iframe.style.zIndex = zIndex;
-  
-  return iframe;
-};
-ytcenter.utils = {};
-ytcenter.utils.getScrollOffset = function(){
-  var top = Math.max(document.body.scrollTop, document.documentElement.scrollTop),
-      left = Math.max(document.body.scrollLeft, document.documentElement.scrollLeft);
-  return {top:top,left:left};
-};
-ytcenter.utils.getOffset = function(elm, toElement){
-  var _x = 0, _y = 0;
-  while(elm && elm !== toElement && !isNaN(elm.offsetLeft) && !isNaN(elm.offsetTop)) {
-    _x += elm.offsetLeft - elm.scrollLeft;
-    _y += elm.offsetTop - elm.scrollTop;
-    elm = elm.offsetParent;
-  }
-  return { top: _y, left: _x };
-};
-ytcenter.utils.wrapModule = function(module, tagname){
-  var a = document.createElement(tagname || "span");
-  a.appendChild(module.element);
-  return a;
-};
-ytcenter.utils.isArray = function(arr){
-  return Object.prototype.toString.call(arr) === "[object Array]";
-};
-ytcenter.utils.each = function(obj, callback){
-  if (ytcenter.utils.isArray(obj)) {
-    for (var i = 0; i < obj.length; i++) {
-      if (callback(i, obj[i]) === true) break;
-    }
-  } else {
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (callback(key, obj[key]) === true) break;
-      }
-    }
-  }
-};
-ytcenter.utils.mergeObjects = function(){
-  var _o = {};
-  for (var i = 0; i < arguments.length; i++) {
-    if (typeof arguments[i] === "undefined") continue;
-    ytcenter.utils.each(arguments[i], function(key, value){
-      _o[key] = value;
-    });
-  }
-  return _o;
-};
-ytcenter.utils.getRGB = function(h, s, v){
-  h = h/360 * 6;
-  s = s/100;
-  v = v/100;
-
-  var i = Math.floor(h),
-      f = h - i,
-      p = v * (1 - s),
-      q = v * (1 - f * s),
-      t = v * (1 - (1 - f) * s),
-      mod = i % 6,
-      r = [v, q, p, p, t, v][mod],
-      g = [t, v, v, q, p, p][mod],
-      b = [p, p, t, v, v, q][mod];
-
-  return {red: r * 255, green: g * 255, blue: b * 255};
-};
-ytcenter.utils.getHSV = function(r, g, b) {
-  var max = Math.max(r, g, b), min = Math.min(r, g, b);
-  var h, s, v = max;
-
-  var d = max - min;
-  s = max === 0 ? 0 : d / max;
-
-  if (max == min) {
-    h = 0;
-  } else {
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
-  return {hue: h*360, saturation: s*100, value: v/255*100};
-};
-ytcenter.utils.hsvToHex = function(hue, sat, val){
-  var rgb = ytcenter.utils.getRGB(hue, sat, val);
-  return ytcenter.utils.colorToHex(rgb.red, rgb.green, rgb.blue);
-};
-ytcenter.utils.colorToHex = function(red, green, blue){
-  red = Math.round(red);
-  green = Math.round(green);
-  blue = Math.round(blue);
-  if (red > 255) red = 255;
-  if (red < 0) red = 0;
-  if (green > 255) green = 255;
-  if (green < 0) green = 0;
-  if (blue > 255) blue = 255;
-  if (blue < 0) blue = 0;
-  var r = red.toString(16);
-  if (r.length === 1) r = "0" + r;
-  var g = green.toString(16);
-  if (g.length === 1) g = "0" + g;
-  var b = blue.toString(16);
-  if (b.length === 1) b = "0" + b;
-  r = r.toUpperCase();
-  g = g.toUpperCase();
-  b = b.toUpperCase();
-  return "#" + r + g + b;
-};
-ytcenter.utils.hexToColor = function(hex){
-  if (hex.indexOf("#") === 0) hex = hex.substring(1);
-  var r,g,b;
-  if (hex.length === 6) {
-    r = parseInt(hex.substring(0, 2), 16);
-    g = parseInt(hex.substring(2, 4), 16);
-    b = parseInt(hex.substring(4, 6), 16);
-  } else if (hex.length === 3) {
-    r = parseInt(hex.substring(0, 1) + hex.substring(0, 1), 16);
-    g = parseInt(hex.substring(1, 2) + hex.substring(1, 2), 16);
-    b = parseInt(hex.substring(2, 3) + hex.substring(2, 3), 16);
-  } else {
-    r = 0;
-    g = 0;
-    b = 0;
-  }
-  return {red: r, green: g, blue: b};
-};
-ytcenter.utils.isNode = function(a){
-  if (typeof Node === "object") {
-    return a instanceof Node;
-  } else if (a && typeof a === "object" && typeof a.nodeType === "number" && typeof a.nodeName === "string") {
-    return true;
-  }
-  return false;
-};
-ytcenter.utils.escapeRegExp = function(str) {
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-};
-ytcenter.utils.replaceTextToText = function(text, replacer){
-  var regex, arr = [], tmp = "";
-  for (key in replacer) {
-    if (replacer.hasOwnProperty(key)) {
-      arr.push(ytcenter.utils.escapeRegExp(key));
-    }
-  }
-  regex = new RegExp(arr.join("|") + "|.", "g");
-  text.replace(regex, function(matched){
-    if (replacer[matched]) {
-      if (typeof replacer[matched] === "function") {
-        var a = replacer[matched]();
-        if (typeof a === "string") {
-          tmp += a;
-        } else {
-          con.error("[TextReplace] Unknown type of replacer!");
-        }
-      } else if (typeof replacer[matched] === "string") {
-        tmp += replacer[matched];
-      } else {
-        con.error("[TextReplace] Unknown type of replacer!");
-      }
-    } else {
-      tmp += matched;
-    }
-  });
-  
-  return tmp;
-};
-
-ytcenter.utils.replaceText = function(text, replacer){
-  var frag = document.createDocumentFragment(),
-      regex, arr = [], tmp = "";
-  for (key in replacer) {
-    if (replacer.hasOwnProperty(key)) {
-      arr.push(ytcenter.utils.escapeRegExp(key));
-    }
-  }
-  regex = new RegExp(arr.join("|") + "|.", "g");
-  text.replace(regex, function(matched){
-    if (replacer[matched]) {
-      if (tmp !== "") {
-        frag.appendChild(document.createTextNode(tmp));
-        tmp = "";
-      }
-      if (typeof replacer[matched] === "function") {
-        var a = replacer[matched]();
-        if (typeof a === "string") {
-          frag.appendChild(document.createTextNode(a));
-        } else if (ytcenter.utils.isNode(a)) {
-          frag.appendChild(a);
-        } else {
-          con.error("[TextReplace] Unknown type of replacer!");
-        }
-      } else if (typeof replacer[matched] === "string") {
-        frag.appendChild(document.createTextNode(replacer[matched]));
-      } else if (ytcenter.utils.isNode(replacer[matched])) {
-        frag.appendChild(replacer[matched]);
-      } else {
-        con.error("[TextReplace] Unknown type of replacer!");
-      }
-    } else {
-      tmp += matched;
-    }
-  });
-  if (tmp !== "") {
-    frag.appendChild(document.createTextNode(tmp));
-    tmp = "";
-  }
-  
-  return frag;
-};
-ytcenter.utils.inArrayIndex = function(a, v){
-  for (var i = 0; i < a.length; i++) {
-    if (a[i] === v) return i;
-  }
-  return -1;
-};
-ytcenter.utils.inArray = function(a, v){
-  for (var i = 0; i < a.length; i++) {
-    if (a[i] === v) return true;
-  }
-  return false;
-};
-ytcenter.utils.cleanClasses = function(elm){
-  if (typeof elm === "undefined") return;
-  var classNames = elm.className.split(" "),
-      i, _new = [];
-  for (i = 0; i < classNames.length; i++) {
-    if (classNames[i] !== "" && !ytcenter.utils.inArray(_new, classNames[i])) {
-      _new.push(classNames[i]);
-    }
-  }
-  elm.className = _new.join(" ");
-};
-ytcenter.utils.hasClass = function(elm, className){
-  if (typeof elm === "undefined") return;
-  var classNames = elm.className.split(" "),
-      i;
-  for (i = 0; i < classNames.length; i++) {
-    if (classNames[i] === className) return true;
-  }
-  return false;
-};
-ytcenter.utils.toggleClass = function(elm, className){
-  if (typeof elm === "undefined") return;
-  if (ytcenter.utils.hasClass(elm, className)) {
-    ytcenter.utils.removeClass(elm, className);
-  } else {
-    ytcenter.utils.addClass(elm, className);
-  }
-};
-ytcenter.utils.addClass = function(elm, className){
-  if (typeof elm === "undefined") return;
-  var classNames = elm.className.split(" "),
-      addClassNames = className.split(" "),
-      _new = [],
-      i, j, found;
-  for (i = 0; i < addClassNames.length; i++) {
-    found = false;
-    for (j = 0; j < classNames.length; j++) {
-      if (addClassNames[i] === classNames[j]) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      _new.push(addClassNames[i]);
-    }
-  }
-  elm.className += " " + _new.join(" ");
-  ytcenter.utils.cleanClasses(elm);
-};
-ytcenter.utils.removeClass = function(elm, className){
-  if (typeof elm === "undefined") return;
-  var classNames = elm.className.split(" "),
-      remClassNames = className.split(" "),
-      _new = [],
-      i, j, found;
-  for (var i = 0; i < classNames.length; i++) {
-    if (classNames[i] === "") continue;
-    found = false;
-    for (j = 0; j < remClassNames.length; j++) {
-      if (classNames[i] === remClassNames[j]) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      _new.push(classNames[i]);
-    }
-  }
-  elm.className = _new.join(" ");
-};
-ytcenter.utils.addEventListener = (function(){
-  var listeners = [];
-  ytcenter.utils.removeEventListener = function(elm, event, callback, useCapture){
-    var i;
-    if (elm.removeEventListener) {
-      elm.removeEventListener(event, callback, useCapture || false);
-    }
-    for (i = 0; i < listeners.length; i++) {
-      if (listeners[i].elm === elm && listeners[i].event === event && listeners[i].callback === callback && listeners[i].useCapture === useCapture) {
-        listeners.splice(i, 1);
-        break;
-      }
-    }
-  };
-  return function(elm, event, callback, useCapture){
-    listeners.push({elm: elm, event: event, callback: callback, useCapture: useCapture});
-    if (elm.addEventListener) {
-      elm.addEventListener(event, callback, useCapture || false);
-    } else if (elm.attachEvent) {
-      elm.attachEvent("on" + event, callback);
-    }
-  };
-})();
-
-ytcenter.language = {};
-ytcenter.language.db = {
-  COLORPICKER_COLOR_RED: "Red",
-  COLORPICKER_COLOR_GREEN: "Green",
-  COLORPICKER_COLOR_BLUE: "Blue",
-  COLORPICKER_COLOR_HTMLCODE: "HTML Code",
-  COLORPICKER_CANCEL: "Cancel",
-  COLORPICKER_SAVE: "Save",
-  COLORPICKER_TITLE: "Color Picker",
-  SETTINGS_HELP_ABOUT: "Help about {option}."
-};
-ytcenter.language.getLocale = function(lang){
-  return ytcenter.language.db[lang] || lang;
-};
-ytcenter.language.addLocaleElement = function(){}; // Just a tmp
-
-ytcenter.dialog = function(titleLabel, content, actions, alignment){
-  var __r = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer, eventListeners = {}, actionButtons = {};
-  alignment = alignment || "center";
-  
-  bgOverlay = ytcenter.dialogOverlay();
-  root = document.createElement("div");
-  root.className = "yt-dialog";
-  base = document.createElement("div");
-  base.className = "yt-dialog-base";
-  
-  fg = document.createElement("div");
-  fg.className = "yt-dialog-fg";
-  fgContent = document.createElement("div");
-  fgContent.className = "yt-dialog-fg-content yt-dialog-show-content";
-  fg.appendChild(fgContent);
-  
-  
-  if (alignment === "center") {
-    var align = document.createElement("span");
-    align.className = "yt-dialog-align";
-    base.appendChild(align);
-  } else {
-    fg.style.margin = "13px 0";
-  }
-  
-  base.appendChild(fg);
-  root.appendChild(base);
-  
-  if (typeof titleLabel === "string" && titleLabel !== "") {
-    var header = document.createElement("div");
-    header.className = "yt-dialog-header";
-    var title = document.createElement("h2");
-    title.className = "yt-dialog-title";
-    title.textContent = ytcenter.language.getLocale(titleLabel);
-    
-    header.appendChild(title);
-    fgContent.appendChild(header);
-  } else {
-    var header = document.createElement("div");
-    header.style.margin = "0 -20px 20px";
-    fgContent.appendChild(header);
-  }
-  if (typeof content !== "undefined") {
-    var cnt = document.createElement("div");
-    cnt.className = "yt-dialog-content";
-    cnt.appendChild(content);
-    fgContent.appendChild(cnt);
-  }
-  footer = document.createElement("div");
-  footer.className = "yt-dialog-footer";
-  fgContent.appendChild(footer);
-  if (typeof actions !== "undefined") {
-    /* Array
-     *   Object
-     *     label: "",
-     *     primary: false, # Should be the primary button.
-     *     callback: Function
-     */
-    for (var i = 0; i < actions.length; i++) {
-      var btn = document.createElement("button");
-      btn.setAttribute("type", "button");
-      btn.setAttribute("role", "button");
-      btn.setAttribute("onclick", ";return false;");
-      btn.className = "yt-uix-button " + (actions[i].primary ? "yt-uix-button-primary" : "yt-uix-button-default");
-      if (typeof actions[i].callback === "function") {
-        btn.addEventListener("click", actions[i].callback, false);
-      }
-      var btnContent = document.createElement("span");
-      btnContent.className = "yt-uix-button-content";
-      btnContent.textContent = ytcenter.language.getLocale(actions[i].label);
-      
-      btn.appendChild(btnContent);
-      footer.appendChild(btn);
-      
-      if (actions[i].name) actionButtons[actions[i].name] = btn;
-    }
-  } else { // Default
-    var closeBtn = document.createElement("button");
-    closeBtn.setAttribute("type", "button");
-    closeBtn.setAttribute("role", "button");
-    closeBtn.setAttribute("onclick", ";return false;");
-    closeBtn.className = "yt-uix-button yt-uix-button-default";
-    
-    closeBtn.addEventListener("click", function(){
-      __r.setVisibility(false);
-    }, false);
-    
-    var closeContent = document.createElement("span");
-    closeContent.className = "yt-uix-button-content";
-    closeContent.textContent = ytcenter.language.getLocale("DIALOG_CLOSE");
-    
-    closeBtn.appendChild(closeContent);
-    footer.appendChild(closeBtn);
-    actionButtons['close'] = btn;
-  }
-  __r.getActionButton = function(name){
-    return actionButtons[name];
-  };
-  __r.addEventListener = function(eventName, func){
-    if (!eventListeners.hasOwnProperty(eventName)) eventListeners[eventName] = [];
-    eventListeners[eventName].push(func);
-    return eventListeners[eventName].length - 1;
-  };
-  __r.removeEventListener = function(eventName, index){
-    if (!eventListeners.hasOwnProperty(eventName)) return;
-    if (index < 0 && index >= eventListeners[eventName].length) return;
-    eventListeners[eventName].splice(index, 1);
-  };
-  __r.setWidth = function(width){
-    fg.style.width = width;
-  };
-  __r.getBase = function(){
-    return base;
-  };
-  __r.getContent = function(){
-    return cnt;
-  };
-  __r.getFooter = function(){
-    return footer;
-  };
-  __r.getHeader = function(){
-    return header;
-  };
-  __r.setPureVisibility = function(visible){
-    if (visible) {
-      if (!root.parentNode) document.body.appendChild(root);
-      else {
-        root.parentNode.removeChild(root);
-        document.body.appendChild(root);
-      }
-      if (!bgOverlay.parentNode) document.body.appendChild(bgOverlay);
-      else {
-        bgOverlay.parentNode.removeChild(bgOverlay);
-        document.body.appendChild(bgOverlay);
-      }
-      if (document.getElementById("player-api-legacy") || document.getElementById("player-api")) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "hidden";
-    } else {
-      if (root.parentNode) root.parentNode.removeChild(root);
-      if (bgOverlay.parentNode) bgOverlay.parentNode.removeChild(bgOverlay);
-      if ((document.getElementById("player-api-legacy") || document.getElementById("player-api")) && !___parent_dialog) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "";
-    }
-  };
-  __r.setFocus = function(focus){
-    if (!base) {
-      con.error("[Dialog.setFocus] base element was not found!");
-      return;
-    }
-    if (focus) {
-      base.style.zIndex = "";
-    } else {
-      base.style.zIndex = "1998";
-    }
-  };
-  __r.setVisibility = function(visible){
-    if (eventListeners["visibility"]) {
-      for (var i = 0; i < eventListeners["visibility"].length; i++) {
-        eventListeners["visibility"][i](visible);
-      }
-    }
-    if (visible) {
-      if (document.body) ytcenter.utils.addClass(document.body, "yt-dialog-active");
-      ___parent_dialog = ytcenter._dialogVisible;
-      if (___parent_dialog) {
-        ___parent_dialog.setFocus(false);
-      }
-      __r.setPureVisibility(true);
-      
-      ytcenter._dialogVisible = __r;
-    } else {
-      __r.setPureVisibility(false);
-      
-      if (___parent_dialog) {
-        ___parent_dialog.setFocus(true);
-        ytcenter._dialogVisible = ___parent_dialog;
-      } else {
-        ytcenter._dialogVisible = null;
-        if (document.body) ytcenter.utils.removeClass(document.body, "yt-dialog-active");
-      }
-    }
-  };
-  return __r;
-};
-ytcenter.dialogOverlay = function(){
-  var bg = document.createElement("div");
-  bg.id = "yt-dialog-bg";
-  bg.className = "yt-dialog-bg";
-  bg.style.height = "100%";
-  bg.style.position = "absolute";
-  return bg;
-};
-
-
-/******************************* END OF YOUTUBE CENTER PLACEHOLDERS *******************************/
-
-
 
 /***** Module part *****/
 ytcenter.modules = {};
@@ -3568,6 +2381,11 @@ ytcenter.modules.list = function(option){
   } else {
     list = option.args.list;
   }
+  if (option && option.args && option.args.listeners) {
+    for (var i = 0; i < option.args.listeners.length; i++) {
+      elm.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+    }
+  }
   if (list && list.length > 0) {
     defaultLabelText = ytcenter.language.getLocale(list[0].label);
     for (var i = 0; i < list.length; i++) {
@@ -3595,10 +2413,11 @@ ytcenter.modules.list = function(option){
     ytcenter.events.addEvent("ui-refresh", function(){
       sc2.textContent = s.options[s.selectedIndex].textContent;
     });
-    ytcenter.utils.addEventListener(s, "change", function(){
+    ytcenter.events.addEvent("language-refresh", function(){
       sc2.textContent = s.options[s.selectedIndex].textContent;
-      if (cCallback)
-        cCallback(s.value);
+    });
+    ytcenter.utils.addEventListener(s, "change", function(){
+      if (cCallback) cCallback(s.value);
     }, false);
   }
   elm.appendChild(sc);
@@ -3679,7 +2498,11 @@ ytcenter.modules.bool = function(option){
   checkboxInput.setAttribute("value", checked);
   checkboxOuter.appendChild(checkboxInput);
   checkboxOuter.appendChild(checkboxOverlay);
-  
+  if (option && option.args && option.args.listeners) {
+    for (var i = 0; i < option.args.listeners.length; i++) {
+      checkboxInput.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+    }
+  }
   ytcenter.utils.addEventListener(checkboxOuter, "click", function(){
     checked = !checked;
     if (checked) {
@@ -3735,7 +2558,8 @@ ytcenter.settingsPanel = (function(){
       module: module,
       help: help,
       enabled: true,
-      visible: true
+      visible: true,
+      style: {}
     });
     return a.getOption(id);
   };
@@ -3805,6 +2629,9 @@ ytcenter.settingsPanel = (function(){
       },
       setEnabled: function(enabled){
         option.enabled = enabled;
+      },
+      setStyle: function(key, value){
+        option.style[key] = value;
       }
     };
   };
@@ -3817,6 +2644,12 @@ ytcenter.settingsPanel = (function(){
       if (option.label && option.label !== "") {
         labelText = document.createTextNode(ytcenter.language.getLocale(option.label));
         ytcenter.language.addLocaleElement(labelText, option.label, "@textContent");
+        
+        if (option.style) {
+          ytcenter.utils.each(option.style, function(key, value){
+            optionWrapper.style.setProperty(key, value);
+          });
+        }
         
         label = document.createElement("span");
         label.className = "ytcenter-settings-option-label";
@@ -3846,7 +2679,8 @@ ytcenter.settingsPanel = (function(){
       moduleContainer.appendChild(module.element);
       
       module.bind(function(value){
-        console.log("[Placeholder] Saves " + option.defaultSetting + " with value: " + value);
+        ytcenter.settings[option.defaultSetting] = value;
+        ytcenter.events.performEvent("ui-refresh");
       });
       
       optionWrapper.appendChild(moduleContainer);
@@ -3993,11 +2827,11 @@ ytcenter.settingsPanel = (function(){
   };
   
   a.createDialog = function(){
-    var dialog = ytcenter.dialog("YouTube Center Settings", a.createLayout(), [], "top"),
+    var dialog = ytcenter.dialog("SETTINGS_TITLE", a.createLayout(), [], "top"),
         closeButton = document.createElement("div"),
         closeIcon = document.createElement("img");
     closeIcon.className = "close";
-    closeIcon.setAttribute("src", "http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
+    closeIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
     closeButton.style.position = "absolute";
     closeButton.style.top = "0";
     closeButton.style.right = "0";
@@ -4018,30 +2852,30 @@ ytcenter.settingsPanel = (function(){
 })();
 
 // Creating Categories
-var general = ytcenter.settingsPanel.createCategory("General"),
-    player = ytcenter.settingsPanel.createCategory("Player"),
-    ui = ytcenter.settingsPanel.createCategory("UI"),
-    update = ytcenter.settingsPanel.createCategory("Update"),
-    debug = ytcenter.settingsPanel.createCategory("Debug"),
-    about = ytcenter.settingsPanel.createCategory("About");
+var general = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_GENERAL"),
+    player = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER"),
+    ui = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_UI"),
+    update = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_UPDATE"),
+    debug = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_DEBUG"),
+    about = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_ABOUT");
 
 // Creating Subcategories
-var general_subcat1 = ytcenter.settingsPanel.createSubCategory("General"),
-    general_subcat2 = ytcenter.settingsPanel.createSubCategory("Experiments"),
-    player_watch = ytcenter.settingsPanel.createSubCategory("Watch"),
-    player_channel = ytcenter.settingsPanel.createSubCategory("Channel"),
-    player_embed = ytcenter.settingsPanel.createSubCategory("Embed"),
-    ui_videothumbnail = ytcenter.settingsPanel.createSubCategory("Video Thumbnail"),
-    ui_comments = ytcenter.settingsPanel.createSubCategory("Comments"),
-    ui_subscriptions = ytcenter.settingsPanel.createSubCategory("Subscriptions"),
-    update_general = ytcenter.settingsPanel.createSubCategory("General"),
-    update_channel = ytcenter.settingsPanel.createSubCategory("Channel"),
-    debug_log = ytcenter.settingsPanel.createSubCategory("Log"),
-    debug_options = ytcenter.settingsPanel.createSubCategory("Options"),
-    about_about = ytcenter.settingsPanel.createSubCategory("About"),
-    about_translators = ytcenter.settingsPanel.createSubCategory("Translators"),
-    about_share = ytcenter.settingsPanel.createSubCategory("Share"),
-    about_donate = ytcenter.settingsPanel.createSubCategory("Donate");
+var general_subcat1 = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_GENERAL"),
+    general_subcat2 = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_EXPERIMENTS"),
+    player_watch = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_WATCH"),
+    player_channel = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_CHANNEL"),
+    player_embed = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_EMBED"),
+    ui_videothumbnail = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_VIDEOTHUMBNAIL"),
+    ui_comments = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_COMMENTS"),
+    ui_subscriptions = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_SUBSCRIPTIONS"),
+    update_general = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_GENERAL"),
+    update_channel = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_CHANNEL"),
+    debug_log = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_LOG"),
+    debug_options = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_OPTIONS"),
+    about_about = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_ABOUT"),
+    about_translators = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_TRANSLATORS"),
+    about_share = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_SHARE"),
+    about_donate = ytcenter.settingsPanel.createSubCategory("SETTINGS_CAT_DONATE");
 
 // Linking categories with subcategories
 general.addSubCategory(general_subcat1);
@@ -4068,35 +2902,285 @@ about.addSubCategory(about_donate);
 
 // Creating options
 // ytcenter.settingsPanel.createOption ( defaultSetting, module, label, args, help )
-
-var option_test = ytcenter.settingsPanel.createOption("TEST_SETTING", "bool", "Testing this", null, "http://www.google.com/");
-var option_test2 = ytcenter.settingsPanel.createOption("This is a direct link to...", "textfield", "This is a textfield!!", null, "http://www.youtube.com/");
-var option_test3 = ytcenter.settingsPanel.createOption(null, "line");
-var option_test4 = ytcenter.settingsPanel.createOption("42", "list", "A simple label", {
-  list: [
+var general_language = ytcenter.settingsPanel.createOption("language", "list", "SETTINGS_LANGUAGE", {
+  "list": function(){
+    var a = [];
+    a.push({
+      "label": "LANGUAGE_AUTO",
+      "value": "auto"
+    });
+    for (var key in ytcenter.languages) {
+      if (ytcenter.languages.hasOwnProperty(key)) {
+        a.push({
+          "value": key,
+          "label": (function(k){
+            return function(){
+              return ytcenter.languages[k].LANGUAGE;
+            };
+          })(key)
+        });
+      }
+    }
+    return a;
+  },
+  "listeners": [
     {
-      value: "not-1",
-      label: "Item #1"
+      "event": "change",
+      "callback": function(){
+        ytcenter.language.update();
+      }
+    }
+  ]
+}, "https://github.com/YePpHa/YouTubeCenter/wiki/Features#multiple-languages");
+
+var general_removeads = ytcenter.settingsPanel.createOption("removeAdvertisements", "bool", "SETTINGS_REMOVEADVERTISEMENTS_LABEL", null, "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-advertisements");
+var general_shorcuts = ytcenter.settingsPanel.createOption("enableShortcuts", "bool", "SETTINGS_ENABLESHORTCUTS_LABEL");
+var general_spf = ytcenter.settingsPanel.createOption("ytspf", "bool", "SETTINGS_YTSPF", null, "https://github.com/YePpHa/YouTubeCenter/wiki/Features#spf");
+var general_statictopbar = ytcenter.settingsPanel.createOption("ytExperimentalLayotTopbarStatic", "bool", "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC", {
+  "listeners": [
+    {
+      "event": "click",
+      "callback": function(){
+        if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+          ytcenter.utils.addClass(document.body, "ytcenter-exp-topbar-static");
+        } else {
+          ytcenter.utils.removeClass(document.body, "ytcenter-exp-topbar-static");
+        }
+      }
+    }
+  ]
+}, "set-experimental-topbar-to-static");
+
+var vt_q = ytcenter.settingsPanel.createOption("", "textContent", "SETTINGS_THUMBVIDEO_QUALITY", null, "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality");
+vt_q.setStyle("font-weight", "bold");
+var vt_qe = ytcenter.settingsPanel.createOption("videoThumbnailQualityBar", "bool", "SETTINGS_THUMBVIDEO_QUALITY_ENABLE");
+vt_qe.setStyle("margin-left", "12px");
+var vt_qp = ytcenter.settingsPanel.createOption("videoThumbnailQualityPosition", "list", "SETTINGS_THUMBVIDEO_POSITION", {
+  "list": [
+    {
+      "value": "topleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
     }, {
-      value: "POKEMON",
-      label: "DOPE"
+      "value": "topright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
     }, {
-      value: "42",
-      label: function(){ return 6*7; }
+      "value": "bottomleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+    }, {
+      "value": "bottomright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
     }
   ]
 });
-var option_test5 = ytcenter.settingsPanel.createOption(33, "list", "A simple label v2", {
-  list: function(){
-    var b = [], i;
-    for (i = 0; i < 42; i++) {
-      b.push({label: i*Math.sqrt(2), value: i});
+vt_qp.setStyle("margin-left", "12px");
+var vt_qa = ytcenter.settingsPanel.createOption("videoThumbnailQualityDownloadAt", "list", "SETTINGS_THUMBVIDEO_DOWNLOAD", {
+  "list": [
+    {
+      "value": "page_start",
+      "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+    }, {
+      "value": "hover_thumbnail",
+      "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
     }
-    return b;
-  }
+  ]
 });
+vt_qa.setStyle("margin-left", "12px");
 
-var option_test6 = ytcenter.settingsPanel.createOption("#e3e3e3", "colorpicker", "ColorPicker!!");
+var vt_qv = ytcenter.settingsPanel.createOption("videoThumbnailQualityVisible", "list", "SETTINGS_THUMBVIDEO_VISIBLE", {
+  "list": [
+    {
+      "value": "always",
+      "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+    }, {
+      "value": "show_hover",
+      "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+    }, {
+      "value": "hide_hover",
+      "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+    }
+  ]
+});
+vt_qv.setStyle("margin-left", "12px");
+var vt_rb = ytcenter.settingsPanel.createOption("", "textContent", "SETTINGS_THUMBVIDEO_RATING_BAR", null, "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-bar");
+vt_rb.setStyle("font-weight", "bold");
+var vt_rbe = ytcenter.settingsPanel.createOption("videoThumbnailRatingsBar", "bool", "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE");
+vt_rbe.setStyle("margin-left", "12px");
+var vt_rbp = ytcenter.settingsPanel.createOption("videoThumbnailRatingsBarPosition", "list", "SETTINGS_THUMBVIDEO_POSITION", {
+  "list": [
+    {
+      "value": "top",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOP"
+    }, {
+      "value": "bottom",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOM"
+    }, {
+      "value": "left",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_LEFT"
+    }, {
+      "value": "right",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
+    }
+  ]
+});
+vt_rbp.setStyle("margin-left", "12px");
+var vt_rba = ytcenter.settingsPanel.createOption("videoThumbnailRatingsBarDownloadAt", "list", "SETTINGS_THUMBVIDEO_DOWNLOAD", {
+  "list": [
+    {
+      "value": "page_start",
+      "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+    }, {
+      "value": "hover_thumbnail",
+      "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+    }
+  ]
+});
+vt_rba.setStyle("margin-left", "12px");
+
+var vt_rbv = ytcenter.settingsPanel.createOption("videoThumbnailRatingsBarVisible", "list", "SETTINGS_THUMBVIDEO_VISIBLE", {
+  "list": [
+    {
+      "value": "always",
+      "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+    }, {
+      "value": "show_hover",
+      "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+    }, {
+      "value": "hide_hover",
+      "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+    }
+  ]
+});
+vt_rbv.setStyle("margin-left", "12px");
+
+var vt_rc = ytcenter.settingsPanel.createOption("", "textContent", "SETTINGS_THUMBVIDEO_RATING_COUNT", null, "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-count");
+vt_rc.setStyle("font-weight", "bold");
+var vt_rce = ytcenter.settingsPanel.createOption("videoThumbnailRatingsCount", "bool", "SETTINGS_THUMBVIDEO_QUALITY_ENABLE");
+vt_rce.setStyle("margin-left", "12px");
+var vt_rcp = ytcenter.settingsPanel.createOption("videoThumbnailRatingsCountPosition", "list", "SETTINGS_THUMBVIDEO_POSITION", {
+  "list": [
+    {
+      "value": "topleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+    }, {
+      "value": "topright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+    }, {
+      "value": "bottomleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+    }, {
+      "value": "bottomright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+    }
+  ]
+});
+vt_rcp.setStyle("margin-left", "12px");
+var vt_rca = ytcenter.settingsPanel.createOption("videoThumbnailRatingsCountDownloadAt", "list", "SETTINGS_THUMBVIDEO_DOWNLOAD", {
+  "list": [
+    {
+      "value": "page_start",
+      "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+    }, {
+      "value": "hover_thumbnail",
+      "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+    }
+  ]
+});
+vt_rca.setStyle("margin-left", "12px");
+
+var vt_rcv = ytcenter.settingsPanel.createOption("videoThumbnailRatingsCountVisible", "list", "SETTINGS_THUMBVIDEO_VISIBLE", {
+  "list": [
+    {
+      "value": "always",
+      "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+    }, {
+      "value": "show_hover",
+      "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+    }, {
+      "value": "hide_hover",
+      "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+    }
+  ]
+});
+vt_rcv.setStyle("margin-left", "12px");
+
+var vt_wl = ytcenter.settingsPanel.createOption("", "textContent", "SETTINGS_THUMBVIDEO_WATCH_LATER");
+vt_wl.setStyle("font-weight", "bold");
+var vt_wlp = ytcenter.settingsPanel.createOption("videoThumbnailWatchLaterPosition", "list", "SETTINGS_THUMBVIDEO_POSITION", {
+  "list": [
+    {
+      "value": "topleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+    }, {
+      "value": "topright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+    }, {
+      "value": "bottomleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+    }, {
+      "value": "bottomright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+    }
+  ]
+});
+vt_wlp.setStyle("margin-left", "12px");
+var vt_wlv = ytcenter.settingsPanel.createOption("videoThumbnailWatchLaterVisible", "list", "SETTINGS_THUMBVIDEO_VISIBLE", {
+  "list": [
+    {
+      "value": "always",
+      "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+    }, {
+      "value": "show_hover",
+      "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+    }, {
+      "value": "hide_hover",
+      "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+    }, {
+      "value": "never",
+      "label": "SETTINGS_THUMBVIDEO_NEVER"
+    }
+  ]
+});
+vt_wlv.setStyle("margin-left", "12px");
+
+var vt_tc = ytcenter.settingsPanel.createOption("", "textContent", "SETTINGS_THUMBVIDEO_TIME_CODE");
+vt_tc.setStyle("font-weight", "bold");
+
+var vt_tcp = ytcenter.settingsPanel.createOption("videoThumbnailTimeCodePosition", "list", "SETTINGS_THUMBVIDEO_POSITION", {
+  "list": [
+    {
+      "value": "topleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+    }, {
+      "value": "topright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+    }, {
+      "value": "bottomleft",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+    }, {
+      "value": "bottomright",
+      "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+    }
+  ]
+});
+vt_tcp.setStyle("margin-left", "12px");
+var vt_tcv = ytcenter.settingsPanel.createOption("videoThumbnailTimeCodeVisible", "list", "SETTINGS_THUMBVIDEO_VISIBLE", {
+  "list": [
+    {
+      "value": "always",
+      "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+    }, {
+      "value": "show_hover",
+      "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+    }, {
+      "value": "hide_hover",
+      "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+    }, {
+      "value": "never",
+      "label": "SETTINGS_THUMBVIDEO_NEVER"
+    }
+  ]
+});
+vt_tcv.setStyle("margin-left", "12px");
 
 var option_about = ytcenter.settingsPanel.createOption("", "aboutText", "");
 var option_translators = ytcenter.settingsPanel.createOption("", "translators", "", {
@@ -4179,12 +3263,37 @@ var option_translators = ytcenter.settingsPanel.createOption("", "translators", 
 
 
 // Linking options to subcategories
-general_subcat1.addOption(option_test);
-general_subcat1.addOption(option_test2);
-general_subcat1.addOption(option_test3);
-general_subcat1.addOption(option_test4);
-general_subcat1.addOption(option_test5);
-general_subcat1.addOption(option_test6);
+general_subcat1.addOption(general_language);
+general_subcat1.addOption(general_shorcuts);
+general_subcat1.addOption(general_spf);
+general_subcat1.addOption(general_statictopbar);
+
+
+ui_videothumbnail.addOption(vt_q);
+ui_videothumbnail.addOption(vt_qe);
+ui_videothumbnail.addOption(vt_qp);
+ui_videothumbnail.addOption(vt_qa);
+ui_videothumbnail.addOption(vt_qv);
+
+ui_videothumbnail.addOption(vt_rb);
+ui_videothumbnail.addOption(vt_rbe);
+ui_videothumbnail.addOption(vt_rbp);
+ui_videothumbnail.addOption(vt_rba);
+ui_videothumbnail.addOption(vt_rbv);
+
+ui_videothumbnail.addOption(vt_rc);
+ui_videothumbnail.addOption(vt_rce);
+ui_videothumbnail.addOption(vt_rcp);
+ui_videothumbnail.addOption(vt_rca);
+ui_videothumbnail.addOption(vt_rcv);
+
+ui_videothumbnail.addOption(vt_wl);
+ui_videothumbnail.addOption(vt_wlp);
+ui_videothumbnail.addOption(vt_wlv);
+
+ui_videothumbnail.addOption(vt_tc);
+ui_videothumbnail.addOption(vt_tcp);
+ui_videothumbnail.addOption(vt_tcv);
 
 about_about.addOption(option_about);
 about_translators.addOption(option_translators);
