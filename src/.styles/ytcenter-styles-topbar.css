@@ -8,3 +8,6 @@
 .ytcenter-exp-topbar-static #appbar-guide-menu {
   top: 90px!important;
 }
+.site-center-aligned #page {
+  margin: 0 auto !important;
+}
