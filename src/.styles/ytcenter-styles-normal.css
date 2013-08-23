@@ -3,6 +3,7 @@
 #player-legacy,
 #content {
   left: auto!important;
+  margin-left: auto!important;
 }
 
 .ytcenter-site-center #yt-masthead,
