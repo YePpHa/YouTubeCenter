@@ -142,7 +142,7 @@
 
     function $LoadData(key, def) {
       if (identifier === 2) {
-        return window.external.mxGetRuntime().storage.getConfig(key);
+        return window.external.mxGetRuntime().storage.getConfig(key) || {};
       } else {
         if (ytcenter.storageType === 3) {
           var d = GM_getValue(key, null);
@@ -9452,11 +9452,15 @@
           });
         } else {
           var data = $LoadData(ytcenter.storageName, "{}");
-          var loaded = JSON.parse(data);
-          for (var key in loaded) {
-            if (loaded.hasOwnProperty(key)) {
-              ytcenter.settings[key] = loaded[key];
+          try {
+            var loaded = JSON.parse(data);
+            for (var key in loaded) {
+              if (loaded.hasOwnProperty(key)) {
+                ytcenter.settings[key] = loaded[key];
+              }
             }
+          } catch (e) {
+            con.error(e);
           }
           if (callback) callback();
         }
@@ -13862,6 +13866,8 @@
           document.getElementById("page").style.setProperty("margin", "");
         return false;
       }},
+      {element: function(){return document.body;}, className: "site-center-aligned", condition: function(){return false;}},
+      {element: function(){return document.body;}, className: "site-left-aligned", condition: function(){return true;}},
       {element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(){return ytcenter.settings.gridSubscriptionsPage && ytcenter.settings.hideWatchedVideos;}},
       {element: function(){return document.body;}, className: "ytcenter-grid-subscriptions", condition: function(){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage;}},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
