@@ -732,7 +732,7 @@
           medium: ytcenter.language.getLocale("MEDIUM"),
           small: ytcenter.language.getLocale("SMALL")
         }[stream.quality];
-        btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
+        btn1.title = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
           stream_name: stream_name,
           stream_resolution: stream.dimension.split("x")[1] + "p",
           stream_dimension: stream.dimension,
@@ -747,7 +747,7 @@
           })(stream)
         });
       } else {
-        btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP_NONE"), {
+        btn1.title = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP_NONE"), {
           type: (function(){
             for (var i = 0; i < ytcenter.video.format.length; i++) {
               if (ytcenter.settings.downloadFormat == ytcenter.video.format[i].key) {
@@ -770,7 +770,7 @@
             small: ytcenter.language.getLocale("SMALL")
           }[stream.quality];
           
-          btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
+          btn1.title = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
             stream_name: stream_name,
             stream_resolution: stream.dimension.split("x")[1] + "p",
             stream_dimension: stream.dimension,
@@ -785,7 +785,7 @@
             })(stream)
           });
         } else {
-          btn1.title = $TextReplacer(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP_NONE"), {
+          btn1.title = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP_NONE"), {
             type: (function(){
               for (var i = 0; i < ytcenter.video.format.length; i++) {
                 if (ytcenter.settings.downloadFormat == ytcenter.video.format[i].key) {
@@ -886,7 +886,7 @@
                   toString: function() { return ytcenter.language.getLocale(key); }
                 }
               };
-              help.setAttribute("title", $TextReplacer(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replace));
+              help.setAttribute("title", ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replace));
               ytcenter.language.addLocaleElement(help, "SETTINGS_HELP_ABOUT", "title", replace);
               title.appendChild(help);
             }
@@ -1036,7 +1036,7 @@
         if (!hasMP3Service(ytcenter.mp3services[i].value)) {
           li.style.display = "none";
         }
-        item.setAttribute("href", $TextReplacer(ytcenter.mp3services[i].value, {
+        item.setAttribute("href", ytcenter.utils.replaceTextAsString(ytcenter.mp3services[i].value, {
           title: ytcenter.video.title,
           videoid: ytcenter.video.id,
           author: ytcenter.video.author,
@@ -1371,7 +1371,7 @@
               toString: function() { return ytcenter.language.getLocale(recipe.label); }
             }
           };
-          help.setAttribute("title", $TextReplacer(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replace));
+          help.setAttribute("title", ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replace));
           ytcenter.language.addLocaleElement(help, "SETTINGS_HELP_ABOUT", "title", replace);
 
           label.appendChild(help);
@@ -1800,14 +1800,14 @@
           }
           if (recipe.text) {
             if (recipe.replace) {
-              elm.textContent = $TextReplacer(recipe.text, recipe.replace);
+              elm.textContent = ytcenter.utils.replaceTextAsString(recipe.text, recipe.replace);
             } else {
               elm.textContent = recipe.text;
             }
           }
           if (recipe.textlocale) {
             if (recipe.replace) {
-              elm.textContent = $TextReplacer(ytcenter.language.getLocale(recipe.textlocale), recipe.replace);
+              elm.textContent = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale(recipe.textlocale), recipe.replace);
             } else {
               elm.textContent = ytcenter.language.getLocale(recipe.textlocale);
             }
@@ -2226,44 +2226,6 @@
         if (arr[i] === obj) return i;
       }
       return -1;
-    }
-    
-    function $TextReplacer(text, rep) {
-      if (!text) return text;
-      var tmp = "";
-      var startB = false;
-      var func = "";
-      var tmpName = "";
-      var tmpFunc = "";
-      var inFunc = false;
-      for (var i = 0; i < text.length; i++) {
-        if (text.charAt(i) == "{" && !startB && !inFunc) {
-          startB = true;
-        } else if (text.charAt(i) == "}" && startB) {
-          var t = tmpName;
-          for (var key in rep) {
-            if (rep.hasOwnProperty(key)) {
-              if (key === tmpName) {
-                tmpName = "";
-                t = rep[key];
-                break;
-              }
-            }
-          }
-          tmp += t;
-          startB = false;
-        } else if (startB) {
-          if (tmpName == "" && text.charAt(i) == "!") {
-            tmp += "{";
-            startB = false;
-          } else {
-            tmpName += text.charAt(i);
-          }
-        } else {
-          tmp += text.charAt(i);
-        }
-      }
-      return tmp;
     }
     
     function $SlideRange(elm, handle, min, max, defaultValue) {
@@ -4403,7 +4365,7 @@
             actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
             usernameWrapper = document.createElement("div"), i, am, li, s;
         if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username") || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
-          usernameWrapper.appendChild(ytcenter.utils.textReplace(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
+          usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
           usernameWrapper.className = "ytcenter-grid-subscriptions-username";
           metadata.parentNode.insertBefore(usernameWrapper, metadata);
           
@@ -4443,7 +4405,7 @@
           
           ytcenter.events.addEvent("language-refresh", function(){
             usernameWrapper.innerHTML = "";
-            usernameWrapper.appendChild(ytcenter.utils.textReplace(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
+            usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
           });
         }
       }
@@ -5724,7 +5686,7 @@
         if (dialog) return;
         donatelink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_DONATE");
         wikilink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_WIKI");
-        b.appendChild(ytcenter.utils.textReplace(
+        b.appendChild(ytcenter.utils.replaceText(
             "YouTube Center have many new features just waiting for you to try out. YouTube Center has by default set the settings, but to get the full experience of YouTube Center you will have to configurate the settings to your own need.{lb}{lb}"
           + "To access the YouTube Center settings you only have to click on the button as shown in the picture below (marked with a red glow).{lb}{lb}"
           + "{img1}{lb}{lb}"
@@ -8175,13 +8137,51 @@
     ytcenter.utils.escapeRegExp = function(str) {
       return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     };
+    
+    ytcenter.utils.replaceTextAsString = function(text, rep) {
+      if (!text) return text;
+      var tmp = "";
+      var startB = false;
+      var func = "";
+      var tmpName = "";
+      var tmpFunc = "";
+      var inFunc = false;
+      for (var i = 0; i < text.length; i++) {
+        if (text.charAt(i) == "{" && !startB && !inFunc) {
+          startB = true;
+        } else if (text.charAt(i) == "}" && startB) {
+          var t = tmpName;
+          for (var key in rep) {
+            if (rep.hasOwnProperty(key)) {
+              if (key === tmpName) {
+                tmpName = "";
+                t = rep[key];
+                break;
+              }
+            }
+          }
+          tmp += t;
+          startB = false;
+        } else if (startB) {
+          if (tmpName == "" && text.charAt(i) == "!") {
+            tmp += "{";
+            startB = false;
+          } else {
+            tmpName += text.charAt(i);
+          }
+        } else {
+          tmp += text.charAt(i);
+        }
+      }
+      return tmp;
+    };
     /** This will replace strings in a text with other strings or HTML elements.
      * replacer :  {
      *                "__REPLACEDSTRING__": document.createElement("div"),
      *                "{REPLACESTRING}": "ANOTHER STRING"
      *             }
      */
-    ytcenter.utils.textReplace = function(text, replacer){
+    ytcenter.utils.replaceText = function(text, replacer){
       var frag = document.createDocumentFragment(),
           regex, arr = [], tmp = "";
       for (key in replacer) {
@@ -9281,9 +9281,9 @@
     ytcenter.language = (function(){
       function __setElementText(lang, elm, name, type, replace) {
         if (type.indexOf("@") === 0) {
-          elm[type.substring(1)] = $TextReplacer(lang[name], replace);
+          elm[type.substring(1)] = ytcenter.utils.replaceTextAsString(lang[name], replace);
         } else {
-          elm.setAttribute(type, $TextReplacer(lang[name], replace));
+          elm.setAttribute(type, ytcenter.utils.replaceTextAsString(lang[name], replace));
         }
       }
       var db = [];
@@ -9366,14 +9366,14 @@
     ytcenter.redirect = function(url, newWindow){
       con.log("Redirecting" + (newWindow ? " in new window" : "") + " to " + url);
       if (typeof newWindow != "undefined") {
-        window.open($TextReplacer(url, {
+        window.open(ytcenter.utils.replaceTextAsString(url, {
           title: ytcenter.video.title,
           videoid: ytcenter.video.id,
           author: ytcenter.video.author,
           url: loc.href
         }));
       } else {
-        loc.href = $TextReplacer(url, {
+        loc.href = ytcenter.utils.replaceTextAsString(url, {
           title: ytcenter.video.title,
           videoid: ytcenter.video.id,
           author: ytcenter.video.author,
@@ -11763,7 +11763,7 @@
         nowmonth = 0;
         nowyear = 0;
       }
-      var filename = $TextReplacer(ytcenter.settings.filename, {
+      var filename = ytcenter.utils.replaceTextAsString(ytcenter.settings.filename, {
         title: ytcenter.video.title,
         videoid: ytcenter.video.id,
         author: ytcenter.video.author,

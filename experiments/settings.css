@@ -1,6 +1,5 @@
 .ytcenter-settings-category-list {
   width: 190px;
-  margin-bottom: 20px;
 }
 
 .ytcenter-settings-category-list .ytcenter-settings-category-item {
@@ -29,17 +28,20 @@
 .ytcenter-settings-category-list .ytcenter-settings-category-item .yt-valign-container {
   padding-left: 24px;
 }
-
-.ytcenter-settings-panel-left {
-  float: left;
-  border-right: 1px solid #e2e2e2;
-  margin-left: -20px;
-  margin-bottom: -20px;
+.ytcenter-settings-content {
+  display: table;
+  width: 1003px;
+  margin: 0 -20px -20px -20px;
 }
-.ytcenter-settings-panel-right {
-  float: left;
-  margin-right: -20px;
-  margin-bottom: -20px;
+.ytcenter-settings-panel-left {
+  display: table-cell;
+  padding-bottom: 30px;
+  border-right: 1px solid #e2e2e2;
+  width: 190px;
+}
+
+.ytcenter-settings-panel-right-content {
+  width: 100%;
 }
 
 .ytcenter-settings-subcat-header li {
@@ -72,6 +74,7 @@
 
 .ytcenter-settings-subcat-header {
   border-bottom: 1px solid #e6e6e6;
+  height: 32px;
 }
 
 .ytcenter-settings-subcat-header li:last-child {
@@ -94,7 +97,6 @@
 .ytcenter-settings-subcat-content-wrapper {
   position: relative;
   padding: 8px 8px 20px;
-  width: 812px;
 }
 
 .ytcenter-settings-option-label {
@@ -104,4 +106,15 @@
 }
 .ytcenter-settings-option-label.ytcenter-disabled {
   color: #B9B9B9
+}
+.ytcenter-settings-help {
+  vertical-align: super;
+  font-size: 10px;
+}
+.ytcenter-settings-version {
+  position: absolute;
+  bottom: 0;
+  color: #bbb;
+  font-size: 11px;
+  margin: 9px 0 9px 9px;
 }
