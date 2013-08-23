@@ -2828,6 +2828,34 @@
       this.__defineGetter__("enabled", function(){return true;});
       this.__defineSetter__("enabled", function(value){});
     }
+    function SPFConfigWrapper(current, config) {
+      var i, __self = this;
+      current.config = config;
+      
+      ytcenter.utils.each(config, function(key, value){
+        if (key !== "config")
+          __self[key] = value;
+      });
+      
+      this._config = config;
+      
+      this.__defineGetter__("config", function(){return this._config;});
+      this.__defineSetter__("config", function(cfg){
+        ytcenter.utils.each(cfg, function(key, value){
+          config[key] = value;
+        });
+      });
+    }
+    function SPFConfig(spf, config) {
+      var i, __self = this;
+      ytcenter.utils.each(config, function(key, value){
+        __self[key] = value;
+      });
+      for (i = 0; i < spf.length; i++) {
+        this.__defineGetter__(spf[i].key, (function(a){return function(){return a.callback;};})(spf[i]));
+        this.__defineSetter__(spf[i].key, (function(a){return function(value){return a.update(value);};})(spf[i]));
+      }
+    }
     
     var console_debug = true; // Disable this to stop YouTube Center from writing in the console log.
     var _console = [];
@@ -5375,6 +5403,7 @@
           })(eventsSPF[i]);
           spf[eventsSPF[i]] = func;
         }
+        var _spf = [];
         for (var i = 0; i < events.length; i++) {
           if (events[i].indexOf("-") !== -1) {
             obj_name = events[i] + "-callback";
@@ -5406,10 +5435,25 @@
               return r;
             };
           })(events[i]);
-          
+          _spf.push({
+            key: obj_name,
+            callback: func,
+            update: (function(event){
+              return function(a){
+                originalCallbacks[event] = a;
+              };
+            })(events[i])
+          });
           ytspf.config[obj_name] = func;
           uw.ytspf.config[obj_name] = func;
         }
+        ytspf = new SPFConfigWrapper(ytspf, new SPFConfig(_spf, ytspf.config));
+        uw.__defineGetter__("_spf_state", function(){return ytspf;});
+        uw.__defineSetter__("_spf_state", function(value){
+          ytcenter.utils.each(value, function(key, value){
+            ytspf[key] = value;
+          });
+        });
       };
       
       return _obj;
@@ -14719,7 +14763,11 @@
       ytcenter.spf.addEventListener("requested-before", function(){
         if (!ytcenter.settings.ytspf) throw new Error("SPF is disabled!");
       });
+      uw.ytcenter = uw.ytcenter || {};
+      uw.ytcenter.spf = uw.ytcenter.spf || {};
       ytcenter.spf.addEventListener("received-before", function(url, data){
+        uw.ytcenter.spf.url = url;
+        uw.ytcenter.spf.data = data;
         if (data.swfcfg && data.swfcfg.args) {
           data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
         } else if (data.html && data.html.content && data.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
@@ -14759,17 +14807,46 @@
             con.error(e);
           }
         }
+        if (data.html && data.html.player && data.html.player.indexOf("var swf = \"") !== -1) {
+          var a = data.html.player.split("type=\\\"application\\\/x-shockwave-flash\\\""),
+              wmode = "";
+          if (ytcenter.getPage(url) === "watch") {
+            if (ytcenter.settings.flashWMode !== "none") {
+             wmode = ytcenter.settings.flashWMode;
+            }
+          } else if (ytcenter.getPage(url) === "embed") {
+            if (ytcenter.settings.embed_flashWMode !== "none") {
+              wmode = ytcenter.settings.embed_flashWMode;
+            }
+          } else if (ytcenter.getPage(url) === "channel") {
+            if (ytcenter.settings.channel_flashWMode !== "none") {
+              wmode = ytcenter.settings.channel_flashWMode;
+            }
+          }
+          a[0] += (wmode !== "" ? " wmode=\\\"" + wmode + "\\\" " : "");
+          data.html.player = a.join("type=\\\"application\\\/x-shockwave-flash\\\"");
+        }
+        if (data.html && data.html.player && data.html.player.indexOf("ytplayer.config.loaded = true") !== -1) {
+          var a = data.html.player.split("ytplayer.config.loaded = true");
+          a[1] = ";ytcenter.spf.processed();" + a[1];
+          data.html.player = a.join("ytplayer.config.loaded = true");
+        }
         if (data.attr && data.attr.body && data.attr.body["class"]) {
           data.attr.body["class"] = ytcenter.classManagement.getClassesForElementByTagName("body") + " " + data.attr.body["class"];
         }
         return [url, data];
       });
       ytcenter.spf.__doUpdateConfig = false;
-      ytcenter.spf.addEventListener("processed", function(data){
+      uw.ytcenter.spf.processed = function(data){
+        data = data || uw.ytcenter.spf.data;
         ytcenter.classManagement.applyClasses();
         
         if (data.swfcfg) {
-          ytcenter.player.updateConfig(ytcenter.getPage(), data.swfcfg);
+          try {
+            ytcenter.player.updateConfig(ytcenter.getPage(), data.swfcfg);
+          } catch (e) {
+            con.error(e);
+          }
           ytcenter.videoHistory.addVideo(data.swfcfg.args.video_id);
         }
         ytcenter.placementsystem.clear();
@@ -14829,7 +14906,8 @@
           ytcenter.comments.setup();
         }
         return [data];
-      });
+      };
+      ytcenter.spf.addEventListener("processed", uw.ytcenter.spf.processed);
       
       if (ytcenter.getPage() === "embed") {
         var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1];
