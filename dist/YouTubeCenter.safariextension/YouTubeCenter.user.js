@@ -4884,7 +4884,8 @@
       events = ["error", "processed", "received", "requested", "script-loading", "begin-response"],
       eventsSPF = ["dispose", "init", "load", "navigate", "prefetch", "process"],
       injected = false,
-      originalCallbacks = {};
+      originalCallbacks = {},
+      masterCallbacks = {};
       
       _obj.addEventListener = function(event, callback){
         if (!listeners.hasOwnProperty(event)) return;
@@ -4916,6 +4917,17 @@
         con.log("[SPF] SPF is ready for manipulation!");
         return true;
       };
+      _obj._init = function(callbacks){
+        ytcenter.utils.each(callbacks, function(key, value){
+          var a = key.replace(/-callback$/, "");
+          if (key.indexOf("navigate-") === 0) {
+            a = a.replace(/navigate-$/, "");
+          }
+          originalCallbacks[a] = value;
+          callbacks[key] = masterCallbacks[key];
+        });
+        return callbacks;
+      };
       _obj.inject = function(){ // Should only be called once every instance (page reload).
         if (!_obj.isEnabled() || injected) return; // Should not inject when SPF is not enabled!
         injected = true;
@@ -4926,14 +4938,16 @@
         con.log("[SPF] Injecting ability to add event listeners to SPF.");
         for (var i = 0; i < eventsSPF.length; i++) {
           if (typeof originalCallbacks[eventsSPF[i]] !== "function") originalCallbacks[eventsSPF[i]] = spf[eventsSPF[i]];
-          func = (function(event){
+          masterCallbacks[eventsSPF[i]] = (function(event){
             return function(){
               var args = arguments;
               
               var r,j;
               con.log("[SPF] spf => " + event);
               con.log(args);
-              
+              if (event === "init") {
+                args[0] = _obj._init(args[0]);
+              }
               try {
                 for (j = 0; j < listeners[event].length; j++) {
                   args = listeners[event][j].apply(null, args) || args;
@@ -4950,7 +4964,7 @@
               return r;
             };
           })(eventsSPF[i]);
-          spf[eventsSPF[i]] = func;
+          spf[eventsSPF[i]] = masterCallbacks[eventsSPF[i]];
         }
         var _spf = [];
         for (var i = 0; i < events.length; i++) {
@@ -4960,7 +4974,7 @@
             obj_name = "navigate-" + events[i] + "-callback";
           }
           if (typeof originalCallbacks[events[i]] !== "function") originalCallbacks[events[i]] = ytspf.config[obj_name];
-          func = (function(event){
+          masterCallbacks[obj_name] = (function(event){
             return function(){
               var args = arguments;
               
@@ -4986,23 +5000,23 @@
           })(events[i]);
           _spf.push({
             key: obj_name,
-            callback: func,
+            callback: masterCallbacks[obj_name],
             update: (function(event){
               return function(a){
                 originalCallbacks[event] = a;
               };
             })(events[i])
           });
-          ytspf.config[obj_name] = func;
-          uw.ytspf.config[obj_name] = func;
+          ytspf.config[obj_name] = masterCallbacks[obj_name];
+          uw.ytspf.config[obj_name] = masterCallbacks[obj_name];
         }
-        ytspf = new SPFConfigWrapper(ytspf, new SPFConfig(_spf, ytspf.config));
+        /*ytspf = new SPFConfigWrapper(ytspf, new SPFConfig(_spf, ytspf.config));
         uw.__defineGetter__("_spf_state", function(){return ytspf;});
         uw.__defineSetter__("_spf_state", function(value){
           ytcenter.utils.each(value, function(key, value){
             ytspf[key] = value;
           });
-        });
+        });*/
       };
       
       return _obj;
@@ -11778,7 +11792,7 @@
         } catch (e) {
           con.error("[updateSignatureDecipher] Error,", e);
         }
-        
+        ytcenter.unsafe = ytcenter.unsafe || {};
         ytcenter.unsafe.video = {};
         ytcenter.unsafe.video.streams = ytcenter.video.streams;
         
