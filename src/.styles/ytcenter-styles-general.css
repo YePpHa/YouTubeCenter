@@ -872,7 +872,7 @@ body > #page {
 
 .ytcenter-site-watch #player,
 .ytcenter-site-watch #player-legacy {
-  overflow: auto;
+  overflow: hidden;
 }
 
 .ytcenter-intelligentfeed .shelf-wrapper,
