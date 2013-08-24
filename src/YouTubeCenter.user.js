@@ -4376,17 +4376,17 @@
       }
       function applyWatchedMessage(item) {
         var ivw = ytcenter.videoHistory.isVideoWatched(item.id),
-            hc = ytcenter.utils.hasClass(item.content, "ytcenter-video-watched"), a, i, b, watchedElement;
-        if (ivw && !hc) {
+            hc = ytcenter.utils.hasClass(item.content, "watched"), a, i, b, watchedElement;
+        if (ivw) {
           watchedElement = document.createElement("div");
-          if (item.content.getElementsByClassName("ytcenter-video-watched-content").length === 0) {
-            watchedElement.className = "ytcenter-video-watched-content";
+          if (item.content.getElementsByClassName("watched-message").length === 0) {
+            watchedElement.className = "watched-message";
             watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
             ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
-            item.content.appendChild(watchedElement);
+            item.content.insertBefore(watchedElement, item.content.children[0]);
           }
-          ytcenter.utils.addClass(item.content, "ytcenter-video-watched");
-          a = item.content;
+          ytcenter.utils.addClass(item.content, "watched");
+          /*a = item.content;
           for (i = 0; i < 10; i++) {
             a = a.parentNode;
             if (a.tagName === "LI" || !a) {
@@ -4394,18 +4394,18 @@
               break;
             }
           }
-          if (b) ytcenter.utils.addClass(b, "ytcenter-video-watched-wrapper");
+          if (b) ytcenter.utils.addClass(b, "ytcenter-video-watched-wrapper");*/
         } else if (!ivw && hc) {
-          a = item.content;
-          ytcenter.utils.removeClass(item.content, "ytcenter-video-watched");
-          for (i = 0; i < 10; i++) {
+          //a = item.content;
+          ytcenter.utils.removeClass(item.content, "watched");
+          /*for (i = 0; i < 10; i++) {
             a = a.parentNode;
             if (a.tagName === "LI" || !a) {
               b = a;
               break;
             }
           }
-          if (b) ytcenter.utils.removeClass(b, "ytcenter-video-watched-wrapper");
+          if (b) ytcenter.utils.removeClass(b, "ytcenter-video-watched-wrapper");*/
         }
       }
       function subscriptionGrid(item) {
@@ -4906,17 +4906,6 @@
         if (typeof uw._spf_state.config !== "object") {
           con.log("[SPF] Failed... _spf_state.config object is not initialized yet!");
           return false;
-        }
-        for (i = 0; i < events.length; i++) {
-          if (events[i].indexOf("-") !== -1) {
-            obj_name = events[i] + "-callback";
-          } else {
-            obj_name = "navigate-" + events[i] + "-callback";
-          }
-          if (typeof uw._spf_state.config[obj_name] !== "function") {
-            con.log("[SPF] Failed... " + obj_name + " has not been created yet!");
-            return false;
-          }
         }
         for (i = 0; i < eventsSPF.length; i++) {
           if (typeof uw.spf[eventsSPF[i]] !== "function") {
@@ -11779,7 +11768,7 @@
         if (ytcenter._tmp_embed.url_encoded_fmt_stream_map)
           config.args.url_encoded_fmt_stream_map = ytcenter._tmp_embed.url_encoded_fmt_stream_map;
       }
-      if (config.args.url_encoded_fmt_stream_map && config.args.fmt_list) {
+      if (config && config.args && config.args.url_encoded_fmt_stream_map && config.args.fmt_list) {
         var streams = ytcenter.parseStreams(config.args);
         ytcenter.video.streams = streams;
         try {

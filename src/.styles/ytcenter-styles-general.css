@@ -917,10 +917,10 @@ body > #page {
   left: 2px!important;
 }
 
-.ytcenter-video-watched-wrapper .ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
-.ytcenter-video-watched-wrapper .ytcenter-thumbnail-timecode-pos-topleft .video-time,
-.ytcenter-video-watched-wrapper .ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
-.ytcenter-video-watched-wrapper .ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
+.watched.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
+.watched.ytcenter-thumbnail-timecode-pos-topleft .video-time,
+.watched.ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
+.watched.ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
   top: 24px!important;
   left: 2px!important;
 }
