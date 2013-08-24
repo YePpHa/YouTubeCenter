@@ -468,3 +468,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-site-not-watch.ytcenter-site-center #page-container {
   padding: 0 10px !important;
 }
+
+.ytcenter-intelligentfeed .yt-shelf-grid-item {
+  margin-right: 7px!important;
+}
