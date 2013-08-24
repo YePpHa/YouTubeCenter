@@ -79,31 +79,3 @@
   height: 0;
   visibility: hidden;
 }
-
-
-.ytcenter-video-watched-content {
-  position: absolute!important;
-  left: 0px!important;
-  top: 0px!important;
-  background: none repeat scroll 0% 0% rgba(0, 0, 0, 0.6)!important;
-  width: 100%!important;
-  z-index: 3!important;
-  color: #fff!important;
-  padding: 5px!important;
-  font-weight: bold!important;
-  font-size: 12px!important;
-  text-align: left!important;
-  display: none;
-}
-.ytcenter-video-watched  {
-  opacity: 0.3;
-  filter: alpha(opacity=30);
-}
-
-.ytcenter-video-watched .ytcenter-video-watched-content {
-  display: block;
-}
-
-.ytcenter-hide-watched-videos .ytcenter-video-watched-wrapper {
-  display: none;
-}
