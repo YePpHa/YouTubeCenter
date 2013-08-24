@@ -4651,7 +4651,7 @@
           if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
             subscriptionGrid(vt[i]);
           }
-          if ((loc.pathname === "/" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
+          if ((loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
             applyWatchedMessage(vt[i]);
           }
         }
@@ -4702,7 +4702,7 @@
             if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
               subscriptionGrid(videoThumbs[i]);
             }
-            if ((loc.pathname === "/" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
+            if ((loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
               applyWatchedMessage(videoThumbs[i]);
             }
           }
