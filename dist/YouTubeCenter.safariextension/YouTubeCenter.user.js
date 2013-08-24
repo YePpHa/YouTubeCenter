@@ -2170,8 +2170,8 @@
           
           ytcenter.utils.addEventListener(exportFileButton, "click", function(){
             try {
-              var blob = new ytcenter.io.Blob([VALIDATOR_STRING + settingsPool.value], { "type": "application/octet-stream" });
-              ytcenter.io.saveAs(blob, "ytcenter-settings.ytcs");
+              var blob = new uw.ytcenter.io.Blob([VALIDATOR_STRING + settingsPool.value], { "type": "application/octet-stream" });
+              uw.ytcenter.io.saveAs(blob, "ytcenter-settings.ytcs");
             } catch (e) {
               con.error(e);
             }
@@ -3053,6 +3053,22 @@
     con.log("Initializing Functions");
     
     var yt, ytcenter = {};
+    ytcenter.inject = function(func){
+      try {
+        var script = document.createElement("script"),
+            p = (document.body || document.head || document.documentElement);
+        if (!p) {
+          con.error("[Script Inject] document.body, document.head and document.documentElement doesn't exist!");
+          return;
+        }
+        script.setAttribute("type", "text/javascript");
+        script.appendChild(document.createTextNode(func));
+        p.appendChild(script);
+        p.removeChild(script);
+      } catch (e) {
+        con.error(e);
+      }
+    };
     ytcenter.unload = (function(){
       var unloads = [];
       
@@ -4699,420 +4715,9 @@
       return __r;
     })();
     
-    ytcenter.io = {};
-    try {
-      /* Blob.js
-       * A Blob implementation.
-       * 2013-06-20
-       * 
-       * By Eli Grey, http://eligrey.com
-       * By Devin Samarin, https://github.com/eboyjr
-       * License: X11/MIT
-       *   See LICENSE.md
-       */
-
-      /*global self, unescape */
-      /*jslint bitwise: true, regexp: true, confusion: true, es5: true, vars: true, white: true,
-        plusplus: true */
-
-      /*! @source http://purl.eligrey.com/github/Blob.js/blob/master/Blob.js */
-      try {ytcenter.io.Blob = Blob;} catch (e) {con.error(e);}
-      if (typeof Blob !== "function" || typeof URL === "undefined")
-      if (typeof Blob === "function" && typeof webkitURL !== "undefined") self.URL = webkitURL;
-      else ytcenter.io.Blob = (function (view) {
-        "use strict";
-
-        var BlobBuilder = (function(){
-          var a = false;
-          try {
-            a = view.BlobBuilder || view.WebKitBlobBuilder || view.MozBlobBuilder || view.MSBlobBuilder;
-          } catch (e) {
-            try {
-              a = view.WebKitBlobBuilder || view.MozBlobBuilder || view.MSBlobBuilder;
-            } catch (e) {
-              try {
-                a = view.MozBlobBuilder || view.MSBlobBuilder;
-              } catch (e) {
-                try {
-                  a = view.MSBlobBuilder;
-                } catch (e) {
-                }
-              }
-            }
-          }
-          return a;
-        })() || (function(view) {
-          var
-              get_class = function(object) {
-              return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
-            }
-            , FakeBlobBuilder = function BlobBuilder() {
-              this.data = [];
-            }
-            , FakeBlob = function(data, type, encoding) {
-              this.data = data;
-              this.size = data.length;
-              this.type = type;
-              this.encoding = encoding;
-            }
-            , FBB_proto = FakeBlobBuilder.prototype
-            , FB_proto = FakeBlob.prototype
-            , FileReaderSync = view.FileReaderSync
-            , FileException = function(type) {
-              this.code = this[this.name = type];
-            }
-            , file_ex_codes = (
-                "NOT_FOUND_ERR SECURITY_ERR ABORT_ERR NOT_READABLE_ERR ENCODING_ERR "
-              + "NO_MODIFICATION_ALLOWED_ERR INVALID_STATE_ERR SYNTAX_ERR"
-            ).split(" ")
-            , file_ex_code = file_ex_codes.length
-            , real_URL = view.URL || view.webkitURL || view
-            , real_create_object_URL = real_URL.createObjectURL
-            , real_revoke_object_URL = real_URL.revokeObjectURL
-            , URL = real_URL
-            , btoa = view.btoa
-            , atob = view.atob
-
-            , ArrayBuffer = view.ArrayBuffer
-            , Uint8Array = view.Uint8Array
-          ;
-          FakeBlob.fake = FB_proto.fake = true;
-          while (file_ex_code--) {
-            FileException.prototype[file_ex_codes[file_ex_code]] = file_ex_code + 1;
-          }
-          if (!real_URL.createObjectURL) {
-            URL = view.URL = {};
-          }
-          URL.createObjectURL = function(blob) {
-            var
-                type = blob.type
-              , data_URI_header
-            ;
-            if (type === null) {
-              type = "application/octet-stream";
-            }
-            if (real_create_object_URL) {
-              return real_create_object_URL.call(real_URL, blob);
-            }
-          };
-          URL.revokeObjectURL = function(object_URL) {
-            // IE Crashes if this is parsed by their javascript parser... So function is now empty!
-          };
-          FBB_proto.append = function(data/*, endings*/) {
-            var bb = this.data;
-            // decode data to a binary string
-            if (Uint8Array && (data instanceof ArrayBuffer || data instanceof Uint8Array)) {
-              var
-                  str = ""
-                , buf = new Uint8Array(data)
-                , i = 0
-                , buf_len = buf.length
-              ;
-              for (; i < buf_len; i++) {
-                str += String.fromCharCode(buf[i]);
-              }
-              bb.push(str);
-            } else if (get_class(data) === "Blob" || get_class(data) === "File") {
-              if (FileReaderSync) {
-                var fr = new FileReaderSync;
-                bb.push(fr.readAsBinaryString(data));
-              } else {
-                // async FileReader won't work as BlobBuilder is sync
-                throw new FileException("NOT_READABLE_ERR");
-              }
-            } else if (data instanceof FakeBlob) {
-              if (data.encoding === "base64" && atob) {
-                bb.push(atob(data.data));
-              } else if (data.encoding === "URI") {
-                bb.push(decodeURIComponent(data.data));
-              } else if (data.encoding === "raw") {
-                bb.push(data.data);
-              }
-            } else {
-              if (typeof data !== "string") {
-                data += ""; // convert unsupported types to strings
-              }
-              // decode UTF-16 to binary string
-              bb.push(unescape(encodeURIComponent(data)));
-            }
-          };
-          FBB_proto.getBlob = function(type) {
-            if (!arguments.length) {
-              type = null;
-            }
-            return new FakeBlob(this.data.join(""), type, "raw");
-          };
-          FBB_proto.toString = function() {
-            return "[object BlobBuilder]";
-          };
-          FB_proto.slice = function(start, end, type) {
-            var args = arguments.length;
-            if (args < 3) {
-              type = null;
-            }
-            return new FakeBlob(
-                this.data.slice(start, args > 1 ? end : this.data.length)
-              , type
-              , this.encoding
-            );
-          };
-          FB_proto.toString = function() {
-            return "[object Blob]";
-          };
-          return FakeBlobBuilder;
-        }(view));
-
-        return function(blobParts, options) {
-          var type = options ? (options.type || "") : "";
-          var builder = new BlobBuilder();
-          if (blobParts) {
-            for (var i = 0, len = blobParts.length; i < len; i++) {
-              builder.append(blobParts[i]);
-            }
-          }
-          return builder.getBlob(type);
-        };
-      }(self));
-    } catch (e) {
-      con.error(e);
-    }
-    /* FileSaver.js
-     * A saveAs() FileSaver implementation.
-     * 2013-01-23
-     *
-     * By Eli Grey, http://eligrey.com
-     * License: X11/MIT
-     *   See LICENSE.md
-     */
-
-    /*global self */
-    /*jslint bitwise: true, regexp: true, confusion: true, es5: true, vars: true, white: true,
-      plusplus: true */
-
-    /*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
-    try {
-      ytcenter.io.saveAs = (uw && uw.saveAs)
-        || (navigator && navigator.msSaveOrOpenBlob && navigator.msSaveOrOpenBlob.bind(navigator))
-        || (function(view) {
-        "use strict";
-        var
-            doc = view.document
-            // only get URL when necessary in case BlobBuilder.js hasn't overridden it yet
-          , get_URL = function() {
-            var a;
-            try {
-              a = view.URL || view.webkitURL || view;
-            } catch (e) {
-              try {
-                a = view.URL || view.webkitURL || view;
-              } catch (e) {
-                try {
-                  a = view.webkitURL || view;
-                } catch (e) {
-                  try {
-                    a = view;
-                  } catch (e) {
-                    
-                  }
-                }
-              }
-            }
-            return a;
-          }
-          , URL = get_URL()
-          , save_link = doc.createElementNS("http://www.w3.org/1999/xhtml", "a")
-          , can_use_save_link =  !view.externalHost && "download" in save_link
-          , click = function(node) {
-            var event = doc.createEvent("MouseEvents");
-            event.initMouseEvent(
-              "click", true, false, view, 0, 0, 0, 0, 0
-              , false, false, false, false, 0, null
-            );
-            node.dispatchEvent(event);
-          }
-          , webkit_req_fs = view.webkitRequestFileSystem
-          , req_fs = view.requestFileSystem || webkit_req_fs || view.mozRequestFileSystem
-          , throw_outside = function (ex) {
-            (view.setImmediate || view.setTimeout)(function() {
-              throw ex;
-            }, 0);
-          }
-          , force_saveable_type = "application/octet-stream"
-          , fs_min_size = 0
-          , deletion_queue = []
-          , process_deletion_queue = function() {
-            var i = deletion_queue.length;
-            while (i--) {
-              var file = deletion_queue[i];
-              if (typeof file === "string") { // file is an object URL
-                URL.revokeObjectURL(file);
-              } else { // file is a File
-                file.remove();
-              }
-            }
-            deletion_queue.length = 0; // clear queue
-          }
-          , dispatch = function(filesaver, event_types, event) {
-            event_types = [].concat(event_types);
-            var i = event_types.length;
-            while (i--) {
-              var listener = filesaver["on" + event_types[i]];
-              if (typeof listener === "function") {
-                try {
-                  listener.call(filesaver, event || filesaver);
-                } catch (ex) {
-                  throw_outside(ex);
-                }
-              }
-            }
-          }
-          , FileSaver = function(blob, name) {
-            // First try a.download, then web filesystem, then object URLs
-            var
-                filesaver = this
-              , type = blob.type
-              , blob_changed = false
-              , object_url
-              , target_view
-              , get_object_url = function() {
-                var object_url = get_URL().createObjectURL(blob);
-                deletion_queue.push(object_url);
-                return object_url;
-              }
-              , dispatch_all = function() {
-                dispatch(filesaver, "writestart progress write writeend".split(" "));
-              }
-              // on any filesys errors revert to saving with object URLs
-              , fs_error = function() {
-                // don't create more object URLs than needed
-                if (blob_changed || !object_url) {
-                  object_url = get_object_url(blob);
-                }
-                if (target_view) {
-                  target_view.location.href = object_url;
-                } else {
-                              window.open(object_url, "_blank");
-                          }
-                filesaver.readyState = filesaver.DONE;
-                dispatch_all();
-              }
-              , abortable = function(func) {
-                return function() {
-                  if (filesaver.readyState !== filesaver.DONE) {
-                    return func.apply(this, arguments);
-                  }
-                };
-              }
-              , create_if_not_found = {create: true, exclusive: false}
-              , slice
-            ;
-            filesaver.readyState = filesaver.INIT;
-            if (!name) {
-              name = "download";
-            }
-            if (can_use_save_link) {
-              object_url = get_object_url(blob);
-              save_link.href = object_url;
-              save_link.download = name;
-              click(save_link);
-              filesaver.readyState = filesaver.DONE;
-              dispatch_all();
-              return;
-            }
-            // Object and web filesystem URLs have a problem saving in Google Chrome when
-            // viewed in a tab, so I force save with application/octet-stream
-            // http://code.google.com/p/chromium/issues/detail?id=91158
-            if (view.chrome && type && type !== force_saveable_type) {
-              slice = blob.slice || blob.webkitSlice;
-              blob = slice.call(blob, 0, blob.size, force_saveable_type);
-              blob_changed = true;
-            }
-            // Since I can't be sure that the guessed media type will trigger a download
-            // in WebKit, I append .download to the filename.
-            // https://bugs.webkit.org/show_bug.cgi?id=65440
-            if (webkit_req_fs && name !== "download") {
-              name += ".download";
-            }
-            if (type === force_saveable_type || webkit_req_fs) {
-              target_view = view;
-            }
-            if (!req_fs) {
-              fs_error();
-              return;
-            }
-            fs_min_size += blob.size;
-            req_fs(view.TEMPORARY, fs_min_size, abortable(function(fs) {
-              fs.root.getDirectory("saved", create_if_not_found, abortable(function(dir) {
-                var save = function() {
-                  dir.getFile(name, create_if_not_found, abortable(function(file) {
-                    file.createWriter(abortable(function(writer) {
-                      writer.onwriteend = function(event) {
-                        target_view.location.href = file.toURL();
-                        deletion_queue.push(file);
-                        filesaver.readyState = filesaver.DONE;
-                        dispatch(filesaver, "writeend", event);
-                      };
-                      writer.onerror = function() {
-                        var error = writer.error;
-                        if (error.code !== error.ABORT_ERR) {
-                          fs_error();
-                        }
-                      };
-                      "writestart progress write abort".split(" ").forEach(function(event) {
-                        writer["on" + event] = filesaver["on" + event];
-                      });
-                      writer.write(blob);
-                      filesaver.abort = function() {
-                        writer.abort();
-                        filesaver.readyState = filesaver.DONE;
-                      };
-                      filesaver.readyState = filesaver.WRITING;
-                    }), fs_error);
-                  }), fs_error);
-                };
-                dir.getFile(name, {create: false}, abortable(function(file) {
-                  // delete file if it already exists
-                  file.remove();
-                  save();
-                }), abortable(function(ex) {
-                  if (ex.code === ex.NOT_FOUND_ERR) {
-                    save();
-                  } else {
-                    fs_error();
-                  }
-                }));
-              }), fs_error);
-            }), fs_error);
-          }
-          , FS_proto = FileSaver.prototype
-          , saveAs = function(blob, name) {
-            return new FileSaver(blob, name);
-          }
-        ;
-        FS_proto.abort = function() {
-          var filesaver = this;
-          filesaver.readyState = filesaver.DONE;
-          dispatch(filesaver, "abort");
-        };
-        FS_proto.readyState = FS_proto.INIT = 0;
-        FS_proto.WRITING = 1;
-        FS_proto.DONE = 2;
-
-        FS_proto.error =
-        FS_proto.onwritestart =
-        FS_proto.onprogress =
-        FS_proto.onwrite =
-        FS_proto.onabort =
-        FS_proto.onerror =
-        FS_proto.onwriteend =
-          null;
-
-        view.addEventListener("unload", process_deletion_queue, false);
-        return saveAs;
-      }(self));
-    } catch (e) {
-      con.error(e);
-    }
+    uw.ytcenter = uw.ytcenter || {};
+    uw.ytcenter.io = uw.ytcenter.io || {};
+    ytcenter.io = uw.ytcenter.io;
     
     ytcenter.debug = function(){
       var debugText = "{}";
@@ -8898,14 +8503,6 @@
         if (arr[i] === value) return true;
       }
       return false;
-    };
-    ytcenter.inject = function(func){
-      var script = document.createElement("script");
-      script.setAttribute("type", "text/javascript");
-      script.appendChild(document.createTextNode('('+ func +')();'));
-      var __p = (document.body || document.head || document.documentElement);
-      __p.appendChild(script);
-      __p.removeChild(script);
     };
     ytcenter.clone = function(obj){
       if (null == obj || "object" != typeof obj) return obj;
@@ -14447,6 +14044,35 @@
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
           $AddStyle(ytcenter.css.normal);
         }
+        
+        /*****START OF SAVEAS AND BLOB IMPLEMENTATION*****/
+        /* Blob.js
+         * A Blob implementation.
+         * 2013-06-20
+         * 
+         * By Eli Grey, http://eligrey.com
+         * By Devin Samarin, https://github.com/eboyjr
+         * License: X11/MIT
+         *   See LICENSE.md
+         */
+        /*http://purl.eligrey.com/github/Blob.js/blob/master/Blob.js*/
+        /* FileSaver.js
+         * A saveAs() FileSaver implementation.
+         * 2013-01-23
+         *
+         * By Eli Grey, http://eligrey.com
+         * License: X11/MIT
+         *   See LICENSE.md
+         */
+        /*http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js*/
+        
+        /* The reason this is obfuscated is because IE crashes when using IE7Pro to run YouTube Center.
+         * I think that it has something to do with the javascript parser IE7Pro are using.
+         * The source code of the injected obfuscated part can be found on:
+         * https://github.com/YePpHa/YouTubeCenter/tree/master/obfuscated/io.js
+         */
+        ytcenter.inject("eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[function(e){return d[e]}];e=function(){return'\\\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c])}}return p}('v=v||{};v.R=v.R||{};(4(I,v){o{v.R.B=B}q(e){}8(J B!==\"4\"||J k===\"2c\")8(J B===\"4\"&&J K!==\"2c\")I.k=K;j v.R.B=(4(6){\"1W 2l\";d Z=(4(){d a=t;o{a=6.Z||6.2d||6.1A||6.17}q(e){o{a=6.2d||6.1A||6.17}q(e){o{a=6.1A||6.17}q(e){o{a=6.17}q(e){}}}}f a})()||(4(6){d 1l=4(P){f 2P.S.1r.T(P).2Q(/^\\\\[P\\\\s(.*)\\\\]$/)[1]},1n=4 Z(){g.7=[]},A=4(7,c,w){g.7=7;g.1F=7.p;g.c=c;g.w=w},1f=1n.S,19=A.S,1d=6.1d,1s=4(c){g.1I=g[g.l=c]},1v=(\"2m 2V 22 2n 2W \"+\"31 30 2Z\").1M(\" \"),1h=1v.p,H=6.k||6.K||6,1k=H.11,1i=H.1u,k=H,1a=6.1a,1b=6.1b,1z=6.1z,Y=6.Y;A.2b=19.2b=14;1C(1h--){1s.S[1v[1h]]=1h+1}8(!H.11){k=6.k={}}k.11=4(b){d c=b.c,N;8(c===Q){c=\"2q/2z-2t\"}8(b 1c A){N=\"7:\"+c;8(b.w===\"1g\"){f N+\";1g,\"+b.7}j 8(b.w===\"2h\"){f N+\",\"+2i(b.7)}8(1a){f N+\";1g,\"+1a(b.7)}j{f N+\",\"+2o(b.7)}}j 8(1k){f 1k.T(H,b)}};k.1u=4(1m){8(1m.2D(0,5)!==\"7:\"&&1i){1i.T(H,1m)}};1f.1X=4(7){d E=g.7;8(Y&&(7 1c 1z||7 1c Y)){d 1q=\"\",1o=C Y(7),i=0,29=1o.p;20(;i<29;i++){1q+=2H.2M(1o[i])}E.x(1q)}j 8(1l(7)===\"B\"||1l(7)===\"2K\"){8(1d){d 2g=C 1d;E.x(2g.32(7))}j{2r C 1s(\"2n\")}}j 8(7 1c A){8(7.w===\"1g\"&&1b){E.x(1b(7.7))}j 8(7.w===\"2h\"){E.x(2i(7.7))}j 8(7.w===\"21\"){E.x(7.7)}}j{8(J 7!==\"2u\"){7+=\"\"}E.x(3r(2o(7)))}};1f.1U=4(c){8(!1w.p){c=Q}f C A(g.7.3i(\"\"),c,\"21\")};1f.1r=4(){f\"[P Z]\"};19.L=4(1Y,1T,c){d 1t=1w.p;8(1t<3){c=Q}f C A(g.7.L(1Y,1t>1?1T:g.7.p),c,g.w)};19.1r=4(){f\"[P B]\"};f 1n}(6));f 4(12,1x){d c=1x?(1x.c||\"\"):\"\";d 1y=C Z();8(12){20(d i=0,23=12.p;i<23;i++){1y.1X(12[i])}}f 1y.1U(c)}}(I));v.R.13=(I&&I.13)||(18&&18.1V&&18.1V.2B(18))||(4(6){\"1W 2l\";d 1B=6.3n,1p=4(){d a;o{a=6.k||6.K||6}q(e){o{a=6.k||6.K||6}q(e){o{a=6.K||6}q(e){o{a=6}q(e){}}}}f a},k=1p(),10=1B.3m(\"3k://3a.2I.3d/3e/3h\",\"a\"),2w=!6.3g&&\"V\"3b 10,1Q=4(2s){d n=1B.34(\"36\");n.37(\"1Q\",14,t,6,0,0,0,0,0,t,t,t,t,0,Q);2s.38(n)},16=6.3j,1E=6.3s||16||6.3p,2x=4(F){(6.3q||6.3l)(4(){2r F},0)},15=\"2q/2z-2t\",1H=0,M=[],2e=4(){d i=M.p;1C(i--){d r=M[i];8(J r===\"2u\"){k.1u(r)}j{r.26()}}M.p=0},1e=4(9,U,n){U=[].33(U);d i=U.p;1C(i--){d 1j=9[\"1L\"+U[i]];8(J 1j===\"4\"){o{1j.T(9,n||9)}q(F){2x(F)}}}},1G=4(b,l){d 9=g,c=b.c,1O=t,m,W,1P=4(){d m=1p().11(b);M.x(m);f m},1S=4(){1e(9,\"1Z 25 1K 24\".1M(\" \"))},y=4(){8(1O||!m){m=1P(b)}8(W){W.2p.1N=m}j{2O.2X(m,\"2S\")}9.u=9.G;1S()},z=4(2v){f 4(){8(9.u!==9.G){f 2v.2T(g,1w)}}},1R={2k:14,3c:t},L;9.u=9.2f;8(!l){l=\"V\"}8(2w){m=1P(b);10.1N=m;10.V=l;1Q(10);9.u=9.G;1S();f}8(6.2G&&c&&c!==15){L=b.L||b.2L;b=L.T(b,0,b.1F,15);1O=14}8(16&&l!==\"V\"){l+=\".V\"}8(c===15||16){W=6}8(!1E){y();f}1H+=b.1F;1E(6.2J,1H,z(4(2y){2y.2U.2N(\"3o\",1R,z(4(1J){d 1D=4(){1J.2j(l,1R,z(4(r){r.39(z(4(D){D.2a=4(n){W.2p.1N=r.3f();M.x(r);9.u=9.G;1e(9,\"24\",n)};D.27=4(){d X=D.X;8(X.1I!==X.22){y()}};\"1Z 25 1K O\".1M(\" \").35(4(n){D[\"1L\"+n]=9[\"1L\"+n]});D.1K(b);9.O=4(){D.O();9.u=9.G};9.u=9.28}),y)}),y)};1J.2j(l,{2k:t},z(4(r){r.26();1D()}),z(4(F){8(F.1I===F.2m){1D()}j{y()}}))}),y)}),y)},h=1G.S,13=4(b,l){f C 1G(b,l)};h.O=4(){d 9=g;9.u=9.G;1e(9,\"O\")};h.u=h.2f=0;h.28=1;h.G=2;h.X=h.2A=h.2C=h.2F=h.2E=h.27=h.2a=Q;6.2Y(\"2R\",2e,t);f 13}(I))})(I,v);',62,215,'||||function||view|data|if|filesaver||blob|type|var||return|this|FS_proto||else|URL|name|object_url|event|try|length|catch|file||false|readyState|ytcenter|encoding|push|fs_error|abortable|FakeBlob|Blob|new|writer|bb|ex|DONE|real_URL|self|typeof|webkitURL|slice|deletion_queue|data_URI_header|abort|object|null|io|prototype|call|event_types|download|target_view|error|Uint8Array|BlobBuilder|save_link|createObjectURL|blobParts|saveAs|true|force_saveable_type|webkit_req_fs|MSBlobBuilder|navigator|FB_proto|btoa|atob|instanceof|FileReaderSync|dispatch|FBB_proto|base64|file_ex_code|real_revoke_object_URL|listener|real_create_object_URL|get_class|object_URL|FakeBlobBuilder|buf|get_URL|str|toString|FileException|args|revokeObjectURL|file_ex_codes|arguments|options|builder|ArrayBuffer|MozBlobBuilder|doc|while|save|req_fs|size|FileSaver|fs_min_size|code|dir|write|on|split|href|blob_changed|get_object_url|click|create_if_not_found|dispatch_all|end|getBlob|msSaveOrOpenBlob|use|append|start|writestart|for|raw|ABORT_ERR|len|writeend|progress|remove|onerror|WRITING|buf_len|onwriteend|fake|undefined|WebKitBlobBuilder|process_deletion_queue|INIT|fr|URI|decodeURIComponent|getFile|create|strict|NOT_FOUND_ERR|NOT_READABLE_ERR|encodeURIComponent|location|application|throw|node|stream|string|func|can_use_save_link|throw_outside|fs|octet|onwritestart|bind|onprogress|substring|onabort|onwrite|chrome|String|w3|TEMPORARY|File|webkitSlice|fromCharCode|getDirectory|window|Object|match|unload|_blank|apply|root|SECURITY_ERR|ENCODING_ERR|open|addEventListener|SYNTAX_ERR|INVALID_STATE_ERR|NO_MODIFICATION_ALLOWED_ERR|readAsBinaryString|concat|createEvent|forEach|MouseEvents|initMouseEvent|dispatchEvent|createWriter|www|in|exclusive|org|1999|toURL|externalHost|xhtml|join|webkitRequestFileSystem|http|setTimeout|createElementNS|document|saved|mozRequestFileSystem|setImmediate|unescape|requestFileSystem'.split('|'),0,{}))");
+        /*****END OF SAVEAS AND BLOB IMPLEMENTATION*****/
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
         /* ytplayer is initialized! */
