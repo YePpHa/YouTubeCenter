@@ -4872,6 +4872,7 @@
         "requested-before": [],
         "script-loading": [],
         "script-loading-before": [],
+        "begin-response": [],
         "dispose": [],
         "init": [],
         "load": [],
@@ -4880,7 +4881,7 @@
         "process": []
       },
       loadListeners = [],
-      events = ["error", "processed", "received", "requested", "script-loading"],
+      events = ["error", "processed", "received", "requested", "script-loading", "begin-response"],
       eventsSPF = ["dispose", "init", "load", "navigate", "prefetch", "process"],
       injected = false,
       originalCallbacks = {};
@@ -14149,6 +14150,17 @@
                 ytcenter.player.config.updateConfig = true;
               }
             } else {
+              if (ytcenter.getPage() === "watch") {
+                ytcenter.placementsystem.clear();
+                
+                $CreateDownloadButton();
+                $CreateRepeatButton();
+                $CreateLightButton();
+                $CreateAspectButton();
+                $CreateResizeButton();
+                
+                initPlacement();
+              }
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
             }
