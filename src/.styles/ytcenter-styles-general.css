@@ -847,7 +847,11 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 .ytcenter-site-watch.ytcenter-site-center #page,
 .ytcenter-site-watch.ytcenter-site-center #player,
 .ytcenter-site-watch.ytcenter-site-center #player-legacy,
-.ytcenter-site-watch.ytcenter-site-center #content {
+.ytcenter-site-watch.ytcenter-site-center #content,
+.ytcenter-site-watch.site-center-aligned #page,
+.ytcenter-site-watch.site-center-aligned #player,
+.ytcenter-site-watch.site-center-aligned #player-legacy,
+.ytcenter-site-watch.site-center-aligned #content {
   left: auto!important;
   margin-left: auto!important;
   margin-right: auto!important;
