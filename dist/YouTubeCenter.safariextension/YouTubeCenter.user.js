@@ -11775,6 +11775,8 @@
     };
     ytcenter.player.modifyConfig = function(page, config){
       if (page !== "watch" && page !== "embed" && page !== "channel") return;
+      config = config || {};
+      config.args = config.args || {};
       con.log("[Player modifyConfig] => " + page);
       if (ytcenter._tmp_embed && page === "embed") {
         if (ytcenter._tmp_embed.fmt_list)
@@ -11799,7 +11801,6 @@
         ytcenter.video.id = config.args.video_id;
         ytcenter.video.title = config.args.title;
       }
-      
       config.args.ytcenter = 1;
       config.args.enablejsapi = 1;
       config.args.jsapicallback = "ytcenter.player.onReady";
@@ -14310,6 +14311,37 @@
         } else {
           ytcenter.page = "normal";
         }
+        ytcenter.player.listeners.addEventListener("onAdStart", function(type){
+          if (type === "PREROLL") {
+            if (ytcenter.getPage() === "watch") {
+              if (ytcenter.playlist) {
+                if (ytcenter.settings.preventPlaylistAutoPlay) {
+                  ytcenter.player.getAPI().mute();
+                  ytcenter.player.getAPI().pauseVideo();
+                  !ytcenter.settings.mute && ytcenter.player.getAPI().isMuted && ytcenter.player.getAPI().unMute();
+                }
+              } else {
+                if (ytcenter.settings.preventAutoPlay) {
+                  ytcenter.player.getAPI().mute();
+                  ytcenter.player.getAPI().pauseVideo();
+                  !ytcenter.settings.mute && ytcenter.player.getAPI().isMuted && ytcenter.player.getAPI().unMute();
+                }
+              }
+            } else if (ytcenter.getPage() === "channel") {
+              if (ytcenter.settings.channel_preventAutoPlay) {
+                ytcenter.player.getAPI().mute();
+                ytcenter.player.getAPI().pauseVideo();
+                !ytcenter.settings.channel_mute && ytcenter.player.getAPI().isMuted && ytcenter.player.getAPI().unMute();
+              }
+            } else if (ytcenter.getPage() === "embed") {
+              if (ytcenter.settings.embed_preventAutoPlay) {
+                ytcenter.player.getAPI().mute();
+                ytcenter.player.getAPI().pauseVideo();
+                !ytcenter.settings.embed_mute && ytcenter.player.getAPI().isMuted && ytcenter.player.getAPI().unMute();
+              }
+            }
+          }
+        });
         ytcenter.player.listeners.addEventListener("onStateChange", function(state, b){
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
             ytcenter.player.getAPI().playVideo();
