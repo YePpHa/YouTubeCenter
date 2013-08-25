@@ -13430,7 +13430,7 @@
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
         if (ytcenter.classManagement.db[i].element() && ytcenter.classManagement.db[i].element() !== el) {
           if (ytcenter.classManagement.db[i].condition(url))
-            ytcenter.classManagement.db[i].element().className += " " + ytcenter.classManagement.db[i].className;
+            ytcenter.utils.addClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else if (!ytcenter.classManagement.db[i].element()) {
@@ -13445,7 +13445,7 @@
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
         if (ytcenter.classManagement.db[i].element() === el) {
           if (ytcenter.classManagement.db[i].condition(url))
-            ytcenter.classManagement.db[i].element().className += " " + ytcenter.classManagement.db[i].className;
+            ytcenter.utils.addClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else if (!ytcenter.classManagement.db[i].element()) {
@@ -13460,7 +13460,7 @@
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
         if (ytcenter.classManagement.db[i].element()) {
           if (ytcenter.classManagement.db[i].condition(url))
-            ytcenter.classManagement.db[i].element().className += " " + ytcenter.classManagement.db[i].className;
+            ytcenter.utils.addClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else {
@@ -14386,7 +14386,7 @@
               ytcenter.player.updateResize();
             }
             
-            ytcenter.events.performEvent("ui-refresh");
+            //ytcenter.events.performEvent("ui-refresh");
           } else {
             this.getOriginalListener()(large);
           }

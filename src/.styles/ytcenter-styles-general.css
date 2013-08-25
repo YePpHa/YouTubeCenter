@@ -835,13 +835,22 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   width: 100%!important;
 }
 
-
 .ytcenter-site-watch #page,
 .ytcenter-site-watch #player,
 .ytcenter-site-watch #player-legacy,
 .ytcenter-site-watch #content {
   left: auto!important;
+  margin-left: 0!important;
+  margin-right: 0!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #page,
+.ytcenter-site-watch.ytcenter-site-center #player,
+.ytcenter-site-watch.ytcenter-site-center #player-legacy,
+.ytcenter-site-watch.ytcenter-site-center #content {
+  left: auto!important;
   margin-left: auto!important;
+  margin-right: auto!important;
 }
 
 body > #page {
