@@ -5294,18 +5294,18 @@
         donatelink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_DONATE");
         wikilink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_WIKI");
         b.appendChild(ytcenter.utils.replaceText(
-            "YouTube Center have many new features just waiting for you to try out. YouTube Center has by default set the settings, but to get the full experience of YouTube Center you will have to configurate the settings to your own need.{lb}{lb}"
+            "YouTube Center have many new features just waiting for you to try out. YouTube Center has by default set the settings, but to get the full experience of YouTube Center you will have to configurate the settings yourself.{lb}{lb}"
           + "To access the YouTube Center settings you only have to click on the button as shown in the picture below (marked with a red glow).{lb}{lb}"
           + "{img1}{lb}{lb}"
-          + "If you want to know more about YouTube Center visit the {wiki-url} for more information.{sectionbreak}"
-          + "If you appreciate my work I would be grateful if you would {donate}.",
+          + "More information about YouTube Center can be found on the {wiki-url}.{sectionbreak}"
+          + "If you appreciate my work and would like to support me I would be grateful if you would {donate}.",
           {
             "{lb}": function(){
               return document.createElement("br");
             },
             "{sectionbreak}": function(){
               var c = document.createElement("div");
-              c.style.marginTop = "76px";
+              c.style.marginTop = "40px";
               return c;
             },
             "{img1}": img1,
@@ -7659,7 +7659,7 @@
       return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
     };
     ytcenter.utils = {};
-    ytcenter.utils.url = function(url){
+    ytcenter.utils.getURL = function(url){
       var a = document.createElement("a");
       a.href = url;
       return a;
@@ -13419,7 +13419,7 @@
     };
     ytcenter.classManagement = {};
     ytcenter.classManagement.applyClassesExceptElement = function(el, url){
-      if (url) url = ytcenter.utils.url(url);
+      if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i;
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
@@ -13434,7 +13434,7 @@
       }
     };
     ytcenter.classManagement.applyClassesForElement = function(el, url){
-      if (url) url = ytcenter.utils.url(url);
+      if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i;
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
@@ -13449,7 +13449,7 @@
       }
     };
     ytcenter.classManagement.applyClasses = function(url){
-      if (url) url = ytcenter.utils.url(url);
+      if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i;
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
@@ -13464,7 +13464,7 @@
       }
     };
     ytcenter.classManagement.getClassesForElementById = function(id, url){
-      if (url) url = ytcenter.utils.url(url);
+      if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i, a = [];
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
@@ -13479,7 +13479,7 @@
       return a.join(" ");
     };
     ytcenter.classManagement.getClassesForElementByTagName = function(tagname, url){
-      if (url) url = ytcenter.utils.url(url);
+      if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i, a = [];
       for (i = 0; i < ytcenter.classManagement.db.length; i++) {
@@ -14465,7 +14465,7 @@
       });
       ytcenter.spf.__doUpdateConfig = false;
       uw.ytcenter.spf.processed = function(data){
-        var url = ytcenter.utils.url(uw.ytcenter.spf.url);
+        var url = ytcenter.utils.getURL(uw.ytcenter.spf.url || loc.href) || loc;
         data = data || uw.ytcenter.spf.data;
         ytcenter.classManagement.applyClasses(uw.ytcenter.spf.url);
         
@@ -14538,7 +14538,7 @@
       ytcenter.spf.addEventListener("processed", uw.ytcenter.spf.processed);
       
       if (ytcenter.getPage() === "embed") {
-        var id = url.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1];
+        var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1];
         con.log("[Embed] Contacting: /get_video_info?video_id=" + id);
         ytcenter.utils.xhr({
           method: "GET",
