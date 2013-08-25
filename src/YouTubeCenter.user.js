@@ -5276,6 +5276,23 @@
       return a;
     });
     ytcenter.welcome = (function(){
+      function update() {
+        return ytcenter.utils.replaceText(ytcenter.language.getLocale("WELCOME_CONTENT"),
+          {
+            "{lb}": function(){
+              return document.createElement("br");
+            },
+            "{sectionbreak}": function(){
+              var c = document.createElement("div");
+              c.style.marginTop = "40px";
+              return c;
+            },
+            "{img1}": img1,
+            "{wiki-url}": wikilink,
+            "{donate}": donatelink
+          }
+        );
+      }
       var a = {}, dialog, b = document.createElement("div"),
           img1 = document.createElement("div"), img1src = document.createElement("img"), wikilink = document.createElement("a"), donatelink = document.createElement("a");
       img1.className = "ytcenter-image-welcome-settings-repeater";
@@ -5292,27 +5309,14 @@
       a.createDialog = function(){
         if (dialog) return;
         donatelink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_DONATE");
+        ytcenter.language.addLocaleElement(donatelink, "WELCOME_CONTENT_DONATE", "@textContent");
         wikilink.textContent = ytcenter.language.getLocale("WELCOME_CONTENT_WIKI");
-        b.appendChild(ytcenter.utils.replaceText(
-            "YouTube Center have many new features just waiting for you to try out. YouTube Center has by default set the settings, but to get the full experience of YouTube Center you will have to configurate the settings yourself.{lb}{lb}"
-          + "To access the YouTube Center settings you only have to click on the button as shown in the picture below (marked with a red glow).{lb}{lb}"
-          + "{img1}{lb}{lb}"
-          + "More information about YouTube Center can be found on the {wiki-url}.{sectionbreak}"
-          + "If you appreciate my work and would like to support me I would be grateful if you would {donate}.",
-          {
-            "{lb}": function(){
-              return document.createElement("br");
-            },
-            "{sectionbreak}": function(){
-              var c = document.createElement("div");
-              c.style.marginTop = "40px";
-              return c;
-            },
-            "{img1}": img1,
-            "{wiki-url}": wikilink,
-            "{donate}": donatelink
-          }
-        ));
+        ytcenter.language.addLocaleElement(wikilink, "WELCOME_CONTENT_WIKI", "@textContent");
+        ytcenter.events.addEvent("language-refresh", function(){
+          b.innerHTML = "";
+          b.appendChild(update());
+        });
+        b.appendChild(update());
         dialog = ytcenter.dialog("WELCOME_TITLE", b, [
           {
             label: "DIALOG_CLOSE",
@@ -5340,7 +5344,7 @@
             }
           }
         ]);
-        dialog.setWidth("630px");
+        dialog.setWidth("530px");
       };
       
       a.setLaunchStatus = function(launch){
