@@ -12662,7 +12662,7 @@
         ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
       }
       var playerSize = getSizeById(ytcenter.player.currentResizeId);
-      return playerSize.align;
+      return playerSize.config.align;
     };
     ytcenter.player.resize = (function(){
       function getItemById(id) {
