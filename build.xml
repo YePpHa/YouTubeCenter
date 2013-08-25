@@ -24,6 +24,7 @@
   <property name="src.firefox" value="${src}/.firefox" />
   <property name="src.safari" value="${src}/.safari" />
   <property name="src.opera" value="${src}/.opera" />
+  <property name="src.xul" value="${src}/.xul" />
   
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
@@ -38,6 +39,7 @@
   <property name="indentifier.firefox" value="3" />
   <property name="indentifier.safari" value="4" />
   <property name="indentifier.opera" value="5" />
+  <property name="indentifier.xul" value="6" />
   
   <property name="styles.general" value="ytcenter-styles-general.css" />
   <property name="styles.normal" value="ytcenter-styles-normal.css" />
@@ -47,7 +49,7 @@
   <property name="styles.grid-subscriptions" value="ytcenter-styles-grid-subscriptions.css" />
   <property name="styles.images" value="ytcenter-styles-images.css" />
   
-  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, xul, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
@@ -56,6 +58,7 @@
     <mkdir dir="${src}" />
     <mkdir dir="${src.chrome}" />
     <mkdir dir="${src.firefox}" />
+    <mkdir dir="${src.xul}" />
     <mkdir dir="${src.maxthon}" />
     <mkdir dir="${cert.chromePath}" />
   </target>
@@ -192,6 +195,11 @@
     </exec>
 	</target>
   
+  <target name="xul" depends="preinit, copy-xul">
+		<zip destfile="${dist}/${name}-beta.xpi" basedir="${buildDir}" />
+    <antcall target="clean" />
+	</target>
+  
   <target name="safari" depends="preinit, copy-safari">
     <mkdir dir="${dist}/${name}.safariextension" />
 		<move todir="${dist}/${name}.safariextension">
@@ -252,6 +260,19 @@
     <antcall target="tokenreplace" />
     <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
+  </target>
+  
+  <target name="copy-xul">
+    <antcall target="copy" />
+    <move todir="${buildDir}/data">
+      <fileset dir="${buildDir}" />
+    </move>
+    <copy todir="${buildDir}">
+      <fileset dir="${src.xul}/" />
+    </copy>
+    <antcall target="tokenreplace" />
+    <antcall target="apply-styles" />
+    <replace dir="${buildDir}" value="${indentifier.xul}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-safari">
