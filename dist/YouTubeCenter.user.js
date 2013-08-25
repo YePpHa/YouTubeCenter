@@ -14091,8 +14091,10 @@
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         try {
-          if (!ytcenter.welcome.hasBeenLaunched())
-            ytcenter.welcome.setVisibility(true);
+          if (loc.href.indexOf(".youtube.com/embed/") === -1) {
+            if (!ytcenter.welcome.hasBeenLaunched())
+              ytcenter.welcome.setVisibility(true);
+          }
         } catch (e) {
           con.error(e);
         }
