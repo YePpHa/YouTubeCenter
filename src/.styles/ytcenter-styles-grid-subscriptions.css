@@ -8,12 +8,6 @@
   display: none!important;
 }
 
-/* Makes the awesomium work */
-.ytcenter-grid-subscriptions .branded-page-v2-primary-col {
-  overflow: visible!important;
-  float: left!important;
-}
-
 /* Removes padding from the list items */
 .ytcenter-grid-subscriptions .feed-item-container {
   padding: 0!important;
