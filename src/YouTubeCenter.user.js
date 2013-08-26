@@ -4402,7 +4402,7 @@
             item.content.insertBefore(watchedElement, item.content.children[0]);
           }
           ytcenter.utils.addClass(item.content, "watched");
-          /*a = item.content;
+          a = item.content;
           for (i = 0; i < 10; i++) {
             a = a.parentNode;
             if (a.tagName === "LI" || !a) {
@@ -4410,18 +4410,18 @@
               break;
             }
           }
-          if (b) ytcenter.utils.addClass(b, "ytcenter-video-watched-wrapper");*/
+          if (b) ytcenter.utils.addClass(b, "ytcenter-video-watched-wrapper");
         } else if (!ivw && hc) {
-          //a = item.content;
+          a = item.content;
           ytcenter.utils.removeClass(item.content, "watched");
-          /*for (i = 0; i < 10; i++) {
+          for (i = 0; i < 10; i++) {
             a = a.parentNode;
             if (a.tagName === "LI" || !a) {
               b = a;
               break;
             }
           }
-          if (b) ytcenter.utils.removeClass(b, "ytcenter-video-watched-wrapper");*/
+          if (b) ytcenter.utils.removeClass(b, "ytcenter-video-watched-wrapper");
         }
       }
       function subscriptionGrid(item) {
@@ -9280,7 +9280,7 @@
       ytspf: true,
       videoThumbnailCacheSize: 75,
       commentCacheSize: 150,
-      watchedVideosIndicator: true,
+      watchedVideosIndicator: false,
       hideWatchedVideos: false,
       watchedVideos: [],
       watchedVideosLimit: 10000, // Hope this isn't too big.

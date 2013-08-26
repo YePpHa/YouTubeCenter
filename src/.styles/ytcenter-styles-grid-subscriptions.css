@@ -56,7 +56,8 @@
   margin-left: 16px!important;
 }*/
 
-.ytcenter-grid-subscriptions .yt-lockup-badges {
+.ytcenter-grid-subscriptions .yt-lockup-badges,
+.ytcenter-hide-watched-videos .ytcenter-video-watched-wrapper {
   display: none!important;
 }
 
