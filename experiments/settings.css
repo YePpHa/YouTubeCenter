@@ -1,5 +1,5 @@
 .ytcenter-settings-category-list {
-  width: 190px;
+  width: 100%;
 }
 
 .ytcenter-settings-category-list .ytcenter-settings-category-item {
@@ -11,6 +11,7 @@
   color: #555;
   font-size: 11px;
   text-decoration: none;
+  overflow: hidden;
 }
 
 .ytcenter-settings-category-list .ytcenter-settings-category-item:hover {
@@ -26,17 +27,18 @@
 }
 
 .ytcenter-settings-category-list .ytcenter-settings-category-item .yt-valign-container {
-  padding-left: 24px;
+  padding: 0 24px;
 }
 .ytcenter-settings-content {
   display: table;
-  width: 1003px;
+  min-width: 1003px;
   margin: 0 -20px -20px -20px;
 }
 .ytcenter-settings-panel-left {
   display: table-cell;
   padding-bottom: 30px;
   border-right: 1px solid #e2e2e2;
+  min-width: 190px;
   width: 190px;
 }
 
