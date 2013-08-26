@@ -14459,7 +14459,8 @@
         uw.ytcenter.spf.data = data;
         if (data.swfcfg && data.swfcfg.args) {
           data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
-        } else if (data.html && data.html.content && data.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+        }
+        if (data.html && data.html.content && data.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
           var a, i1, i2, content, tmp, tmp2, swfcfg;
           try {
             a = data.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
@@ -14477,7 +14478,8 @@
           } catch (e) {
             con.error(e);
           }
-        } else if (data.html && data.html.player && data.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+        }
+        if (data.html && data.html.player && data.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
           var a, i1, i2, content, tmp, tmp2, swfcfg;
           try {
             a = data.html.player.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
