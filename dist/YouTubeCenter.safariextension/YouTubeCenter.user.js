@@ -3945,6 +3945,8 @@
             wrapper = videoElement;
           } else if (videoElement.parentNode.tagName === "A") {
             wrapper = videoElement.parentNode;
+          } else {
+            wrapper = null;
           }
           if (wrapper) {
             if (wrapper.href.match(linkRegex)) {
