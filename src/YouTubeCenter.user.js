@@ -9687,7 +9687,8 @@
         }, {
           "label": "SETTINGS_WATCHEDVIDEOS_INDICATOR",
           "type": "bool",
-          "defaultSetting": "watchedVideosIndicator"
+          "defaultSetting": "watchedVideosIndicator",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#watched-videos"
         }, {
           "label": "SETTINGS_HIDEWATCHEDVIDEOS",
           "type": "bool",
@@ -9699,7 +9700,8 @@
               }
             }
           ],
-          "defaultSetting": "hideWatchedVideos"
+          "defaultSetting": "hideWatchedVideos",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#hide-watched-videos"
         }, {
           "text": "SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY",
           "type": "button",
