@@ -994,3 +994,7 @@ body > #page {
   opacity: 0.75 !important;
   filter: alpha(opacity=75) !important;
 }
+
+.branded-page-v2-primary-col {
+  overflow: visible!important;
+}
