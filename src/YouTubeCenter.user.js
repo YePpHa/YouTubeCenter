@@ -3931,38 +3931,52 @@
       }
       function getVideoThumbs() {
         var linkRegex = /v=([a-zA-Z0-9-_]+)/,
+            linkRegex2 = /index=([0-9]+)/,
+            linkRegex3 = /video_ids=([0-9a-zA-Z-_%]+)/,
             vt = document.getElementsByClassName("video-thumb"),
             videos = [],
-            i, id, videoElement, cacheData, data;
+            i, id, videoElement, cacheData, data, index, rgx, wrapper;
         for (i = 0; i < vt.length; i++) {
           if (ytcenter.utils.inArray(playlistVideoThumbs, vt[i])) continue;
           videoElement = vt[i].parentNode;
           data = null;
           cacheData = null;
           if (videoElement.tagName === "A") {
-            if (videoElement.href.match(linkRegex)) {
-              id = linkRegex.exec(videoElement.href)[1];
-              cacheData = getDataCacheById(id);
-              data = {id: id, content: videoElement, wrapper: videoElement, videoThumb: vt[i]};
-              if (cacheData) {
-                if (cacheData.stream) data.stream = cacheData.stream;
-                if (cacheData.likes) data.likes = cacheData.likes;
-                if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
-              }
-            }
+            wrapper = videoElement;
           } else if (videoElement.parentNode.tagName === "A") {
-            if (videoElement.parentNode.href.match(linkRegex)) {
-              id = linkRegex.exec(videoElement.parentNode.href)[1];
+            wrapper = videoElement.parentNode;
+          }
+          if (wrapper) {
+            if (wrapper.href.match(linkRegex)) {
+              rgx = linkRegex.exec(wrapper.href);
+              if (rgx && rgx[1]) id = rgx[1];
+              else continue;
               cacheData = getDataCacheById(id);
-              data = {id: id, content: videoElement, wrapper: videoElement.parentNode, videoThumb: vt[i]};
+              data = {id: id, content: videoElement, wrapper: wrapper, videoThumb: vt[i]};
+              if (cacheData) {
+                if (cacheData.stream) data.stream = cacheData.stream;
+                if (cacheData.likes) data.likes = cacheData.likes;
+                if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
+              }
+            } else if (wrapper.href.match(linkRegex3)) {
+              rgx = linkRegex2.exec(wrapper.href);
+              if (rgx && rgx[1]) index = parseInt(rgx[1]);
+              else index = 0;
+              rgx = linkRegex3.exec(wrapper.href);
+              if (rgx && rgx[1]) id = rgx[1];
+              else continue;
+              if (id.split("%2C").length > 0 && id.split("%2C")[index]) id = id.split("%2C")[index];
+              else continue;
+              cacheData = getDataCacheById(id);
+              data = {id: id, content: videoElement, wrapper: wrapper, videoThumb: vt[i]};
               if (cacheData) {
                 if (cacheData.stream) data.stream = cacheData.stream;
                 if (cacheData.likes) data.likes = cacheData.likes;
                 if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
               }
             }
+            if (data) videos.push(data);
           }
-          if (data) videos.push(data);
         }
         return videos;
       }
@@ -5228,7 +5242,7 @@
       var bg = document.createElement("div");
       bg.id = "yt-dialog-bg";
       bg.className = "yt-dialog-bg";
-      bg.style.height = "100%";
+      bg.style.height = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) + "px";
       bg.style.position = "absolute";
       return bg;
     };
@@ -14274,46 +14288,48 @@
           }
         } else if (page === "channel") {
           ytcenter.page = "channel";
-          if (document.body.innerHTML.indexOf("data-video-id=\"" !== -1)) {
+          if (document.body.innerHTML.indexOf("data-video-id=\"") !== -1) {
             id = document.body.innerHTML.match(/data-video-id=\"(.*?)\"/)[1];
           } else if (document.body.innerHTML.indexOf("/v/") !== -1) {
             id = document.body.innerHTML.match(/\/v\/([0-9a-zA-Z_-]+)/)[1];
-          } else if (document.body.innerHTML.indexOf("\/v\/" !== -1)) {
+          } else if (document.body.innerHTML.indexOf("\/v\/") !== -1) {
             id = document.body.innerHTML.match(/\\\/v\\\/([0-9a-zA-Z_-]+)/)[1];
           }
-          con.log("Contacting: /get_video_info?video_id=" + id);
-          ytcenter.utils.xhr({
-            method: "GET",
-            url: '/get_video_info?video_id=' + id,
-            headers: {
-              "Content-Type": "text/plain"
-            },
-            onload: function(response){
-              try {
-                if (response.responseText) {
-                  var o = {};
-                  var s = response.responseText.split("&");
-                  for (var i = 0; i < s.length; i++) {
-                    var ss = s[i].split("=");
-                    o[ss[0]] = decodeURIComponent(ss[1]);
+          if (id) {
+            con.log("Contacting: /get_video_info?video_id=" + id);
+            ytcenter.utils.xhr({
+              method: "GET",
+              url: '/get_video_info?video_id=' + id,
+              headers: {
+                "Content-Type": "text/plain"
+              },
+              onload: function(response){
+                try {
+                  if (response.responseText) {
+                    var o = {};
+                    var s = response.responseText.split("&");
+                    for (var i = 0; i < s.length; i++) {
+                      var ss = s[i].split("=");
+                      o[ss[0]] = decodeURIComponent(ss[1]);
+                    }
+                    ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), {args: o});
+                    config = ytcenter.player.config;
+                    ytcenter.player.update(config);
+                    
+                    if (ytcenter.player.config.updateConfig) {
+                      ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
+                    }
                   }
-                  ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), {args: o});
-                  config = ytcenter.player.config;
-                  ytcenter.player.update(config);
-                  
-                  if (ytcenter.player.config.updateConfig) {
-                    ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
-                  }
+                } catch (e) {
+                  con.error(response.responseText);
+                  con.error(e);
                 }
-              } catch (e) {
-                con.error(response.responseText);
-                con.error(e);
+              },
+              onerror: function(){
+                ytcenter.video.streams = [];
               }
-            },
-            onerror: function(){
-              ytcenter.video.streams = [];
-            }
-          });
+            });
+          }
         } else if (page === "search") {
           ytcenter.page = "search";
         } else {
