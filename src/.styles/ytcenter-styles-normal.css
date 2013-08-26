@@ -472,3 +472,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-intelligentfeed .yt-shelf-grid-item {
   margin-right: 7px!important;
 }
+
+.ytcenter-resize-disaligned #player {
+  min-width: auto !important;
+}
