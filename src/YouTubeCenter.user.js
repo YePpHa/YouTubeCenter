@@ -3929,13 +3929,13 @@
         if (pt) {
           b = pt.getElementsByClassName("video-thumb");
           for (i = 0; i < b.length; i++) {
-            a.push(b);
+            a.push(b[i]);
           }
         }
         if (pt2) {
           b = pt2.getElementsByClassName("video-thumb");
           for (i = 0; i < b.length; i++) {
-            a.push(b);
+            a.push(b[i]);
           }
         }
         return a;
