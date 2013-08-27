@@ -9,7 +9,7 @@ YouTube Center are using a combination of ant (java) and python to build YouTube
 
 The build system is made in ant and require ant and java to be installed.
 
- * `ant all` -- Builds .
+ * `ant all` -- Builds everything below except for the styles.
  * `ant firefox` -- Builds Firefox extension (.xpi)
  * `ant xul` -- Builds the Firefox beta extension (.xpi)
  * `ant chrome` -- Builds Chrome extension (.crx)
