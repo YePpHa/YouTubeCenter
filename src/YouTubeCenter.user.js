@@ -3104,7 +3104,8 @@
       flags: "@styles-flags@",
       html5player: "@styles-html5player@",
       gridSubscriptions: "@styles-grid-subscriptions@",
-      images: "@styles-images@"
+      images: "@styles-images@",
+      dialog: "@styles-dialog@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -5085,20 +5086,20 @@
       
       bgOverlay = ytcenter.dialogOverlay();
       root = document.createElement("div");
-      root.className = "yt-dialog";
+      root.className = "ytcenter-dialog";
       base = document.createElement("div");
-      base.className = "yt-dialog-base";
+      base.className = "ytcenter-dialog-base";
       
       fg = document.createElement("div");
-      fg.className = "yt-dialog-fg";
+      fg.className = "ytcenter-dialog-fg";
       fgContent = document.createElement("div");
-      fgContent.className = "yt-dialog-fg-content yt-dialog-show-content";
+      fgContent.className = "ytcenter-dialog-fg-content ytcenter-dialog-show-content";
       fg.appendChild(fgContent);
       
       
       if (alignment === "center") {
         var align = document.createElement("span");
-        align.className = "yt-dialog-align";
+        align.className = "ytcenter-dialog-align";
         base.appendChild(align);
       } else {
         fg.style.margin = "13px 0";
@@ -5109,9 +5110,9 @@
       
       if (typeof titleLabel === "string" && titleLabel !== "") {
         var header = document.createElement("div");
-        header.className = "yt-dialog-header";
+        header.className = "ytcenter-dialog-header";
         var title = document.createElement("h2");
-        title.className = "yt-dialog-title";
+        title.className = "ytcenter-dialog-title";
         title.textContent = ytcenter.language.getLocale(titleLabel);
         ytcenter.language.addLocaleElement(title, titleLabel, "@textContent");
         
@@ -5124,12 +5125,12 @@
       }
       if (typeof content !== "undefined") {
         var cnt = document.createElement("div");
-        cnt.className = "yt-dialog-content";
+        cnt.className = "ytcenter-dialog-content";
         cnt.appendChild(content);
         fgContent.appendChild(cnt);
       }
       footer = document.createElement("div");
-      footer.className = "yt-dialog-footer";
+      footer.className = "ytcenter-dialog-footer";
       fgContent.appendChild(footer);
       if (typeof actions !== "undefined") {
         /* Array
@@ -5239,7 +5240,7 @@
           }
         }
         if (visible) {
-          if (document.body) ytcenter.utils.addClass(document.body, "yt-dialog-active");
+          if (document.body) ytcenter.utils.addClass(document.body, "ytcenter-dialog-active");
           ___parent_dialog = ytcenter._dialogVisible;
           if (___parent_dialog) {
             ___parent_dialog.setFocus(false);
@@ -5255,7 +5256,7 @@
             ytcenter._dialogVisible = ___parent_dialog;
           } else {
             ytcenter._dialogVisible = null;
-            if (document.body) ytcenter.utils.removeClass(document.body, "yt-dialog-active");
+            if (document.body) ytcenter.utils.removeClass(document.body, "ytcenter-dialog-active");
           }
         }
       };
@@ -5263,8 +5264,8 @@
     };
     ytcenter.dialogOverlay = function(){
       var bg = document.createElement("div");
-      bg.id = "yt-dialog-bg";
-      bg.className = "yt-dialog-bg";
+      bg.id = "ytcenter-dialog-bg";
+      bg.className = "ytcenter-dialog-bg";
       bg.style.height = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight) + "px";
       bg.style.position = "absolute";
       return bg;
@@ -14085,6 +14086,7 @@
         $AddStyle(ytcenter.css.html5player);
         $AddStyle(ytcenter.css.gridSubscriptions);
         $AddStyle(ytcenter.css.images);
+        $AddStyle(ytcenter.css.dialog);
         
         if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) {
           $AddStyle(ytcenter.css.topbar);

@@ -48,6 +48,7 @@
   <property name="styles.html5player" value="ytcenter-styles-html5player.css" />
   <property name="styles.grid-subscriptions" value="ytcenter-styles-grid-subscriptions.css" />
   <property name="styles.images" value="ytcenter-styles-images.css" />
+  <property name="styles.dialog" value="ytcenter-styles-dialog.css" />
   
   <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, xul, safari, opera, clean" />
   <target name="preinit">
@@ -102,6 +103,11 @@
       <arg value="-o" />
       <arg value="${build}/${name.styles}/${styles.images}" />
     </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.dialog}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.dialog}" />
+    </java>
   </target>
   <target name="apply-styles">
     <loadfile property="style.minified.general" srcFile="${build}/${name.styles}/${styles.general}" />
@@ -111,6 +117,7 @@
     <loadfile property="style.minified.html5player" srcFile="${build}/${name.styles}/${styles.html5player}" />
     <loadfile property="style.minified.grid-subscriptions" srcFile="${build}/${name.styles}/${styles.grid-subscriptions}" />
     <loadfile property="style.minified.images" srcFile="${build}/${name.styles}/${styles.images}" />
+    <loadfile property="style.minified.dialog" srcFile="${build}/${name.styles}/${styles.dialog}" />
     <replace dir="${buildDir}" value="${style.minified.general}" token="@styles-general@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.normal}" token="@styles-normal@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.topbar}" token="@styles-topbar@" encoding="${encoding}" />
@@ -118,6 +125,7 @@
     <replace dir="${buildDir}" value="${style.minified.html5player}" token="@styles-html5player@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.grid-subscriptions}" token="@styles-grid-subscriptions@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.images}" token="@styles-images@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.dialog}" token="@styles-dialog@" encoding="${encoding}" />
   </target>
   <target name="clean-styles">
     <delete dir="${build}/${name.styles}" />
