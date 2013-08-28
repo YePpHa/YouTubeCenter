@@ -4,8 +4,8 @@
 // @version         @ant-version@
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
-// @icon            https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/icons/logo-48x48.png
-// @icon64          https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/icons/logo-64x64.png
+// @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
+// @icon64          https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-64x64.png
 // @domain          userscripts.org
 // @domain          youtube.com
 // @domain          www.youtube.com
