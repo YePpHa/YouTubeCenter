@@ -583,7 +583,7 @@
       btn.appendChild(s);
       
       btn.addEventListener("click", function(){
-        ytcenter.player.turnLightOff();
+        ytcenter.player.toggleLights();
       }, false);
       
       ytcenter.placementsystem.registerElement(btn, "@lightbtn");
@@ -9582,6 +9582,8 @@
       lightbulbEnable: true,
       lightbulbBackgroundColor: '#000000',
       lightbulbBackgroundOpaque: 95,
+      lightbulbClickThrough: false,
+      lightbulbAutoOff: false,
       flashWMode: 'none', // none, window, direct, opaque, transparent, gpu
       playerTheme: 'dark', // dark, light
       playerColor: 'red', // red, white
@@ -9634,7 +9636,6 @@
       watch7playerguidehide: false,
       watch7playerguidealwayshide: false,
       watch7centerpage: true,
-      lightbulbAutoOff: false,
       removeBrandingBanner: true,
       removeBrandingBackground: true,
       removeBrandingWatermark: true,
@@ -10348,6 +10349,11 @@
           "type": "bool",
           "defaultSetting": "lightbulbAutoOff",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#lights-off"
+        }, {
+          "label": "SETTINGS_LIGHTBULB_CLICK_THROUGH",
+          "type": "bool",
+          "defaultSetting": "lightbulbClickThrough",
+          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#click-through"
         }, {
           "label": "SETTINGS_LIGHTBULB_COLOR",
           "type": "colorpicker",
@@ -12270,32 +12276,31 @@
       ytcenter.utils.setCookie("wide", (center ? "1" : "0"), null, "/", 3600*60*24*30);
       ytcenter.saveSettings();
     };
+    ytcenter.player.toggleLights = function(){
+      if (ytcenter.player.isLightOff) {
+        ytcenter.player.turnLightOn();
+      } else {
+        ytcenter.player.turnLightOff();
+      }
+    };
     ytcenter.player.turnLightOn = function(){};
-    ytcenter.player.isLightOn = false;
+    ytcenter.player.isLightOff = false;
     ytcenter.player.turnLightOff = (function(){
       var lightElement;
       return function(){
         if (!lightElement) {
           lightElement = document.createElement("div");
-          lightElement.style.position = "fixed";
-          lightElement.style.top = "0";
-          lightElement.style.left = "0";
-          lightElement.style.width = "100%";
-          lightElement.style.height = "100%";
+          lightElement.className = "ytcenter-lights-off-overlay hid";
           lightElement.style.background = ytcenter.settings.lightbulbBackgroundColor;
           lightElement.style.opacity = ytcenter.settings.lightbulbBackgroundOpaque/100;
           lightElement.style.filter = "alpha(opacity=" + ytcenter.settings.lightbulbBackgroundOpaque + ")";
-          lightElement.style.zIndex = "3";
-          lightElement.className = "hid";
           lightElement.addEventListener("click", function(){
-            ytcenter.utils.addClass(lightElement, "hid");
-            ytcenter.utils.removeClass(document.body, "ytcenter-lights-off");
-            ytcenter.player.isLightOn = false;
+            if (!ytcenter.settings["lightbulbClickThrough"]) ytcenter.player.turnLightOn();
           }, false);
           ytcenter.player.turnLightOn = function(){
             ytcenter.utils.addClass(lightElement, "hid");
             ytcenter.utils.removeClass(document.body, "ytcenter-lights-off");
-            ytcenter.player.isLightOn = false;
+            ytcenter.player.isLightOff = false;
           };
           document.body.appendChild(lightElement);
         }
@@ -12306,7 +12311,7 @@
         
         ytcenter.utils.addClass(document.body, "ytcenter-lights-off");
         ytcenter.utils.removeClass(lightElement, "hid");
-        ytcenter.player.isLightOn = true;
+        ytcenter.player.isLightOff = true;
       };
     })();
     ytcenter.player.checkHTML5Support = function(){
@@ -13765,12 +13770,13 @@
           document.getElementById("page").style.setProperty("margin", "");
         return false;
       }},
+      {element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["lightbulbClickThrough"];}},
       {element: function(){return document.body;}, className: "site-left-aligned", condition: function(loc){return !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {element: function(){return document.body;}, className: "site-center-aligned", condition: function(loc){return ytcenter.settings['experimentalFeatureTopGuide'];}},
       {element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.settings.gridSubscriptionsPage && ytcenter.settings.hideWatchedVideos;}},
       {element: function(){return document.body;}, className: "ytcenter-grid-subscriptions", condition: function(loc){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage;}},
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(loc){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
-      {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOn;}},
+      {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
       {element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
       {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch") || ytcenter.getPage() === "channel" || loc.pathname.indexOf("/user/") === 0;}},

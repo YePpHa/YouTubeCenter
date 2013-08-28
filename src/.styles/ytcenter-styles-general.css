@@ -654,6 +654,19 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   z-index: 0!important;
 }
 
+.ytcenter-lights-off .ytcenter-lights-off-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+}
+
+.ytcenter-lights-off.ytcenter-lights-off-click-through .ytcenter-lights-off-overlay {
+  pointer-events: none;
+}
+
 .ytcenter-branding-remove-background #player,
 .ytcenter-branding-remove-background #player-legacy,
 .ytcenter-branding-remove-background #watch7-sidebar {
