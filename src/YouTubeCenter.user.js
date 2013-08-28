@@ -2715,7 +2715,7 @@
             id: id,
             details: details
           }));
-        } else if (identifier === 5) { // Maxthon Extension
+        } else if (identifier === 5) { // Opera Legacy Extension
           var id = __rootCall_db.length,
               entry = {};
           if (details.onreadystatechange) {
@@ -3388,6 +3388,135 @@
       };
       
       return __r;
+    })();
+    ytcenter.subtitles = (function(){
+      /**
+        ytcenter.subtitles.getLanguageList(VIDEO_ID, function(doc){
+          var l = ytcenter.subtitles.parseLanguageList(doc)[0], // Just selecting the first subtitle in the list.
+              filename;
+          if (typeof l.name === "string" && l.name !== "") filename = "[" + l.languageCode + "]" + l.name; // Generating filename
+          else filename = l.languageCode; // Using language code as filename
+          ytcenter.subtitles.getSubtitleLanguage(VIDEO_ID, l.name, l.languageCode, null, function(cc){ // Getting the selected subtitle
+            cc = ytcenter.subtitles.parseSubtitle(cc); // Parsing the selected subtitle to JSON.
+            ytcenter.subtitles.saveSubtitle(cc, "srt", filename); // Downloading the subtitle as srt with generated filename.
+          });
+        });
+       **/
+      var a = {};
+      
+      a.saveSubtitle = function(cc, type, filename){
+        if (typeof type !== "string") type = "srt";
+        var blob;
+        if (type === "srt") {
+          blob = new uw.ytcenter.io.Blob([ytcenter.subtitles.convertToSRT(cc)], { "type": "application/octet-stream" });
+          uw.ytcenter.io.saveAs(blob, filename + ".srt");
+        } else if (type === "cc") {
+          
+        } else {
+          throw new Error("[Subtitles saveSubtitle] Invalid type (" + type + ")!");
+        }
+      };
+      
+      a.parseLanguageList = function(doc){
+        if (!doc.children || doc.children.length <= 0 || doc.children[0].tagName !== "transcript_list") throw new Error("[Subtitles] Invalid language list!");
+        var tl = doc.children[0].children,
+            i, a = [];
+        for (i = 0; i < tl.length; i++) {
+          a.push({
+            type: tl[i].tagName,
+            languageCode: tl[i].getAttribute("lang_code") || "",
+            displayedLanguageName: tl[i].getAttribute("lang_translated") || "",
+            name: tl[i].getAttribute("name") || "",
+            kind: tl[i].getAttribute("kind") || "",
+            id: tl[i].getAttribute("id") || "",
+            isDefault: tl[i].getAttribute("lang_default") || false,
+            isTranslateable: tl[i].getAttribute("cantran") || false,
+            formatList: (tl[i].getAttribute("formats") || "").split(",")
+          });
+        }
+        return a;
+      };
+      
+      a.parseSubtitle = function(doc){
+        if (!doc.children || doc.children.length <= 0 || doc.children[0].tagName !== "transcript") throw new Error("[Subtitles] Invalid transcript (" + doc.children[0].tagName + ")!");
+        var tl = doc.children[0].children,
+            i, a = [], start, dur;
+        for (i = 0; i < tl.length; i++) {
+          if (tl[i].tagName === "text") {
+            start = parseFloat(tl[i].getAttribute("start"));
+            dur = parseFloat(tl[i].getAttribute("dur"));
+            a.push({
+              start: start,
+              dur: dur,
+              end: start + dur,
+              text: ytcenter.utils.unescapeHTML(tl[i].textContent)
+            });
+          } else {
+            con.warn("[Subtitles parseSubtitle] Invalid tag name (" + tl[i].tagName + ")!");
+          }
+        }
+        return a;
+      };
+      a.convertToSRT = function(cc){
+        var srt = "", i;
+        
+        for (i = 0; i < cc.length; i++) {
+          srt += (i + 1) + "\r\n"
+                + ytcenter.utils.srtTimeFormat(cc[i].start) + " --> " + ytcenter.utils.srtTimeFormat(cc[i].end) + "\r\n"
+                + cc[i].text + "\r\n"
+                + "\r\n";
+        }
+        
+        return srt;
+      };
+      
+      a.getLanguageList = function(videoId, callback, error){
+        $XMLHTTPRequest({
+          url: "http://video.google.com/timedtext?type=list&v=" + encodeURIComponent(videoId),
+          method: "GET",
+          onload: function(response){
+            var doc = ytcenter.utils.parseXML(response.responseText);
+            if (callback) callback(doc);
+          },
+          onerror: function(){
+            con.error("[Subtitles] Couldn't load subtitle list for video (" + videoId + ")");
+            if (error) error();
+          }
+        });
+      };
+      a.getTranslatedLanguageList = function(videoId, callback, error){
+        $XMLHTTPRequest({
+          url: "http://video.google.com/timedtext?type=list&tlangs=1&v=" + encodeURIComponent(videoId),
+          method: "GET",
+          onload: function(response){
+            var doc = ytcenter.utils.parseXML(response.responseText);
+            if (callback) callback(doc);
+          },
+          onerror: function(){
+            con.error("[Subtitles] Couldn't load subtitle list for video (" + videoId + ")");
+            if (error) error();
+          }
+        });
+      };
+      a.getSubtitleLanguage = function(videoId, langName, langCode, translateLang, callback, error){
+        $XMLHTTPRequest({
+          url: "http://video.google.com/timedtext?type=track&v=" + encodeURIComponent(videoId)
+               + (langName ? "&name=" + encodeURIComponent(langName) : "")
+               + (langCode ? "&lang=" + encodeURIComponent(langCode) : "")
+               + (translateLang ? "&tlang=" + encodeURIComponent(translateLang) : ""),
+          method: "GET",
+          onload: function(response){
+            var doc = ytcenter.utils.parseXML(response.responseText);
+            if (callback) callback(doc);
+          },
+          onerror: function(){
+            con.error("[Subtitles] Couldn't load subtitle list for video (" + videoId + ")");
+            if (error) error();
+          }
+        });
+      };
+      
+      return a;
     })();
     ytcenter.comments = (function(){
       function getComments(channel) {
@@ -7701,6 +7830,33 @@
       return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
     };
     ytcenter.utils = {};
+    ytcenter.utils.srtTimeFormat = function(totalSeconds){
+      var sec_num = Math.floor(totalSeconds),
+          hours = Math.floor(sec_num / 3600),
+          minutes = Math.floor((sec_num - (hours * 3600)) / 60),
+          seconds = sec_num - (hours * 3600) - (minutes * 60),
+          milliseconds = Math.round((totalSeconds - sec_num)*100);
+      if (hours < 10) hours = "0" + hours;
+      if (minutes < 10) minutes = "0" + minutes;
+      if (seconds < 10) seconds = "0" + seconds;
+      if (milliseconds < 100) milliseconds = "0" + milliseconds;
+      if (milliseconds < 10) milliseconds = "0" + milliseconds;
+      return hours + ":" + minutes + ":" + seconds + "," + milliseconds;
+    };
+    ytcenter.utils.parseXML = function(rawxml){
+      var doc;
+      if (uw.DOMParser) {
+        var parser = new uw.DOMParser();
+        doc = parser.parseFromString(rawxml, "text/xml");
+      } else if (uw.ActiveXObject) {
+        doc = new uw.ActiveXObject("Microsoft.XMLDOM");
+        doc.async = false;
+        doc.loadXML(rawxml);
+      } else {
+        throw new Error("[XMLParser] Cannot parse XML!");
+      }
+      return doc;
+    };
     ytcenter.utils.getURL = function(url){
       var a = document.createElement("a");
       a.href = url;
@@ -7882,11 +8038,64 @@
       
       return frag;
     };
+    ytcenter.utils._escape_html_entities = [
+      ["&nbsp;", "&iexcl;", "&cent;", "&pound;", "&curren;", "&yen;", "&brvbar;", "&sect;", "&uml;", "&copy;", "&ordf;", "&laquo;", "&not;", "&shy;", "&reg;", "&macr;", "&deg;", "&plusmn;", "&sup2;", "&sup3;", "&acute;", "&micro;", "&para;", "&middot;", "&cedil;", "&sup1;", "&ordm;", "&raquo;", "&frac14;", "&frac12;", "&frac34;", "&iquest;", "&Agrave;", "&Aacute;", "&Acirc;", "&Atilde;", "&Auml;", "&Aring;", "&AElig;", "&Ccedil;", "&Egrave;", "&Eacute;", "&Ecirc;", "&Euml;", "&Igrave;", "&Iacute;", "&Icirc;", "&Iuml;", "&ETH;", "&Ntilde;", "&Ograve;", "&Oacute;", "&Ocirc;", "&Otilde;", "&Ouml;", "&times;", "&Oslash;", "&Ugrave;", "&Uacute;", "&Ucirc;", "&Uuml;", "&Yacute;", "&THORN;", "&szlig;", "&agrave;", "&aacute;", "&acirc;", "&atilde;", "&auml;", "&aring;", "&aelig;", "&ccedil;", "&egrave;", "&eacute;", "&ecirc;", "&euml;", "&igrave;", "&iacute;", "&icirc;", "&iuml;", "&eth;", "&ntilde;", "&ograve;", "&oacute;", "&ocirc;", "&otilde;", "&ouml;", "&divide;", "&oslash;", "&ugrave;", "&uacute;", "&ucirc;", "&uuml;", "&yacute;", "&thorn;", "&yuml;", "&quot;", "&amp;", "&lt;", "&gt;", "&OElig;", "&oelig;", "&Scaron;", "&scaron;", "&Yuml;", "&circ;", "&tilde;", "&ensp;", "&emsp;", "&thinsp;", "&zwnj;", "&zwj;", "&lrm;", "&rlm;", "&ndash;", "&mdash;", "&lsquo;", "&rsquo;", "&sbquo;", "&ldquo;", "&rdquo;", "&bdquo;", "&dagger;", "&Dagger;", "&permil;", "&lsaquo;", "&rsaquo;", "&euro;", "&fnof;", "&Alpha;", "&Beta;", "&Gamma;", "&Delta;", "&Epsilon;", "&Zeta;", "&Eta;", "&Theta;", "&Iota;", "&Kappa;", "&Lambda;", "&Mu;", "&Nu;", "&Xi;", "&Omicron;", "&Pi;", "&Rho;", "&Sigma;", "&Tau;", "&Upsilon;", "&Phi;", "&Chi;", "&Psi;", "&Omega;", "&alpha;", "&beta;", "&gamma;", "&delta;", "&epsilon;", "&zeta;", "&eta;", "&theta;", "&iota;", "&kappa;", "&lambda;", "&mu;", "&nu;", "&xi;", "&omicron;", "&pi;", "&rho;", "&sigmaf;", "&sigma;", "&tau;", "&upsilon;", "&phi;", "&chi;", "&psi;", "&omega;", "&thetasym;", "&upsih;", "&piv;", "&bull;", "&hellip;", "&prime;", "&Prime;", "&oline;", "&frasl;", "&weierp;", "&image;", "&real;", "&trade;", "&alefsym;", "&larr;", "&uarr;", "&rarr;", "&darr;", "&harr;", "&crarr;", "&lArr;", "&uArr;", "&rArr;", "&dArr;", "&hArr;", "&forall;", "&part;", "&exist;", "&empty;", "&nabla;", "&isin;", "&notin;", "&ni;", "&prod;", "&sum;", "&minus;", "&lowast;", "&radic;", "&prop;", "&infin;", "&ang;", "&and;", "&or;", "&cap;", "&cup;", "&int;", "&there4;", "&sim;", "&cong;", "&asymp;", "&ne;", "&equiv;", "&le;", "&ge;", "&sub;", "&sup;", "&nsub;", "&sube;", "&supe;", "&oplus;", "&otimes;", "&perp;", "&sdot;", "&lceil;", "&rceil;", "&lfloor;", "&rfloor;", "&lang;", "&rang;", "&loz;", "&spades;", "&clubs;", "&hearts;", "&diams;"],
+      ["&#160;", "&#161;", "&#162;", "&#163;", "&#164;", "&#165;", "&#166;", "&#167;", "&#168;", "&#169;", "&#170;", "&#171;", "&#172;", "&#173;", "&#174;", "&#175;", "&#176;", "&#177;", "&#178;", "&#179;", "&#180;", "&#181;", "&#182;", "&#183;", "&#184;", "&#185;", "&#186;", "&#187;", "&#188;", "&#189;", "&#190;", "&#191;", "&#192;", "&#193;", "&#194;", "&#195;", "&#196;", "&#197;", "&#198;", "&#199;", "&#200;", "&#201;", "&#202;", "&#203;", "&#204;", "&#205;", "&#206;", "&#207;", "&#208;", "&#209;", "&#210;", "&#211;", "&#212;", "&#213;", "&#214;", "&#215;", "&#216;", "&#217;", "&#218;", "&#219;", "&#220;", "&#221;", "&#222;", "&#223;", "&#224;", "&#225;", "&#226;", "&#227;", "&#228;", "&#229;", "&#230;", "&#231;", "&#232;", "&#233;", "&#234;", "&#235;", "&#236;", "&#237;", "&#238;", "&#239;", "&#240;", "&#241;", "&#242;", "&#243;", "&#244;", "&#245;", "&#246;", "&#247;", "&#248;", "&#249;", "&#250;", "&#251;", "&#252;", "&#253;", "&#254;", "&#255;", "&#34;", "&#38;", "&#60;", "&#62;", "&#338;", "&#339;", "&#352;", "&#353;", "&#376;", "&#710;", "&#732;", "&#8194;", "&#8195;", "&#8201;", "&#8204;", "&#8205;", "&#8206;", "&#8207;", "&#8211;", "&#8212;", "&#8216;", "&#8217;", "&#8218;", "&#8220;", "&#8221;", "&#8222;", "&#8224;", "&#8225;", "&#8240;", "&#8249;", "&#8250;", "&#8364;", "&#402;", "&#913;", "&#914;", "&#915;", "&#916;", "&#917;", "&#918;", "&#919;", "&#920;", "&#921;", "&#922;", "&#923;", "&#924;", "&#925;", "&#926;", "&#927;", "&#928;", "&#929;", "&#931;", "&#932;", "&#933;", "&#934;", "&#935;", "&#936;", "&#937;", "&#945;", "&#946;", "&#947;", "&#948;", "&#949;", "&#950;", "&#951;", "&#952;", "&#953;", "&#954;", "&#955;", "&#956;", "&#957;", "&#958;", "&#959;", "&#960;", "&#961;", "&#962;", "&#963;", "&#964;", "&#965;", "&#966;", "&#967;", "&#968;", "&#969;", "&#977;", "&#978;", "&#982;", "&#8226;", "&#8230;", "&#8242;", "&#8243;", "&#8254;", "&#8260;", "&#8472;", "&#8465;", "&#8476;", "&#8482;", "&#8501;", "&#8592;", "&#8593;", "&#8594;", "&#8595;", "&#8596;", "&#8629;", "&#8656;", "&#8657;", "&#8658;", "&#8659;", "&#8660;", "&#8704;", "&#8706;", "&#8707;", "&#8709;", "&#8711;", "&#8712;", "&#8713;", "&#8715;", "&#8719;", "&#8721;", "&#8722;", "&#8727;", "&#8730;", "&#8733;", "&#8734;", "&#8736;", "&#8743;", "&#8744;", "&#8745;", "&#8746;", "&#8747;", "&#8756;", "&#8764;", "&#8773;", "&#8776;", "&#8800;", "&#8801;", "&#8804;", "&#8805;", "&#8834;", "&#8835;", "&#8836;", "&#8838;", "&#8839;", "&#8853;", "&#8855;", "&#8869;", "&#8901;", "&#8968;", "&#8969;", "&#8970;", "&#8971;", "&#9001;", "&#9002;", "&#9674;", "&#9824;", "&#9827;", "&#9829;", "&#9830;"]
+    ];
     ytcenter.utils.escapeXML = function(str){
       return ytcenter.utils.replaceArray(str, ["<", ">", "&", "\"", "'"], ["&lt;", "&gt;", "&amp;", "&quot;", "&apos;"]);
     };
     ytcenter.utils.unescapeXML = function(str){
       return ytcenter.utils.replaceArray(str, ["&lt;", "&gt;", "&amp;", "&quot;", "&apos;"], ["<", ">", "&", "\"", "'"]);
+    };
+    ytcenter.utils.escapeHTML = function(str){
+      if (str === "") return "";
+      var i, a = "";
+      for (i = 0; i < str.length; i++) {
+        switch (str[i]) {
+          case "<":
+            a += "&lt;";
+            break;
+          case ">":
+            a += "&gt;";
+            break;
+          case "&":
+            a += "&amp;";
+            break;
+          case "\"":
+            a += "&quot;";
+            break;
+          case "'":
+            a += "&apos;";
+            break;
+          default:
+            if (str[i] < " " || str[i] > "~")
+              a += "&#" + (str.charCodeAt(i)) + ";";
+            else
+              a += str[i];
+            break;
+        }
+        if (str[i] === "<") {
+          a += "&lt;";
+        }
+      }
+      return a;
+    };
+    ytcenter.utils.unescapeHTML = function(str){
+      if (typeof str !== "string" || str === "") return "";
+      str = ytcenter.utils.replaceArray(str, ytcenter.utils._escape_html_entities[0], ytcenter.utils._escape_html_entities[1]);
+      var i, a = str.match(/&#[0-9]{1,5};/g), b, c;
+      if (!a) return str;
+      for (i = 0; i < a.length; i++) {
+        b = a[i];
+        c = b.substring(2, b.length - 1);
+        if (c > -32769 && c < 65536) {
+          str = str.replace(b, String.fromCharCode(c));
+        } else {
+          str = str.replace(b, "");
+        }
+      }
+      return str;
     };
     ytcenter.utils.replaceArray = function(str, find, replace){
       var i;
@@ -11286,7 +11495,8 @@
             ],
             "pt-BR": [
               {name: "Thiago R. M. Pereira"},
-              {name: "José Junior"}
+              {name: "José Junior"},
+              {name: "Igor Rückert"}
             ],
             "pt-PT": [
               {name: "Rafael Damasceno", url: "http://userscripts.org/users/264457"}
@@ -13952,41 +14162,40 @@
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.loaded) {
           ytcenter.player.config = uw.ytplayer.config;
           ytcenter.player.disablePlayerUpdate = false;
-        } else {
-          if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.args)
-            ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), uw.ytplayer.config);
-          if (ytcenter.utils.setterGetterClassCompatible()) {
-            con.log("[PlayerConfig Hijacker] Using Class Setter Getter Method");
-            uw.ytplayer = new PlayerConfig(function(config){
+        }
+        if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.args)
+          ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), uw.ytplayer.config);
+        if (ytcenter.utils.setterGetterClassCompatible()) {
+          con.log("[PlayerConfig Hijacker] Using Class Setter Getter Method");
+          uw.ytplayer = new PlayerConfig(function(config){
+            if (config) {
+              ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
+              if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
+            } else {
+              ytcenter.player.config = config;
+            }
+          }, function(){
+            return ytcenter.player.config;
+          });
+        }/* else if (ytcenter.utils.setterGetterObjectCompatible()) {
+          con.log("[PlayerConfig Hijacker] Using Object Setter Getter Method");
+          uw.ytplayer = {
+            get config() {
+              return ytcenter.player.config;
+            },
+            set config(config) {
               if (config) {
                 ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
                 if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
               } else {
                 ytcenter.player.config = config;
               }
-            }, function(){
-              return ytcenter.player.config;
-            });
-          }/* else if (ytcenter.utils.setterGetterObjectCompatible()) {
-            con.log("[PlayerConfig Hijacker] Using Object Setter Getter Method");
-            uw.ytplayer = {
-              get config() {
-                return ytcenter.player.config;
-              },
-              set config(config) {
-                if (config) {
-                  ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
-                  if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
-                } else {
-                  ytcenter.player.config = config;
-                }
-              }
-            };
-          }*/ else {
-            con.log("[PlayerConfig Hijacker] Setter Getter Method not suppoted!");
-            ytcenter.player.config = uw.ytplayer.config;
-            ytcenter.player.disablePlayerUpdate = false;
-          }
+            }
+          };
+        }*/ else {
+          con.log("[PlayerConfig Hijacker] Setter Getter Method not suppoted!");
+          ytcenter.player.config = uw.ytplayer.config;
+          ytcenter.player.disablePlayerUpdate = false;
         }
       } catch (e) {
         con.error(e);
@@ -14163,6 +14372,8 @@
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
         var page = ytcenter.getPage();
+        uw.ytcenter = uw.ytcenter || {};
+        uw.ytcenter.subtitles = ytcenter.subtitles;
         
         // Checking if the correct settings were applied and if not correct them and forcing a refresh of the page.
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
