@@ -4938,6 +4938,12 @@
         dbg.ytcenter.signatureDecipher = ytcenter.utils._signatureDecipher;
         dbg.ytcenter._signatureDecipher = ytcenter.utils.__signatureDecipher;
         dbg.ytcenter.player = {};
+        dbg.ytcenter.player.flashvars = "";
+        try {
+          dbg.ytcenter.player.flashvars = document.getElementById("movie_player").getAttribute("flashvars");
+        } catch (e) {
+          dbg.ytcenter.player.flashvars = e;
+        }
         dbg.ytcenter.player.config = ytcenter.player.config;
         try {
           dbg.ytcenter.player.apiinterface = ytcenter.player.getReference().api.getApiInterface();
@@ -9550,6 +9556,7 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
       ytspf: true,
@@ -10146,6 +10153,15 @@
           "type": "bool",
           "defaultSetting": "dashPlayback",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+        }, {
+          "label": "SETTINGS_FORCEPLAYERTYPE",
+          "type": "list",
+          "list": [
+            { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
+            { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
+            { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+          ],
+          "defaultSetting": "forcePlayerType"
         }, {
           "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
           "type": "list",
@@ -14470,6 +14486,15 @@
               }
             } else {
               if (ytcenter.getPage() === "watch") {
+                if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash") {
+                  con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to flash");
+                  api.writePlayer("flash");
+                  return;
+                } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5") {
+                  con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to HTML5");
+                  api.writePlayer("html5");
+                  return;
+                }
                 ytcenter.placementsystem.clear();
                 
                 $CreateDownloadButton();
