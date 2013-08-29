@@ -4837,6 +4837,7 @@
         if (MutObs) {
           observer = new MutObs(function(mutations){
             __r.update();
+            if (ytcenter.settings.commentCountryEnabled)
               ytcenter.comments.update();
           });
           observer2 = new MutObs(function(mutations){
@@ -4852,7 +4853,8 @@
           if (document.getElementById("content")) {
             ytcenter.utils.addEventListener(document.getElementById("content"), "DOMNodeInserted", function(){
               __r.update();
-              ytcenter.comments.update();
+              if (ytcenter.settings.commentCountryEnabled)
+                ytcenter.comments.update();
             }, false);
           }
           if (document.getElementById("guide")) {
@@ -9551,7 +9553,7 @@
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
       ytspf: true,
-      videoThumbnailCacheSize: 75,
+      videoThumbnailCacheSize: 500,
       commentCacheSize: 150,
       watchedVideosIndicator: false,
       hideWatchedVideos: false,
