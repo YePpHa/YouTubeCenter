@@ -49,6 +49,16 @@
       p.removeChild(script);
     } catch (e) {}
   }
+  function injected_saveSettings(id, key, data) {
+    chrome.runtime.sendMessage({ "method": "setLocalStorage", "key": key, "data": data }, function(response) {
+      inject("window.ytcenter.storage.onsaved(" + id + ")");
+    });
+  }
+  function injected_loadSettings(id, key) {
+    chrome.runtime.sendMessage({ "method": "getLocalStorage", "key": key }, function(response) {
+      inject("window.ytcenter.storage.onloaded(" + id + ", " + (response.data ? (typeof response.data === "string" ? response.data : JSON.stringify(response.data)) : "{}") + ")");
+    });
+  }
   function injected_xhr(id, details) {
     var xmlhttp, prop;
     if (typeof GM_xmlhttpRequest !== "undefined") {
@@ -2871,9 +2881,13 @@
         a = unsafeWindow === window ? false : unsafeWindow;
       } finally {
         return a || (function(){
-          var e = document.createElement('p');
-          e.setAttribute('onclick', 'return window;');
-          return e.onclick();
+          try {
+            var e = document.createElement('p');
+            e.setAttribute('onclick', 'return window;');
+            return e.onclick();
+          } catch (e) {
+            return window;
+          }
         }());
       }
     })();
@@ -5433,15 +5447,6 @@
       ]);
       dialog.setVisibility(true);
     };
-    ytcenter.settingsPanel = (function(){
-      var a = {};
-      
-      a.setVisibility = function(visible){
-        
-      };
-      
-      return a;
-    });
     ytcenter.welcome = (function(){
       function update() {
         return ytcenter.utils.replaceText(ytcenter.language.getLocale("WELCOME_CONTENT"),
@@ -5504,7 +5509,6 @@
                 a.setLaunchStatus(true);
                 a.setVisibility(false);
                 ytcenter.settingsControlVisibility(true);
-                ytcenter.settingsPanel.setVisibility(true);
               } catch (e) {
                 con.error(e);
               }
@@ -7868,7 +7872,10 @@
       return a;
     };
     ytcenter.utils.getStorageType = function(){
-      if (identifier === 2) {
+      if (identifier === 1 && injected) {
+        con.log("[Storage] Using Chrome's storage option!");
+        return 7;
+      } else if (identifier === 2) {
         con.log("[Storage] Using Maxthon's storage option!");
         return 6;
       } else if (identifier === 3) {
@@ -9273,11 +9280,31 @@
     ytcenter.storageName = "ytcenter_v1.3_settings";
     ytcenter.loadSettings = function(callback){
       try {
-        if (identifier === 3) {
+        if (identifier === 1 && injected) {
+          window.ytcenter = window.ytcenter || {};
+          window.ytcenter.storage = window.ytcenter.storage || {};
+          window.ytcenter.storage.onloaded = window.ytcenter.storage.onloaded || function(id, data){
+            window.ytcenter.storage.onloaded_db[id](data);
+          };
+          window.ytcenter.storage.onloaded_db = window.ytcenter.storage.onloaded_db || [];
+          window.ytcenter.storage.onloaded_db.push(function(storage){
+            if (typeof storage === "string")
+              storage = JSON.parse(storage);
+            for (var key in storage) {
+              if (storage.hasOwnProperty(key)) {
+                ytcenter.settings[key] = storage[key];
+              }
+            }
+            if (callback) callback();
+          });
+          window.postMessage(JSON.stringify({
+            id: window.ytcenter.storage.onloaded_db.length - 1,
+            method: "loadSettings",
+            arguments: [ytcenter.storageName]
+          }), "*");
+        } else if (identifier === 3) {
           var id = ytcenter.storage_db.length;
           ytcenter.storage_db.push(function(storage){
-            con.log("Storage =>");
-            con.log(storage);
             if (typeof storage === "string")
               storage = JSON.parse(storage);
             for (var key in storage) {
@@ -9330,7 +9357,22 @@
       if (typeof timeout === "undefined") timeout = false;
       var __ss = function(){
         con.log("[Storage] Saving Settings");
-        if (identifier === 3) {
+        if (identifier === 1 && injected) {
+          window.ytcenter = window.ytcenter || {};
+          window.ytcenter.storage = window.ytcenter.storage || {};
+          window.ytcenter.storage.onsaved = window.ytcenter.storage.onsaved || function(id){
+            window.ytcenter.storage.onsaved_db[id]();
+          };
+          window.ytcenter.storage.onsaved_db = window.ytcenter.storage.onsaved_db || [];
+          window.ytcenter.storage.onsaved_db.push(function(){
+            console.log("Saved Settings!");
+          });
+          window.postMessage(JSON.stringify({
+            id: window.ytcenter.storage.onsaved_db.length - 1,
+            method: "saveSettings",
+            arguments: [ytcenter.storageName, JSON.stringify(ytcenter.settings)]
+          }), "*");
+        } else if (identifier === 3) {
           self.port.emit("save", JSON.stringify({name: ytcenter.storageName, value: ytcenter.settings}));
         } else if (identifier === 5) {
           opera.extension.postMessage({
@@ -13770,7 +13812,7 @@
           document.getElementById("page").style.setProperty("margin", "");
         return false;
       }},
-      {element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["lightbulbClickThrough"];}},
+      {element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
       {element: function(){return document.body;}, className: "site-left-aligned", condition: function(loc){return !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {element: function(){return document.body;}, className: "site-center-aligned", condition: function(loc){return ytcenter.settings['experimentalFeatureTopGuide'];}},
       {element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.settings.gridSubscriptionsPage && ytcenter.settings.hideWatchedVideos;}},
@@ -14921,7 +14963,11 @@
           try {
             var d = JSON.parse(e.data);
             if (d.method === "CrossOriginXHR") {
-              injected_xhr(d.id, d.arguments[0]);
+              injected_xhr(d.id, d.arguments[0]); // id, details
+            } else if (d.method === "saveSettings") {
+              injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
+            } else if (d.method === "loadSettings") {
+              injected_loadSettings(d.id, d.arguments[0]); // id, key
             }
           } catch (e) {}
         }, false);
@@ -14938,7 +14984,11 @@
         try {
           var d = JSON.parse(e.data);
           if (d.method === "CrossOriginXHR") {
-            injected_xhr(d.id, d.arguments[0]);
+            injected_xhr(d.id, d.arguments[0]); // id, details
+          } else if (d.method === "saveSettings") {
+            injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
+          } else if (d.method === "loadSettings") {
+            injected_loadSettings(d.id, d.arguments[0]); // id, key
           }
         } catch (e) {}
       }, false);
