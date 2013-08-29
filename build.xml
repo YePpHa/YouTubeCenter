@@ -5,6 +5,8 @@
   
   <property name="build.prop" value="${basedir}/build.properties" />
   <property name="language.db" value="${basedir}/language.json" />
+  <property name="language.jar" value="${basedir}/LanguageDatabaseUpdater.jar" />
+  <property name="language.key" value="0AhHfBBHelFnAdF9fWHlVaHlGdUYteFNUUFVpeTIta2c" />
   <property name="encoding" value="UTF-8" />
   
   <property name="name" value="YouTubeCenter" />
@@ -62,6 +64,15 @@
     <mkdir dir="${src.xul}" />
     <mkdir dir="${src.maxthon}" />
     <mkdir dir="${cert.chromePath}" />
+  </target>
+  <target name="language">
+    <exec executable="java">
+      <arg value="-Dfile.encoding=UTF-8" />
+      <arg value="-jar" />
+      <arg value="${language.jar}" />
+      <arg value="${language.key}" />
+      <arg value="${language.db}" />
+    </exec>
   </target>
   
   <target name="styles">
