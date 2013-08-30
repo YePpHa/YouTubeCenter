@@ -12584,6 +12584,8 @@
       };
       __r.getMasterListener = function(a){
         return function(){
+          if (events[a].override && arguments.length > 0 && arguments[arguments.length - 1] !== "ytcenter-override")
+            return;
           con.log("[Player Listener] => " + a, arguments);
           var i, w = {
             getOriginalListener: function(){

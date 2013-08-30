@@ -815,7 +815,20 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   top: 0 !important;
 }
 
-.ytcenter-site-center #page, .ytcenter-site-center #yt-masthead, .ytcenter-site-center #ad_creative_1, .ytcenter-site-center #footer, .ytcenter-site-center #masthead_child_div, .ytcenter-site-center #masthead-expanded-lists-container, .ytcenter-site-center #baseDiv, .ytcenter-site-center.no-sidebar #alerts, .ytcenter-site-center.no-sidebar #ticker .ytg-wide, .ytcenter-site-center.no-sidebar #masthead-subnav, #watch7-sidebar, .watch7-sidebar {
+.ytcenter-site-center #page,
+.ytcenter-site-center #yt-masthead,
+.ytcenter-site-center #ad_creative_1,
+.ytcenter-site-center #footer,
+.ytcenter-site-center #masthead_child_div,
+.ytcenter-site-center #masthead-expanded-lists-container,
+.ytcenter-site-center #baseDiv,
+.ytcenter-site-center.no-sidebar #alerts,
+.ytcenter-site-center.no-sidebar #ticker .ytg-wide,
+.ytcenter-site-center.no-sidebar #masthead-subnav,
+#watch7-sidebar,
+.watch7-sidebar,
+.ytcenter-site-watch.ytcenter-resize-disaligned #player,
+.ytcenter-site-watch.ytcenter-resize-aligned #player {
   -moz-transition: none!important;
   -ms-transition: none!important;
   -o-transition: none!important;
@@ -864,7 +877,11 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 .ytcenter-site-watch.site-center-aligned #page,
 .ytcenter-site-watch.site-center-aligned #player,
 .ytcenter-site-watch.site-center-aligned #player-legacy,
-.ytcenter-site-watch.site-center-aligned #content {
+.ytcenter-site-watch.site-center-aligned #content,
+.ytcenter-site-watch.ytcenter-resize-disaligned #player,
+.ytcenter-site-watch.ytcenter-resize-disaligned #player-legacy,
+.ytcenter-site-watch.ytcenter-resize-algined #player,
+.ytcenter-site-watch.ytcenter-resize-algined #player-legacy {
   left: auto!important;
   margin-left: auto!important;
   margin-right: auto!important;
