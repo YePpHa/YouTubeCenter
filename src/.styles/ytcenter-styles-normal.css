@@ -298,15 +298,15 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   padding: 0!important;
 }
 
-.ytcenter-site-watch.ytcenter-non-resize #watch7-sidebar {
+.ytcenter-site-watch.ytcenter-non-resize .watch-wide #watch7-sidebar {
   margin-top: 0px!important;
 }
 
-.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #watch7-main,
+/*.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #watch7-main,
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
   max-width: 985px;
-}
+}*/
 
 @media screen and (min-width:1382px) {
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-main-container ,
@@ -463,6 +463,11 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-site-watch.ytcenter-site-center #player-legacy,
 .ytcenter-site-watch.ytcenter-site-center #watch7-main-container {
   width: 985px; /* Default fallback size when the resize feature fails. */
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
+  width: auto; /* Default fallback size when the resize feature fails. */
 }
 
 .ytcenter-site-not-watch.ytcenter-site-center #page-container {
