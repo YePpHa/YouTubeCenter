@@ -11987,7 +11987,17 @@
         // Prevent Auto Play/Buffering
         if (ytcenter.playlist) {
           if (ytcenter.settings.preventPlaylistAutoBuffer) {
-            //api.stopVideo();
+            if (ytcenter.html5) {
+              api.mute();
+              var cl =  function(state){
+                if (state === 1) {
+                  ytcenter.player.listeners.removeEventListener("onStateChange", cl);
+                  api.stopVideo();
+                  !ytcenter.settings.mute && api.isMuted && api.unMute();
+                }
+              };
+              ytcenter.player.listeners.addEventListener("onStateChange", cl);
+            }
           } else if (ytcenter.settings.preventPlaylistAutoPlay) {
             api.mute();
             api.playVideo();
@@ -11996,7 +12006,17 @@
           }
         } else {
           if (ytcenter.settings.preventAutoBuffer) {
-            //api.stopVideo();
+            if (ytcenter.html5) {
+              api.mute();
+              var cl =  function(state){
+                if (state === 1) {
+                  ytcenter.player.listeners.removeEventListener("onStateChange", cl);
+                  api.stopVideo();
+                  !ytcenter.settings.mute && api.isMuted && api.unMute();
+                }
+              };
+              ytcenter.player.listeners.addEventListener("onStateChange", cl);
+            }
           } else if (ytcenter.settings.preventAutoPlay) {
             api.mute();
             api.playVideo();
@@ -14477,6 +14497,7 @@
           con.log("[onYouTubePlayerReady]", arguments);
           if (typeof api !== "string") {
             ytcenter.player.__getAPI = api;
+            ytcenter.html5 = (api.getPlayerType() === "html5");
             ytcenter.player.listeners.dispose();
             ytcenter.player.listeners.setup();
             
