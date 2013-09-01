@@ -9151,10 +9151,14 @@
           rd.db = database;*/
           for (var i = 0; i < database.length; i++) {
             if (database[i][3]) {
-              var id = database[i][1].split("&@&");
-              document.getElementById(id).appendChild(database[i][0]);
-            } else {
-              //database[i][0].parentNode.removeChild(database[i][0]);
+              var id = database[i][1].split("&@&")[0];
+              if (document.getElementById(id)) {
+                document.getElementById(id).appendChild(database[i][0]);
+              } else {
+                con.warn("[PlacementSystem Clear] Couldn't re-add the element to parent " + id);
+              }
+            } else if (database[i][0] && database[i][0].parentNode) {
+              database[i][0].parentNode.removeChild(database[i][0]);
             }
           }
           if (ytcenter.placementsystem.ytcd && ytcenter.placementsystem.ytcd.parentNode)
