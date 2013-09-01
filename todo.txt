@@ -1,3 +1,5 @@
+ - Stop video
+ - Set page centering only for specific pages.
  - Infinite Scroll in Search (maybe on other pages too).
  - Add date of video uploaded to video thumbnails.
  - Button to toggle the comments on and off (make them visible/invisible).
