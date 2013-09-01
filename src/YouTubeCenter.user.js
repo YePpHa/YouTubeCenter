@@ -11183,8 +11183,10 @@
                 try {
                   if (ytcenter.placementsystem.toggleEnable()) {
                     ytcenter.utils.addClass(this, "yt-uix-button-toggled");
+                    ytcenter.utils.addClass(document.body, "ytcenter-placementsystem-activated");
                   } else {
                     ytcenter.utils.removeClass(this, "yt-uix-button-toggled");
+                    ytcenter.utils.removeClass(document.body, "ytcenter-placementsystem-activated");
                   }
                 } catch (e) {
                   con.error(e);
