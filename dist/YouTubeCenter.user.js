@@ -8883,12 +8883,7 @@
     };
     con.log("Initializing Placement System");
     ytcenter.placementsystem = (function(){
-      var database = [];
-      var __api;
-      var sandboxes = [];
-      var old_sandboxes = [];
-      var settings;
-      var setParentData = function(elm, parent){
+      function setParentData(elm, parent) {
         var new_sandbox,
             applyParentData;
         new_sandbox = (function(){
@@ -8961,8 +8956,8 @@
           }
         };
         applyParentData(elm);
-      };
-      var buttonInSettings = function(sig){
+      }
+      function buttonInSettings(sig){
         var bp = settings;
         for (var key in bp) {
           if (bp.hasOwnProperty(key)) {
@@ -8974,8 +8969,8 @@
           }
         }
         return false;
-      };
-      var updateList = function(){
+      }
+      function updateList() {
         var bp = settings;
         for (var key in bp) {
           if (bp.hasOwnProperty(key)) {
@@ -8990,12 +8985,26 @@
           }
         }
         ytcenter.saveSettings();
-      };
+      }
+      function putItem(a) {
+        var i;
+        for (i = 0; i < database.length; i++) {
+          if (a[1] === database[i][1]) {
+            database[i] = a;
+            return;
+          }
+        }
+        database.push(a);
+      }
+      var database = [],
+          __api,
+          sandboxes = [],
+          old_sandboxes = [],
+          settings;
       var rd = {
         init: function(whitelist, blacklist){
           try {
             settings = ytcenter.settings.buttonPlacementWatch7;
-            
             updateList();
             
             sandboxes = whitelist;
@@ -9025,13 +9034,7 @@
         },
         registerElement: function(elm, query){
           con.log("Regisering Element to PlacementSystem: " + query);
-          for (var i = 0; i < database.length; i++) {
-            if (database[i][1] === query) {
-              database[i] = [elm, query, []];
-              return;
-            }
-          }
-          database.push([elm, query, []]);
+          putItem([elm, query, [], false]);
         },
         registerNativeElements: function(){
           var bp = settings;
@@ -9042,7 +9045,7 @@
                 var ar = bp[key][i].split("&@&");
                 try {
                   var e = document.evaluate(ar[1], document.getElementById(ar[0]), null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                  database.push([e, bp[key][i], []]);
+                  putItem([e, bp[key][i], [], true]);
                 } catch (e) {
                   con.log("Couldn't find and register element: " + bp[key][i]);
                 }
@@ -9144,8 +9147,16 @@
           }
         },
         clear: function(){
-          database = [];
-          rd.db = database;
+          /*database = [];
+          rd.db = database;*/
+          for (var i = 0; i < database.length; i++) {
+            if (database[i][3]) {
+              var id = database[i][1].split("&@&");
+              document.getElementById(id).appendChild(database[i][0]);
+            } else {
+              //database[i][0].parentNode.removeChild(database[i][0]);
+            }
+          }
           if (ytcenter.placementsystem.ytcd && ytcenter.placementsystem.ytcd.parentNode)
             ytcenter.placementsystem.ytcd.parentNode.removeChild(ytcenter.placementsystem.ytcd);
         }
