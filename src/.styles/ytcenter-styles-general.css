@@ -1025,6 +1025,15 @@ body > #page {
   filter: alpha(opacity=75) !important;
 }
 
+.ytcenter-placementsystem-activated #watch7-sentiment-actions,
+.ytcenter-placementsystem-activated #watch7-ytcenter-buttons {
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  min-width: 40px;
+  min-height: 28px;
+  padding: 0 20px;
+}
+
 /*.branded-page-v2-primary-col {
   overflow: visible!important;
 }*/
