@@ -709,14 +709,14 @@
       var btn1a = document.createElement("a");
       if (stream) {
         btn1a.setAttribute("href", ytcenter.video.downloadLink(stream));
-        btn1a.setAttribute("download", ytcenter.video.getFilename(stream));
+        btn1a.setAttribute("download", ytcenter.video.getFilename(stream) + ytcenter.video.getFilenameExtension(stream));
       }
       btn1a.setAttribute("target", "_blank");
       ytcenter.events.addEvent("ui-refresh", function(){
         stream = $DownloadButtonStream();
         if (stream) {
           btn1a.setAttribute("href", ytcenter.video.downloadLink(stream));
-          btn1a.setAttribute("download", ytcenter.video.getFilename(stream));
+          btn1a.setAttribute("download", ytcenter.video.getFilename(stream) + ytcenter.video.getFilenameExtension(stream));
         }
       });
       
@@ -924,7 +924,7 @@
             } else {
               item.className = "yt-uix-button-menu-item";
               item.setAttribute("target", "_blank");
-              item.setAttribute("download", ytcenter.video.getFilename(stream_groups[key].streams[i]));
+              item.setAttribute("download", ytcenter.video.getFilename(stream_groups[key].streams[i]) + ytcenter.video.getFilenameExtension(stream_groups[key].streams[i]));
               item.href = ytcenter.video.downloadLink(stream_groups[key].streams[i]);
               var downloadStreamListener = (function(_stream){
                 return function(e){
@@ -938,7 +938,7 @@
               ytcenter.events.addEvent("ui-refresh", (function(__stream, item, _downloadStreamListener){
                 return function(){
                   item.href = ytcenter.video.downloadLink(__stream);
-                  item.setAttribute("download", ytcenter.video.getFilename(_stream));
+                  item.setAttribute("download", ytcenter.video.getFilename(__stream) + ytcenter.video.getFilenameExtension(__stream));
                 };
               })(stream_groups[key].streams[i], item, downloadStreamListener));
             }
@@ -11670,6 +11670,23 @@
     ytcenter.video.channelname = "";
     ytcenter.video._channel = {};
     con.log("Download initializing");
+    ytcenter.video.mimetypes = [
+      { mimetype: "video/webm", extension: ".webm" },
+      { mimetype: "video/x-flv", extension: ".flv" },
+      { mimetype: "video/mp4", extension: ".mp4" },
+      { mimetype: "video/3gpp", extension: ".3gp" },
+      { mimetype: "audio/mp4", extension: ".m4a" },
+      { mimetype: "audio/mp4", extension: ".m4a" }
+    ];
+    ytcenter.video.getFilenameExtension = function(stream){
+      if (!stream || !stream.type || stream.type.indexOf(";") === -1) return "";
+      var mt = stream.type.split(";")[0], i;
+      for (i = 0; i < ytcenter.video.mimetypes.length; i++) {
+        if (ytcenter.video.mimetypes[i].mimetype === mt)
+          return ytcenter.video.mimetypes[i].extension;
+      }
+      return "";
+    };
     ytcenter.video.getFilename = function(stream){
       if (stream == null) return "";
       var duration = 0;

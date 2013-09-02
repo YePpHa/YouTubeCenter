@@ -1034,6 +1034,10 @@ body > #page {
   padding: 0 20px;
 }
 
+.ytcenter-disable-endscreen .html5-video-player .html5-endscreen {
+  display: none!important;
+}
+
 /*.branded-page-v2-primary-col {
   overflow: visible!important;
 }*/
