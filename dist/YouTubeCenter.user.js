@@ -8631,7 +8631,7 @@
       return _o;
     };
     ytcenter.utils.cleanClasses = function(elm){
-      if (typeof elm === "undefined") return;
+      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
       var classNames = elm.className.split(" "),
           i, _new = [];
       for (i = 0; i < classNames.length; i++) {
@@ -8642,7 +8642,7 @@
       elm.className = _new.join(" ");
     };
     ytcenter.utils.hasClass = function(elm, className){
-      if (typeof elm === "undefined") return;
+      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
       var classNames = elm.className.split(" "),
           i;
       for (i = 0; i < classNames.length; i++) {
@@ -8651,7 +8651,7 @@
       return false;
     };
     ytcenter.utils.toggleClass = function(elm, className){
-      if (typeof elm === "undefined") return;
+      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
       if (ytcenter.utils.hasClass(elm, className)) {
         ytcenter.utils.removeClass(elm, className);
       } else {
@@ -8659,7 +8659,7 @@
       }
     };
     ytcenter.utils.addClass = function(elm, className){
-      if (typeof elm === "undefined") return;
+      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
       var classNames = elm.className.split(" "),
           addClassNames = className.split(" "),
           _new = [],
@@ -8680,7 +8680,7 @@
       ytcenter.utils.cleanClasses(elm);
     };
     ytcenter.utils.removeClass = function(elm, className){
-      if (typeof elm === "undefined") return;
+      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
       var classNames = elm.className.split(" "),
           remClassNames = className.split(" "),
           _new = [],
@@ -8989,7 +8989,8 @@
       function putItem(a) {
         var i;
         for (i = 0; i < database.length; i++) {
-          if (a[1] === database[i][1]) {
+          if (a[1] === database[i][1] && a !== database[i]) {
+            if (database[i][0] && database[i][0].parentNode) database[i][0].parentNode.removeChild(database[i][0]);
             database[i] = a;
             return;
           }
@@ -12624,8 +12625,9 @@
       };
       __r.getMasterListener = function(a){
         return function(){
-          if (events[a].override && arguments.length > 0 && arguments[arguments.length - 1] !== "ytcenter-override")
+          if (events[a].override && arguments.length > 0 && arguments[arguments.length - 1] !== "ytcenter-override") {
             return;
+          }
           con.log("[Player Listener] => " + a, arguments);
           var i, w = {
             getOriginalListener: function(){
@@ -12655,7 +12657,7 @@
         for (event in __r.replacedListeners) {
           if (__r.replacedListeners.hasOwnProperty(event)) {
             b = event.replace(/player[0-9]+$/, "").replace(/^ytPlayer/, "");
-            if (uw[event] !== events[b].masterWindowListener) {
+            if (uw[event] !== events[b].masterWindowListener && uw[event] !== events[b].masterListener) {
               con.log("[Player Listener] YouTube Center injected listeners not present!");
               uw[event] = events[b].masterWindowListener;
               a.push(b);
@@ -12668,8 +12670,10 @@
         var i, event;
         for (event in events) {
           if (events.hasOwnProperty(event)) {
-            events[event].masterListener = __r.getMasterListener(event);
-            events[event].masterWindowListener = __r.getMasterWindowListener(event);
+            if (!events[event].masterListener)
+              events[event].masterListener = __r.getMasterListener(event);
+            if (!events[event].masterWindowListener)
+              events[event].masterWindowListener = __r.getMasterWindowListener(event);
           }
         }
       };
@@ -12686,7 +12690,7 @@
         var api = ytcenter.player.getAPI(),
             override = false,
             event,
-            i;
+            i, usEvent;
         con.log("[Player Listener] Setting up enviorment");
         __r.setupListeners();
         for (event in events) {
@@ -12700,8 +12704,10 @@
             i = __r.getNewestPlayerId();
             for (event in events) {
               if (events.hasOwnProperty(event) && events[event].override) {
-                if (uw["ytPlayer" + event + "player" + i] && uw["ytPlayer" + event + "player" + i] !== events[event].masterWindowListener) {
-                  __r.replacedListeners["ytPlayer" + event + "player" + i] = uw["ytPlayer" + event + "player" + i];
+                usEvent = uw["ytPlayer" + event + "player" + i];
+                if (usEvent && usEvent !== events[event].masterWindowListener && usEvent !== events[event].masterListener) {
+                  con.log("masterWindowListener", usEvent);
+                  __r.replacedListeners["ytPlayer" + event + "player" + i] = usEvent;
                   __r.originalListeners[event] = uw["ytPlayer" + event + "player" + i];
                   uw["ytPlayer" + event + "player" + i] = events[event].masterWindowListener;
                 }
@@ -13791,7 +13797,7 @@
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else if (!ytcenter.classManagement.db[i].element()) {
-          con.error("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
         }
       }
     };
@@ -13806,7 +13812,7 @@
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else if (!ytcenter.classManagement.db[i].element()) {
-          con.error("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
         }
       }
     };
@@ -13821,7 +13827,7 @@
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else {
-          con.error("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
         }
       }
     };
@@ -13835,7 +13841,7 @@
               && ytcenter.classManagement.db[i].condition(url))
             a.push(ytcenter.classManagement.db[i].className);
         } else {
-          con.error("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
         }
       }
       return a.join(" ");
@@ -13850,7 +13856,7 @@
               && ytcenter.classManagement.db[i].condition(url))
             a.push(ytcenter.classManagement.db[i].className);
         } else {
-          con.error("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
         }
       }
       return a.join(" ");

@@ -8,3 +8,5 @@ Fixed Topbar v2
   VISITOR_INFO1_LIVE=JX5TVkqGL3I;
 Ads Removed
   VISITOR_INFO1_LIVE=oKckVSqvaGw;
+Recommend Videos list (Bigger Thumbnails):
+  VISITOR_INFO1_LIVE=8P_pMfGDZsE
