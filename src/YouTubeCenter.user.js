@@ -11575,7 +11575,9 @@
             "ko": [
               { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" }
             ],
-            "nl": [],
+            "nl": [
+              { name: "Marijn Roes" }
+            ],
             "pl": [
               { name: "Piotr" },
               { name: "kasper93" }
