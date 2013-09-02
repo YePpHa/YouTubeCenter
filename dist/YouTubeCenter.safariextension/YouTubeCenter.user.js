@@ -709,12 +709,14 @@
       var btn1a = document.createElement("a");
       if (stream) {
         btn1a.setAttribute("href", ytcenter.video.downloadLink(stream));
+        btn1a.setAttribute("download", ytcenter.video.getFilename(stream));
       }
       btn1a.setAttribute("target", "_blank");
       ytcenter.events.addEvent("ui-refresh", function(){
         stream = $DownloadButtonStream();
         if (stream) {
           btn1a.setAttribute("href", ytcenter.video.downloadLink(stream));
+          btn1a.setAttribute("download", ytcenter.video.getFilename(stream));
         }
       });
       
@@ -922,6 +924,7 @@
             } else {
               item.className = "yt-uix-button-menu-item";
               item.setAttribute("target", "_blank");
+              item.setAttribute("download", ytcenter.video.getFilename(stream_groups[key].streams[i]));
               item.href = ytcenter.video.downloadLink(stream_groups[key].streams[i]);
               var downloadStreamListener = (function(_stream){
                 return function(e){
@@ -935,6 +938,7 @@
               ytcenter.events.addEvent("ui-refresh", (function(__stream, item, _downloadStreamListener){
                 return function(){
                   item.href = ytcenter.video.downloadLink(__stream);
+                  item.setAttribute("download", ytcenter.video.getFilename(_stream));
                 };
               })(stream_groups[key].streams[i], item, downloadStreamListener));
             }
@@ -11666,8 +11670,7 @@
     ytcenter.video.channelname = "";
     ytcenter.video._channel = {};
     con.log("Download initializing");
-    
-    ytcenter.video.filename = function(stream){
+    ytcenter.video.getFilename = function(stream){
       if (stream == null) return "";
       var duration = 0;
       var pubtimestamp = 0, pubsecs = 0, pubmins = 0, pubhours = 0, pubdays = 0, pubmonth = 0, pubyear = 0;
@@ -11778,7 +11781,11 @@
         }
         filename = tmp;
       }
-      return stream.url + "&title=" + encodeURIComponent(filename);
+      return filename;
+    };
+    ytcenter.video.filename = function(stream){
+      if (stream == null) return "";
+      return stream.url + "&title=" + encodeURIComponent(ytcenter.video.getFilename(stream));
     };
     ytcenter.video.downloadLink = function(stream){
       try {
