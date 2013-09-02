@@ -11539,78 +11539,81 @@
           "titleLocale": "SETTINGS_ABOUT_TRANSLATORS",
           "translators": {
             "ar-bh": [
-              {name: "alihill381"}
+              { name: "alihill381" }
             ],
             "ca": [
-              {name: "Joan Alemany"},
-              {name: "Raül Cambeiro"}
+              { name: "Joan Alemany" },
+              { name: "Raül Cambeiro" }
             ],
             "da": [],
             "de": [
-              {name: "Simon Artmann"},
-              {name: "Sven \"Hidden\" W"}
+              { name: "Simon Artmann" },
+              { name: "Sven \"Hidden\" W" }
             ],
             "en": [],
             "es": [
-              {name: "Roxz"}
+              { name: "Roxz" }
             ],
             "fa-IR": [],
             "fr": [
-              {name: "ThePoivron", url: "http://www.twitter.com/ThePoivron"}
+              { name: "ThePoivron", url: "http://www.twitter.com/ThePoivron" }
             ],
             "he": [
-              {name: "baryoni"}
+              { name: "baryoni" }
             ],
             "hu": [
-              {name: "Eugenox"},
-              {name: "Mateus"}
+              { name: "Eugenox" },
+              { name: "Mateus" }
             ],
             "it": [
-              {name: "Pietro De Nicolao"}
+              { name: "Pietro De Nicolao" }
             ],
             "jp": [
-              {name: "Lightning-Natto"}
+              { name: "Lightning-Natto" }
+            ],
+            "ko": [
+              { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" }
             ],
             "nl": [],
             "pl": [
-              {name: "Piotr"},
-              {name: "kasper93"}
+              { name: "Piotr" },
+              { name: "kasper93" }
             ],
             "pt-BR": [
-              {name: "Thiago R. M. Pereira"},
-              {name: "José Junior"},
-              {name: "Igor Rückert"}
+              { name: "Thiago R. M. Pereira" },
+              { name: "José Junior" },
+              { name: "Igor Rückert" }
             ],
             "pt-PT": [
-              {name: "Rafael Damasceno", url: "http://userscripts.org/users/264457"}
+              { name: "Rafael Damasceno", url: "http://userscripts.org/users/264457" }
             ],
             "ro": [
-              {name: "BlueMe", url: "http://www.itinerary.ro/"}
+              { name: "BlueMe", url: "http://www.itinerary.ro/" }
             ],
             "ru": [
-              {name: "KDASOFT", url: "http://kdasoft.narod.ru/"}
+              { name: "KDASOFT", url: "http://kdasoft.narod.ru/" }
             ],
             "sk": [
-              {name: "ja1som"}
+              { name: "ja1som" }
             ],
             "sv-SE": [
-              {name: "Christian Eriksson"}
+              { name: "Christian Eriksson" }
             ],
             "tr": [
-              {name: "Ismail Aksu"}
+              { name: "Ismail Aksu" }
             ],
             "UA": [
-              {name: "SPIDER-T1"}
+              { name: "SPIDER-T1" }
             ],
             "vi": [
-              {name: "Tuấn Phạm"}
+              { name: "Tuấn Phạm" }
             ],
             "zh-CN": [
-              {name: "小酷"},
-              {name: "MatrixGT"}
+              { name: "小酷" },
+              { name: "MatrixGT" }
             ],
             "zh-TW": [
-              {name: "泰熊"}
+              { name: "泰熊" }
             ]
           }
         }
