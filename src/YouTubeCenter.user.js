@@ -13678,6 +13678,55 @@
         return true;
       }
     };
+    ytcenter.player.parseThumbnailStream = function(specs){
+      var parts = specs.split("|"),
+          baseURL = parts[0],
+          levels = [], i, a, b;
+      for (i = 1; i < parts.length; i++) {
+        a = parts[i].split("#");
+        b = {
+          width: parseInt(a[0]),
+          height: parseInt(a[1]),
+          frames: parseInt(a[2]),
+          columns: parseInt(a[3]),
+          rows: parseInt(a[4]),
+          interval: parseInt(a[5]),
+          urlPattern: a[6],
+          signature: a[7]
+        };
+        b.numMosaics = Math.ceil(b.frames / (b.rows * b.columns));
+        b.getMosaic = (function(c){
+          return function(frame){
+            return Math.floor(frame/(c.rows*c.columns));
+          };
+        })(b);
+        b.getRect = (function(c){
+          return function(frame){
+            if (frame < 0 || (c.frames && frame >= c.frames))
+              return null;
+            var a = frame % (c.rows * c.columns),
+                x = (c.width * (a % c.columns)),
+                y = (c.height * Math.floor(a / c.columns))
+            return {
+              x: x,
+              y: y,
+              width: c.width - 2,
+              height: c.height - 2
+            };
+          };
+        })(b);
+        b.getURL = (function(c, index){
+          return function(frame){
+            return baseURL.replace("$L", index).replace("$N", c.urlPattern).replace("$M", c.getMosaic(frame)) + "?sigh=" + c.signature;
+          };
+        })(b, i - 1);
+        levels.push(b);
+      }
+      return {
+        baseURL: baseURL,
+        levels: levels
+      };
+    };
     ytcenter.player._original_update = undefined;
     ytcenter.player._appliedBefore = false;
     ytcenter.player._onPlayerLoadedBefore = false;
@@ -14609,6 +14658,27 @@
         uw.ytcenter = uw.ytcenter || {};
         uw.ytcenter.player = uw.ytcenter.player || {};
         uw.ytcenter.player.onReady = ytcenter.utils.bind(ytcenter.player.onYouTubePlayerReady, uw.ytcenter);
+        uw.ytcenter.player.parseThumbnailStream = ytcenter.player.parseThumbnailStream;
+        uw.ytcenter.player.showMeMyThumbnailStream = function(index){
+          var a = ytcenter.player.parseThumbnailStream(ytcenter.player.config.args.storyboard_spec),
+              b = a.levels[(typeof index === "number" && index > 0 && index < a.levels.length ? index : a.levels.length) - 1], elm = document.createElement("div"), pic = document.createElement("div"), rect = b.getRect(0), i = 0;
+          pic.style.width = rect.width + "px";
+          pic.style.height = rect.height + "px";
+          
+          pic.style.backgroundImage = "URL(" + b.getURL(0) + ")";
+          pic.style.backgroundPosition = rect.x + "px " + rect.y + "px";
+          
+          setInterval(function(){
+            i++;
+            if (b.frames <= i) i = 0;
+            rect = b.getRect(i);
+            pic.style.backgroundImage = "URL(" + b.getURL(i) + ")";
+            pic.style.backgroundPosition = rect.x + "px " + rect.y + "px";
+          }, 100);
+          
+          elm.appendChild(pic);
+          ytcenter.dialog(null, elm).setVisibility(true);
+        };
         uw.onYouTubePlayerReady = ytcenter.player.onYouTubePlayerReady;
         
         /* bodyInteractive should only be used for the UI, use the other listeners for player configuration */
