@@ -164,6 +164,14 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: 1003px;
 }
 
+.ytcenter-site-not-watch.ytcenter-site-center #page-container {
+  padding: 0 10px!important;
+}
+
+.ytcenter-site-not-watch.ytcenter-site-center.flex-width-enabled #page  {
+  padding: 0 10px !important;
+}
+
 .ytcenter-site-watch.ytcenter-site-center #guide-container {
   left: 10px!important;
 }
@@ -469,10 +477,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
   width: auto; /* Default fallback size when the resize feature fails. */
-}
-
-.ytcenter-site-not-watch.ytcenter-site-center #page-container {
-  padding: 0 10px !important;
 }
 
 .ytcenter-intelligentfeed .yt-shelf-grid-item {

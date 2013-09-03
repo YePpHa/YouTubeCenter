@@ -13907,10 +13907,17 @@
       {element: function(){return document.getElementById("watch7-creator-bar");}, className: "clearfix", condition: function(loc){return false;}},
       {element: function(){return document.getElementById("page");}, className: "", condition: function(loc){
         if (ytcenter.settings.watch7centerpage)
-          document.getElementById("page").style.setProperty("margin", "0 auto", "!important");
+          document.getElementById("page").style.setProperty("margin", "0 auto", "important");
         else
           document.getElementById("page").style.setProperty("margin", "");
         return false;
+      }},
+      {element: function(){return document.getElementById("page");}, className: "", condition: function(loc){
+        if (ytcenter.settings["watch7centerpage"]) {
+          document.getElementById("page").style.setProperty("padding-left", "0", "important");
+        } else {
+          document.getElementById("page").style.setProperty("padding-left", "");
+        }
       }},
       {element: function(){return document.body;}, className: "ytcenter-disable-endscreen", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["removeRelatedVideosEndscreen"];}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
