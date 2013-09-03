@@ -12725,7 +12725,7 @@
             override = false,
             event,
             i, usEvent;
-        con.log("[Player Listener] Setting up enviorment");
+        con.log("[Player Listener] Setting up environment");
         __r.setupListeners();
         for (event in events) {
           if (events.hasOwnProperty(event)) {

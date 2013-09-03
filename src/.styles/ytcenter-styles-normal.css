@@ -106,6 +106,7 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 .ytcenter-site-center #alerts {
   width: 1003px;
   margin: 0 auto!important;
+  padding: 0 10px!important;
 }
 
 .ytcenter-site-search.ytcenter-site-center.exp-new-site-width #guide + #content {
@@ -480,4 +481,10 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 
 .ytcenter-resize-disaligned #player {
   min-width: auto !important;
+}
+
+.flex-width-enabled #yt-masthead {
+  width: auto!important;
+  max-width: 1422px!important;
+  min-width: 1003px!important;
 }
