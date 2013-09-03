@@ -927,12 +927,12 @@ body > #page {
 }
 
 .ytcenter-intelligentfeed.ytcenter-intelligentfeed-minimized .shelf-wrapper:first-child {
-  max-height: 338px;
+  max-height: 350px;
 }
 .ytcenter-intelligentfeed .feed-item-main-content .yt-uix-shelfslider-item {
   float: left;
   margin-bottom: 10px;
-  height: 159px;
+  height: 169px;
 }
 .ytcenter-intelligentfeed .feed-item-main-content .shelf-wrapper {
   margin-bottom: 0!important;
