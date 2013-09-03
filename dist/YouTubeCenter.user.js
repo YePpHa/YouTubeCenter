@@ -12261,6 +12261,11 @@
         } else {
           con.log("Keeping the aspect");
         }
+        if (ytcenter.settings.forcePlayerType === "flash") {
+          config.html5 = false;
+        } else if (ytcenter.settings.forcePlayerType === "html5") {
+          config.html5 = true;
+        }
         if (ytcenter.settings.enableAnnotations) {
           config.args.iv_load_policy = 1;
         } else {
@@ -13681,7 +13686,9 @@
         con.error("[Player setPlayerType] Invalid type: " + type);
         return;
       }
-      ytcenter.player.getAPI().writePlayer(type);
+      var api = ytcenter.player.getAPI();
+      con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to " + type);
+      api.writePlayer(type);
     };
     ytcenter.player.updateFlashvars = function(player, config){
       var flashvars = "", key;
@@ -14578,12 +14585,10 @@
             } else {
               if (ytcenter.getPage() === "watch") {
                 if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash") {
-                  con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to flash");
-                  api.writePlayer("flash");
+                  ytcenter.player.setPlayerType("flash");
                   return;
                 } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5") {
-                  con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to HTML5");
-                  api.writePlayer("html5");
+                  ytcenter.player.setPlayerType("html5");
                   return;
                 }
                 ytcenter.placementsystem.clear();
