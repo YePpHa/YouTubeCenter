@@ -14834,7 +14834,7 @@
               b = a.levels[(typeof index === "number" && index > 0 && index < a.levels.length ? index : a.levels.length) - 1],
               elm = document.createElement("div"),
               pic = document.createElement("div"),
-              box = {width: 100, height: 100},
+              box = {width: 1280, height: 720},
               rect = b.getRect(0, box),
               i = 0;
           pic.style.width = rect.width + "px";
