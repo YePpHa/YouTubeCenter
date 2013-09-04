@@ -1658,7 +1658,7 @@
           if (recipe.style) {
             for (var key in recipe.style) {
               if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
+                wrapper.style[key] = recipe.style[key];
               }
             }
           }
@@ -1676,7 +1676,7 @@
           var _text = document.createElement("input");
           _text.setAttribute("type", "text");
           _text.value = ytcenter.settings[recipe.defaultSetting];
-          _text.style.width = "25px";
+          _text.style.width = "45px";
           _text.style.marginLeft = "4px";
           
           elm.appendChild(_text);
@@ -4501,8 +4501,15 @@
               if (frame > 3) frame = 1;
               a.src = urlTemplate.replace("$N", frame);
             }
-            
-            frame++;
+            if (ytcenter.settings.videoThumbnailAnimationShuffle) {
+              if (level) {
+                frame = Math.round(Math.random()*(level.frames - 1));
+              } else {
+                frame = Math.round(Math.random()*2) + 1;
+              }
+            } else {
+              frame++;
+            }
           }
           if (level) {
             a.src = "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif";
@@ -4527,7 +4534,7 @@
         }
         try {
           var a = item.wrapper.getElementsByTagName("img")[0],
-              b = ytcenter.player.parseThumbnailStream(storyboard),
+              b = ytcenter.player.parseThumbnailStream(storyboard || ""),
               originalImage = a.src,
               timer, frame = 0, level, i, urlTemplate,
               box = { width: a.offsetWidth, height: a.offsetHeight }, rect;
@@ -9671,8 +9678,9 @@
     con.log("default settings initializing");
     ytcenter._settings = {
       videoThumbnailAnimationEnabled: true,
-      videoThumbnailAnimationInterval: 100,
-      videoThumbnailAnimationFallbackInterval: 1000,
+      videoThumbnailAnimationShuffle: false,
+      videoThumbnailAnimationInterval: 550,
+      videoThumbnailAnimationFallbackInterval: 1500,
       forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
@@ -10904,6 +10912,13 @@
           "label": "SETTINGS_THUMBNAIL_ANIMATION_ENABLE",
           "type": "bool",
           "defaultSetting": "videoThumbnailAnimationEnabled",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBNAIL_ANIMATION_SHUFFLE",
+          "type": "bool",
+          "defaultSetting": "videoThumbnailAnimationShuffle",
           "style": {
             "marginLeft": "12px"
           }
