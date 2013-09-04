@@ -4142,8 +4142,8 @@
         return videos;
       }
       function loadVideoConfig(item, callback) {
-        if (item.stream) {
-          callback(item.stream);
+        if (item.stream && item.storyboard) {
+          callback(item.stream, item.storyboard);
         } else {
           //var spflink = Math.round(Math.random()) === 1 ? true : false;
           var spflink = ytcenter.spf.isEnabled();
@@ -4220,6 +4220,7 @@
                   }
                 }
                 item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
+                item.storyboard = cfg.args.storyboard_spec;
                 try {
                   delete item.stream.fallback_host;
                   delete item.stream.sig;
@@ -4238,7 +4239,7 @@
                 } catch (e) {
                   con.error(e);
                 }
-                callback(item.stream);
+                callback(item.stream, item.storyboard);
               } catch (e) {
                 var msg = "";
                 if (e === "unavailable") {
@@ -4261,13 +4262,13 @@
                   }
                 }
                 con.error("[VideoThumbnail Quality] IO Error => " + msg);
-                callback("error", msg);
+                callback("error", null, msg);
               }
             },
             onerror: function(){
               var msg = "Connection failed!";
               con.error("[VideoThumbnail Quality] IO Error => " + msg);
-              callback("error", msg);
+              callback("error", null, msg);
             }
           });
         }
@@ -4485,6 +4486,69 @@
           con.error(e);
         }
       }
+      function appendAnimatedThumbnail(item, storyboard, errorMessage){
+        function mouseover() {
+          function moi() {
+            if (level) {
+              if (frame >= level.frames) frame = 0;
+              rect = level.getRect(frame, box);
+              a.style.width = rect.width + "px";
+              a.style.height = rect.height + "px";
+              a.style.backgroundSize = rect.imageWidth + "px " + rect.imageHeight + "px";
+              a.style.backgroundImage = "URL(" + level.getURL(frame) + ")";
+              a.style.backgroundPosition = -rect.x + "px " + -rect.y + "px";
+            } else {
+              if (frame > 3) frame = 1;
+              a.src = urlTemplate.replace("$N", frame);
+            }
+            
+            frame++;
+          }
+          if (level) {
+            a.src = "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif";
+            a.parentNode.style.backgroundColor = "#000";
+            timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationInterval);
+          } else {
+            urlTemplate = originalImage.replace(/default\.jpg$/, "$N");
+            timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationFallbackInterval);
+          }
+          moi();
+        }
+        function mouseout() {
+          uw.clearInterval(timer);
+          a.src = originalImage;
+          a.style.backgroundSize = "";
+          a.style.backgroundImage = "";
+          a.style.backgroundPosition = "";
+          a.style.width = "";
+          a.style.height = "";
+          a.parentNode.style.backgroundColor = "";
+          frame = 0;
+        }
+        try {
+          var a = item.wrapper.getElementsByTagName("img")[0],
+              b = ytcenter.player.parseThumbnailStream(storyboard),
+              originalImage = a.src,
+              timer, frame = 0, level, i, urlTemplate,
+              box = { width: a.offsetWidth, height: a.offsetHeight }, rect;
+          if (b.levels.length > 0) {
+            for (i = 0; i < b.levels.length; i++) {
+              if (!level) level = b.levels[i];
+              else if (b.levels[i].width > level.width)
+                level = b.levels[i];
+            }
+          }
+          if (item.mouseover) {
+            mouseover();
+          } else {
+            mouseout();
+          }
+          ytcenter.utils.addEventListener(item.wrapper, "mouseover", mouseover, false);
+          ytcenter.utils.addEventListener(item.wrapper, "mouseout", mouseout, false);
+        } catch (e) {
+          con.error(e);
+        }
+      }
       function appendQuality(item, stream, errorMessage) {
         var tableQuality = {
               "error": errorMessage,
@@ -4634,21 +4698,35 @@
         }
       }
       function processItemHeavyLoad(item) {
-        if (!ytcenter.settings.videoThumbnailQualityBar) return;
-        if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail") {
+        if (!ytcenter.settings.videoThumbnailQualityBar && !ytcenter.settings.videoThumbnailAnimationEnabled) return;
+        if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail" || ytcenter.settings.videoThumbnailAnimationEnabled) {
           ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
             var added = false;
             return function(){
               if (added) return;
               added = true;
-              loadVideoConfig(item, function(stream, errorMessage){
-                appendQuality(item, stream, errorMessage);
+              loadVideoConfig(item, function(stream, storyboard, errorMessage){
+                if (ytcenter.settings.videoThumbnailQualityBar)
+                  appendQuality(item, stream, errorMessage);
+                if (ytcenter.settings.videoThumbnailAnimationEnabled)
+                  appendAnimatedThumbnail(item, storyboard, errorMessage);
               });
             };
           })(), false);
         } else {
-          loadVideoConfig(item, function(stream, errorMessage){
-            appendQuality(item, stream, errorMessage);
+          loadVideoConfig(item, function(stream, storyboard, errorMessage){
+            if (ytcenter.settings.videoThumbnailQualityBar)
+              appendQuality(item, stream, errorMessage);
+            if (ytcenter.settings.videoThumbnailAnimationEnabled) {
+              ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
+                var added = false;
+                return function(){
+                  if (added) return;
+                  added = true;
+                  appendAnimatedThumbnail(item, storyboard, errorMessage);
+                };
+              })(), false);
+            }
           });
         }
       }
@@ -4737,6 +4815,9 @@
         if (data.stream && !ytcenter.settings.videoThumbnailData[index].stream) {
           ytcenter.settings.videoThumbnailData[index].stream = data.stream;
         }
+        if (data.storyboard && !ytcenter.settings.videoThumbnailData[index].storyboard) {
+          ytcenter.settings.videoThumbnailData[index].storyboard = data.storyboard;
+        }
         if (data.likes && data.dislikes && !ytcenter.settings.videoThumbnailData[index].likes && !ytcenter.settings.videoThumbnailData[index].dislikes) {
           ytcenter.settings.videoThumbnailData[index].likes = data.likes;
           ytcenter.settings.videoThumbnailData[index].dislikes = data.dislikes;
@@ -4776,6 +4857,7 @@
         nData.reused = 0;
         nData.date = ytcenter.utils.now();
         if (data.stream) nData.stream = data.stream;
+        if (data.storyboard) nData.storyboard = data.storyboard;
         if (data.likes) nData.likes = data.likes;
         if (data.dislikes) nData.dislikes = data.dislikes;
         
@@ -4817,6 +4899,12 @@
       __r.update = function(){
         var vt = compareDifference(getVideoThumbs(), videoThumbs), i;
         for (i = 0; i < vt.length; i++) {
+          ytcenter.utils.addEventListener(vt[i].wrapper, "mouseover", (function(item){
+            return function(){ item.mouseover = true; };
+          })(vt[i]), false);
+          ytcenter.utils.addEventListener(vt[i].wrapper, "mouseout", (function(item){
+            return function(){ item.mouseover = false; };
+          })(vt[i]), false);
           videoThumbs.push(vt[i]);
           updateReuse(vt[i]);
           processItem(vt[i]);
@@ -4881,6 +4969,12 @@
           cacheChecker();
           videoThumbs = getVideoThumbs();
           for (i = 0; i < videoThumbs.length; i++) {
+            ytcenter.utils.addEventListener(videoThumbs[i].wrapper, "mouseover", (function(item){
+              return function(){ item.mouseover = true; };
+            })(videoThumbs[i]), false);
+            ytcenter.utils.addEventListener(videoThumbs[i].wrapper, "mouseout", (function(item){
+              return function(){ item.mouseover = false; };
+            })(videoThumbs[i]), false);
             updateReuse(videoThumbs[i]);
             processItem(videoThumbs[i]);
             processItemHeavyLoad(videoThumbs[i]);
@@ -9576,6 +9670,9 @@
     })();
     con.log("default settings initializing");
     ytcenter._settings = {
+      videoThumbnailAnimationEnabled: true,
+      videoThumbnailAnimationInterval: 100,
+      videoThumbnailAnimationFallbackInterval: 1000,
       forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
@@ -10798,6 +10895,37 @@
       ],
       "SETTINGS_TAB_VIDEOTHUMBNAIL": [
         {
+          "type": "textContent",
+          "textlocale": "SETTINGS_THUMBNAIL_ANIMATION",
+          "style": {
+            "fontWeight": "bold"
+          }
+        }, {
+          "label": "SETTINGS_THUMBNAIL_ANIMATION_ENABLE",
+          "type": "bool",
+          "defaultSetting": "videoThumbnailAnimationEnabled",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBNAIL_ANIMATION_INTERVAL",
+          "type": "range",
+          "minRange": 0,
+          "maxRange": 5000,
+          "defaultSetting": "videoThumbnailAnimationInterval",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBNAIL_ANIMATION_FALLBACK_INTERVAL",
+          "type": "range",
+          "minRange": 0,
+          "maxRange": 5000,
+          "defaultSetting": "videoThumbnailAnimationFallbackInterval",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
           "type": "textContent",
           "textlocale": "SETTINGS_THUMBVIDEO_QUALITY",
           "style": {
@@ -13701,17 +13829,43 @@
           };
         })(b);
         b.getRect = (function(c){
-          return function(frame){
+          return function(frame, maxDim){
             if (frame < 0 || (c.frames && frame >= c.frames))
               return null;
             var a = frame % (c.rows * c.columns),
-                x = (c.width * (a % c.columns)),
-                y = (c.height * Math.floor(a / c.columns))
+                _x = (c.width * (a % c.columns)), x,
+                _y = (c.height * Math.floor(a / c.rows)), y,
+                width = c.width - 2,
+                height = c.height - 2,
+                ir = width/height,
+                iw, ih;
+            if (maxDim && width > 0 && height > 0) {
+              var sWidth = maxDim.width/width,
+                  sHeight = maxDim.height/height,
+                  scale = Math.min(sWidth, sHeight),
+                  aWidth = c.width*scale,
+                  aHeight = c.height*scale;
+              width = width*scale;
+              height = height*scale;
+              iw = aWidth*c.columns/* + (2*(c.columns - 1))*/;
+              ih = aHeight*c.rows;
+              x = (aWidth * (a % c.columns));
+              y = (aHeight * Math.floor(a / c.rows));
+            } else {
+              iw = c.width*c.columns/* + (2*(c.columns - 1))*/;
+              ih = c.height*c.rows;
+              x = _x;
+              y = _y;
+            }
             return {
-              x: x,
-              y: y,
-              width: c.width - 2,
-              height: c.height - 2
+              x: Math.round(x),
+              y: Math.round(y),
+              _x: Math.round(_x),
+              _y: Math.round(_y),
+              width: Math.round(width),
+              height: Math.round(height),
+              imageWidth: Math.round(iw),
+              imageHeight: Math.round(ih)
             };
           };
         })(b);
@@ -14661,20 +14815,30 @@
         uw.ytcenter.player.parseThumbnailStream = ytcenter.player.parseThumbnailStream;
         uw.ytcenter.player.showMeMyThumbnailStream = function(index){
           var a = ytcenter.player.parseThumbnailStream(ytcenter.player.config.args.storyboard_spec),
-              b = a.levels[(typeof index === "number" && index > 0 && index < a.levels.length ? index : a.levels.length) - 1], elm = document.createElement("div"), pic = document.createElement("div"), rect = b.getRect(0), i = 0;
+              b = a.levels[(typeof index === "number" && index > 0 && index < a.levels.length ? index : a.levels.length) - 1],
+              elm = document.createElement("div"),
+              pic = document.createElement("div"),
+              box = {width: 100, height: 100},
+              rect = b.getRect(0, box),
+              i = 0;
           pic.style.width = rect.width + "px";
           pic.style.height = rect.height + "px";
           
           pic.style.backgroundImage = "URL(" + b.getURL(0) + ")";
-          pic.style.backgroundPosition = rect.x + "px " + rect.y + "px";
-          
-          setInterval(function(){
-            i++;
+          pic.style.backgroundSize = rect.imageWidth + "px " + rect.imageHeight + "px";
+          pic.style.backgroundPosition = rect.x + "px " + -rect.y + "px";
+          document.body.addEventListener("keyup", function(e){
+            if (e.keyCode === 37) {
+              i--;
+            } else if (e.keyCode === 39) {
+              i++;
+            }
             if (b.frames <= i) i = 0;
-            rect = b.getRect(i);
+            if (i < 0) i = b.frames - 1;
+            rect = b.getRect(i, box);
             pic.style.backgroundImage = "URL(" + b.getURL(i) + ")";
-            pic.style.backgroundPosition = rect.x + "px " + rect.y + "px";
-          }, 100);
+            pic.style.backgroundPosition = -rect.x + "px " + -rect.y + "px";
+          }, false);
           
           elm.appendChild(pic);
           ytcenter.dialog(null, elm).setVisibility(true);
