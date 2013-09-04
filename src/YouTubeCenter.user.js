@@ -4490,6 +4490,9 @@
         function mouseover() {
           function moi() {
             if (level) {
+              a.src = "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif";
+              a.parentNode.style.backgroundColor = "#000";
+              
               if (frame >= level.frames) frame = 0;
               rect = level.getRect(frame, box);
               a.style.width = rect.width + "px";
@@ -4512,14 +4515,12 @@
             }
           }
           if (level) {
-            a.src = "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif";
-            a.parentNode.style.backgroundColor = "#000";
             timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationInterval);
           } else {
             urlTemplate = originalImage.replace(/default\.jpg$/, "$N");
             timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationFallbackInterval);
           }
-          moi();
+          //moi();
         }
         function mouseout() {
           uw.clearInterval(timer);
