@@ -4514,16 +4514,19 @@
               frame++;
             }
           }
-          if (level) {
-            timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationInterval);
-          } else {
-            urlTemplate = originalImage.replace(/default\.jpg$/, "$N.jpg");
-            timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationFallbackInterval);
-          }
-          //moi();
+          timer2 = uw.setTimeout(function(){
+            if (level) {
+              timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationInterval);
+            } else {
+              urlTemplate = originalImage.replace(/default\.jpg$/, "$N.jpg");
+              timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationFallbackInterval);
+            }
+            moi();
+          }, ytcenter.settings.videoThumbnailAnimationDelay);
         }
         function mouseout() {
           uw.clearInterval(timer);
+          uw.clearTimeout(timer2);
           a.src = originalImage;
           a.style.backgroundSize = "";
           a.style.backgroundImage = "";
@@ -4537,7 +4540,7 @@
           var a = item.wrapper.getElementsByTagName("img")[0],
               b = ytcenter.player.parseThumbnailStream(storyboard || ""),
               originalImage = a.src,
-              timer, frame = 0, level, i, urlTemplate,
+              timer, timer2, frame = 0, level, i, urlTemplate,
               box = { width: a.offsetWidth, height: 0 }, rect;
           if (b.levels.length > 0) {
             for (i = 0; i < b.levels.length; i++) {
@@ -9680,6 +9683,7 @@
     ytcenter._settings = {
       videoThumbnailAnimationEnabled: true,
       videoThumbnailAnimationShuffle: false,
+      videoThumbnailAnimationDelay: 1000,
       videoThumbnailAnimationInterval: 700,
       videoThumbnailAnimationFallbackInterval: 2000,
       forcePlayerType: "default", // default, flash, html5
@@ -10934,6 +10938,15 @@
           "label": "SETTINGS_THUMBNAIL_ANIMATION_SHUFFLE",
           "type": "bool",
           "defaultSetting": "videoThumbnailAnimationShuffle",
+          "style": {
+            "marginLeft": "12px"
+          }
+        }, {
+          "label": "SETTINGS_THUMBNAIL_ANIMATION_DELAY",
+          "type": "range",
+          "minRange": 250,
+          "maxRange": 5250,
+          "defaultSetting": "videoThumbnailAnimationDelay",
           "style": {
             "marginLeft": "12px"
           }
