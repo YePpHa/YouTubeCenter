@@ -4538,7 +4538,7 @@
               b = ytcenter.player.parseThumbnailStream(storyboard || ""),
               originalImage = a.src,
               timer, frame = 0, level, i, urlTemplate,
-              box = { width: a.offsetWidth, height: a.offsetHeight }, rect;
+              box = { width: a.offsetWidth, height: 0 }, rect;
           if (b.levels.length > 0) {
             for (i = 0; i < b.levels.length; i++) {
               if (!level) level = b.levels[i];
@@ -13848,31 +13848,25 @@
           return function(frame, maxDim){
             if (frame < 0 || (c.frames && frame >= c.frames))
               return null;
-            var a = frame % (c.rows * c.columns),
-                _x = (c.width * (a % c.columns)), x,
-                _y = (c.height * Math.floor(a / c.rows)), y,
-                width = c.width - 2,
-                height = c.height - 2,
-                ir = width/height,
-                iw, ih;
+            var scale = 1,
+                a = frame % (c.rows * c.columns),
+                _x, x, _y, y, width = c.width - 2, height = c.height, iw, ih;
             if (maxDim && width > 0 && height > 0) {
-              var sWidth = maxDim.width/width,
-                  sHeight = maxDim.height/height,
-                  scale = Math.min(sWidth, sHeight),
-                  aWidth = c.width*scale,
-                  aHeight = c.height*scale;
-              width = width*scale;
-              height = height*scale;
-              iw = aWidth*c.columns/* + (2*(c.columns - 1))*/;
-              ih = aHeight*c.rows;
-              x = (aWidth * (a % c.columns));
-              y = (aHeight * Math.floor(a / c.rows));
-            } else {
-              iw = c.width*c.columns/* + (2*(c.columns - 1))*/;
-              ih = c.height*c.rows;
-              x = _x;
-              y = _y;
+              if (maxDim.width > 0 && maxDim.height > 0)
+                scale = Math.min(maxDim.width/width, maxDim.height/height);
+              else if (maxDim.width === 0)
+                scale = maxDim.height/height;
+              else if (maxDim.height === 0)
+                scale = maxDim.width/width;
             }
+            _x = (c.width * (a % c.columns));
+            x = _x*scale;
+            _y = (c.height * Math.floor(a / c.rows));
+            y = _y*scale;
+            width = width*scale,
+            height = height*scale,
+            iw = c.width*c.columns*scale
+            ih = c.height*c.rows*scale;
             return {
               x: Math.round(x),
               y: Math.round(y),
