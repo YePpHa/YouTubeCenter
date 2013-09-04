@@ -9679,7 +9679,7 @@
     ytcenter._settings = {
       videoThumbnailAnimationEnabled: true,
       videoThumbnailAnimationShuffle: false,
-      videoThumbnailAnimationInterval: 750,
+      videoThumbnailAnimationInterval: 700,
       videoThumbnailAnimationFallbackInterval: 2000,
       forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
