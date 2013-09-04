@@ -1699,8 +1699,9 @@
           
           _text.addEventListener("input", (function(_slide){
             return function(){
-              if (this.value === '') this.value = "0";
-              this.value = Math.round(_slide.setValue(this.value));
+              if (this.value === "") this.value = "0";
+              this.value = parseInt(this.value);
+              if (isNaN(this.value) || this.value === Infinity) this.value = "0";
             };
           })(_slide), false);
           _text.addEventListener("change", (function(_slide, recipe){
