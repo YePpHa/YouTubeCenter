@@ -4517,7 +4517,7 @@
           if (level) {
             timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationInterval);
           } else {
-            urlTemplate = originalImage.replace(/default\.jpg$/, "$N");
+            urlTemplate = originalImage.replace(/default\.jpg$/, "$N.jpg");
             timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationFallbackInterval);
           }
           //moi();
