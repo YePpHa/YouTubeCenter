@@ -9735,6 +9735,8 @@
       preventAutoBuffer: false,
       preventTabAutoPlay: false,
       preventTabAutoBuffer: false,
+      preventTabPlaylistAutoPlay: false,
+      preventTabPlaylistAutoBuffer: false,
       preventPlaylistAutoPlay: false,
       preventPlaylistAutoBuffer: false,
       scrollToPlayer: true,
@@ -10511,14 +10513,26 @@
           "type": "bool",
           "defaultSetting": "preventPlaylistAutoBuffer",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-buffering"
-        /*}, {
-"label": "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
-"type": "bool",
-"defaultSetting": "preventTabAutoPlay"
-}, {
-"label": "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL",
-"type": "bool",
-"defaultSetting": "preventTabAutoBuffer"*/
+        }, {
+          "type": "horizontalRule"
+        }, {
+          "label": "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
+          "type": "bool",
+          "defaultSetting": "preventTabAutoPlay"
+        }, {
+          "label": "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL",
+          "type": "bool",
+          "defaultSetting": "preventTabAutoBuffer"
+        }, {
+          "type": "horizontalRule"
+        }, {
+          "label": "SETTINGS_PREVENTTABPLAYLISTAUTOPLAY_LABEL",
+          "type": "bool",
+          "defaultSetting": "preventTabPlaylistAutoPlay"
+        }, {
+          "label": "SETTINGS_PREVENTTABPLAYLISTAUTOBUFFERING_LABEL",
+          "type": "bool",
+          "defaultSetting": "preventTabPlaylistAutoBuffer"
         }, {
           "type": "horizontalRule"
         }, {
@@ -12184,43 +12198,85 @@
         }
         
         // Prevent Auto Play/Buffering
-        if (ytcenter.playlist) {
-          if (ytcenter.settings.preventPlaylistAutoBuffer) {
-            if (ytcenter.html5) {
+        if (document && document.hasFocus && typeof document.hasFocus === "function" && !document.hasFocus() && ((!ytcenter.playlist && (ytcenter.settings.preventTabAutoBuffer || ytcenter.settings.preventTabAutoPlay)) || (ytcenter.playlist && (ytcenter.settings.preventTabPlaylistAutoBuffer || ytcenter.settings.preventTabPlaylistAutoPlay)))) {
+          if (ytcenter.playlist) {
+            if (ytcenter.settings.preventTabPlaylistAutoBuffer) {
+              if (ytcenter.html5) {
+                api.mute();
+                var cl =  function(state){
+                  if (state === 1) {
+                    ytcenter.player.listeners.removeEventListener("onStateChange", cl);
+                    api.stopVideo();
+                    !ytcenter.settings.mute && api.isMuted && api.unMute();
+                  }
+                };
+                ytcenter.player.listeners.addEventListener("onStateChange", cl);
+              }
+            } else if (ytcenter.settings.preventTabPlaylistAutoPlay) {
               api.mute();
-              var cl =  function(state){
-                if (state === 1) {
-                  ytcenter.player.listeners.removeEventListener("onStateChange", cl);
-                  api.stopVideo();
-                  !ytcenter.settings.mute && api.isMuted && api.unMute();
-                }
-              };
-              ytcenter.player.listeners.addEventListener("onStateChange", cl);
+              api.playVideo();
+              api.pauseVideo();
+              !ytcenter.settings.mute && api.isMuted && api.unMute();
             }
-          } else if (ytcenter.settings.preventPlaylistAutoPlay) {
-            api.mute();
-            api.playVideo();
-            api.pauseVideo();
-            !ytcenter.settings.mute && api.isMuted && api.unMute();
+          } else {
+            if (ytcenter.settings.preventTabAutoBuffer) {
+              if (ytcenter.html5) {
+                api.mute();
+                var cl =  function(state){
+                  if (state === 1) {
+                    ytcenter.player.listeners.removeEventListener("onStateChange", cl);
+                    api.stopVideo();
+                    !ytcenter.settings.mute && api.isMuted && api.unMute();
+                  }
+                };
+                ytcenter.player.listeners.addEventListener("onStateChange", cl);
+              }
+            } else if (ytcenter.settings.preventTabAutoPlay) {
+              api.mute();
+              api.playVideo();
+              api.pauseVideo();
+              !ytcenter.settings.mute && api.isMuted && api.unMute();
+            }
           }
         } else {
-          if (ytcenter.settings.preventAutoBuffer) {
-            if (ytcenter.html5) {
+          if (ytcenter.playlist) {
+            if (ytcenter.settings.preventPlaylistAutoBuffer) {
+              if (ytcenter.html5) {
+                api.mute();
+                var cl =  function(state){
+                  if (state === 1) {
+                    ytcenter.player.listeners.removeEventListener("onStateChange", cl);
+                    api.stopVideo();
+                    !ytcenter.settings.mute && api.isMuted && api.unMute();
+                  }
+                };
+                ytcenter.player.listeners.addEventListener("onStateChange", cl);
+              }
+            } else if (ytcenter.settings.preventPlaylistAutoPlay) {
               api.mute();
-              var cl =  function(state){
-                if (state === 1) {
-                  ytcenter.player.listeners.removeEventListener("onStateChange", cl);
-                  api.stopVideo();
-                  !ytcenter.settings.mute && api.isMuted && api.unMute();
-                }
-              };
-              ytcenter.player.listeners.addEventListener("onStateChange", cl);
+              api.playVideo();
+              api.pauseVideo();
+              !ytcenter.settings.mute && api.isMuted && api.unMute();
             }
-          } else if (ytcenter.settings.preventAutoPlay) {
-            api.mute();
-            api.playVideo();
-            api.pauseVideo();
-            !ytcenter.settings.mute && api.isMuted && api.unMute();
+          } else {
+            if (ytcenter.settings.preventAutoBuffer) {
+              if (ytcenter.html5) {
+                api.mute();
+                var cl =  function(state){
+                  if (state === 1) {
+                    ytcenter.player.listeners.removeEventListener("onStateChange", cl);
+                    api.stopVideo();
+                    !ytcenter.settings.mute && api.isMuted && api.unMute();
+                  }
+                };
+                ytcenter.player.listeners.addEventListener("onStateChange", cl);
+              }
+            } else if (ytcenter.settings.preventAutoPlay) {
+              api.mute();
+              api.playVideo();
+              api.pauseVideo();
+              !ytcenter.settings.mute && api.isMuted && api.unMute();
+            }
           }
         }
       } else if (page === "channel") {
@@ -12439,17 +12495,21 @@
           con.error(e);
         }
         con.log("[Playlist] " + (ytcenter.playlist ? "Enabled" : "Disabled"));
-        if (ytcenter.playlist) {
-          if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
-            config.args.autoplay = "0";
-          } else {
-            config.args.autoplay = "1";
-          }
+        if (document && document.hasFocus && typeof document.hasFocus === "function" && !document.hasFocus() && ((!ytcenter.playlist && (ytcenter.settings.preventTabAutoBuffer || ytcenter.settings.preventTabAutoPlay)) || (ytcenter.playlist && (ytcenter.settings.preventTabPlaylistAutoBuffer || ytcenter.settings.preventTabPlaylistAutoPlay)))) {
+          config.args.autoplay = "0";
         } else {
-          if (ytcenter.settings.preventAutoBuffer || ytcenter.settings.preventAutoPlay) {
-            config.args.autoplay = "0";
+          if (ytcenter.playlist) {
+            if (ytcenter.settings.preventPlaylistAutoBuffer || ytcenter.settings.preventPlaylistAutoPlay) {
+              config.args.autoplay = "0";
+            } else {
+              config.args.autoplay = "1";
+            }
           } else {
-            config.args.autoplay = "1";
+            if (ytcenter.settings.preventAutoBuffer || ytcenter.settings.preventAutoPlay) {
+              config.args.autoplay = "0";
+            } else {
+              config.args.autoplay = "1";
+            }
           }
         }
         config.args.theme = ytcenter.settings.playerTheme;
