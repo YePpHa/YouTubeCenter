@@ -1,3 +1,4 @@
+ - Reverse playlist order (more like make it play the previous video in the playlist instead of the next video).
  - Stop video
  - Set page centering only for specific pages.
  - Infinite Scroll in Search (maybe on other pages too).
@@ -14,8 +15,6 @@
  - Option to change the height of the ratingbar on thumbnails.
  - Remove spam comments (contians bit.ly links and etc.).
  - Option to remove play icon in the title.
- - Integrate the Google Spreadsheet API for Java to convert the translations to a json file.
- - yt.player.embed("player-api", ytplayer.config).writePlayer("flash|html5"); Will change the player to either flash or html5. Make this into an option, but will require some testing of the timing.
  - Add http://www.listentoyoutube.com/
  - Extend the guide. So that it will include a link to the "Favorites", "Indbox" and "History".
  - Unify http:// and https:// settings.

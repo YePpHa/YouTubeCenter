@@ -8967,20 +8967,26 @@
       update: function() {
         var guideContainer = document.getElementById("guide-container");
         if (guideContainer) {
-          if (!ytcenter.guide.hidden) {
-            ytcenter.utils.removeClass(guideContainer, "hid");
-            if (ytcenter.guide.top !== null) {
-              guideContainer.style.setProperty("top", ytcenter.guide.top + "px", "important");
+          if (loc.pathname === "/watch") {
+            if (!ytcenter.guide.hidden) {
+              ytcenter.utils.removeClass(guideContainer, "hid");
+              if (ytcenter.guide.top !== null) {
+                guideContainer.style.setProperty("top", ytcenter.guide.top + "px", "important");
+              } else {
+                guideContainer.style.setProperty("top", "");
+              }
+              if (ytcenter.guide.left !== null) {
+                guideContainer.style.setProperty("left", ytcenter.guide.left + "px", "important");
+              } else {
+                guideContainer.style.setProperty("left", "");
+              }
             } else {
-              guideContainer.style.setProperty("top", "");
-            }
-            if (ytcenter.guide.left !== null) {
-              guideContainer.style.setProperty("left", ytcenter.guide.left + "px", "important");
-            } else {
-              guideContainer.style.setProperty("left", "");
+              ytcenter.utils.addClass(guideContainer, "hid");
             }
           } else {
-            ytcenter.utils.addClass(guideContainer, "hid");
+            ytcenter.utils.removeClass(guideContainer, "hid");
+            guideContainer.style.setProperty("left", "");
+            guideContainer.style.setProperty("top", "");
           }
         }
       },
@@ -9779,8 +9785,6 @@
       repeatSave: false,
       autoActivateRepeat: false,
       mp3Services: '',
-      experimentalFlashMode: 'clone',
-      experimentalHTML5Mode: 'none',
       lightbulbEnable: true,
       lightbulbBackgroundColor: '#000000',
       lightbulbBackgroundOpaque: 95,
