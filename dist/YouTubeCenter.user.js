@@ -4545,7 +4545,7 @@
         try {
           var a = item.wrapper.getElementsByTagName("img")[0],
               b = ytcenter.player.parseThumbnailStream(storyboard || ""),
-              originalImage = a.src,
+              originalImage = a.getAttribute("data-thumb") || a.src,
               timer, timer2, frame = 0, level, i, urlTemplate,
               box = { width: a.offsetWidth, height: 0 }, rect;
           if (b.levels.length > 0) {
