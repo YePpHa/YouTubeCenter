@@ -15178,8 +15178,11 @@
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
         ytcenter.guideMode();
       });
-      ytcenter.spf.addEventListener("requested-before", function(){
-        if (!ytcenter.settings.ytspf) throw new Error("SPF is disabled!");
+      ytcenter.spf.addEventListener("requested-before", function(url){
+        if (!ytcenter.settings.ytspf) {
+          loc.href = url;
+          throw new Error("SPF is disabled!");
+        }
       });
       uw.ytcenter = uw.ytcenter || {};
       uw.ytcenter.spf = uw.ytcenter.spf || {};
