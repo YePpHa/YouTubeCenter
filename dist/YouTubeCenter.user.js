@@ -2842,9 +2842,15 @@
         configSetter(value);
       });
     }
-    function SPF() {
-      this.__defineGetter__("enabled", function(){return (ytcenter && ytcenter.settings && typeof ytcenter.settings.ytspf === "boolean" ? ytcenter.settings.ytspf : true);});
+    function SPF(objects) {
+      this.__defineGetter__("enabled", function(){ return true; });
       this.__defineSetter__("enabled", function(value){ });
+      for (key in objects) {
+        if (key === "enabled") continue;
+        if (objects.hasOwnProperty(key)) {
+          this[key] = objects[key];
+        }
+      }
     }
     function SPFConfigWrapper(current, config) {
       var i, __self = this;
@@ -2896,8 +2902,7 @@
         }());
       }
     })();
-    uw.ytspf = uw.ytspf || new SPF();
-    if (uw.ytspf.enabled === false) uw.ytspf.enabled = true;
+    uw.ytspf = new SPF(uw.ytspf);
     loc = (function(){
       try {
         if (typeof location !== "undefined") return location;
@@ -5186,6 +5191,15 @@
       originalCallbacks = {},
       masterCallbacks = {};
       
+      _obj.setEnabled = function(enabled){
+        var objects;
+        if (enabled) {
+          //objects = uw.spf.init(uw.ytspf.config);
+        } else {
+          con.log("[SPF] Disposing of the SPF injections.");
+          objects = uw.spf.dispose();
+        }
+      };
       _obj.addEventListener = function(event, callback){
         if (!listeners.hasOwnProperty(event)) return;
         listeners[event].push(callback);
@@ -10078,7 +10092,7 @@
             {
               "event": "click",
               "callback": function(){
-                uw.ytspf.enabled = ytcenter.settings.ytspf;
+                ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
               }
             }
           ],
@@ -14680,7 +14694,6 @@
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
         }
-        uw.ytspf.enabled = ytcenter.settings.ytspf;
         ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
@@ -14838,6 +14851,8 @@
         var page = ytcenter.getPage();
         uw.ytcenter = uw.ytcenter || {};
         uw.ytcenter.subtitles = ytcenter.subtitles;
+        
+        ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
         
         // Checking if the correct settings were applied and if not correct them and forcing a refresh of the page.
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
