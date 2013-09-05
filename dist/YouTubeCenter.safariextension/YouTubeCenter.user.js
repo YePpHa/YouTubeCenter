@@ -2843,8 +2843,8 @@
       });
     }
     function SPF() {
-      this.__defineGetter__("enabled", function(){return true;});
-      this.__defineSetter__("enabled", function(value){});
+      this.__defineGetter__("enabled", function(){return (ytcenter && ytcenter.settings && typeof ytcenter.settings.ytspf === "boolean" ? ytcenter.settings.ytspf : true);});
+      this.__defineSetter__("enabled", function(value){ });
     }
     function SPFConfigWrapper(current, config) {
       var i, __self = this;
@@ -5280,11 +5280,15 @@
               var r,j;
               con.log("[SPF] _spf_state => " + event);
               con.log(args);
-              
-              for (j = 0; j < listeners[event + "-before"].length; j++) {
-                args = listeners[event + "-before"][j].apply(null, args) || args;
+              try {
+                for (j = 0; j < listeners[event + "-before"].length; j++) {
+                  args = listeners[event + "-before"][j].apply(null, args) || args;
+                }
+              } catch (e) {
+                con.error(e);
+                throw e;
+                return;
               }
-              
               if (typeof originalCallbacks[event] === "function") {
                 r = originalCallbacks[event].apply(uw, args);
               } else {
@@ -10070,6 +10074,14 @@
           "label": "SETTINGS_YTSPF",
           "type": "bool",
           "defaultSetting": "ytspf",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                uw.ytspf.enabled = ytcenter.settings.ytspf;
+              }
+            }
+          ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#spf"
         }, {
           "label": "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC",
@@ -14668,6 +14680,7 @@
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
         }
+        uw.ytspf.enabled = ytcenter.settings.ytspf;
         ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
