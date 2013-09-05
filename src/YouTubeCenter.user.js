@@ -9977,14 +9977,14 @@
         label: 'SETTINGS_MP3SERVICES_VIDEO2MP3_HQ',
         value: 'http://www.video2mp3.net/index.php?url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&hq=1'
       }, {
-        label: 'SETTINGS_MP3SERVICES_YOUTUBEINAUDIO_64',
-        value: 'http://www.youtubeinaudio.com/download.php?youtubeURL=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&quality=64&submit=Download+MP3'
+        label: 'SETTINGS_MP3SERVICES_YOUTUBEINMP3_64',
+        value: 'http://www.youtubeinmp3.com/download.php?youtubeURL=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&quality=64&submit=Download+MP3'
       }, {
-        label: 'SETTINGS_MP3SERVICES_YOUTUBEINAUDIO_128',
-        value: 'http://www.youtubeinaudio.com/download.php?youtubeURL=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&quality=128&submit=Download+MP3'
+        label: 'SETTINGS_MP3SERVICES_YOUTUBEINMP3_128',
+        value: 'http://www.youtubeinmp3.com/download.php?youtubeURL=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&quality=128&submit=Download+MP3'
       }, {
-        label: 'SETTINGS_MP3SERVICES_YOUTUBEINAUDIO_320',
-        value: 'http://www.youtubeinaudio.com/download.php?youtubeURL=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&quality=320&submit=Download+MP3'
+        label: 'SETTINGS_MP3SERVICES_YOUTUBEINMP3_320',
+        value: 'http://www.youtubeinmp3.com/download.php?youtubeURL=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&quality=320&submit=Download+MP3'
       }, {
         label: 'SETTINGS_MP3SERVICES_HDDOWNLOADER_128',
         value: 'http://www.hddownloader.com/index.php?act=do&url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&dldtype=128&outFormat=mp3'
