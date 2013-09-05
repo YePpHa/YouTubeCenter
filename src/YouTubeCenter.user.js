@@ -5280,11 +5280,15 @@
               var r,j;
               con.log("[SPF] _spf_state => " + event);
               con.log(args);
-              
-              for (j = 0; j < listeners[event + "-before"].length; j++) {
-                args = listeners[event + "-before"][j].apply(null, args) || args;
+              try {
+                for (j = 0; j < listeners[event + "-before"].length; j++) {
+                  args = listeners[event + "-before"][j].apply(null, args) || args;
+                }
+              } catch (e) {
+                con.error(e);
+                throw e;
+                return;
               }
-              
               if (typeof originalCallbacks[event] === "function") {
                 r = originalCallbacks[event].apply(uw, args);
               } else {
