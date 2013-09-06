@@ -151,11 +151,29 @@ general_subcat1.addOption(option);
 /* UI:Page */
 
 /* UI:Placement */
-option = ytcenter.settingsPanel.createOption(
+/*option = ytcenter.settingsPanel.createOption(
   null,
   "placement",
   null
+);*/
+option = ytcenter.settingsPanel.createOption(
+  null,
+  "button",
+  null,
+  {
+    "text": "SETTINGS_PLACEMENTSYSTEM_MOVEELEMENTS_LABEL"
+  }
 );
+option.addModuleEventListener("click", function(){
+  if (ytcenter.placementsystem.toggleEnable()) {
+    ytcenter.utils.addClass(this, "yt-uix-button-toggled");
+    ytcenter.utils.addClass(document.body, "ytcenter-placementsystem-activated");
+    ytcenter.settingsPanelInstance.setVisibility(false);
+  } else {
+    ytcenter.utils.removeClass(this, "yt-uix-button-toggled");
+    ytcenter.utils.removeClass(document.body, "ytcenter-placementsystem-activated");
+  }
+});
 ui_placements.addOption(option);
 
 /* UI:Video Thumbnail */

@@ -1,6 +1,8 @@
 /******************************* START OF YOUTUBE CENTER ENVIORMENT *******************************/
 var uw = window,
-    ytcenter = {};
+    ytcenter = {},
+    con = console,
+    emptyFunc = function(){};
 ytcenter.version = "2.0";
 ytcenter.settings = {
   settingsDialogMode: true,
@@ -1523,6 +1525,10 @@ ytcenter.dialogOverlay = function(){
   bg.style.height = "100%";
   bg.style.position = "absolute";
   return bg;
+};
+ytcenter.placementsystem = {
+  enabled: false,
+  toggleEnable: function(){return (ytcenter.placementsystem.enabled = !ytcenter.placementsystem.enabled);}
 };
 
 ytcenter.modules = ytcenter.modules || {};
