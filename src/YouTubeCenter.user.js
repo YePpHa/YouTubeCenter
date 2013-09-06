@@ -4508,6 +4508,7 @@
               a.style.backgroundPosition = -rect.x + "px " + -rect.y + "px";
             } else {
               if (frame > 3) frame = 1;
+              if (frame < 1) frame = 1;
               a.src = urlTemplate.replace("$N", frame);
             }
             if (ytcenter.settings.videoThumbnailAnimationShuffle) {
@@ -4524,7 +4525,7 @@
             if (level) {
               timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationInterval);
             } else {
-              urlTemplate = originalImage.replace(/default\.jpg$/, "$N.jpg");
+              urlTemplate = originalImage.replace(/\/(mq)?default\.jpg$/, "/$N.jpg");
               timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationFallbackInterval);
             }
             moi();
