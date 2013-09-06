@@ -26,6 +26,12 @@ ytcenter.modules.button = function(option){
   return {
     element: elm,
     bind: function(){},
-    update: function(){}
+    update: function(){},
+    addEventListener: function(event, callback, bubble){
+      elm.addEventListener(event, callback, bubble);
+    },
+    removeEventListener: function(event, callback, bubble){
+      elm.removeEventListener(event, callback, bubble);
+    }
   };
 };

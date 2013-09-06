@@ -143,12 +143,19 @@ ytcenter.settingsPanel = (function(){
       getStyle: function(key){
         return option.style[key];
       },
-      addEventListener: function(event, callback){
+      addModuleEventListener: function(event, callback, bubble){
+        if (!option.moduleListeners) option.moduleListeners = [];
+        option.moduleListeners.push([event, callback, bubble]);
+      },
+      removeModuleEventListener: function(event, callback, bubble){
+        throw new Error("Not implemented!");
+      },
+      addEventListener: function(event, callback, bubble){
         if (!option.listeners) option.listeners = {};
         if (!option.listeners[event]) option.listeners[event] = [];
         option.listeners[event].push(callback);
       },
-      removeEventListener: function(event, callback){
+      removeEventListener: function(event, callback, bubble){
         if (!option.listeners) return;
         if (!option.listeners[event]) return;
         var i;
@@ -214,6 +221,16 @@ ytcenter.settingsPanel = (function(){
           }
         }
       });
+      
+      if (option.moduleListeners) {
+        if (module.addEventListener) {
+          for (i = 0; i < option.moduleListeners.length; i++) {
+            module.addEventListener(option.moduleListeners[i][0], option.moduleListeners[i][1], option.moduleListeners[i][2]);
+          }
+        } else {
+          throw new Error(option.module + " do not support listeners!");
+        }
+      }
       
       optionWrapper.appendChild(moduleContainer);
       frag.appendChild(optionWrapper);

@@ -4668,8 +4668,14 @@
         var username = item.content.parentNode.parentNode.parentNode.parentNode.getElementsByClassName("yt-user-name")[0],
             metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
             actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
-            usernameWrapper = document.createElement("div"), i, am, li, s;
+            usernameWrapper = document.createElement("div"), i, am, li, s,
+            primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
         if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username") || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
+          if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
+            primaryCol[0].style.overflow = "visible";
+            ytcenter.utils.addClass(primaryCol[0], "clearfix");
+            primaryCol[0].getElementsByClassName("feed-header")[0].style.height = "32px";
+          }
           usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
           usernameWrapper.className = "ytcenter-grid-subscriptions-username";
           metadata.parentNode.insertBefore(usernameWrapper, metadata);

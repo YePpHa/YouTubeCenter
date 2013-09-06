@@ -354,8 +354,8 @@
     </div>
     <script src="settings-controler.js"></script>
     <script>
-      var dialog = ytcenter.settingsPanel.createDialog();
-      dialog.setVisibility(true);
+      ytcenter.settingsPanelInstance = ytcenter.settingsPanel.createDialog();
+      ytcenter.settingsPanelInstance.setVisibility(true);
     </script>
   </body>
 </html>
