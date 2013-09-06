@@ -2757,6 +2757,8 @@
             id: id,
             details: details
           });
+        } else if (identifier === 6) {
+          request(details);
         } else if (typeof GM_xmlhttpRequest !== "undefined") {
           GM_xmlhttpRequest(details);
           return true;
