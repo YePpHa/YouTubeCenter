@@ -9,9 +9,12 @@ var DESCRIPTION = "YouTubeCenterService",
 
 Cu.import("resource://ytcenter/third-party/getChromeWinForContentWin.js");
 Cu.import("resource://ytcenter/request.js");
+Cu.import("resource://ytcenter/storage.js");
 Cu.import("resource://ytcenter/utils/bind.js");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+
+var sandbox_storage = new Storage();
 
 function createSandbox(wrappedContentWin, chromeWin) {
   var sandbox = new Components.utils.Sandbox(
@@ -23,6 +26,11 @@ function createSandbox(wrappedContentWin, chromeWin) {
   );
   sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
   sandbox.request = bind(new Request(wrappedContentWin, chromeWin), "sendRequest");
+  sandbox.storage_setValue = bind(sandbox_storage, "setValue");
+  sandbox.storage_getValue = bind(sandbox_storage, "getValue");
+  sandbox.storage_listValues = bind(sandbox_storage, "listValues");
+  sandbox.storage_exists = bind(sandbox_storage, "exists");
+  sandbox.storage_remove = bind(sandbox_storage, "remove");
   return sandbox;
 }
 function contentLoad(e) {

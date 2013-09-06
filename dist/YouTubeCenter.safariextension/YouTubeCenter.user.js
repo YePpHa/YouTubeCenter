@@ -2757,6 +2757,8 @@
             id: id,
             details: details
           });
+        } else if (identifier === 6) {
+          request(details);
         } else if (typeof GM_xmlhttpRequest !== "undefined") {
           GM_xmlhttpRequest(details);
           return true;
@@ -9497,6 +9499,19 @@
             id: id,
             name: ytcenter.storageName
           });
+        } else if (identifier === 6) {
+          var data = storage_getValue(ytcenter.storageName) || {};
+          try {
+            var loaded = JSON.parse(data);
+            for (var key in loaded) {
+              if (loaded.hasOwnProperty(key)) {
+                ytcenter.settings[key] = loaded[key];
+              }
+            }
+          } catch (e) {
+            con.error(e);
+          }
+          if (callback) callback();
         } else {
           var data = $LoadData(ytcenter.storageName, "{}");
           try {
@@ -9545,6 +9560,8 @@
             name: ytcenter.storageName,
             value: JSON.stringify(ytcenter.settings)
           });
+        } else if (identifier === 6) {
+          storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
         } else {
           if (typeof async !== "boolean") async = false;
           if (async) {
