@@ -6,17 +6,23 @@ var DESCRIPTION = "YouTubeCenterService",
     Ci = Components.interfaces,
     Cu = Components.utils,
     startupHasRun = false;
+
 Cu.import("resource://ytcenter/third-party/getChromeWinForContentWin.js");
-Cu.import("resource://ytcenter/utils/xmlhttprequest.js");
+Cu.import("resource://ytcenter/request.js");
+Cu.import("resource://ytcenter/utils/bind.js");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
-function createSandbox(contentWindow) {
-  var sandbox = new Components.utils.Sandbox(contentWindow, {
-    'sandboxPrototype': contentWindow,
-    'wantXrays': true,
-  });
-  sandbox.unsafeWindow = contentWindow.wrappedJSObject;
+function createSandbox(wrappedContentWin, chromeWin) {
+  var sandbox = new Components.utils.Sandbox(
+    wrappedContentWin, {
+      "sandboxName": "YouTube Center",
+      "sandboxPrototype": wrappedContentWin,
+      "wantXrays": true,
+    }
+  );
+  sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
+  sandbox.request = bind(new Request(wrappedContentWin, chromeWin), "sendRequest");
   return sandbox;
 }
 function contentLoad(e) {
@@ -93,8 +99,8 @@ service.prototype.observe = function(aSubject, aTopic, aData) {
   }
 };
 
-service.prototype.runYouTubeCenter = function(wrappedContentWindow){
-  var sandbox = createSandbox(wrappedContentWindow);
+service.prototype.runYouTubeCenter = function(wrappedContentWin){
+  var sandbox = createSandbox(wrappedContentWin, getChromeWinForContentWin(wrappedContentWin));
   Services.scriptloader.loadSubScript("chrome://ytcenter/content/YouTubeCenter.user.js", sandbox, "UTF-8");
 };
 
