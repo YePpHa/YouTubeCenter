@@ -9591,12 +9591,12 @@
     con.log("Check for updates initializing");
     ytcenter.checkForUpdates = (function(){
       var updElement;
-      return function(success, error){
+      return function(success, error, disabled){
         // If it's the Chrome/Opera addon and the browser is Opera, or if it's the Firefox addon it will not check for updates!
-        if ((@identifier@ === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || @identifier@ === 3) {
+        if ((@identifier@ === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || @identifier@ === 6) {
           con.log("[UpdateChecker] UpdateChecker has been disabled!");
-          if (typeof error == "function")
-            error();
+          if (typeof disabled == "function")
+            disabled();
         } else {
           con.log("Checking for updates...");
           if (typeof error == "undefined") {
@@ -9691,7 +9691,7 @@
                   var f8 = document.createTextNode(" ");
                   var f9 = document.createElement("a");
                   f9.setAttribute("target", "_blank");
-                  if (@identifier@ === 3) {
+                  if (@identifier@ === 6) {
                     f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
                     f9.textContent = "addons.mozilla.org";
                   } else {
@@ -11685,6 +11685,11 @@
                   return function(){
                     self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESERROR");
                     self.disabled = false;
+                  };
+                })(this), (function(self){
+                  return function(){
+                    self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESDISABLED");
+                    self.disabled = true;
                   };
                 })(this));
               }
