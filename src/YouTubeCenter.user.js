@@ -9393,341 +9393,6 @@
       return __r;
     })();
     ytcenter.languages = @ant-database-language@;
-    ytcenter.doRepeat = false;
-    ytcenter.html5 = false;
-    ytcenter.html5flash = false;
-    ytcenter.watch7 = true;
-    ytcenter.redirect = function(url, newWindow){
-      con.log("Redirecting" + (newWindow ? " in new window" : "") + " to " + url);
-      if (typeof newWindow != "undefined") {
-        window.open(ytcenter.utils.replaceTextAsString(url, {
-          title: ytcenter.video.title,
-          videoid: ytcenter.video.id,
-          author: ytcenter.video.author,
-          url: loc.href
-        }));
-      } else {
-        loc.href = ytcenter.utils.replaceTextAsString(url, {
-          title: ytcenter.video.title,
-          videoid: ytcenter.video.id,
-          author: ytcenter.video.author,
-          url: loc.href
-        });
-      }
-    };
-    con.log("redirect initialized");
-    ytcenter.discardElement = (function(){
-      var g = document.createElement('div');
-      g.style.display = 'none';
-      document.addEventListener("DOMContentLoaded", (function(g){
-        return function(){
-          document.body.appendChild(g);
-        };
-      })(g), true);
-      return (function(g){
-        return function(element){
-          con.log("Discarding element");
-          if (!element) return;
-          if (element.parentNode) {
-            element.parentNode.removeChild(element);
-          }
-          g.appendChild(element);
-          g.innerHTML = "";
-        };
-      })(g);
-    })();
-    con.log("discardElement initialized");
-    ytcenter.storage_db = [];
-    if (identifier === 3) {
-      self.port.on("load callback", function(data){
-        data = JSON.parse(data);
-        ytcenter.storage_db[data.id](data.storage);
-      });
-    }
-    ytcenter.storageName = "ytcenter_v1.3_settings";
-    ytcenter.loadSettings = function(callback){
-      try {
-        if (identifier === 1 && injected) {
-          window.ytcenter = window.ytcenter || {};
-          window.ytcenter.storage = window.ytcenter.storage || {};
-          window.ytcenter.storage.onloaded = window.ytcenter.storage.onloaded || function(id, data){
-            window.ytcenter.storage.onloaded_db[id](data);
-          };
-          window.ytcenter.storage.onloaded_db = window.ytcenter.storage.onloaded_db || [];
-          window.ytcenter.storage.onloaded_db.push(function(storage){
-            if (typeof storage === "string")
-              storage = JSON.parse(storage);
-            for (var key in storage) {
-              if (storage.hasOwnProperty(key)) {
-                ytcenter.settings[key] = storage[key];
-              }
-            }
-            if (callback) callback();
-          });
-          window.postMessage(JSON.stringify({
-            id: window.ytcenter.storage.onloaded_db.length - 1,
-            method: "loadSettings",
-            arguments: [ytcenter.storageName]
-          }), "*");
-        } else if (identifier === 3) {
-          var id = ytcenter.storage_db.length;
-          ytcenter.storage_db.push(function(storage){
-            if (typeof storage === "string")
-              storage = JSON.parse(storage);
-            for (var key in storage) {
-              if (storage.hasOwnProperty(key)) {
-                ytcenter.settings[key] = storage[key];
-              }
-            }
-            if (callback) callback();
-          });
-          self.port.emit("load", JSON.stringify({id: id, name: ytcenter.storageName}));
-        } else if (identifier === 5) {
-          var id = ytcenter.storage_db.length;
-          ytcenter.storage_db.push(function(storage){
-            if (typeof storage === "string")
-              storage = JSON.parse(storage);
-            for (var key in storage) {
-              if (storage.hasOwnProperty(key)) {
-                ytcenter.settings[key] = storage[key];
-              }
-            }
-            if (callback) callback();
-          });
-          opera.extension.postMessage({
-            action: 'load',
-            id: id,
-            name: ytcenter.storageName
-          });
-        } else if (identifier === 6) {
-          var data = storage_getValue(ytcenter.storageName) || {};
-          try {
-            var loaded = JSON.parse(data);
-            for (var key in loaded) {
-              if (loaded.hasOwnProperty(key)) {
-                ytcenter.settings[key] = loaded[key];
-              }
-            }
-          } catch (e) {
-            con.error(e);
-          }
-          if (callback) callback();
-        } else {
-          var data = $LoadData(ytcenter.storageName, "{}");
-          try {
-            var loaded = JSON.parse(data);
-            for (var key in loaded) {
-              if (loaded.hasOwnProperty(key)) {
-                ytcenter.settings[key] = loaded[key];
-              }
-            }
-          } catch (e) {
-            con.error(e);
-          }
-          if (callback) callback();
-        }
-      } catch (e) {
-        con.error(e);
-      }
-    };
-    con.log("Save Settings initializing");
-    ytcenter.saveSettings_timeout_obj;
-    ytcenter.saveSettings_timeout = 300;
-    ytcenter.saveSettings = function(async, timeout){
-      if (typeof timeout === "undefined") timeout = false;
-      var __ss = function(){
-        con.log("[Storage] Saving Settings");
-        if (identifier === 1 && injected) {
-          window.ytcenter = window.ytcenter || {};
-          window.ytcenter.storage = window.ytcenter.storage || {};
-          window.ytcenter.storage.onsaved = window.ytcenter.storage.onsaved || function(id){
-            window.ytcenter.storage.onsaved_db[id]();
-          };
-          window.ytcenter.storage.onsaved_db = window.ytcenter.storage.onsaved_db || [];
-          window.ytcenter.storage.onsaved_db.push(function(){
-            console.log("Saved Settings!");
-          });
-          window.postMessage(JSON.stringify({
-            id: window.ytcenter.storage.onsaved_db.length - 1,
-            method: "saveSettings",
-            arguments: [ytcenter.storageName, JSON.stringify(ytcenter.settings)]
-          }), "*");
-        } else if (identifier === 3) {
-          self.port.emit("save", JSON.stringify({name: ytcenter.storageName, value: ytcenter.settings}));
-        } else if (identifier === 5) {
-          opera.extension.postMessage({
-            action: 'save',
-            name: ytcenter.storageName,
-            value: JSON.stringify(ytcenter.settings)
-          });
-        } else if (identifier === 6) {
-          storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
-        } else {
-          if (typeof async !== "boolean") async = false;
-          if (async) {
-            uw.postMessage("YouTubeCenter" + JSON.stringify({
-              type: "saveSettings"
-            }), "http://www.youtube.com");
-          } else {
-            if (!$SaveData(ytcenter.storageName, JSON.stringify(ytcenter.settings))) {
-              con.error("[Settings] Couldn't save settings.");
-            }
-          }
-        }
-      };
-      try {
-        uw.clearTimeout(ytcenter.saveSettings_timeout_obj);
-        if (timeout) {
-          ytcenter.saveSettings_timeout_obj = uw.setTimeout(function(){
-            __ss();
-          }, ytcenter.saveSettings_timeout);
-        } else {
-          __ss();
-        }
-      } catch (e) {
-        con.error(e);
-      }
-    };
-    con.log("Check for updates initializing");
-    ytcenter.checkForUpdates = (function(){
-      var updElement;
-      return function(success, error, disabled){
-        // If it's the Chrome/Opera addon and the browser is Opera, or if it's the Firefox addon it will not check for updates!
-        if ((@identifier@ === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || @identifier@ === 6) {
-          con.log("[UpdateChecker] UpdateChecker has been disabled!");
-          if (typeof disabled == "function")
-            disabled();
-        } else {
-          con.log("Checking for updates...");
-          if (typeof error == "undefined") {
-            error = function(){};
-          }
-          $XMLHTTPRequest({
-            method: "GET",
-            url: "http://userscripts.org/scripts/source/114002.meta.js",
-            headers: {
-              "Content-Type": "text/plain"
-            },
-            onload: (function(success){
-              return function(response){
-                con.log("Got Update Response");
-                var rev = -1,
-                    ver = "-1"
-                if (response && response.responseText) {
-                  rev =  parseInt(/^\/\/ @updateVersion\s+([0-9]+)$/m.exec(response.responseText)[1], 10);
-                  ver = /^\/\/ @version\s+([a-zA-Z0-9.,-_]+)$/m.exec(response.responseText)[1];
-                } else {
-                  con.log("Couldn't parse revision and version from the update page.");
-                }
-                if (rev > ytcenter.revision) {
-                  con.log("New update available");
-                  if (typeof updElement != "undefined") {
-                    ytcenter.discardElement(updElement);
-                  }
-                  updElement = document.createElement("div");
-                  updElement.className = "yt-alert yt-alert-default yt-alert-warn";
-                  updElement.style.margin = "0 auto";
-                  var ic = document.createElement("div");
-                  ic.className = "yt-alert-icon";
-                  var icon = document.createElement("img");
-                  icon.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
-                  icon.className = "icon master-sprite";
-                  icon.setAttribute("alt", "Alert icon");
-                  ic.appendChild(icon);
-                  updElement.appendChild(ic);
-                  var c = document.createElement("div");
-                  c.className = "yt-alert-buttons";
-                  var cbtn = document.createElement("button");
-                  cbtn.setAttribute("type", "button");
-                  cbtn.setAttribute("role", "button");
-                  cbtn.setAttribute("onclick", ";return false;");
-                  cbtn.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
-                  cbtn.addEventListener("click", (function(updElement){
-                    return function(){
-                      ytcenter.utils.addClass(updElement, 'hid');
-                    };
-                  })(updElement));
-                  
-                  var cbtnt = document.createElement("span");
-                  cbtnt.className = "yt-uix-button-content";
-                  cbtnt.textContent = "Close ";
-                  cbtn.appendChild(cbtnt);
-                  c.appendChild(cbtn);
-                  updElement.appendChild(c);
-                  
-                  var cn = document.createElement("div");
-                  cn.className = "yt-alert-content";
-                  
-                  var cnt = document.createElement("span");
-                  cnt.className = "yt-alert-vertical-trick";
-                  
-                  var cnme = document.createElement("div");
-                  cnme.className = "yt-alert-message";
-                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
-                  ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
-                  var f2 = document.createElement("br");
-                  var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
-                  ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
-                  var f4 = document.createTextNode(" ");
-                  var f5 = document.createElement("a");
-                  if (@identifier@ === 0) {
-                    f5.href = "http://userscripts.org/scripts/source/114002.user.js";
-                  } else if (@identifier@ === 1) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
-                  } else if (@identifier@ === 2) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
-                  } else if (@identifier@ === 3) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
-                  } else if (@identifier@ === 4) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
-                  } else if (@identifier@ === 5) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
-                  }
-                  f5.setAttribute("target", "_blank");
-                  f5.textContent = "YouTube Center v" + ver;
-                  var f6 = document.createTextNode(" ");
-                  var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
-                  ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
-                  var f8 = document.createTextNode(" ");
-                  var f9 = document.createElement("a");
-                  f9.setAttribute("target", "_blank");
-                  if (@identifier@ === 6) {
-                    f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
-                    f9.textContent = "addons.mozilla.org";
-                  } else {
-                    f9.href = "http://userscripts.org/scripts/show/114002";
-                    f9.textContent = "userscripts.org";
-                  }
-                  
-                  cnme.appendChild(f1);
-                  cnme.appendChild(f2);
-                  cnme.appendChild(f3);
-                  cnme.appendChild(f4);
-                  cnme.appendChild(f5);
-                  cnme.appendChild(f6);
-                  cnme.appendChild(f7);
-                  cnme.appendChild(f8);
-                  cnme.appendChild(f9);
-                  
-                  cn.appendChild(cnt);
-                  cn.appendChild(cnme);
-                  updElement.appendChild(cn);
-                  
-                  document.getElementById("alerts").appendChild(updElement);
-                } else {
-                  con.log("No new updates available");
-                }
-                if (success) {
-                  con.log("Calling update callback");
-                  success(response);
-                }
-              };
-            })(success),
-            onerror: error
-          });
-        }
-      };
-    })();
     con.log("default settings initializing");
     ytcenter._settings = {
       videoThumbnailAnimationEnabled: true,
@@ -9992,6 +9657,346 @@
     };
     con.log("Making clone of default settings");
     ytcenter.settings = $Clone(ytcenter._settings);
+    ytcenter.doRepeat = false;
+    ytcenter.html5 = false;
+    ytcenter.html5flash = false;
+    ytcenter.watch7 = true;
+    ytcenter.redirect = function(url, newWindow){
+      con.log("Redirecting" + (newWindow ? " in new window" : "") + " to " + url);
+      if (typeof newWindow != "undefined") {
+        window.open(ytcenter.utils.replaceTextAsString(url, {
+          title: ytcenter.video.title,
+          videoid: ytcenter.video.id,
+          author: ytcenter.video.author,
+          url: loc.href
+        }));
+      } else {
+        loc.href = ytcenter.utils.replaceTextAsString(url, {
+          title: ytcenter.video.title,
+          videoid: ytcenter.video.id,
+          author: ytcenter.video.author,
+          url: loc.href
+        });
+      }
+    };
+    con.log("redirect initialized");
+    ytcenter.discardElement = (function(){
+      var g = document.createElement('div');
+      g.style.display = 'none';
+      document.addEventListener("DOMContentLoaded", (function(g){
+        return function(){
+          document.body.appendChild(g);
+        };
+      })(g), true);
+      return (function(g){
+        return function(element){
+          con.log("Discarding element");
+          if (!element) return;
+          if (element.parentNode) {
+            element.parentNode.removeChild(element);
+          }
+          g.appendChild(element);
+          g.innerHTML = "";
+        };
+      })(g);
+    })();
+    con.log("discardElement initialized");
+    ytcenter.storage_db = [];
+    if (identifier === 3) {
+      self.port.on("load callback", function(data){
+        data = JSON.parse(data);
+        ytcenter.storage_db[data.id](data.storage);
+      });
+    }
+    ytcenter.storageName = "ytcenter_v1.3_settings";
+    ytcenter.loadSettings = function(callback){
+      try {
+        if (identifier === 1 && injected) {
+          window.ytcenter = window.ytcenter || {};
+          window.ytcenter.storage = window.ytcenter.storage || {};
+          window.ytcenter.storage.onloaded = window.ytcenter.storage.onloaded || function(id, data){
+            window.ytcenter.storage.onloaded_db[id](data);
+          };
+          window.ytcenter.storage.onloaded_db = window.ytcenter.storage.onloaded_db || [];
+          window.ytcenter.storage.onloaded_db.push(function(storage){
+            if (typeof storage === "string")
+              storage = JSON.parse(storage);
+            for (var key in storage) {
+              if (storage.hasOwnProperty(key)) {
+                ytcenter.settings[key] = storage[key];
+              }
+            }
+            if (callback) callback();
+          });
+          window.postMessage(JSON.stringify({
+            id: window.ytcenter.storage.onloaded_db.length - 1,
+            method: "loadSettings",
+            arguments: [ytcenter.storageName]
+          }), "*");
+        } else if (identifier === 3) {
+          var id = ytcenter.storage_db.length;
+          ytcenter.storage_db.push(function(storage){
+            if (typeof storage === "string")
+              storage = JSON.parse(storage);
+            for (var key in storage) {
+              if (storage.hasOwnProperty(key)) {
+                ytcenter.settings[key] = storage[key];
+              }
+            }
+            if (callback) callback();
+          });
+          self.port.emit("load", JSON.stringify({id: id, name: ytcenter.storageName}));
+        } else if (identifier === 5) {
+          var id = ytcenter.storage_db.length;
+          ytcenter.storage_db.push(function(storage){
+            if (typeof storage === "string")
+              storage = JSON.parse(storage);
+            for (var key in storage) {
+              if (storage.hasOwnProperty(key)) {
+                ytcenter.settings[key] = storage[key];
+              }
+            }
+            if (callback) callback();
+          });
+          opera.extension.postMessage({
+            action: 'load',
+            id: id,
+            name: ytcenter.storageName
+          });
+        } else if (identifier === 6) {
+          var data = storage_getValue(ytcenter.storageName) || {};
+          try {
+            var loaded = JSON.parse(data);
+            for (var key in loaded) {
+              if (loaded.hasOwnProperty(key)) {
+                ytcenter.settings[key] = loaded[key];
+              }
+            }
+          } catch (e) {
+            con.error(e);
+          }
+          if (callback) callback();
+        } else {
+          var data = $LoadData(ytcenter.storageName, "{}");
+          try {
+            var loaded = JSON.parse(data);
+            for (var key in loaded) {
+              if (loaded.hasOwnProperty(key)) {
+                ytcenter.settings[key] = loaded[key];
+              }
+            }
+          } catch (e) {
+            con.error(e);
+          }
+          if (callback) callback();
+        }
+      } catch (e) {
+        con.error(e);
+      }
+    };
+    ytcenter.__settingsLoaded = false;
+    ytcenter.loadSettings(function(){
+      ytcenter.__settingsLoaded = true;
+      if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
+    });
+    con.log("Save Settings initializing");
+    ytcenter.saveSettings_timeout_obj;
+    ytcenter.saveSettings_timeout = 300;
+    ytcenter.saveSettings = function(async, timeout){
+      if (typeof timeout === "undefined") timeout = false;
+      var __ss = function(){
+        con.log("[Storage] Saving Settings");
+        if (identifier === 1 && injected) {
+          window.ytcenter = window.ytcenter || {};
+          window.ytcenter.storage = window.ytcenter.storage || {};
+          window.ytcenter.storage.onsaved = window.ytcenter.storage.onsaved || function(id){
+            window.ytcenter.storage.onsaved_db[id]();
+          };
+          window.ytcenter.storage.onsaved_db = window.ytcenter.storage.onsaved_db || [];
+          window.ytcenter.storage.onsaved_db.push(function(){
+            console.log("Saved Settings!");
+          });
+          window.postMessage(JSON.stringify({
+            id: window.ytcenter.storage.onsaved_db.length - 1,
+            method: "saveSettings",
+            arguments: [ytcenter.storageName, JSON.stringify(ytcenter.settings)]
+          }), "*");
+        } else if (identifier === 3) {
+          self.port.emit("save", JSON.stringify({name: ytcenter.storageName, value: ytcenter.settings}));
+        } else if (identifier === 5) {
+          opera.extension.postMessage({
+            action: 'save',
+            name: ytcenter.storageName,
+            value: JSON.stringify(ytcenter.settings)
+          });
+        } else if (identifier === 6) {
+          storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
+        } else {
+          if (typeof async !== "boolean") async = false;
+          if (async) {
+            uw.postMessage("YouTubeCenter" + JSON.stringify({
+              type: "saveSettings"
+            }), "http://www.youtube.com");
+          } else {
+            if (!$SaveData(ytcenter.storageName, JSON.stringify(ytcenter.settings))) {
+              con.error("[Settings] Couldn't save settings.");
+            }
+          }
+        }
+      };
+      try {
+        uw.clearTimeout(ytcenter.saveSettings_timeout_obj);
+        if (timeout) {
+          ytcenter.saveSettings_timeout_obj = uw.setTimeout(function(){
+            __ss();
+          }, ytcenter.saveSettings_timeout);
+        } else {
+          __ss();
+        }
+      } catch (e) {
+        con.error(e);
+      }
+    };
+    con.log("Check for updates initializing");
+    ytcenter.checkForUpdates = (function(){
+      var updElement;
+      return function(success, error, disabled){
+        // If it's the Chrome/Opera addon and the browser is Opera, or if it's the Firefox addon it will not check for updates!
+        if ((@identifier@ === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || @identifier@ === 6) {
+          con.log("[UpdateChecker] UpdateChecker has been disabled!");
+          if (typeof disabled == "function")
+            disabled();
+        } else {
+          con.log("Checking for updates...");
+          if (typeof error == "undefined") {
+            error = function(){};
+          }
+          $XMLHTTPRequest({
+            method: "GET",
+            url: "http://userscripts.org/scripts/source/114002.meta.js",
+            headers: {
+              "Content-Type": "text/plain"
+            },
+            onload: (function(success){
+              return function(response){
+                con.log("Got Update Response");
+                var rev = -1,
+                    ver = "-1"
+                if (response && response.responseText) {
+                  rev =  parseInt(/^\/\/ @updateVersion\s+([0-9]+)$/m.exec(response.responseText)[1], 10);
+                  ver = /^\/\/ @version\s+([a-zA-Z0-9.,-_]+)$/m.exec(response.responseText)[1];
+                } else {
+                  con.log("Couldn't parse revision and version from the update page.");
+                }
+                if (rev > ytcenter.revision) {
+                  con.log("New update available");
+                  if (typeof updElement != "undefined") {
+                    ytcenter.discardElement(updElement);
+                  }
+                  updElement = document.createElement("div");
+                  updElement.className = "yt-alert yt-alert-default yt-alert-warn";
+                  updElement.style.margin = "0 auto";
+                  var ic = document.createElement("div");
+                  ic.className = "yt-alert-icon";
+                  var icon = document.createElement("img");
+                  icon.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+                  icon.className = "icon master-sprite";
+                  icon.setAttribute("alt", "Alert icon");
+                  ic.appendChild(icon);
+                  updElement.appendChild(ic);
+                  var c = document.createElement("div");
+                  c.className = "yt-alert-buttons";
+                  var cbtn = document.createElement("button");
+                  cbtn.setAttribute("type", "button");
+                  cbtn.setAttribute("role", "button");
+                  cbtn.setAttribute("onclick", ";return false;");
+                  cbtn.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
+                  cbtn.addEventListener("click", (function(updElement){
+                    return function(){
+                      ytcenter.utils.addClass(updElement, 'hid');
+                    };
+                  })(updElement));
+                  
+                  var cbtnt = document.createElement("span");
+                  cbtnt.className = "yt-uix-button-content";
+                  cbtnt.textContent = "Close ";
+                  cbtn.appendChild(cbtnt);
+                  c.appendChild(cbtn);
+                  updElement.appendChild(c);
+                  
+                  var cn = document.createElement("div");
+                  cn.className = "yt-alert-content";
+                  
+                  var cnt = document.createElement("span");
+                  cnt.className = "yt-alert-vertical-trick";
+                  
+                  var cnme = document.createElement("div");
+                  cnme.className = "yt-alert-message";
+                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
+                  ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
+                  var f2 = document.createElement("br");
+                  var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
+                  ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
+                  var f4 = document.createTextNode(" ");
+                  var f5 = document.createElement("a");
+                  if (@identifier@ === 0) {
+                    f5.href = "http://userscripts.org/scripts/source/114002.user.js";
+                  } else if (@identifier@ === 1) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
+                  } else if (@identifier@ === 2) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
+                  } else if (@identifier@ === 3) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
+                  } else if (@identifier@ === 4) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
+                  } else if (@identifier@ === 5) {
+                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
+                  }
+                  f5.setAttribute("target", "_blank");
+                  f5.textContent = "YouTube Center v" + ver;
+                  var f6 = document.createTextNode(" ");
+                  var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
+                  ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
+                  var f8 = document.createTextNode(" ");
+                  var f9 = document.createElement("a");
+                  f9.setAttribute("target", "_blank");
+                  if (@identifier@ === 6) {
+                    f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
+                    f9.textContent = "addons.mozilla.org";
+                  } else {
+                    f9.href = "http://userscripts.org/scripts/show/114002";
+                    f9.textContent = "userscripts.org";
+                  }
+                  
+                  cnme.appendChild(f1);
+                  cnme.appendChild(f2);
+                  cnme.appendChild(f3);
+                  cnme.appendChild(f4);
+                  cnme.appendChild(f5);
+                  cnme.appendChild(f6);
+                  cnme.appendChild(f7);
+                  cnme.appendChild(f8);
+                  cnme.appendChild(f9);
+                  
+                  cn.appendChild(cnt);
+                  cn.appendChild(cnme);
+                  updElement.appendChild(cn);
+                  
+                  document.getElementById("alerts").appendChild(updElement);
+                } else {
+                  con.log("No new updates available");
+                }
+                if (success) {
+                  con.log("Calling update callback");
+                  success(response);
+                }
+              };
+            })(success),
+            onerror: error
+          });
+        }
+      };
+    })();
     con.log("Adding mp3services to database");
     ytcenter.mp3services = [
       {
@@ -12231,6 +12236,7 @@
     };
     ytcenter.player.config = ytcenter.player.config || {}; // Only used if YouTube's configs can't be accessed.
     ytcenter.player.updateConfig = function(page, config){
+      if (!config || !config.args) return;
       if (ytcenter._tmp_embed && page === "embed") {
         if (ytcenter._tmp_embed.fmt_list)
           config.args.fmt_list = ytcenter._tmp_embed.fmt_list;
@@ -12444,7 +12450,8 @@
       }
     };
     ytcenter.player.modifyConfig = function(page, config){
-      if (page !== "watch" && page !== "embed" && page !== "channel") return;
+      if (page !== "watch" && page !== "embed" && page !== "channel") return config;
+      if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return config;
       config = config || {};
       config.args = config.args || {};
       con.log("[Player modifyConfig] => " + page);
@@ -14039,6 +14046,7 @@
       api.writePlayer(type);
     };
     ytcenter.player.updateFlashvars = function(player, config){
+      if (!config || !config.args) return;
       var flashvars = "", key;
       for (key in config.args) {
         if (config.args.hasOwnProperty(key)) {
@@ -14667,11 +14675,10 @@
     };
     (function(){
       // Hijacks the ytplayer global variable.
-      
-      var __settingsLoaded = false;
       try {
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.loaded) {
           ytcenter.player.config = uw.ytplayer.config;
+          ytcenter.player._config = JSON.parse(JSON.stringify(uw.ytplayer.config));
           ytcenter.player.disablePlayerUpdate = false;
         }
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.args)
@@ -14679,6 +14686,11 @@
         if (ytcenter.utils.setterGetterClassCompatible()) {
           con.log("[PlayerConfig Hijacker] Using Class Setter Getter Method");
           uw.ytplayer = new PlayerConfig(function(config){
+            ytcenter.player._config = JSON.parse(JSON.stringify(config));
+            if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
+              ytcenter.player.config = config;
+              return;
+            }
             if (config) {
               ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
               if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
@@ -14686,6 +14698,9 @@
               ytcenter.player.config = config;
             }
           }, function(){
+            if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
+              return ytcenter.player._config;
+            }
             return ytcenter.player.config;
           });
         }/* else if (ytcenter.utils.setterGetterObjectCompatible()) {
@@ -14706,6 +14721,7 @@
         }*/ else {
           con.log("[PlayerConfig Hijacker] Setter Getter Method not suppoted!");
           ytcenter.player.config = uw.ytplayer.config;
+          ytcenter.player._config = JSON.parse(JSON.stringify(uw.ytplayer.config));
           ytcenter.player.disablePlayerUpdate = false;
         }
       } catch (e) {
@@ -14715,19 +14731,16 @@
         ytcenter.player.disablePlayerUpdate = false;
       }
       ytcenter.pageReadinessListener.waitfor = function(){
-        return __settingsLoaded;
+        return ytcenter.__settingsLoaded;
       };
-      
-      ytcenter.loadSettings(function(){
-        __settingsLoaded = true;
-        ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config);
-      });
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
         con.log("Loading Settings");
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
         }
+        ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config);
+        
         ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
@@ -15418,6 +15431,12 @@
               ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
               if (o.url_encoded_fmt_stream_map) {
                 ytcenter.video.streams = ytcenter.parseStreams(o);
+                if (!ytcenter.player)
+                  ytcenter.player = {};
+                if (!ytcenter.player.config)
+                  ytcenter.player.config = {};
+                if (!ytcenter.player.config.args)
+                  ytcenter.player.config.args = {};
                 ytcenter.player.config.args.fmt_list = o.fmt_list;
                 ytcenter.player.config.args.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
               }
