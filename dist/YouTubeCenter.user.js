@@ -14072,6 +14072,7 @@
       player.setAttribute("flashvars", flashvars);
     };
     ytcenter.player.update = function(config){
+      if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"),
             clone;
@@ -14741,9 +14742,6 @@
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
         con.log("Loading Settings");
-        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
-          return;
-        }
         ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config);
         
         ytcenter.language.update();
