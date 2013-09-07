@@ -11812,7 +11812,8 @@
               { name: "Lightning-Natto" }
             ],
             "ko": [
-              { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" }
+              { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" },
+              { name: "U Bless", url: "http://userscripts.org/users/ubless" }
             ],
             "nl": [
               { name: "Marijn Roes" }

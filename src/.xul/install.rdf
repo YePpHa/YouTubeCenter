@@ -4,7 +4,8 @@
     <em:id>jid1-cwbvBTE216jjpg@jetpack</em:id>
     <em:version>@ant-version@</em:version>
     <em:type>2</em:type>
-    <em:iconURL>chrome://ytcenter/skin/icon32.png</em:iconURL>
+    <em:iconURL>chrome://ytcenter/content/icon32.png</em:iconURL>
+    <em:iconURL64>chrome://ytcenter/content/icon64.png</em:iconURL64>
 
     <!-- Firefox -->
     <em:targetApplication>
@@ -12,6 +13,14 @@
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>19.0</em:minVersion>
         <em:maxVersion>24.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    <!-- Firefox Mobile -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{aa3c5121-dab2-40e2-81ca-7ea25febc110}</em:id>
+        <em:minVersion>19.0</em:minVersion>
+        <em:maxVersion>20.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
