@@ -9401,6 +9401,7 @@
       videoThumbnailAnimationInterval: 700,
       videoThumbnailAnimationFallbackInterval: 2000,
       forcePlayerType: "default", // default, flash, html5
+      embed_forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
       ytspf: true,
@@ -10817,6 +10818,15 @@
           "type": "bool",
           "defaultSetting": "embed_dashPlayback",
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+        }, {
+          "label": "SETTINGS_FORCEPLAYERTYPE",
+          "type": "list",
+          "list": [
+            { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
+            { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
+            { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+          ],
+          "defaultSetting": "embed_forcePlayerType"
         }, {
           "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
           "type": "list",
@@ -12601,6 +12611,11 @@
         ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
         ytcenter.player.setAutoHide(ytcenter.settings.autohide);
       } else if (page === "embed") {
+        if (ytcenter.settings.embed_forcePlayerType === "flash") {
+          config.html5 = false;
+        } else if (ytcenter.settings.embed_forcePlayerType === "html5") {
+          config.html5 = true;
+        }
         if (ytcenter.settings.embed_enableAutoVideoQuality) {
           config.args.vq = ytcenter.player.getQuality(ytcenter.settings.embed_autoVideoQuality, streams);
         }
@@ -14678,7 +14693,6 @@
       try {
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.loaded) {
           ytcenter.player.config = uw.ytplayer.config;
-          ytcenter.player._config = JSON.parse(JSON.stringify(uw.ytplayer.config));
           ytcenter.player.disablePlayerUpdate = false;
         }
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.args)
@@ -14686,11 +14700,6 @@
         if (ytcenter.utils.setterGetterClassCompatible()) {
           con.log("[PlayerConfig Hijacker] Using Class Setter Getter Method");
           uw.ytplayer = new PlayerConfig(function(config){
-            ytcenter.player._config = JSON.parse(JSON.stringify(config));
-            if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
-              ytcenter.player.config = config;
-              return;
-            }
             if (config) {
               ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), config);
               if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
@@ -14698,9 +14707,6 @@
               ytcenter.player.config = config;
             }
           }, function(){
-            if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
-              return ytcenter.player._config;
-            }
             return ytcenter.player.config;
           });
         }/* else if (ytcenter.utils.setterGetterObjectCompatible()) {
@@ -14963,6 +14969,14 @@
                 $CreateResizeButton();
                 
                 initPlacement();
+              } else if (ytcenter.getPage() === "embed") {
+                if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash") {
+                  ytcenter.player.setPlayerType("flash");
+                  return;
+                } else if (ytcenter.settings.embed_forcePlayerType === "html5" && api.getPlayerType() !== "html5") {
+                  ytcenter.player.setPlayerType("html5");
+                  return;
+                }
               }
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
