@@ -14727,7 +14727,6 @@
         }*/ else {
           con.log("[PlayerConfig Hijacker] Setter Getter Method not suppoted!");
           ytcenter.player.config = uw.ytplayer.config;
-          ytcenter.player._config = JSON.parse(JSON.stringify(uw.ytplayer.config));
           ytcenter.player.disablePlayerUpdate = false;
         }
       } catch (e) {
