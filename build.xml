@@ -31,9 +31,9 @@
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
   
-  <property name="sdk.chrome" value="C:/Users/Jeppe Rune Mortensen/AppData/Local/Chromium/Application/chrome.exe" />
   <property name="sdk.maxthon" value="${basedir}/SDK/maxthon.exe" />
   <property name="sdk.yuicompressor" value="${basedir}/SDK/yuicompressor-2.4.7.jar" />
+  <property name="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe" />
   
   <property name="indentifier.userscript" value="0" />
   <property name="indentifier.chrome" value="1" />
@@ -158,10 +158,19 @@
     <antcall target="clean" />
   </target>
   
-  <target name="chrome" depends="preinit, copy-chrome, chrome-keycheck, build-chrome-key, build-chrome-nokey, clean" />
+  <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx" />
   <target name="chrome-zip" depends="preinit, copy-chrome">
-    <zip destfile="${dist}/chrome-${name}.zip" basedir="${buildDir}" />
+    <zip destfile="${build}/chrome.zip" basedir="${buildDir}" />
     <antcall target="clean" />
+  </target>
+  <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
+    <exec executable="${sdk.buildcrx}">
+      <arg value="-crx" />
+      <arg value="${build}/chrome.zip" />
+      <arg value="${cert.chrome}" />
+      <arg value="${dist}/${name}.crx" />
+    </exec>
+    <delete file="${build}/chrome.zip" />
   </target>
   
   <target name="chrome-keycheck">
@@ -170,33 +179,11 @@
     </condition>
   </target>
   
-  <target name="build-chrome-key" if="cert.chrome.found">
-    <exec executable="${sdk.chrome}">
-      <arg value="--pack-extension=${buildDir}" />
-      <arg value="--pack-extension-key=${cert.chrome}" />
-      <arg value="--no-message-box" />
+  <target name="build-chrome-key" unless="cert.chrome.found">
+    <exec executable="${sdk.buildcrx}">
+      <arg value="-prv" />
+      <arg value="${cert.chrome}" />
     </exec>
-    <move todir="${dist}">
-      <fileset dir="${build}">
-        <include name="${name}.crx" />
-      </fileset>
-    </move>
-  </target>
-  <target name="build-chrome-nokey" unless="cert.chrome.found">
-    <exec executable="${sdk.chrome}">
-      <arg value="--pack-extension=${buildDir}" />
-      <arg value="--no-message-box" />
-    </exec>
-    <move todir="${dist}">
-      <fileset dir="${build}">
-        <include name="${name}.crx" />
-      </fileset>
-    </move>
-    <move todir="${cert.chromePath}">
-      <fileset dir="${build}">
-        <include name="${name}.pem" />
-      </fileset>
-    </move>
   </target>
   
   <target name="maxthon" depends="preinit, copy-maxthon">
@@ -252,7 +239,15 @@
     <copy todir="${buildDir}">
       <fileset dir="${src.chrome}/" />
     </copy>
-    <antcall target="copy" />
+    <copy todir="${buildDir}">
+      <fileset dir="${src}">
+        <include name="*.*" />
+        <exclude name=".*" />
+      </fileset>
+      <mapper>
+        <globmapper from="*.user.js" to="*.js" /> 
+      </mapper>
+    </copy>
     <antcall target="tokenreplace" />
     <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.chrome}" token="@identifier@" encoding="${encoding}" />

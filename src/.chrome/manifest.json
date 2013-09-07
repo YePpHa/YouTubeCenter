@@ -19,7 +19,7 @@
       ],
       "run_at": "document_start",
       "all_frames": true,
-      "js": [ "YouTubeCenter.user.js" ]
+      "js": [ "YouTubeCenter.js" ]
     }
   ],
   "background": {
