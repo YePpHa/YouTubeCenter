@@ -14898,6 +14898,7 @@
         }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
+        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         var page = ytcenter.getPage();
         uw.ytcenter = uw.ytcenter || {};
         uw.ytcenter.subtitles = ytcenter.subtitles;
@@ -15262,6 +15263,7 @@
         }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
+        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         ytcenter.guideMode();
       });
       ytcenter.spf.addEventListener("requested-before", function(url){
@@ -15418,6 +15420,7 @@
       ytcenter.spf.addEventListener("processed", uw.ytcenter.spf.processed);
       
       if (ytcenter.getPage() === "embed") {
+        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1];
         con.log("[Embed] Contacting: /get_video_info?video_id=" + id);
         ytcenter.utils.xhr({
