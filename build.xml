@@ -215,7 +215,7 @@
 	</target>
   
   <target name="xul" depends="preinit, copy-xul">
-		<zip destfile="${dist}/${name}-beta.xpi" basedir="${buildDir}" />
+		<zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
     <antcall target="clean" />
 	</target>
   
