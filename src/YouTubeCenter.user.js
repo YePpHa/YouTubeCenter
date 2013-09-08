@@ -2581,46 +2581,6 @@
       
       return pos;
     }
-    var __rootCall_db = [];
-    var __rootCall_index = 0;
-    
-    if (identifier === 3) { // Firefox Extension
-      self.port.on("xhr onreadystatechange", function(data){
-        var data = JSON.parse(data);
-        __rootCall_db[data.id].onreadystatechange({responseText: data.responseText});
-      });
-      self.port.on("xhr onload", function(data){
-        var data = JSON.parse(data);
-        __rootCall_db[data.id].onload({responseText: data.responseText});
-      });
-      self.port.on("xhr onerror", function(data){
-        var data = JSON.parse(data);
-        __rootCall_db[data.id].onerror({responseText: data.responseText});
-      });
-    } else if (identifier === 4) { // Safari Extension
-      safari.self.addEventListener("message", function(e){
-        var data = JSON.parse(e.message);
-        if (e.name === "xhr onreadystatechange") {
-          __rootCall_db[data.id].onreadystatechange(data.response);
-        } else if (e.name === "xhr onload") {
-          __rootCall_db[data.id].onload(data.response);
-        } else if (e.name === "xhr onerror") {
-          __rootCall_db[data.id].onerror(data.response);
-        }
-      }, false);
-    } else if (identifier === 5) { // Opera Legacy Extnesion
-      opera.extension.onmessage = function(e){
-        if (e.data.action === "xhr onreadystatechange") {
-          __rootCall_db[e.data.id].onreadystatechange(e.data.response);
-        } else if (e.data.action === "xhr onload") {
-          __rootCall_db[e.data.id].onload(e.data.response);
-        } else if (e.data.action === "xhr onerror") {
-          __rootCall_db[e.data.id].onerror(e.data.response);
-        } else if (e.data.action === "load callback") {
-          ytcenter.storage_db[e.data.id](e.data.storage);
-        }
-      };
-    }
     
     function $XMLHTTPRequest(details) {
       if (injected) {
@@ -2628,50 +2588,23 @@
           //window.ytcenter = ytcenter.unsafe || {};
           window.ytcenter.xhr = window.ytcenter.xhr || {};
           window.ytcenter.xhr.onload = ytcenter.utils.bind(function(id, _args){
-            var __item;
-            for (var i = 0; i < __rootCall_db.length; i++) {
-              if (__rootCall_db[i].id === id) {
-                __item = __rootCall_db[i];
-                break;
-              }
-            }
-            if (__item.onload) {
-              __item.onload(_args);
-            }
+            if (ytcenter.callback_db[id].onload)
+              ytcenter.callback_db[id].onload(_args);
           }, window.ytcenter.xhr);
           window.ytcenter.xhr.onerror = ytcenter.utils.bind(function(id, _args){
-            var __item;
-            for (var i = 0; i < __rootCall_db.length; i++) {
-              if (__rootCall_db[i].id === id) {
-                __item = __rootCall_db[i];
-                break;
-              }
-            }
-            if (__item.onerror) {
-              __item.onerror(_args);
-            }
+            if (ytcenter.callback_db[id].onerror)
+              ytcenter.callback_db[id].onerror(_args);
           }, window.ytcenter.xhr);
           window.ytcenter.xhr.onreadystatechange = ytcenter.utils.bind(function(id, _args){
-            var __item;
-            for (var i = 0; i < __rootCall_db.length; i++) {
-              if (__rootCall_db[i].id === id) {
-                __item = __rootCall_db[i];
-                break;
-              }
-            }
-            if (__item.onreadystatechange) {
-              __item.onreadystatechange(_args);
-            }
+            if (ytcenter.callback_db[id].onreadystatechange)
+              ytcenter.callback_db[id].onreadystatechange(_args);
           }, window.ytcenter.xhr);
         }
-        __rootCall_index += 1;
-        var id = __rootCall_index;
-        __rootCall_db.push({
-          id: id,
+        var id = ytcenter.callback_db.push({
           onload: details.onload,
           onerror: details.onerror,
           onreadystatechange: details.onreadystatechange
-        });
+        }) - 1;
         window.postMessage(JSON.stringify({
           id: id,
           method: "CrossOriginXHR",
@@ -2679,8 +2612,7 @@
         }), "*");
       } else {
         if (identifier === 3) { // Firefox Extension
-          var id = __rootCall_db.length,
-              entry = {};
+          var entry = {};
           if (details.onreadystatechange) {
             entry.onreadystatechange = details.onreadystatechange;
             details.onreadystatechange = true;
@@ -2699,14 +2631,13 @@
           } else {
             details.onerror = false;
           }
-          __rootCall_db.push(entry);
+          var id = ytcenter.callback_db.push(entry) - 1;
           self.port.emit("xhr", JSON.stringify({
             id: id,
             details: details
           }));
         } else if (identifier === 4) { // Safari Extension
-          var id = __rootCall_db.length,
-              entry = {};
+          var entry = {};
           if (details.onreadystatechange) {
             entry.onreadystatechange = details.onreadystatechange;
             details.onreadystatechange = true;
@@ -2725,14 +2656,13 @@
           } else {
             details.onerror = false;
           }
-          __rootCall_db.push(entry);
+          var id = ytcenter.callback_db.push(entry) - 1;
           safari.self.tab.dispatchMessage("xhr", JSON.stringify({
             id: id,
             details: details
           }));
         } else if (identifier === 5) { // Opera Legacy Extension
-          var id = __rootCall_db.length,
-              entry = {};
+          var entry = {};
           if (details.onreadystatechange) {
             entry.onreadystatechange = details.onreadystatechange;
             details.onreadystatechange = true;
@@ -2751,7 +2681,7 @@
           } else {
             details.onerror = false;
           }
-          __rootCall_db.push(entry);
+          var id = ytcenter.callback_db.push(entry) - 1;
           opera.extension.postMessage({
             action: 'xhr',
             id: id,
@@ -9732,12 +9662,66 @@
       })(g);
     })();
     con.log("discardElement initialized");
-    ytcenter.storage_db = [];
-    if (identifier === 3) {
+    ytcenter.callback_db = [];
+    if (identifier === 3) { // Firefox Extension
+      self.port.on("xhr onreadystatechange", function(data){
+        var data = JSON.parse(data);
+        if (ytcenter.callback_db[data.id].onreadystatechange)
+          ytcenter.callback_db[data.id].onreadystatechange({responseText: data.responseText});
+      });
+      self.port.on("xhr onload", function(data){
+        var data = JSON.parse(data);
+        if (ytcenter.callback_db[data.id].onload)
+          ytcenter.callback_db[data.id].onload({responseText: data.responseText});
+      });
+      self.port.on("xhr onerror", function(data){
+        var data = JSON.parse(data);
+        if (ytcenter.callback_db[data.id].onerror)
+          ytcenter.callback_db[data.id].onerror({responseText: data.responseText});
+      });
       self.port.on("load callback", function(data){
         data = JSON.parse(data);
-        ytcenter.storage_db[data.id](data.storage);
+        ytcenter.callback_db[data.id](data.storage);
       });
+      self.port.on("save callback", function(data){
+        data = JSON.parse(data);
+        ytcenter.callback_db[data.id]();
+      });
+    } else if (identifier === 4) { // Safari Extension
+      safari.self.addEventListener("message", function(e){
+        var data = JSON.parse(e.message);
+        if (e.name === "xhr onreadystatechange") {
+          if (ytcenter.callback_db[data.id].onreadystatechange)
+            ytcenter.callback_db[data.id].onreadystatechange(data.response);
+        } else if (e.name === "xhr onload") {
+          if (ytcenter.callback_db[data.id].onload)
+            ytcenter.callback_db[data.id].onload(data.response);
+        } else if (e.name === "xhr onerror") {
+          if (ytcenter.callback_db[data.id].onerror)
+            ytcenter.callback_db[data.id].onerror(data.response);
+        } else if (e.name === "load callback") {
+          ytcenter.callback_db[data.id](data.response);
+        } else if (e.name === "save callback") {
+          ytcenter.callback_db[data.id]();
+        }
+      }, false);
+    } else if (identifier === 5) { // Opera Legacy Extnesion
+      opera.extension.onmessage = function(e){
+        if (e.data.action === "xhr onreadystatechange") {
+          if (ytcenter.callback_db[e.data.id].onreadystatechange)
+            ytcenter.callback_db[e.data.id].onreadystatechange(e.data.response);
+        } else if (e.data.action === "xhr onload") {
+          if (ytcenter.callback_db[e.data.id].onload)
+            ytcenter.callback_db[e.data.id].onload(e.data.response);
+        } else if (e.data.action === "xhr onerror") {
+          if (ytcenter.callback_db[e.data.id].onerror)
+            ytcenter.callback_db[e.data.id].onerror(e.data.response);
+        } else if (e.data.action === "load callback") {
+          ytcenter.callback_db[e.data.id](e.data.storage);
+        } else if (e.data.action === "save callback") {
+          ytcenter.callback_db[e.data.id]();
+        }
+      };
     }
     ytcenter.storageName = "ytcenter_v1.3_settings";
     ytcenter.loadSettings = function(callback){
@@ -9760,8 +9744,7 @@
             arguments: [ytcenter.storageName]
           }), "*");
         } else if (identifier === 3) {
-          var id = ytcenter.storage_db.length;
-          ytcenter.storage_db.push(function(storage){
+          var id = ytcenter.callback_db.push(function(storage){
             if (typeof storage === "string")
               storage = JSON.parse(storage);
             for (var key in storage) {
@@ -9770,11 +9753,25 @@
               }
             }
             if (callback) callback();
-          });
+          }) - 1;
           self.port.emit("load", JSON.stringify({id: id, name: ytcenter.storageName}));
+        } else if (identifier === 4) {
+          var id = ytcenter.callback_db.push(function(storage){
+            if (typeof storage === "string")
+              storage = JSON.parse(storage);
+            for (var key in storage) {
+              if (storage.hasOwnProperty(key)) {
+                ytcenter.settings[key] = storage[key];
+              }
+            }
+            if (callback) callback(storage);
+          }) - 1;
+          safari.self.tab.dispatchMessage("load", JSON.stringify({
+            id: id,
+            name: ytcenter.storageName
+          }));
         } else if (identifier === 5) {
-          var id = ytcenter.storage_db.length;
-          ytcenter.storage_db.push(function(storage){
+          var id = ytcenter.callback_db.push(function(storage){
             if (typeof storage === "string")
               storage = JSON.parse(storage);
             for (var key in storage) {
@@ -9783,7 +9780,7 @@
               }
             }
             if (callback) callback();
-          });
+          }) - 1;
           opera.extension.postMessage({
             action: 'load',
             id: id,
@@ -9828,13 +9825,14 @@
     con.log("Save Settings initializing");
     ytcenter.saveSettings_timeout_obj;
     ytcenter.saveSettings_timeout = 300;
-    ytcenter.saveSettings = function(async, timeout){
-      if (typeof timeout === "undefined") timeout = false;
+    ytcenter.saveSettings = function(async, timeout, callback){
+      if (typeof timeout !== "boolean") timeout = false;
       var __ss = function(){
         con.log("[Storage] Saving Settings");
         if (identifier === 1 && injected) {
           ytcenter.unsafe.storage.onsaved_db.push(function(){
             console.log("Saved Settings!");
+            if (callback) callback();
           });
           uw.postMessage(JSON.stringify({
             id: ytcenter.unsafe.storage.onsaved_db.length - 1,
@@ -9842,15 +9840,32 @@
             arguments: [ytcenter.storageName, JSON.stringify(ytcenter.settings)]
           }), "*");
         } else if (identifier === 3) {
-          self.port.emit("save", JSON.stringify({name: ytcenter.storageName, value: ytcenter.settings}));
+          var id = ytcenter.callback_db.push(function(){
+            if (callback) callback();
+          }) - 1;
+          self.port.emit("save", JSON.stringify({id: id, name: ytcenter.storageName, value: ytcenter.settings}));
+        } else if (identifier === 4) {
+          var id = ytcenter.callback_db.push(function(){
+            if (callback) callback();
+          }) - 1;
+          safari.self.tab.dispatchMessage("save", JSON.stringify({
+            id: id,
+            name: ytcenter.storageName,
+            value: ytcenter.settings
+          }));
         } else if (identifier === 5) {
+          var id = ytcenter.callback_db.push(function(){
+            if (callback) callback();
+          }) - 1;
           opera.extension.postMessage({
             action: 'save',
+            id: id,
             name: ytcenter.storageName,
             value: JSON.stringify(ytcenter.settings)
           });
         } else if (identifier === 6) {
           storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
+          if (callback) callback();
         } else {
           if (typeof async !== "boolean") async = false;
           if (async) {
@@ -9862,6 +9877,7 @@
               con.error("[Settings] Couldn't save settings.");
             }
           }
+          if (callback) callback();
         }
       };
       try {
@@ -10223,9 +10239,10 @@
                     primary: true,
                     callback: function(){
                       ytcenter.settings.watchedVideos = [];
-                      ytcenter.saveSettings();
-                      loc.reload();
-                      dialog.setVisibility(false);
+                      ytcenter.saveSettings(null, null, function(){
+                        loc.reload();
+                        dialog.setVisibility(false);
+                      });
                     }
                   }
                 ]);
@@ -14505,52 +14522,54 @@
         if (guideToggle)
           ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
         
-        observer2 = new MutObs(function(mutations){
-          mutations.forEach(function(mutation){
-            if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
-              con.log("[Guide] Main Guide has been removed");
-              main_guide = document.getElementById("guide-main");
-              guide_container = document.getElementById("guide-container");
-              if (main_guide) {
-                observer.disconnect();
-                observer.observe(main_guide, config);
-              }
-              if (guideToggle)
-                ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
-              guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
-              if (guideToggle)
-                ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
-              if (clicked) {
-                clicked = false;
-                return;
-              }
-              updateGuide();
-            } else {
-              con.log("[Guide] Main Guide is still intact");
-            }
-          });
-        });
-        observer = new MutObs(function(mutations){
-          mutations.forEach(function(mutation){
-            if (mutation.type === "attributes" && mutation.attributeName === "class") {
-              con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
-              if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
-              if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
-              con.log("[Guide] Updating State!");
-              
-              uw.clearTimeout(timer);
-              
-              if (clicked) {
-                clicked = false;
-                return;
-              }
-              
-              timer = uw.setTimeout(function(){
+        if (MutObs) {
+          observer2 = new MutObs(function(mutations){
+            mutations.forEach(function(mutation){
+              if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
+                con.log("[Guide] Main Guide has been removed");
+                main_guide = document.getElementById("guide-main");
+                guide_container = document.getElementById("guide-container");
+                if (main_guide) {
+                  observer.disconnect();
+                  observer.observe(main_guide, config);
+                }
+                if (guideToggle)
+                  ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
+                guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
+                if (guideToggle)
+                  ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
+                if (clicked) {
+                  clicked = false;
+                  return;
+                }
                 updateGuide();
-              }, 500);
-            }
+              } else {
+                con.log("[Guide] Main Guide is still intact");
+              }
+            });
           });
-        });
+          observer = new MutObs(function(mutations){
+            mutations.forEach(function(mutation){
+              if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
+                if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
+                if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
+                con.log("[Guide] Updating State!");
+                
+                uw.clearTimeout(timer);
+                
+                if (clicked) {
+                  clicked = false;
+                  return;
+                }
+                
+                timer = uw.setTimeout(function(){
+                  updateGuide();
+                }, 500);
+              }
+            });
+          });
+        }
         if (observer && ytcenter.settings.guideMode !== "default") {
           if (document.getElementById("guide"))
             observer2.observe(document.getElementById("guide"), confi2);

@@ -49,7 +49,10 @@ page = PageMod({
     });
     worker.port.on("save", function(data){
       data = JSON.parse(data);
+      if (typeof data.value === "object")
+        data.value = JSON.stringify(data.value);
       simpleStorage.storage[data.name] = data.value;
+      worker.port.emit("save callback", JSON.stringify({id: data.id}));
     });
     worker.port.on("load", function(data){
       data = JSON.parse(data);

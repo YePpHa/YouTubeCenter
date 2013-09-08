@@ -71,7 +71,12 @@ opera.extension.onmessage = function(e) {
     }
     xhr(details);
   } else if (e.data.action === "save") {
+    console.log("[Opera] Save Storage => " + e.data.name);
     widget.preferences.setItem(e.data.name, e.data.value);
+    e.source.postMessage({
+      action: 'save callback',
+      id: e.data.id
+    });
   } else if (e.data.action === "load") {
     console.log("[Opera] Load Storage => " + e.data.name);
     var s = widget.preferences.getItem(e.data.name);
