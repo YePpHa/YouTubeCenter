@@ -1,4 +1,0 @@
-[0624/134603:ERROR:client_util.cc(393)] Failed to load Chrome DLL from 001EF924
-[0624/134603:ERROR:client_util.cc(434)] Could not find exported function RelaunchChromeBrowserWithNewCommandLineIfNeeded
-[0817/024515:ERROR:client_util.cc(397)] Could not get Chrome DLL version.
-[0817/024515:ERROR:client_util.cc(434)] Could not find exported function RelaunchChromeBrowserWithNewCommandLineIfNeeded
