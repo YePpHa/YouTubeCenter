@@ -15341,6 +15341,22 @@
         return ytcenter.__settingsLoaded;
       };
       
+      ytcenter.events.addEvent("settings-update", function(){
+        /*if (ytcenter.getPage() === "watch") {
+          if (!document.getElementById("watch7-sentiment-actions") || !document.getElementById("watch7-sentiment-actions") || !document.getElementById("watch7-sentiment-actions").parentNode)
+            return;
+          ytcenter.placementsystem.clear();
+            
+          $CreateDownloadButton();
+          $CreateRepeatButton();
+          $CreateLightButton();
+          $CreateAspectButton();
+          $CreateResizeButton();
+          
+          initPlacement();
+        }*/
+      });
+      
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
         con.log("Loading Settings");
         ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config);
