@@ -23,10 +23,10 @@
   
   <property name="src.chrome" value="${src}/.chrome" />
   <property name="src.maxthon" value="${src}/.maxthon" />
-  <property name="src.firefox" value="${src}/.firefox" />
+  <property name="src.firefox-legacy" value="${src}/.firefox-legacy" />
   <property name="src.safari" value="${src}/.safari" />
   <property name="src.opera" value="${src}/.opera" />
-  <property name="src.xul" value="${src}/.xul" />
+  <property name="src.firefox" value="${src}/.firefox" />
   
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
@@ -38,10 +38,10 @@
   <property name="indentifier.userscript" value="0" />
   <property name="indentifier.chrome" value="1" />
   <property name="indentifier.maxthon" value="2" />
-  <property name="indentifier.firefox" value="3" />
+  <property name="indentifier.firefox-legacy" value="3" />
   <property name="indentifier.safari" value="4" />
   <property name="indentifier.opera" value="5" />
-  <property name="indentifier.xul" value="6" />
+  <property name="indentifier.firefox" value="6" />
   
   <property name="styles.general" value="ytcenter-styles-general.css" />
   <property name="styles.normal" value="ytcenter-styles-normal.css" />
@@ -52,7 +52,7 @@
   <property name="styles.images" value="ytcenter-styles-images.css" />
   <property name="styles.dialog" value="ytcenter-styles-dialog.css" />
   
-  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, xul, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, firefox-legacy, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
@@ -61,7 +61,7 @@
     <mkdir dir="${src}" />
     <mkdir dir="${src.chrome}" />
     <mkdir dir="${src.firefox}" />
-    <mkdir dir="${src.xul}" />
+    <mkdir dir="${src.firefox-legacy}" />
     <mkdir dir="${src.maxthon}" />
     <mkdir dir="${cert.chromePath}" />
   </target>
@@ -194,15 +194,15 @@
   </target>
   
   <target name="firefox" depends="preinit, copy-firefox">
-    <exec executable="cmd">
-      <arg value="/c"/>
-      <arg value="build-firefox.bat"/>
-    </exec>
-	</target>
-  
-  <target name="xul" depends="preinit, copy-xul">
 		<zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
     <antcall target="clean" />
+	</target>
+  
+  <target name="firefox-legacy" depends="preinit, copy-firefox-legacy">
+    <exec executable="cmd">
+      <arg value="/c"/>
+      <arg value="build-firefox-legacy.bat"/>
+    </exec>
 	</target>
   
   <target name="safari" depends="preinit, copy-safari">
@@ -275,17 +275,17 @@
     <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
   </target>
   
-  <target name="copy-xul">
+  <target name="copy-firefox-legacy">
     <antcall target="copy" />
     <move todir="${buildDir}/data">
       <fileset dir="${buildDir}" />
     </move>
     <copy todir="${buildDir}">
-      <fileset dir="${src.xul}/" />
+      <fileset dir="${src.firefox-legacy}/" />
     </copy>
     <antcall target="tokenreplace" />
     <antcall target="apply-styles" />
-    <replace dir="${buildDir}" value="${indentifier.xul}" token="@identifier@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${indentifier.firefox-legacy}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-safari">
