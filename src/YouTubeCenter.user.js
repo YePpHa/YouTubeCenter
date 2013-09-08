@@ -1443,6 +1443,15 @@
           var cbe = document.createElement("span");
           cbe.className = "yt-uix-form-input-checkbox-element";
           elm.appendChild(cbe);
+          ytcenter.events.addEvent("settings-update", function(){
+            if (ytcenter.settings[recipe.defaultSetting]) {
+              cb.checked = true;
+              ytcenter.utils.addClass(elm, "checked");
+            } else {
+              cb.checked = false;
+              ytcenter.utils.removeClass(elm, "checked");
+            }
+          });
           break;
         case 'text':
           var ds = "";
@@ -1471,6 +1480,10 @@
               elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
             }
           }
+          ytcenter.events.addEvent("settings-update", function(){
+            if (recipe.defaultSetting && ytcenter.settings[recipe.defaultSetting])
+              elm.value = ytcenter.settings[recipe.defaultSetting];
+          });
           break;
         case 'list':
           elm = document.createElement("span");
@@ -1486,9 +1499,11 @@
             recipe.list = recipe.advlist();
           }
           if (recipe.list) {
-            var defaultLabelText = ytcenter.language.getLocale(recipe.list[0].label);
+            var defaultLabelText = ytcenter.language.getLocale(recipe.list[0].label),
+                items = [];
             for (var i = 0; i < recipe.list.length; i++) {
               var item = document.createElement("option");
+              items.push(item);
               item.value = recipe.list[i].value;
               
               if (recipe.list[i].label) {
@@ -1537,6 +1552,18 @@
           }
           elm.appendChild(sc);
           elm.appendChild(s);
+          ytcenter.events.addEvent("settings-update", function(){
+            var i;
+            if (recipe.defaultSetting && ytcenter.settings[recipe.defaultSetting]) {
+              for (i = 0; i < recipe.list.length; i++) {
+                if (recipe.list[i].value === ytcenter.settings[recipe.defaultSetting]) {
+                  s.selectedIndex = i;
+                  sc2.textContent = items[i].textContent;
+                  break;
+                }
+              }
+            }
+          });
           break;
         case 'colorpicker':
           var _il = ytcenter.embeds.colorPicker();
@@ -1548,6 +1575,9 @@
           })(recipe.defaultSetting));
           _il.update(ytcenter.settings[recipe.defaultSetting]);
           elm = _il.element;
+          ytcenter.events.addEvent("settings-update", function(){
+            _il.update(ytcenter.settings[recipe.defaultSetting]);
+          });
           break;
         case 'bgcolorlist':
           var _il = ytcenter.embeds.bgcolorlist();
@@ -1559,6 +1589,9 @@
           })(recipe.defaultSetting));
           _il.update(ytcenter.settings[recipe.defaultSetting]);
           elm = _il.element;
+          ytcenter.events.addEvent("settings-update", function(){
+            _il.update(ytcenter.settings[recipe.defaultSetting]);
+          });
           break;
         case 'element':
           elm = document.createElement(recipe.tagname);
@@ -1642,7 +1675,9 @@
             };
           })(recipe));
           multilist.update(ytcenter.settings[recipe.defaultSetting]);
-          
+          ytcenter.events.addEvent("settings-update", function(){
+            multilist.update(ytcenter.settings[recipe.defaultSetting]);
+          });
           elm = multilist.element;
           if (recipe.style) {
             for (var key in recipe.style) {
@@ -1712,6 +1747,10 @@
               ytcenter.saveSettings(true);
             };
           })(_slide, recipe), false);
+          
+          ytcenter.events.addEvent("settings-update", function(){
+            _text.value = Math.round(_slide.setValue(ytcenter.settings[recipe.defaultSetting]));
+          });
           break;
         case 'button':
           elm = document.createElement("button");
@@ -1748,6 +1787,9 @@
             };
           })(recipe.defaultSetting));
           _rdd.update(ytcenter.settings[recipe.defaultSetting]);
+          ytcenter.events.addEvent("settings-update", function(){
+            _rdd.update(ytcenter.settings[recipe.defaultSetting]);
+          });
           elm = _rdd.element;
           break;
         case 'defaultplayersizedropdown':
@@ -1759,6 +1801,9 @@
             };
           })(recipe.defaultSetting));
           _rdd.update(ytcenter.settings[recipe.defaultSetting]);
+          ytcenter.events.addEvent("settings-update", function(){
+            _rdd.update(ytcenter.settings[recipe.defaultSetting]);
+          });
           elm = _rdd.element;
           break;
         case 'resizeItemList':
@@ -1770,6 +1815,9 @@
             };
           })(recipe.defaultSetting));
           _il.update(ytcenter.settings[recipe.defaultSetting]);
+          ytcenter.events.addEvent("settings-update", function(){
+            _il.update(ytcenter.settings[recipe.defaultSetting]);
+          });
           elm = _il.element;
           break;
         case "horizontalRule":
@@ -3042,6 +3090,39 @@
       ytcenter.unsafe.storage.onsaved_db[id]();
     };
     ytcenter.unsafe.storage.onsaved_db = [];
+    
+    ytcenter.title = {};
+    ytcenter.title.originalTitle = "";
+    ytcenter.title.previousTitle = "";
+    ytcenter.title.init = function(){
+      document.documentElement.addEventListener("DOMSubtreeModified", function(event){
+        if (document.title !== ytcenter.title.previousTitle) {
+          con.log("[Title Listener] \"" + ytcenter.title.previousTitle + "\" => \"" + document.title + "\"");
+          ytcenter.title.previousTitle = document.title;
+          ytcenter.title.update();
+        }
+      });
+    };
+    ytcenter.title.update = function(){
+      if (ytcenter.settings.playerPlayingTitleIndicator) {
+        if (ytcenter && ytcenter.player && ytcenter.player.getAPI() && ytcenter.player.getAPI().getPlayerState && ytcenter.player.getAPI().getPlayerState() === 1) {
+          ytcenter.title.addPlayIcon();
+        } else {
+          ytcenter.title.removePlayIcon();
+        }
+      } else {
+        ytcenter.title.removePlayIcon();
+      }
+    };
+    ytcenter.title.hasPlayIcon = function(){
+      return document.title.indexOf("\u25b6 ") === 0;
+    };
+    ytcenter.title.removePlayIcon = function(){
+      document.title = ytcenter.title.originalTitle;
+    };
+    ytcenter.title.addPlayIcon = function(){
+      document.title = "\u25b6 " + ytcenter.title.originalTitle;
+    };
     
     ytcenter.inject = function(func){
       try {
@@ -9774,7 +9855,8 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
-      playerOneInstancePlaying: true,
+      playerPlayingTitleIndicator: false,
+      playerOnlyOneInstancePlaying: true,
       videoThumbnailAnimationEnabled: true,
       videoThumbnailAnimationShuffle: false,
       videoThumbnailAnimationDelay: 1000,
@@ -10145,7 +10227,6 @@
     }
     ytcenter.storageName = "ytcenter_v1.3_settings";
     ytcenter.loadSettings = function(callback){
-      con.log("Identifier: " + identifier + "; Injected: " + injected);
       try {
         if (identifier === 1 && injected) {
           ytcenter.unsafe.storage.onloaded_db.push(function(storage){
@@ -10184,7 +10265,7 @@
                 ytcenter.settings[key] = storage[key];
               }
             }
-            if (callback) callback(storage);
+            if (callback) callback();
           }) - 1;
           safari.self.tab.dispatchMessage("load", JSON.stringify({
             id: id,
@@ -10242,17 +10323,38 @@
     ytcenter.loadSettings(function(){
       ytcenter.__settingsLoaded = true;
     });
+    var intercom = ytcenter.Intercom.getInstance();
+    intercom.on("settings", function(data){
+      if (data.origin === intercom.origin) return;
+      if (data.action === "loadSettings") {
+        con.log("[Intercom] Received order to loadSettings!");
+        ytcenter.loadSettings(function(){
+          ytcenter.events.performEvent("settings-update");
+          ytcenter.language.update();
+        });
+      }
+    });
     con.log("Save Settings initializing");
     ytcenter.saveSettings_timeout_obj;
     ytcenter.saveSettings_timeout = 300;
-    ytcenter.saveSettings = function(async, timeout, callback){
+    ytcenter.saveSettings = function(async, timeout, _callback){
+      var callback = function(){
+        con.log("[SaveSettings] Ordering other tabs to load the new settings.");
+        var intercom = ytcenter.Intercom.getInstance();
+        intercom.emit("settings", {
+          action: "loadSettings",
+          origin: intercom.origin
+        });
+        if (_callback) _callback();
+      };
+      if (typeof async !== "boolean") async = false;
       if (typeof timeout !== "boolean") timeout = false;
       var __ss = function(){
         con.log("[Storage] Saving Settings");
         if (identifier === 1 && injected) {
           ytcenter.unsafe.storage.onsaved_db.push(function(){
             console.log("Saved Settings!");
-            if (callback) callback();
+            callback();
           });
           uw.postMessage(JSON.stringify({
             id: ytcenter.unsafe.storage.onsaved_db.length - 1,
@@ -10261,12 +10363,12 @@
           }), "*");
         } else if (identifier === 3) {
           var id = ytcenter.callback_db.push(function(){
-            if (callback) callback();
+            callback();
           }) - 1;
           self.port.emit("save", JSON.stringify({id: id, name: ytcenter.storageName, value: ytcenter.settings}));
         } else if (identifier === 4) {
           var id = ytcenter.callback_db.push(function(){
-            if (callback) callback();
+            callback();
           }) - 1;
           safari.self.tab.dispatchMessage("save", JSON.stringify({
             id: id,
@@ -10275,7 +10377,7 @@
           }));
         } else if (identifier === 5) {
           var id = ytcenter.callback_db.push(function(){
-            if (callback) callback();
+            callback();
           }) - 1;
           opera.extension.postMessage({
             action: 'save',
@@ -10285,9 +10387,8 @@
           });
         } else if (identifier === 6) {
           storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
-          if (callback) callback();
+          callback();
         } else {
-          if (typeof async !== "boolean") async = false;
           if (async) {
             uw.postMessage("YouTubeCenter" + JSON.stringify({
               type: "saveSettings"
@@ -10296,8 +10397,8 @@
             if (!$SaveData(ytcenter.storageName, JSON.stringify(ytcenter.settings))) {
               con.error("[Settings] Couldn't save settings.");
             }
+            callback();
           }
-          if (callback) callback();
         }
       };
       try {
@@ -10615,6 +10716,24 @@
             }
           ],
           "defaultSetting": "gridSubscriptionsPage"
+        }, {
+          "type": "horizontalRule"
+        }, {
+          "label": "SETTINGS_PLAYER_PLAYING_INDICATOR",
+          "type": "bool",
+          "defaultSetting": "playerPlayingTitleIndicator"
+        }, {
+          "label": "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING",
+          "type": "bool",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                ytcenter.title.update();
+              }
+            }
+          ],
+          "defaultSetting": "playerOnlyOneInstancePlaying"
         }, {
           "type": "horizontalRule"
         }, {
@@ -15348,6 +15467,8 @@
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
         }
+        ytcenter.title.originalTitle = document.title;
+        ytcenter.title.init();
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         try {
@@ -15682,14 +15803,17 @@
           }
         });
         ytcenter.player.listeners.addEventListener("onStateChange", function(state, b){
-          if (state === 1 && ytcenter.settings.playerOneInstancePlaying) {
+          if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
             var intercom = ytcenter.Intercom.getInstance();
             intercom.emit("player", {
               action: "pause",
               origin: intercom.origin
             });
+          }
+          if (state === 1) {
+            ytcenter.title.addPlayIcon();
           } else {
-            //ytcenter.Intercom.getInstance()._cleanup_emit();
+            ytcenter.title.removePlayIcon();
           }
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
             ytcenter.player.getAPI().playVideo();
