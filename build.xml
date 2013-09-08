@@ -44,7 +44,7 @@
   <property name="indentifier.firefox" value="6" />
   
   <property name="styles.general" value="ytcenter-styles-general.css" />
-  <property name="styles.normal" value="ytcenter-styles-normal.css" />
+  <property name="styles.resize" value="ytcenter-styles-resize.css" />
   <property name="styles.topbar" value="ytcenter-styles-topbar.css" />
   <property name="styles.flags" value="ytcenter-styles-flags.css" />
   <property name="styles.html5player" value="ytcenter-styles-html5player.css" />
@@ -85,9 +85,9 @@
       <arg value="${build}/${name.styles}/${styles.general}" />
     </java>
     <java jar="${sdk.yuicompressor}" fork="true">
-      <arg value="${src.styles}/${styles.normal}" />
+      <arg value="${src.styles}/${styles.resize}" />
       <arg value="-o" />
-      <arg value="${build}/${name.styles}/${styles.normal}" />
+      <arg value="${build}/${name.styles}/${styles.resize}" />
     </java>
     <java jar="${sdk.yuicompressor}" fork="true">
       <arg value="${src.styles}/${styles.topbar}" />
@@ -122,7 +122,7 @@
   </target>
   <target name="apply-styles">
     <loadfile property="style.minified.general" srcFile="${build}/${name.styles}/${styles.general}" />
-    <loadfile property="style.minified.normal" srcFile="${build}/${name.styles}/${styles.normal}" />
+    <loadfile property="style.minified.resize" srcFile="${build}/${name.styles}/${styles.resize}" />
     <loadfile property="style.minified.topbar" srcFile="${build}/${name.styles}/${styles.topbar}" />
     <loadfile property="style.minified.flags" srcFile="${build}/${name.styles}/${styles.flags}" />
     <loadfile property="style.minified.html5player" srcFile="${build}/${name.styles}/${styles.html5player}" />
@@ -130,7 +130,7 @@
     <loadfile property="style.minified.images" srcFile="${build}/${name.styles}/${styles.images}" />
     <loadfile property="style.minified.dialog" srcFile="${build}/${name.styles}/${styles.dialog}" />
     <replace dir="${buildDir}" value="${style.minified.general}" token="@styles-general@" encoding="${encoding}" />
-    <replace dir="${buildDir}" value="${style.minified.normal}" token="@styles-normal@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.resize}" token="@styles-resize@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.topbar}" token="@styles-topbar@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.flags}" token="@styles-flags@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.html5player}" token="@styles-html5player@" encoding="${encoding}" />

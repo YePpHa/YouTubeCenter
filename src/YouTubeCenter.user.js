@@ -3170,7 +3170,7 @@
     };
     ytcenter.css = {
       general: "@styles-general@",
-      normal: "@styles-normal@",
+      resize: "@styles-resize@",
       topbar: "@styles-topbar@",
       flags: "@styles-flags@",
       html5player: "@styles-html5player@",
@@ -15443,8 +15443,8 @@
         if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) {
           $AddStyle(ytcenter.css.topbar);
         }
-        if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          $AddStyle(ytcenter.css.normal);
+        if (!ytcenter.settings['experimentalFeatureTopGuide'] && ytcenter.settings.enableResize) {
+          $AddStyle(ytcenter.css.resize);
         }
         
         /*****START OF SAVEAS AND BLOB IMPLEMENTATION*****/
