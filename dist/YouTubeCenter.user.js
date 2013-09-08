@@ -3095,7 +3095,7 @@
     ytcenter.title.originalTitle = "";
     ytcenter.title.previousTitle = "";
     ytcenter.title.init = function(){
-      document.documentElement.addEventListener("DOMSubtreeModified", function(event){
+      document.getElementsByTagName("title")[0].addEventListener("DOMSubtreeModified", function(event){
         if (document.title !== ytcenter.title.previousTitle) {
           con.log("[Title Listener] \"" + ytcenter.title.previousTitle + "\" => \"" + document.title + "\"");
           ytcenter.title.previousTitle = document.title;
