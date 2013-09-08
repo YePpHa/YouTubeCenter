@@ -129,24 +129,24 @@
     function $SaveData(key, value) {
       if (identifier === 2) {
         window.external.mxGetRuntime().storage.setConfig(key, value);
-        return true;
+        return window.external.mxGetRuntime().storage.getConfig(key) === value;
       } else {
         if (ytcenter.storageType === 3) {
           GM_setValue(key, value);
-          if (GM_getValue(key, null) === value) return true;
+          return GM_getValue(key) === value;
         } else if (ytcenter.storageType === 2) {
           localStorage[key] = value;
-          if (localStorage[key] === value) return true; // validation
+          return localStorage[key] === value; // validation
         } else if (ytcenter.storageType === 1) {
           uw.localStorage[key] = value;
-          if (uw.localStorage[key] === value) return true; // validation
+          return uw.localStorage[key] === value; // validation
         } else if (ytcenter.storageType === 0) {
           ytcenter.utils.setCookie(key, value, null, "/", 1000*24*60*60*1000);
-          if (ytcenter.utils.getCookie(name) === value) return true; // validation
+          return ytcenter.utils.getCookie(name) === value; // validation
         } else {
           con.error("[Storage] Unknown Storage Type!");
+          return false;
         }
-        return false;
       }
     }
 
@@ -9848,6 +9848,7 @@
           __setElementText(currentLang, db[i][0], db[i][1], db[i][2], db[i][3]);
         }
         ytcenter.events.performEvent("language-refresh");
+        ytcenter.events.performEvent("settings-update");
       };
       
       return __r;
@@ -10337,14 +10338,18 @@
     con.log("Save Settings initializing");
     ytcenter.saveSettings_timeout_obj;
     ytcenter.saveSettings_timeout = 300;
+    ytcenter.saveSettings_intercomTimeout;
     ytcenter.saveSettings = function(async, timeout, _callback){
       var callback = function(){
         con.log("[SaveSettings] Ordering other tabs to load the new settings.");
-        var intercom = ytcenter.Intercom.getInstance();
-        intercom.emit("settings", {
-          action: "loadSettings",
-          origin: intercom.origin
-        });
+        uw.clearTimeout(ytcenter.saveSettings_intercomTimeout);
+        ytcenter.saveSettings_intercomTimeout = uw.setTimeout(function(){
+          var intercom = ytcenter.Intercom.getInstance();
+          intercom.emit("settings", {
+            action: "loadSettings",
+            origin: intercom.origin
+          });
+        }, 500);
         if (_callback) _callback();
       };
       if (typeof async !== "boolean") async = false;
