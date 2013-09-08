@@ -70,6 +70,20 @@
             };
           }
           xhr(details);
+        } else if (e.name === "save") {
+          var a = JSON.parse(e.message);
+          if (typeof a.value === "object")
+            a.value = JSON.stringify(a.value);
+          localStorage[a.name] = a.value;
+          e.target.page.dispatchMessage("save callback", JSON.stringify({
+            id: a.id
+          }));
+        } else if (e.name === "load") {
+          var a = JSON.parse(e.message);
+          e.target.page.dispatchMessage("load callback", JSON.stringify({
+            id: a.id,
+            response: (!localStorage[a.name] || localStorage[a.name] === "[object Object]" ? {} : localStorage[a.name])
+          }));
         }
       }, false);
     </script>

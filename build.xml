@@ -158,19 +158,18 @@
     <antcall target="clean" />
   </target>
   
-  <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx" />
+  <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx, clean" />
   <target name="chrome-zip" depends="preinit, copy-chrome">
-    <zip destfile="${build}/chrome.zip" basedir="${buildDir}" />
-    <antcall target="clean" />
+    <zip destfile="${buildDir}/chrome.zip" basedir="${buildDir}" />
   </target>
   <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
     <exec executable="${sdk.buildcrx}">
       <arg value="-crx" />
-      <arg value="${build}/chrome.zip" />
+      <arg value="${buildDir}/chrome.zip" />
       <arg value="${cert.chrome}" />
       <arg value="${dist}/${name}.crx" />
     </exec>
-    <delete file="${build}/chrome.zip" />
+    <!--<delete file="${build}/chrome.zip" />-->
   </target>
   
   <target name="chrome-keycheck">
