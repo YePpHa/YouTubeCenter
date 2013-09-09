@@ -1041,3 +1041,7 @@ body > #page {
 /*.branded-page-v2-primary-col {
   overflow: visible!important;
 }*/
+
+.ytcenter-guide-hidden #guide {
+  display: none!important;
+}
