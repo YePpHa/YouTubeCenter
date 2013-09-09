@@ -10915,6 +10915,7 @@
                 ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
                 ytcenter.guide.update();
                 ytcenter.player._updateResize();
+                ytcenter.classManagement.applyClasses();
               }
             }
           ],
@@ -14895,6 +14896,8 @@
           document.getElementById("page").style.setProperty("padding-left", "");
         }
       }},
+      {element: function(){return document.body;}, className: "ytcenter-guide-hidden", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["watch7playerguidealwayshide"];}},
+      {element: function(){return document.body;}, className: "ytcenter-guide-visible", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings["watch7playerguidealwayshide"];}},
       {element: function(){return document.body;}, className: "ytcenter-disable-endscreen", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["removeRelatedVideosEndscreen"];}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
       {element: function(){return document.body;}, className: "site-left-aligned", condition: function(loc){return !ytcenter.settings['experimentalFeatureTopGuide'];}},
