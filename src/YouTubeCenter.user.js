@@ -10848,8 +10848,10 @@
                     callback: function(){
                       ytcenter.settings = ytcenter._settings;
                       ytcenter.saveSettings(false, false);
-                      loc.reload();
-                      dialog.setVisibility(false);
+                      uw.setTimeout(function(){
+                        loc.reload();
+                        dialog.setVisibility(false);
+                      }, 500);
                     }
                   }
                 ]);
@@ -11090,6 +11092,9 @@
             }, {
               "value": "small",
               "label": "SETTINGS_SMALL"
+            }, {
+              "value": "tiny",
+              "label": "SETTINGS_TINY"
             }
           ],
           "defaultSetting": "autoVideoQuality"
@@ -11357,6 +11362,9 @@
             }, {
               "value": "small",
               "label": "SETTINGS_SMALL"
+            }, {
+              "value": "tiny",
+              "label": "SETTINGS_TINY"
             }
           ],
           "defaultSetting": "channel_autoVideoQuality"
@@ -11539,6 +11547,9 @@
             }, {
               "value": "small",
               "label": "SETTINGS_SMALL"
+            }, {
+              "value": "tiny",
+              "label": "SETTINGS_TINY"
             }
           ],
           "defaultSetting": "embed_autoVideoQuality"
@@ -14501,7 +14512,7 @@
       return stream;
     };
     ytcenter.player.getClosestQuality = function(vq, streams){
-      var priority = ['auto', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
           a = "auto";
       for (var i = 0; i < streams.length; i++) {
         if (!streams[i]) continue;
@@ -14515,7 +14526,7 @@
       var _vq = "auto";
       if (typeof streams === "undefined") return _vq;
       
-      var priority = ['auto', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'];
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'];
       
       if (ytcenter.html5) {
         var a = document.createElement("video");
@@ -14543,7 +14554,7 @@
       var streams = ytcenter.video.streams;
       if (typeof streams === "undefined") return false;
       con.log("Getting Highest Available Quality With \"" + vq + "\" As Highest Quality");
-      var priority = ['auto', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'];
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'];
       pc.args.vq = ytcenter.player.getQuality(vq, streams);
       con.log("Setting Video Quality to " + pc.args.vq);
       if (typeof ytcenter.player.getReference() !== "undefined" && ytcenter.player.getReference().onReadyCalled && ytcenter.player.getReference().api && ytcenter.player.getReference().api.setPlaybackQuality) {
