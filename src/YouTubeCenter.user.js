@@ -3094,6 +3094,7 @@
     ytcenter.title = {};
     ytcenter.title.originalTitle = "";
     ytcenter.title.previousTitle = "";
+    ytcenter.title.liveTitle = "";
     ytcenter.title.init = function(){
       document.getElementsByTagName("title")[0].addEventListener("DOMSubtreeModified", function(event){
         if (document.title !== ytcenter.title.previousTitle) {
@@ -3113,15 +3114,31 @@
       } else {
         ytcenter.title.removePlayIcon();
       }
+      if (ytcenter.settings.removeYouTubeTitleSuffix) {
+        ytcenter.title.removeSuffix();
+      } else {
+        ytcenter.title.addSuffix();
+      }
+      document.title = ytcenter.title.liveTitle;
+    };
+    ytcenter.title.hasSuffix = function(){
+      return / - YouTube$/.test(ytcenter.title.liveTitle);
+    };
+    ytcenter.title.removeSuffix = function(){
+      ytcenter.title.liveTitle = ytcenter.title.liveTitle.replace(/ - YouTube$/, "");
+    };
+    ytcenter.title.addSuffix = function(){
+      if (ytcenter.title.hasSuffix()) return;
+      ytcenter.title.liveTitle += " - YouTube";
     };
     ytcenter.title.hasPlayIcon = function(){
       return document.title.indexOf("\u25b6 ") === 0;
     };
     ytcenter.title.removePlayIcon = function(){
-      document.title = ytcenter.title.originalTitle;
+      ytcenter.title.liveTitle = ytcenter.title.originalTitle;
     };
     ytcenter.title.addPlayIcon = function(){
-      document.title = "\u25b6 " + ytcenter.title.originalTitle;
+      ytcenter.title.liveTitle = "\u25b6 " + ytcenter.title.originalTitle;
     };
     
     ytcenter.inject = function(func){
@@ -9856,6 +9873,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      removeYouTubeTitleSuffix: true,
       playerPlayingTitleIndicator: false,
       playerOnlyOneInstancePlaying: true,
       videoThumbnailAnimationEnabled: true,
@@ -10724,11 +10742,7 @@
         }, {
           "type": "horizontalRule"
         }, {
-          "label": "SETTINGS_PLAYER_PLAYING_INDICATOR",
-          "type": "bool",
-          "defaultSetting": "playerPlayingTitleIndicator"
-        }, {
-          "label": "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING",
+          "label": "SETTINGS_TITLE_REMOVE_YOUTUBE_SUFFIX",
           "type": "bool",
           "listeners": [
             {
@@ -10738,6 +10752,22 @@
               }
             }
           ],
+          "defaultSetting": "removeYouTubeTitleSuffix"
+        }, {
+          "label": "SETTINGS_PLAYER_PLAYING_INDICATOR",
+          "type": "bool",
+          "listeners": [
+            {
+              "event": "click",
+              "callback": function(){
+                ytcenter.title.update();
+              }
+            }
+          ],
+          "defaultSetting": "playerPlayingTitleIndicator"
+        }, {
+          "label": "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING",
+          "type": "bool",
           "defaultSetting": "playerOnlyOneInstancePlaying"
         }, {
           "type": "horizontalRule"
@@ -15938,6 +15968,8 @@
       ytcenter.spf.addEventListener("received-before", function(url, data){
         ytcenter.unsafe.spf.url = url;
         ytcenter.unsafe.spf.data = data;
+        ytcenter.title.originalTitle = data.title;
+        ytcenter.title.update();
         if (data.swfcfg && data.swfcfg.args) {
           data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
         }
