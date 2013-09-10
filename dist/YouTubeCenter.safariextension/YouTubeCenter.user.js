@@ -10350,6 +10350,7 @@
         ytcenter.loadSettings(function(){
           ytcenter.events.performEvent("settings-update");
           ytcenter.language.update();
+          ytcenter.title.update();
         });
       }
     });
