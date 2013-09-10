@@ -10347,10 +10347,13 @@
       if (data.origin === intercom.origin) return;
       if (data.action === "loadSettings") {
         con.log("[Intercom] Received order to loadSettings!");
+        var _player_wide = ytcenter.settings.player_wide; // We don't want this to be updated.
         ytcenter.loadSettings(function(){
+          ytcenter.settings.player_wide = _player_wide;
           ytcenter.events.performEvent("settings-update");
           ytcenter.language.update();
           ytcenter.title.update();
+          ytcenter.classManagement.applyClasses();
         });
       }
     });
