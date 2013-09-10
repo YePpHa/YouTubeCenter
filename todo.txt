@@ -1,7 +1,7 @@
  - Reverse playlist order (more like make it play the previous video in the playlist instead of the next video).
  - Stop video
  - Set page centering only for specific pages.
- - Infinite Scroll in Search (maybe on other pages too).
+ - Infinite Scroll in Search/Subscription page/other pages...
  - Add date of video uploaded to video thumbnails.
  - Button to toggle the comments on and off (make them visible/invisible).
  - Player size set offset (relative, absolute)
