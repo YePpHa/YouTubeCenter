@@ -1,3 +1,4 @@
+ - Paged comments, auto load comments, nested comments (http://userscripts.org/topics/130800).
  - Reverse playlist order (more like make it play the previous video in the playlist instead of the next video).
  - Stop video
  - Set page centering only for specific pages.

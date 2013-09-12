@@ -5561,11 +5561,11 @@
             bgOverlay.parentNode.removeChild(bgOverlay);
             document.body.appendChild(bgOverlay);
           }
-          if (document.getElementById("player-api-legacy") || document.getElementById("player-api")) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "hidden";
+          //if (document.getElementById("player-api-legacy") || document.getElementById("player-api")) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "hidden";
         } else {
           if (root.parentNode) root.parentNode.removeChild(root);
           if (bgOverlay.parentNode) bgOverlay.parentNode.removeChild(bgOverlay);
-          if ((document.getElementById("player-api-legacy") || document.getElementById("player-api")) && !___parent_dialog) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "";
+          //if ((document.getElementById("player-api-legacy") || document.getElementById("player-api")) && !___parent_dialog) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "";
         }
       };
       __r.setFocus = function(focus){
@@ -10347,9 +10347,13 @@
       if (data.origin === intercom.origin) return;
       if (data.action === "loadSettings") {
         con.log("[Intercom] Received order to loadSettings!");
-        var _player_wide = ytcenter.settings.player_wide; // We don't want this to be updated.
+        var _player_wide = ytcenter.settings.player_wide, // We don't want this to be updated.
+            _experimentalFeatureTopGuide = ytcenter.settings.experimentalFeatureTopGuide; // We don't want this to be updated.
         ytcenter.loadSettings(function(){
+          // Restores the settings we don't want changed
           ytcenter.settings.player_wide = _player_wide;
+          ytcenter.settings.experimentalFeatureTopGuide = _experimentalFeatureTopGuide;
+          
           ytcenter.events.performEvent("settings-update");
           ytcenter.language.update();
           ytcenter.title.update();
@@ -12498,7 +12502,7 @@
               { name: "Tuấn Phạm" }
             ],
             "zh-CN": [
-              { name: "小酷" },
+              { name: "雅丶涵", url: "http://www.baidu.com/p/%E9%9B%85%E4%B8%B6%E6%B6%B5" },
               { name: "MatrixGT" }
             ],
             "zh-TW": [
@@ -12763,12 +12767,12 @@
       }
       try {
         if (cfg.args.csi_page_type) {
-          con.log("Chaning csi_page_type from " + cfg.args.csi_page_type + " to watch7");
+          con.log("Chaning csi_page_type from " + cfg.args.csi_page_type + " to watch, watch7");
           if (ytcenter.watch7) {
             if (ytcenter.html5) {
-              cfg.args.csi_page_type = "watch7_html5";
+              cfg.args.csi_page_type = "watch, watch7_html5";
             } else {
-              cfg.args.csi_page_type = "watch7";
+              cfg.args.csi_page_type = "watch, watch7";
             }
           } else {
             cfg.args.csi_page_type = "watch";
@@ -13770,6 +13774,7 @@
           ytcenter.utils.addClass(els[i], white);
         }
       }
+      ytcenter.classManagement.applyClasses();
     };
     ytcenter.player.aspect = function(option){
       ytcenter.player.getConfig().args.keywords = option;
@@ -13908,7 +13913,11 @@
       scrollToPlayerButtonArrow.alt = "";
       scrollToPlayerButtonArrow.setAttribute("alt", "");
       scrollToPlayerButtonArrow.style.marginLeft = "0";
+      scrollToPlayerButtonArrow.style.display = "inline-block";
       scrollToPlayerButton = ytcenter.gui.createYouTubeDefaultButton("SCROLL_TOOLTIP", [scrollToPlayerButtonArrow]);
+      if (ytcenter.settings.experimentalFeatureTopGuide) {
+        scrollToPlayerButton.className = "yt-uix-button yt-uix-button-appbar yt-uix-button-size-default yt-uix-button-empty yt-uix-tooltip";
+      }
       scrollToPlayerButton.style.display = "block";
       scrollToPlayerButton.style.position = "absolute";
       scrollToPlayerButton.addEventListener("click", function(){
@@ -14929,6 +14938,17 @@
         } else {
           document.getElementById("page").style.setProperty("padding-left", "");
         }
+      }},
+      {element: function(){return document.body;}, className: "white", condition: function(loc){
+        var p = ytcenter.getPage();
+        if (p === "watch") {
+          return ytcenter.html5 && ytcenter.settings.playerColor;
+        } else if (p === "embed") {
+          return ytcenter.html5 && ytcenter.settings.embed_playerColor;
+        } else if (p === "channel") {
+          return ytcenter.html5 && ytcenter.settings.channel_playerColor;
+        }
+        return false;
       }},
       {element: function(){return document.body;}, className: "ytcenter-guide-hidden", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["watch7playerguidealwayshide"];}},
       {element: function(){return document.body;}, className: "ytcenter-guide-visible", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings["watch7playerguidealwayshide"];}},
