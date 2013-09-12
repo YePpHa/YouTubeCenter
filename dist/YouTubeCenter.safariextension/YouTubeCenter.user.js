@@ -14000,27 +14000,29 @@
       var playerSize = getSizeById(ytcenter.player.currentResizeId);
       return playerSize.config.align;
     };
-    ytcenter.player.resize = (function(){
-      function getItemById(id) {
-        for (var i = 0; i < ytcenter.settings["resize-playersizes"].length; i++) {
-          if (ytcenter.settings["resize-playersizes"][i].id === id) return ytcenter.settings["resize-playersizes"][i];
-        }
-        return {
-          id: "default",
-          config: {
-            align: true,
-            height: "",
-            large: false,
-            scrollToPlayer: false,
-            scrollToPlayerButton: false,
-            width: ""
-          }
-        };
+    ytcenter.player.getPlayerSize = function(id){
+      for (var i = 0; i < ytcenter.settings["resize-playersizes"].length; i++) {
+        if (ytcenter.settings["resize-playersizes"][i].id === id)
+          return ytcenter.settings["resize-playersizes"][i];
       }
+      // default
+      return {
+        id: "default",
+        config: {
+          align: true,
+          height: "",
+          large: false,
+          scrollToPlayer: false,
+          scrollToPlayerButton: false,
+          width: ""
+        }
+      };
+    };
+    ytcenter.player.resize = (function(){
       var lastResizeId;
       ytcenter.player.resizeUpdater = function(){
         if (!ytcenter.settings.enableResize) return;
-        ytcenter.player.resize(getItemById(lastResizeId));
+        ytcenter.player.resize(ytcenter.player.getPlayerSize(lastResizeId));
         ytcenter.player.updateResize_updateVisibility();
         ytcenter.player.updateResize_updatePosition();
       };
@@ -15594,12 +15596,32 @@
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
           if (!ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = false;
+            // default_fit_to_content [985, 554]
+            var ftc = ytcenter.player.getPlayerSize("default_fit_to_content");
+            if (ftc && ftc.config) {
+              if (ftc.config.width === "1003px" && ftc.config.height === "") {
+                ftc.config.width = "985px";
+              } else if (ftc.config.width === "1003px" && ftc.config.height === "564px") {
+                ftc.config.width = "985px";
+                ftc.config.height = "554px";
+              }
+            }
             ytcenter.saveSettings(false, false);
             loc.reload();
           }
         } else {
           if (ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = true;
+            // default_fit_to_content [1003, 564]
+            var ftc = ytcenter.player.getPlayerSize("default_fit_to_content");
+            if (ftc && ftc.config) {
+              if (ftc.config.width === "985px" && ftc.config.height === "") {
+                ftc.config.width = "1003px";
+              } else if (ftc.config.width === "985px" && ftc.config.height === "554px") {
+                ftc.config.width = "1003px";
+                ftc.config.height = "564px";
+              }
+            }
             ytcenter.saveSettings(false, false);
             loc.reload();
           }
