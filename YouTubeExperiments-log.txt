@@ -9,4 +9,6 @@ Fixed Topbar v2
 Ads Removed
   VISITOR_INFO1_LIVE=oKckVSqvaGw;
 Recommend Videos list (Bigger Thumbnails):
-  VISITOR_INFO1_LIVE=8P_pMfGDZsE
+  VISITOR_INFO1_LIVE=8P_pMfGDZsE;
+Endscreen auto play:
+  VISITOR_INFO1_LIVE=Tzf-Mol6aU8;
