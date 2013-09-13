@@ -9873,6 +9873,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      enableEndscreenAutoplay: false,
       removeYouTubeTitleSuffix: true,
       playerPlayingTitleIndicator: false,
       playerOnlyOneInstancePlaying: true,
@@ -10913,6 +10914,10 @@
             }
           ],
           "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-endscreen"
+        }, {
+          "label": "SETTINGS_ENDSCREEN_AUTOPLAY",
+          "type": "bool",
+          "defaultSetting": "enableEndscreenAutoplay"
         }, {
           "label": "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
           "type": "bool",
@@ -12809,6 +12814,34 @@
       });
     };
     ytcenter.player = {};
+    ytcenter.player.parseRVS = function(rvs){
+      var a = [], b = rvs.split(","), c, d, e, i, j;
+      for (i = 0; i < b.length; i++) {
+        c = {};
+        d = b[i].split("&");
+        for (j = 0; j < d.length; j++) {
+          e = d[j].split("=");
+          c[decodeURIComponent(e[0])] = decodeURIComponent(e[1]);
+        }
+        a.push(c);
+      }
+      return a;
+    };
+    ytcenter.player.stringifyRVS = function(rvs){
+      var sb = "", i, key, j;
+      for (i = 0; i < rvs.length; i++) {
+        if (i > 0) sb += ",";
+        j = 0;
+        for (key in rvs[i]) {
+          if (rvs[i].hasOwnProperty(key)) {
+            if (j > 0) sb += "&";
+            sb += encodeURIComponent(key) + "=" + encodeURIComponent(rvs[i][key]);
+            j++;
+          }
+        }
+      }
+      return sb;
+    };
     ytcenter.player.shortcuts = function(){
       con.log("Adding player shortcuts to document");
       document.addEventListener("keydown", function(e){
@@ -13238,6 +13271,30 @@
         ytcenter.player.setTheme(ytcenter.settings.playerTheme);
         ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
         ytcenter.player.setAutoHide(ytcenter.settings.autohide);
+        
+        if (config.args.rvs) {
+          var rvs = ytcenter.player.parseRVS(config.args.rvs), i;
+          if (ytcenter.settings.enableEndscreenAutoplay && ytcenter.settings.removeRelatedVideosEndscreen) {
+            if (rvs.length > 0) {
+              rvs[0].endscreen_autoplay = 1;
+              for (i = 1; i < rvs.length; i++) {
+                if (typeof rvs[i].endscreen_autoplay !== "undefined") {
+                  delete rvs[i].endscreen_autoplay;
+                }
+              }
+            }
+            config.args.rvs = ytcenter.player.stringifyRVS(rvs);
+          } else {
+            if (rvs.length > 0) {
+              for (i = 0; i < rvs.length; i++) {
+                if (typeof rvs[i].endscreen_autoplay !== "undefined") {
+                  delete rvs[i].endscreen_autoplay;
+                }
+              }
+            }
+            config.args.rvs = ytcenter.player.stringifyRVS(rvs);
+          }
+        }
       } else if (page === "embed") {
         if (ytcenter.settings.embed_forcePlayerType === "flash") {
           config.html5 = false;
