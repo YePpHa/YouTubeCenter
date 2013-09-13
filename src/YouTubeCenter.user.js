@@ -14069,44 +14069,6 @@
       ytcenter.player._mastheadHeightListener = function(){
         return;
         if (document.getElementById("masthead-positioner-height-offset") && document.getElementById("masthead-positioner") && ytcenter.settings['experimentalFeatureTopGuide']) {
-          /*var posOffset = document.getElementById("masthead-positioner-height-offset"),
-              positioner = document.getElementById("masthead-positioner"),
-              height,
-              top,
-              update = function(){
-                height = posOffset.offsetHeight || posOffset.clientHeight;
-                document.getElementById("appbar-guide-menu").style.top = ((height - 1) + top) + "px";
-              },
-              MutObs = ytcenter.getMutationObserver(),
-              observer = new MutObs(function(mutations){
-                mutations.forEach(function(mutation){
-                  if (mutation.type === "attributes" && mutation.attributeName === "style") {
-                    top = positioner.style.top ? parseInt(positioner.style.top) : 0;
-                    update();
-                    ytcenter.events.performEvent("resize-update");
-                  }
-                });
-              });
-          observer.observe(posOffset, { attributes: true });
-          ytcenter.unload(function(){
-            if (observer) {
-              observer.disconnect();
-              observer = null;
-            }
-          });*/
-          /*window.addEventListener("scroll", (function(){
-            var lastTop = -1,
-                running = false;
-            return function(){
-              if (running && lastTop === top) return;
-              running = true;
-              uw.setTimeout(function(){
-                top = positioner.style.top ? parseInt(positioner.style.top) : 0;
-                update();
-                running = false;
-              }, 50);
-            };
-          })(), false);*/
           ytcenter.player._mastheadHeightListenerUpdate = function(){
             top = positioner.style.top ? parseInt(positioner.style.top) : 0;
             update();
@@ -14286,7 +14248,22 @@
           playlist_el.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
         }
         if (player) {
-          player.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
+          player.style.position = "";
+          player.style.left = "";
+          player.style.marginBottom = "";
+          if (ytcenter.settings['experimentalFeatureTopGuide']) {
+            player.style.width = (large ? playerWidth : maxInsidePlayerWidth) + "px";
+            if (large && align && playerWidth < maxInsidePlayerWidth) {
+              player.style.setProperty("position", "relative", "important");
+              player.style.setProperty("left", (-(maxInsidePlayerWidth - playerWidth)/2) + "px", "important");
+            }
+            if (large) {
+              player.style.setProperty("margin-bottom", "28px", "important");
+            }
+          } else {
+            player.style.setProperty("margin-bottom", "", "");
+            player.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
+          }
           /*player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";*/
           
           if (playerAPI) {
@@ -15597,7 +15574,9 @@
           if (!ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = false;
             // default_fit_to_content [985, 554]
-            var ftc = ytcenter.player.getPlayerSize("default_fit_to_content");
+            var ftc = ytcenter.player.getPlayerSize("default_fit_to_content"),
+                s = ytcenter.player.getPlayerSize("default_small"),
+                l = ytcenter.player.getPlayerSize("default_large");
             if (ftc && ftc.config) {
               if (ftc.config.width === "1003px" && ftc.config.height === "") {
                 ftc.config.width = "985px";
@@ -15606,6 +15585,12 @@
                 ftc.config.height = "554px";
               }
             }
+            if (s && s.config && !s.config.large) {
+              s.config.align = true;
+            }
+            if (l && l.config && l.config.large) {
+              l.config.align = true;
+            }
             ytcenter.saveSettings(false, false);
             loc.reload();
           }
@@ -15613,7 +15598,9 @@
           if (ytcenter.experiments.isTopGuide()) {
             ytcenter.settings['experimentalFeatureTopGuide'] = true;
             // default_fit_to_content [1003, 564]
-            var ftc = ytcenter.player.getPlayerSize("default_fit_to_content");
+            var ftc = ytcenter.player.getPlayerSize("default_fit_to_content"),
+                s = ytcenter.player.getPlayerSize("default_small"),
+                l = ytcenter.player.getPlayerSize("default_large");
             if (ftc && ftc.config) {
               if (ftc.config.width === "985px" && ftc.config.height === "") {
                 ftc.config.width = "1003px";
@@ -15621,6 +15608,12 @@
                 ftc.config.width = "1003px";
                 ftc.config.height = "564px";
               }
+            }
+            if (s && s.config && !s.config.large) {
+              s.config.align = false;
+            }
+            if (l && l.config && l.config.large) {
+              l.config.align = false;
             }
             ytcenter.saveSettings(false, false);
             loc.reload();

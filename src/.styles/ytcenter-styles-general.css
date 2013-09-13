@@ -668,9 +668,12 @@ body.ytcenter-branding-remove-background #guide-container.branded {
 }
 
 .ytcenter-branding-remove-background #player,
-.ytcenter-branding-remove-background #player-legacy,
-.ytcenter-branding-remove-background #watch7-sidebar {
+.ytcenter-branding-remove-background #player-legacy {
   background: none!important;
+}
+
+.ytcenter-branding-remove-background #watch7-sidebar {
+  background-color: #ffffff!important;
 }
 
 .ytcenter-branding-remove-banner #watch7-sidebar {
@@ -1044,4 +1047,8 @@ body > #page {
 
 .ytcenter-guide-hidden #guide {
   display: none!important;
+}
+
+.ytcenter-guide-hidden.ytcenter-site-center {
+  padding: 0!important;
 }
