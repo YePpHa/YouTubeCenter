@@ -70,3 +70,8 @@ body[data-player-size=fullscreen] .hide-controls.autohide-embeds.playing-mode .h
 .white .html5-volume-slider-foreground:before, .white .html5-volume-slider-foreground:after {
   background: #bbb!important;
 }
+
+/* Chrome Scrubber Fix */
+.ytp-force-transform {
+  -webkit-transform: none!important;
+}
