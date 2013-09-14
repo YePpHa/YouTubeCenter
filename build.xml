@@ -56,6 +56,8 @@
   <property name="styles.confirmbox" value="ytcenter-styles-confirmbox.css" />
   <property name="styles.panel" value="ytcenter-styles-panel.css" />
   <property name="styles.resizePanel" value="ytcenter-styles-resize-panel.css" />
+  <property name="styles.modules" value="ytcenter-styles-modules.css" />
+  <property name="styles.settings" value="ytcenter-styles-settings.css" />
   
   <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, firefox-legacy, safari, opera, clean" />
   <target name="preinit">
@@ -149,6 +151,16 @@
       <arg value="-o" />
       <arg value="${build}/${name.styles}/${styles.resizePanel}" />
     </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.modules}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.modules}" />
+    </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.settings}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.settings}" />
+    </java>
   </target>
   <target name="apply-styles">
     <loadfile property="style.minified.general" srcFile="${build}/${name.styles}/${styles.general}" />
@@ -164,6 +176,8 @@
     <loadfile property="style.minified.confirmbox" srcFile="${build}/${name.styles}/${styles.confirmbox}" />
     <loadfile property="style.minified.panel" srcFile="${build}/${name.styles}/${styles.panel}" />
     <loadfile property="style.minified.resizePanel" srcFile="${build}/${name.styles}/${styles.resizePanel}" />
+    <loadfile property="style.minified.modules" srcFile="${build}/${name.styles}/${styles.modules}" />
+    <loadfile property="style.minified.settings" srcFile="${build}/${name.styles}/${styles.settings}" />
     <replace dir="${buildDir}" value="${style.minified.general}" token="@styles-general@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.resize}" token="@styles-resize@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.topbar}" token="@styles-topbar@" encoding="${encoding}" />
@@ -177,6 +191,8 @@
     <replace dir="${buildDir}" value="${style.minified.confirmbox}" token="@styles-confirmbox@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.panel}" token="@styles-panel@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.resizePanel}" token="@styles-resize-panel@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.modules}" token="@styles-modules@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.settings}" token="@styles-settings@" encoding="${encoding}" />
   </target>
   <target name="clean-styles">
     <delete dir="${build}/${name.styles}" />

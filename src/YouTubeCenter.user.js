@@ -1100,207 +1100,29 @@
       ytcenter.placementsystem.registerElement(g, "@downloadgroup");
     }
     function $CreateSettingsUI() {
-      var isExpDialog = ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar'] || ytcenter.settings['settingsDialogMode'];
-      var container = document.createElement("div");
-      container.id = "ytcenter-settings";
-      var root = document.createElement("div");
-      root.setAttribute("style", (isExpDialog ? "margin: -15px -20px 0;" : "background:#ededed;margin-bottom: 10px;") + "padding-top: 7px;border-bottom: 1px solid #e6e6e6;");
+      var appbar = document.getElementById("appbar-settings-menu"),
+          liSettings = document.createElement("li"),
+          spanText = document.createElement("span"),
+          textIcon = document.createElement("img"),
+          text = document.createTextNode("YouTube Center Settings");
+      liSettings.setAttribute("id", "ytcenter-settings-toggler");
+      liSettings.setAttribute("role", "menuitem");
       
-      if (!isExpDialog) {
-        var header = document.createElement("div");
-        header.setAttribute("style", "padding:10px 35px 0;font-size:18px;font-weight:bold");
-        header.textContent = ytcenter.language.getLocale("SETTINGS_TITLE");
-        header.className = "ytcenter-settings-title";
-        root.appendChild(header);
-      }
-      var tabsContainer = document.createElement("div");
-      tabsContainer.className = "ytcenter-settings-header";
-      if (!ytcenter.settings['experimentalFeatureTopGuide'] && !ytcenter.settings['ytExperimentFixedTopbar'] && !ytcenter.settings['settingsDialogMode']) {
-        tabsContainer.setAttribute("style", "padding: 0px 50px;");
-      }
-      container.className = "hid" + (isExpDialog ? " ytcenter-exp-settings-dialog" : "");
-      container.setAttribute("style", "position:relative;width:" + (isExpDialog ? "975px" : "100%") + ";background:#ffffff;" + (isExpDialog ? "" : "border-bottom:1px solid #dbdbdb;"));
-      var content = document.createElement("div");
-      if (isExpDialog) {
-        content.style.marginTop = "10px";
-      }
-      root.appendChild(tabsContainer);
-      container.appendChild(root);
-      container.appendChild(content);
-      
-      var tabs = document.createElement("ul");
-      tabs.className = "clearfix";
-      tabsContainer.appendChild(tabs);
-      var tabgroups = document.createElement("div");
-      tabgroups.className = "ytcenter-settings-content";
-      content.appendChild(tabgroups);
-      
-      var first = true;
-      var last;
-      for (var key in ytcenter.ui.settings) {
-        if (ytcenter.ui.settings.hasOwnProperty(key)) {
-          var tc = document.createElement("div");
-          if (!first) {
-            tc.className = "hid";
-          }
-          var li = document.createElement("li");
-          li.style.cssFloat = "left";
-          var tab = document.createElement("a");
-          last = tab;
-          tab.setAttribute("onclick", ";return false;");
-          tab.className = "yt-uix-button yt-uix-button-epic-nav-item" + (first ? " selected" : "");
-          tab.setAttribute("role", "button");
-          tab.style.marginLeft = "3px";
-          tab.style.paddingLeft = ".9em";
-          tab.style.paddingRight = ".9em";
-          li.style.marginLeft = "13px";
-          var bc = document.createElement("span");
-          bc.className = "yt-uix-button-content";
-          bc.textContent = ytcenter.language.getLocale(key);
-          ytcenter.language.addLocaleElement(bc, key, "@textContent");
-          tab.appendChild(bc);
-          tab.addEventListener("click", (function(tabs, tc, tabgroups){
-            return function(){
-              for (var i = 0; i < tabs.children.length; i++) {
-                ytcenter.utils.removeClass(tabs.children[i].firstChild, "selected");
-              }
-              for (var i = 0; i < tabgroups.children.length; i++) {
-                ytcenter.utils.addClass(tabgroups.children[i], "hid");
-              }
-              ytcenter.utils.addClass(this, "selected");
-              ytcenter.utils.removeClass(tc, "hid");
-              ytcenter.events.performEvent("ui-refresh");
-            };
-          })(tabs, tc, tabgroups), false);
-          li.appendChild(tab);
-          tabs.appendChild(li);
-          for (var i = 0; i < ytcenter.ui.settings[key].length; i++) {
-            tc.appendChild($CreateSettingElement(tab, ytcenter.ui.settings[key][i]));
-          }
-          tabgroups.appendChild(tc);
-          if (first) {
-            first = false;
-          }
-        }
-      }
-      if (document.getElementById("masthead-user-display")) {
-        document.getElementById("masthead-user-display").style.display = "inline";
-      }
-      if (document.getElementById("masthead-user-expander")) {
-        document.getElementById("masthead-user-expander").style.verticalAlign = "middle";
-      }
-      if (isExpDialog) {
-        var appbar = document.getElementById("appbar-settings-menu"),
-            liSettings = document.createElement("li"),
-            spanText = document.createElement("span"),
-            textIcon = document.createElement("img"),
-            text = document.createTextNode("YouTube Center Settings");
-        liSettings.setAttribute("id", "ytcenter-settings-toggler");
-        liSettings.setAttribute("role", "menuitem");
-        
-        spanText.className = "yt-uix-button-menu-item upload-menu-link";
-        var dialog = ytcenter.dialog("SETTINGS_TITLE", container, [], "top"),
-            closeButton = document.createElement("div"),
-            closeIcon = document.createElement("img");
-        closeIcon.className = "close";
-        closeIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
-        closeButton.style.position = "absolute";
-        closeButton.style.top = "0";
-        closeButton.style.right = "0";
-        closeButton.style.margin = "0";
-        closeButton.className = "yt-alert";
-        closeButton.appendChild(closeIcon);
-        ytcenter.utils.addEventListener(closeButton, "click", function(){
-          dialog.setVisibility(false);
+      spanText.className = "yt-uix-button-menu-item upload-menu-link";
+      if (ytcenter.settings['experimentalFeatureTopGuide']) {
+        ytcenter.utils.addEventListener(spanText, "click", function(){
+          ytcenter.settingsPanelDialog.setVisibility(true);
         }, false);
-        ytcenter.settingsControlVisibility = function(visible){
-          dialog.setVisibility(visible);
-        };
-        dialog.getHeader().appendChild(closeButton);
-        dialog.getHeader().style.margin = "0 -20px -10px";
-        dialog.getHeader().style.borderBottom = "0";
-        dialog.getBase().style.overflowY = "scroll";
-        dialog.getFooter().style.display = "none";
-        ytcenter.utils.removeClass(container, "hid");
-        if (ytcenter.settings['experimentalFeatureTopGuide']) {
-          ytcenter.utils.addEventListener(spanText, "click", function(){
-            dialog.setVisibility(true);
-          }, false);
-          
-          textIcon.className = "upload-menu-account-settings";
-          textIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
-          
-          spanText.appendChild(textIcon);
-          spanText.appendChild(text);
-          
-          liSettings.appendChild(spanText);
-          appbar.appendChild(liSettings);
-        } else {
-          var btn = document.createElement("button");
-          btn.id = "masthead-user-button";
-          if (document.getElementById("masthead-gaia-photo-expander")) {
-            btn.style.marginTop = "3px";
-          } else if (document.getElementById("masthead-user-expander")) {
-            btn.style.verticalAlign = "middle";
-          }
-          btn.title = ytcenter.language.getLocale("BUTTON_SETTINGS_TITLE");
-          ytcenter.language.addLocaleElement(btn, "BUTTON_SETTINGS_TITLE", "title");
-          btn.setAttribute("type", "button");
-          btn.setAttribute("role", "button");
-          btn.setAttribute("onclick", ";return false;");
-          btn.className = "yt-uix-tooltip-reverse yt-uix-button " + (ytcenter.watch7 ? "yt-uix-button-text" : "yt-uix-button-text") + " yt-uix-tooltip";
-          var btnt = document.createElement("span");
-          btnt.className = "yt-uix-button-icon-wrapper";
-          btnt.style.margin = "0px";
-          var gearicon = document.createElement("img");
-          gearicon.src = ytcenter.icon.gear;
-          gearicon.setAttribute("alt", "");
-          gearicon.style.marginLeft = "3px";
-          
-          var ytvt = document.createElement("span");
-          ytvt.className = "yt-valign-trick";
-          
-          btnt.appendChild(gearicon);
-          btnt.appendChild(ytvt);
-          btn.appendChild(btnt);
-          
-          var ytuixbc = document.createElement("span");
-          ytuixbc.className = "yt-uix-button-content";
-          ytuixbc.textContent = "  ";
-          
-          btn.appendChild(ytuixbc);
-          
-          btn.addEventListener("click", function(){
-            dialog.setVisibility(true);
-          }, false);
-          if (document.getElementById("masthead-user")) {
-            document.getElementById("masthead-user").appendChild(btn);
-          } else if (document.getElementById("yt-masthead-user")) {
-            document.getElementById("yt-masthead-user").appendChild(btn);
-          } else if (document.getElementById("yt-masthead-signin")) {
-            btn.style.margin = "0 10px";
-            document.getElementById("yt-masthead-signin").appendChild(btn);
-          } else {
-            con.error("Settings UI - Couldn't add settings button");
-          }
-        }
+        
+        textIcon.className = "upload-menu-account-settings";
+        textIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
+        
+        spanText.appendChild(textIcon);
+        spanText.appendChild(text);
+        
+        liSettings.appendChild(spanText);
+        appbar.appendChild(liSettings);
       } else {
-        if (document.getElementById("yt-masthead-container")) {
-          var masthead = document.getElementById("yt-masthead-container").nextElementSibling.nextElementSibling;
-          var p = masthead.parentNode || document.getElementById("body-container") || document.body;
-          if (masthead) {
-            p.insertBefore(container, masthead);
-          } else {
-            p.appendChild(container);
-          }
-        } else if (document.getElementById("header")) {
-          document.getElementById("header").appendChild(container);
-        } else if (document.getElementById("alerts")) {
-          document.getElementById("alerts").parentNode.insertBefore(container, document.getElementById("alerts").nextElementSibling);
-        }else {
-          con.error("Settings UI - Couldn't find element to append");
-        }
-      
         var btn = document.createElement("button");
         btn.id = "masthead-user-button";
         if (document.getElementById("masthead-gaia-photo-expander")) {
@@ -1334,19 +1156,9 @@
         ytuixbc.textContent = "  ";
         
         btn.appendChild(ytuixbc);
-        ytcenter.settingsControlVisibility = function(visible){
-          if (!visible) {
-            ytcenter.utils.addClass(container, "hid");
-          } else {
-            ytcenter.utils.removeClass(container, "hid");
-          }
-        };
+        
         btn.addEventListener("click", function(){
-          if (!ytcenter.utils.hasClass(container, "hid")) {
-            ytcenter.utils.addClass(container, "hid");
-          } else {
-            ytcenter.utils.removeClass(container, "hid");
-          }
+          ytcenter.settingsPanelDialog.setVisibility(true);
         }, false);
         if (document.getElementById("masthead-user")) {
           document.getElementById("masthead-user").appendChild(btn);
@@ -1359,895 +1171,6 @@
           con.error("Settings UI - Couldn't add settings button");
         }
       }
-    }
-    
-    function $CreateSettingElement(tab, recipe) {
-      var wrapper = document.createElement("div");
-      wrapper.style.padding = "4px 0";
-      if (recipe.label) {
-        var label = document.createElement("span");
-        label.style.display = "inline-block";
-        label.style.width = "260px";
-        label.style.color = "#555";
-        var ltext = document.createTextNode(ytcenter.language.getLocale(recipe.label));
-        label.appendChild(ltext);
-        ytcenter.language.addLocaleElement(ltext, recipe.label, "@textContent");
-        
-        if (recipe.help) {
-          var help = document.createElement("a");
-          help.setAttribute("href", recipe.help);
-          help.setAttribute("target", "_blank");
-          help.setAttribute("style", "vertical-align: super; font-size: 10px");
-          help.appendChild(document.createTextNode('?'));
-
-          var replace = {
-            option: {
-              toString: function() { return ytcenter.language.getLocale(recipe.label); }
-            }
-          };
-          help.setAttribute("title", ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replace));
-          ytcenter.language.addLocaleElement(help, "SETTINGS_HELP_ABOUT", "title", replace);
-
-          label.appendChild(help);
-        }
-        
-        if (recipe.tooltip) {
-          var tooltip = document.createElement("p");
-          tooltip.style.color = "#9E9E9E";
-          tooltip.style.fontSize = "11px";
-          tooltip.style.width = "170px";
-          tooltip.textContent = ytcenter.language.getLocale(recipe.tooltip);
-          ytcenter.language.addLocaleElement(tooltip, recipe.tooltip, "@textContent");
-          label.appendChild(tooltip);
-        }
-        
-        wrapper.appendChild(label);
-      }
-      var elm = null;
-      switch (recipe.type) {
-        case 'bool':
-          var ds = false;
-          if (recipe.defaultSetting) {
-            var ds = ytcenter.settings[recipe.defaultSetting];
-          }
-          elm = document.createElement("span");
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                wrapper.style[key] = recipe.style[key];
-              }
-            }
-          }
-          elm.className = "yt-uix-form-input-checkbox-container" + (ds ? " checked" : "");
-          var cb = document.createElement("input");
-          cb.setAttribute("type", "checkbox");
-          cb.className = "yt-uix-form-input-checkbox";
-          if (ds) {
-            cb.checked = "checked";
-          }
-          cb.value = "true";
-          cb.addEventListener('click', (function(defaultSetting){
-            return function(){
-              if (defaultSetting) {
-                ytcenter.settings[defaultSetting] = (this.checked ? true : false);
-                ytcenter.saveSettings();
-              }
-            };
-          })(recipe.defaultSetting), false);
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              cb.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          elm.appendChild(cb);
-          var cbe = document.createElement("span");
-          cbe.className = "yt-uix-form-input-checkbox-element";
-          elm.appendChild(cbe);
-          ytcenter.events.addEvent("settings-update", function(){
-            if (ytcenter.settings[recipe.defaultSetting]) {
-              cb.checked = true;
-              ytcenter.utils.addClass(elm, "checked");
-            } else {
-              cb.checked = false;
-              ytcenter.utils.removeClass(elm, "checked");
-            }
-          });
-          break;
-        case 'text':
-          var ds = "";
-          if (recipe.defaultSetting) {
-            var ds = ytcenter.settings[recipe.defaultSetting];
-          }
-          elm = document.createElement("input");
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          elm.value = ds;
-          elm.setAttribute("type", "text");
-          elm.className = "yt-uix-form-input-text";
-          elm.addEventListener("change", (function(defaultSetting){
-            return function(){
-              ytcenter.settings[defaultSetting] = this.value;
-              ytcenter.saveSettings();
-            };
-          })(recipe.defaultSetting), false);
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          ytcenter.events.addEvent("settings-update", function(){
-            if (recipe.defaultSetting && ytcenter.settings[recipe.defaultSetting])
-              elm.value = ytcenter.settings[recipe.defaultSetting];
-          });
-          break;
-        case 'list':
-          elm = document.createElement("span");
-          elm.className = "yt-uix-form-input-select";
-          var sc = document.createElement("span");
-          sc.className = "yt-uix-form-input-select-content";
-          
-          var defaultLabel;
-          var s = document.createElement("select");
-          s.className = "yt-uix-form-input-select-element";
-          s.style.cursor = "pointer";
-          if (recipe.advlist) {
-            recipe.list = recipe.advlist();
-          }
-          if (recipe.list) {
-            var defaultLabelText = ytcenter.language.getLocale(recipe.list[0].label),
-                items = [];
-            for (var i = 0; i < recipe.list.length; i++) {
-              var item = document.createElement("option");
-              items.push(item);
-              item.value = recipe.list[i].value;
-              
-              if (recipe.list[i].label) {
-                item.textContent = ytcenter.language.getLocale(recipe.list[i].label);
-                ytcenter.language.addLocaleElement(item, recipe.list[i].label, "@textContent");
-              } else if (recipe.list[i].variable) {
-                item.textContent = recipe.list[i].variable();
-              }
-              if (recipe.list[i].value === ytcenter.settings[recipe.defaultSetting]) {
-                item.selected = true;
-                defaultLabelText = item.textContent;
-              }
-              s.appendChild(item);
-            }
-            var sc1 = document.createElement("img");
-            sc1.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
-            sc1.className = "yt-uix-form-input-select-arrow";
-            sc.appendChild(sc1);
-            var sc2 = document.createElement("span");
-            sc2.className = "yt-uix-form-input-select-value";
-            sc2.textContent = defaultLabelText;
-            sc.appendChild(sc2);
-            ytcenter.events.addEvent("ui-refresh", (function(__sc2, s){
-              return function(){
-                __sc2.textContent = s.options[s.selectedIndex].textContent;
-              };
-            })(sc2, s));
-          }
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                wrapper.style[key] = recipe.style[key];
-              }
-            }
-          }
-          s.addEventListener('change', (function(defaultSetting){
-            return function(){
-              ytcenter.settings[defaultSetting] = this.value;
-              ytcenter.saveSettings();
-            };
-          })(recipe.defaultSetting), false);
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              s.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          elm.appendChild(sc);
-          elm.appendChild(s);
-          ytcenter.events.addEvent("settings-update", function(){
-            var i;
-            if (recipe.defaultSetting && ytcenter.settings[recipe.defaultSetting]) {
-              for (i = 0; i < recipe.list.length; i++) {
-                if (recipe.list[i].value === ytcenter.settings[recipe.defaultSetting]) {
-                  s.selectedIndex = i;
-                  sc2.textContent = items[i].textContent;
-                  break;
-                }
-              }
-            }
-          });
-          break;
-        case 'colorpicker':
-          var _il = ytcenter.embeds.colorPicker();
-          _il.bind((function(ds){
-            return function(val){
-              ytcenter.settings[ds] = val;
-              ytcenter.saveSettings();
-            };
-          })(recipe.defaultSetting));
-          _il.update(ytcenter.settings[recipe.defaultSetting]);
-          elm = _il.element;
-          ytcenter.events.addEvent("settings-update", function(){
-            _il.update(ytcenter.settings[recipe.defaultSetting]);
-          });
-          break;
-        case 'bgcolorlist':
-          var _il = ytcenter.embeds.bgcolorlist();
-          _il.bind((function(ds){
-            return function(val){
-              ytcenter.settings[ds] = val;
-              ytcenter.saveSettings();
-            };
-          })(recipe.defaultSetting));
-          _il.update(ytcenter.settings[recipe.defaultSetting]);
-          elm = _il.element;
-          ytcenter.events.addEvent("settings-update", function(){
-            _il.update(ytcenter.settings[recipe.defaultSetting]);
-          });
-          break;
-        case 'element':
-          elm = document.createElement(recipe.tagname);
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          if (recipe.className) {
-            elm.className += " " + recipe.className;
-          }
-          if (recipe.text) {
-            elm.textContent = recipe.text;
-          }
-          if (recipe.html) {
-            con.error("[Settings Recipe] Element attribute HTML not allowed!");
-          }
-          if (recipe.load) {
-            tab.addEventListener("click", (function(elm, load){
-              return function(){
-                load.apply(elm, []);
-              };
-            })(elm, recipe.load), false);
-          }
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          break;
-        case 'textarea':
-          elm = document.createElement('textarea');
-          elm.className = "yt-uix-form-textarea";
-          if (recipe.className) {
-            elm.className += " " + recipe.className;
-          }
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          if (recipe.text) {
-            elm.textContent = recipe.text;
-          }
-          if (recipe.html) {
-            con.error("[Settings Recipe] Textarea doesn't allow the HTML attribute!");
-          }
-          if (recipe.load) {
-            tab.addEventListener("click", (function(elm, load){
-              return function(){
-                load.apply(elm, []);
-              };
-            })(elm, recipe.load), false);
-          }
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          break;
-        case 'html':
-          elm = document.createElement("div");
-          con.error("[Settings Recipe] Illegal type => HTML");
-          break;
-        case 'multi':
-          var multilist = ytcenter.embeds.multilist(recipe.multi);
-          multilist.bind((function(r){
-            return function(val){
-              ytcenter.settings[r.defaultSetting] = val;
-              ytcenter.saveSettings();
-              
-              if (r.listeners) {
-                for (var i = 0; i < r.listeners.length; i++) {
-                  r.listeners[i].callback(val);
-                }
-              }
-            };
-          })(recipe));
-          multilist.update(ytcenter.settings[recipe.defaultSetting]);
-          ytcenter.events.addEvent("settings-update", function(){
-            multilist.update(ytcenter.settings[recipe.defaultSetting]);
-          });
-          elm = multilist.element;
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          break;
-        case 'range':
-          elm = document.createElement("div");
-          elm.style.display = "inline";
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                wrapper.style[key] = recipe.style[key];
-              }
-            }
-          }
-          
-          var slide = document.createElement("span");
-          slide.className = "ytcenter-range";
-          slide.setAttribute("style", "display:inline-block;cursor:default;position:relative;border:1px solid;outline:0;white-space:nowrap;word-wrap:normal;vertical-align:middle;-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px;border-color:#CCC #CCC #AAA;background:white;padding:0;margin:0;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;");
-          var handle = document.createElement("a");
-          slide.appendChild(handle);
-          handle.className = "yt-uix-button yt-uix-button-default ytcenter-range-handle";
-          handle.setAttribute("style", "position:absolute;top:-1px;left:0px;outline:none;margin-left:-.5em;cursor:default;padding:0;margin:0;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;");
-          
-          elm.appendChild(slide);
-          
-          var _text = document.createElement("input");
-          _text.setAttribute("type", "text");
-          _text.value = ytcenter.settings[recipe.defaultSetting];
-          _text.style.width = "45px";
-          _text.style.marginLeft = "4px";
-          
-          elm.appendChild(_text);
-          
-          var _slide = $SlideRange(slide, handle, recipe.minRange, recipe.maxRange, ytcenter.settings[recipe.defaultSetting]);
-          
-          _slide.addEventListener("valuechange", (function(status_elm){
-            return function(newvalue){
-              status_elm.value = Math.round(newvalue);
-            };
-          })(_text));
-          
-          _slide.addEventListener("change", (function(status_elm, recipe){
-            return function(newvalue){
-              status_elm.value = Math.round(newvalue);
-              ytcenter.settings[recipe.defaultSetting] = status_elm.value;
-              ytcenter.saveSettings();
-            };
-          })(_text, recipe));
-          
-          _text.addEventListener("input", (function(_slide){
-            return function(){
-              if (this.value === "") this.value = "0";
-              this.value = parseInt(this.value);
-              if (isNaN(this.value) || this.value === Infinity) this.value = "0";
-            };
-          })(_slide), false);
-          _text.addEventListener("change", (function(_slide, recipe){
-            return function(){
-              if (this.value === '') this.value = "0";
-              this.value = Math.round(_slide.setValue(this.value));
-              ytcenter.settings[recipe.defaultSetting] = this.value;
-              ytcenter.saveSettings(true);
-            };
-          })(_slide, recipe), false);
-          
-          ytcenter.events.addEvent("settings-update", function(){
-            _text.value = Math.round(_slide.setValue(ytcenter.settings[recipe.defaultSetting]));
-          });
-          break;
-        case 'button':
-          elm = document.createElement("button");
-          elm.setAttribute("type", "button");
-          elm.setAttribute("role", "button");
-          elm.setAttribute("onclick", ";return false;");
-          elm.className = "yt-uix-button yt-uix-button-default";
-          var c = document.createElement("span");
-          c.className = "yt-uix-button-content";
-          if (recipe.text) {
-            c.textContent = ytcenter.language.getLocale(recipe.text);
-            ytcenter.language.addLocaleElement(c, recipe.text, "@textContent");
-          }
-          if (recipe.listeners) {
-            for (var j = 0; j < recipe.listeners.length; j++) {
-              elm.addEventListener(recipe.listeners[j].event, recipe.listeners[j].callback, (recipe.listeners[j].bubble ? recipe.listeners[j].bubble : false));
-            }
-          }
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          elm.appendChild(c);
-          break;
-        case 'resizedropdown':
-          var _rdd = ytcenter.embeds.resizedropdown(recipe.bind);
-          _rdd.bind((function(ds){
-            return function(val){
-              ytcenter.settings[ds] = val;
-              ytcenter.saveSettings();
-            };
-          })(recipe.defaultSetting));
-          _rdd.update(ytcenter.settings[recipe.defaultSetting]);
-          ytcenter.events.addEvent("settings-update", function(){
-            _rdd.update(ytcenter.settings[recipe.defaultSetting]);
-          });
-          elm = _rdd.element;
-          break;
-        case 'defaultplayersizedropdown':
-          var _rdd = ytcenter.embeds.defaultplayersizedropdown(recipe.bind);
-          _rdd.bind((function(ds){
-            return function(val){
-              ytcenter.settings[ds] = val;
-              ytcenter.saveSettings();
-            };
-          })(recipe.defaultSetting));
-          _rdd.update(ytcenter.settings[recipe.defaultSetting]);
-          ytcenter.events.addEvent("settings-update", function(){
-            _rdd.update(ytcenter.settings[recipe.defaultSetting]);
-          });
-          elm = _rdd.element;
-          break;
-        case 'resizeItemList':
-          var _il = ytcenter.embeds.resizeItemList();
-          _il.bind((function(ds){
-            return function(val){
-              ytcenter.settings[ds] = val;
-              ytcenter.saveSettings();
-            };
-          })(recipe.defaultSetting));
-          _il.update(ytcenter.settings[recipe.defaultSetting]);
-          ytcenter.events.addEvent("settings-update", function(){
-            _il.update(ytcenter.settings[recipe.defaultSetting]);
-          });
-          elm = _il.element;
-          break;
-        case "horizontalRule":
-          elm = document.createElement("hr");
-          elm.className = "yt-horizontal-rule";
-          elm.style.zIndex = "0";
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          break;
-        case "newline":
-          elm = document.createElement("br");
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          break;
-        case "textContent":
-          elm = document.createElement("div");
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          if (recipe.text) {
-            if (recipe.replace) {
-              elm.textContent = ytcenter.utils.replaceTextAsString(recipe.text, recipe.replace);
-            } else {
-              elm.textContent = recipe.text;
-            }
-          }
-          if (recipe.textlocale) {
-            if (recipe.replace) {
-              elm.textContent = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale(recipe.textlocale), recipe.replace);
-            } else {
-              elm.textContent = ytcenter.language.getLocale(recipe.textlocale);
-            }
-            
-            ytcenter.language.addLocaleElement(elm, recipe.textlocale, "@textContent", recipe.replace || {});
-          }
-          if (recipe.listeners) {
-            for (var i = 0; i < recipe.listeners.length; i++) {
-              elm.addEventListener(recipe.listeners[i].event, recipe.listeners[i].callback, (recipe.listeners[i].bubble ? recipe.listeners[i].bubble : false));
-            }
-          }
-          if (recipe.style) {
-            for (var key in recipe.style) {
-              if (recipe.style.hasOwnProperty(key)) {
-                elm.style[key] = recipe.style[key];
-              }
-            }
-          }
-          break;
-        case "link":
-          elm = document.createElement("div");
-          var title = document.createElement("b");
-          if (recipe.titleLocale) {
-            var __t1 = document.createTextNode(ytcenter.language.getLocale(recipe.titleLocale)),
-                __t2 = document.createTextNode(":");
-            ytcenter.language.addLocaleElement(__t1, recipe.titleLocale, "@textContent", recipe.replace || {});
-            title.appendChild(__t1);
-            title.appendChild(__t2);
-          } else if (recipe.title) {
-            title.textContent = recipe.title + ":";
-          }
-          var content = document.createElement("div");
-          content.style.marginLeft = "20px";
-          
-          for (var i = 0; i < recipe.links.length; i++) {
-            if (i > 0) content.appendChild(document.createElement("br"));
-            var __a = document.createElement("a");
-            __a.href = recipe.links[i].url;
-            __a.textContent = recipe.links[i].text;
-            __a.setAttribute("target", "_blank");
-            content.appendChild(__a);
-          }
-          elm.appendChild(title);
-          elm.appendChild(content);
-          break;
-        case "aboutText":
-          elm = document.createElement("div");
-          
-          var title = document.createElement("h2");
-          title.textContent = "YouTube Center v" + ytcenter.version;
-          
-          var content1 = document.createElement("div");
-          content1.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_COPYRIGHTS");
-          ytcenter.language.addLocaleElement(content1, "SETTINGS_ABOUT_COPYRIGHTS", "@textContent", {});
-          
-          var content2 = document.createElement("div");
-          content2.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_CONTACTSINFO");
-          ytcenter.language.addLocaleElement(content2, "SETTINGS_ABOUT_CONTACTSINFO", "@textContent", {});
-          
-          var contact = document.createElement("div"),
-              contactText = document.createTextNode(ytcenter.language.getLocale("SETTINGS_ABOUT_EMAIL")),
-              contactTextEnd = document.createTextNode(":"),
-              contactLink = document.createElement("a");
-          ytcenter.language.addLocaleElement(contactText, "SETTINGS_ABOUT_EMAIL", "@textContent", {});
-          
-          contactLink.href = "mailto:jepperm@gmail.com";
-          contactLink.textContent = "jepperm@gmail.com";
-          
-          contact.appendChild(contactText);
-          contact.appendChild(contactTextEnd);
-          contact.appendChild(contactLink);
-          
-          elm.appendChild(title);
-          elm.appendChild(content1);
-          elm.appendChild(document.createElement("br"));
-          elm.appendChild(content2);
-          elm.appendChild(contact);
-          break;
-        case "translators":
-          elm = document.createElement("div");
-          var title = document.createElement("b"),
-              titleText,
-              titleTextEnd = document.createTextNode(":");
-          if (recipe.titleLocale) {
-            titleText = document.createTextNode(ytcenter.language.getLocale(recipe.titleLocale));
-            ytcenter.language.addLocaleElement(titleText, recipe.titleLocale, "@textContent", {});
-          } else if (recipe.title) {
-            titleText = document.createTextNode(recipe.title);
-          } else {
-            titleText = document.createTextNode("");
-          }
-          
-          title.appendChild(titleText);
-          title.appendChild(titleTextEnd);
-          
-          var translators = document.createElement("div");
-          translators.style.marginLeft = "20px";
-          ytcenter.utils.each(recipe.translators, function(key, value){
-            if (value.length > 0) {
-              var entry = document.createElement("div");
-              entry.appendChild(document.createTextNode(ytcenter.language.getLocale("LANGUAGE", key) + " (" + ytcenter.language.getLocale("LANGUAGE_ENGLISH", key) + ") - "));
-              for (var i = 0; i < value.length; i++) {
-                if (i > 0) entry.appendChild(document.createTextNode(" & "));
-                var el;
-                if (value[i].url) {
-                  el = document.createElement("a");
-                  el.href = value[i].url;
-                  el.textContent = value[i].name;
-                  el.setAttribute("target", "_blank");
-                } else {
-                  el = document.createTextNode(value[i].name);
-                }
-                entry.appendChild(el);
-              }
-              translators.appendChild(entry);
-            }
-          });
-          elm.appendChild(title);
-          elm.appendChild(translators);
-          break;
-        case "import/export settings":
-          var textLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_TITLE"),
-              content = document.createElement("div"),
-              VALIDATOR_STRING = "YTCSettings=>",
-              dropZone = document.createElement("div"),
-              dropZoneContent = document.createElement("div"),
-              filechooser = document.createElement("input"),
-              settingsPool = document.createElement("textarea"),
-              dialog = ytcenter.dialog("SETTINGS_IMEX_TITLE", content, [
-                {
-                  label: "SETTINGS_IMEX_CANCEL",
-                  primary: false,
-                  callback: function(){
-                    dialog.setVisibility(false);
-                  }
-                }, {
-                  name: "save",
-                  label: "SETTINGS_IMEX_SAVE",
-                  primary: true,
-                  callback: function(){
-                    if (!saveEnabled) return;
-                    ytcenter.settings = JSON.parse(settingsPool.value);
-                    ytcenter.saveSettings();
-                    loc.reload();
-                  }
-                }
-              ]),
-              status,
-              loadingText = document.createElement("div"),
-              messageText = document.createElement("div"),
-              messageTimer,
-              dropZoneEnabled = true,
-              saveEnabled = true,
-              pushMessage = function(message, color, timer){
-                //dropZoneEnabled = false;
-                messageText.textContent = message;
-                messageText.style.display = "inline-block";
-                if (typeof color === "string") messageText.style.color = color;
-                else messageText.style.color = "";
-                
-                status.style.display = "";
-                dropZoneContent.style.visibility = "hidden";
-                uw.clearTimeout(messageTimer);
-                if (typeof timer === "number") {
-                  messageTimer = uw.setTimeout(function(){
-                    removeMessage();
-                  }, timer);
-                }
-              },
-              removeMessage = function(){
-                status.style.display = "none";
-                dropZoneContent.style.visibility = "";
-                
-                messageText.style.display = "none";
-                messageText.textContent = "";
-                //dropZoneEnabled = true;
-                uw.clearTimeout(messageTimer);
-              },
-              validateFileAndLoad = function(file){
-                dropZone.style.border = "2px dashed rgb(187, 187, 187)";
-                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE"));
-                
-                var reader = new FileReader();
-                reader.onerror = function(e){
-                  switch (e.target.error.code) {
-                    case e.target.error.NOT_FOUND_ERR:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_FOUND"), "#ff0000", 10000);
-                      break;
-                    case e.target.error.NOT_READABLE_ERR:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_READABLE"), "#ff0000", 10000);
-                      break;
-                    case e.target.error.ABORT_ERR:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
-                      break;
-                    default:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_UNKNOWN"), "#ff0000", 10000);
-                      break;
-                  }
-                };
-                reader.onabort = function(){
-                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
-                };
-                reader.onload = function(e){
-                  if (e.target.result === VALIDATOR_STRING) {
-                    readFile(file);
-                  } else {
-                    pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
-                    
-                  }
-                };
-                
-                reader.readAsText(file.slice(0, VALIDATOR_STRING.length));
-              },
-              readFile = function(file){
-                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_LOADING"));
-                
-                var reader = new FileReader();
-                reader.onerror = function(e){
-                  switch (e.target.error.code) {
-                    case e.target.error.NOT_FOUND_ERR:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_FOUND"), "#ff0000", 10000);
-                      break;
-                    case e.target.error.NOT_READABLE_ERR:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_READABLE"), "#ff0000", 10000);
-                      break;
-                    case e.target.error.ABORT_ERR:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
-                      break;
-                    default:
-                      pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_UNKNOWN"), "#ff0000", 10000);
-                      break;
-                  }
-                };
-                reader.onabort = function(){
-                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
-                };
-                reader.onload = function(e){
-                  settingsPool.value = e.target.result;
-                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_MESSAGE"), "", 10000);
-                };
-                
-                reader.readAsText(file.slice(VALIDATOR_STRING.length));
-              },
-              exportFileButtonLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_EXPORT_AS_FILE"),
-              exportFileButton = ytcenter.gui.createYouTubeDefaultButton("", [exportFileButtonLabel]),
-              statusContainer = document.createElement("div");
-          elm = ytcenter.gui.createYouTubeDefaultButton("", [textLabel]);
-          
-          // Message Text
-          messageText.style.fontWeight = "bold";
-          messageText.style.fontSize = "16px";
-          messageText.style.textAlign = "center";
-          messageText.style.width = "100%";
-          messageText.style.display = "none";
-          
-          status = ytcenter.gui.createMiddleAlignHack(messageText);
-          status.style.position = "absolute";
-          status.style.top = "0px";
-          status.style.left = "0px";
-          status.style.width = "100%";
-          status.style.height = "100%";
-          status.style.display = "none";
-          
-          filechooser.setAttribute("type", "file");
-          ytcenter.utils.addEventListener(elm, "click", function(){
-            dialog.setVisibility(true);
-          }, false);
-          var __f = function(e){
-            validateFileAndLoad(e.target.files[0]);
-            
-            var newNode = document.createElement("input");
-            newNode.setAttribute("type", "file");
-            ytcenter.utils.addEventListener(newNode, "change", __f, false);
-            filechooser.parentNode.replaceChild(newNode, filechooser);
-            filechooser = newNode;
-          };
-          ytcenter.utils.addEventListener(filechooser, "change", __f, false);
-          
-          ytcenter.utils.addEventListener(dropZone, "drop", function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            
-            validateFileAndLoad(e.dataTransfer.files[0]);
-          }, false);
-          
-          ytcenter.utils.addEventListener(dropZone, "dragover", function(e){
-            if (!dropZoneEnabled) return;
-            e.stopPropagation();
-            e.preventDefault();
-            e.dataTransfer.dropEffect = "copy";
-            dropZone.style.border = "2px dashed rgb(130, 130, 130)";
-          }, false);
-          ytcenter.utils.addEventListener(dropZone, "dragleave", function(e){
-            if (!dropZoneEnabled) return;
-            dropZone.style.border = "2px dashed rgb(187, 187, 187)";
-            e.dataTransfer.dropEffect = "none";
-          }, false);
-          ytcenter.utils.addEventListener(dropZone, "dragend", function(e){
-            if (!dropZoneEnabled) return;
-            dropZone.style.border = "2px dashed rgb(187, 187, 187)";
-            e.dataTransfer.dropEffect = "none";
-          }, false);
-          var text1 = document.createElement("span");
-          text1.style.fontWeight = "bold";
-          text1.style.fontSize = "16px";
-          text1.textContent = ytcenter.language.getLocale("SETTINGS_IMEX_DROPFILEHERE");
-          ytcenter.language.addLocaleElement(text1, "SETTINGS_IMEX_DROPFILEHERE", "@textContent");
-          dropZoneContent.appendChild(text1);
-          dropZoneContent.appendChild(document.createElement("br"));
-          var text2 = document.createTextNode(ytcenter.language.getLocale("SETTINGS_IMEX_OR"));
-          ytcenter.language.addLocaleElement(text2, "SETTINGS_IMEX_OR", "@textContent");
-          dropZoneContent.appendChild(text2);
-          dropZoneContent.appendChild(document.createTextNode(" "));
-          dropZoneContent.appendChild(filechooser);
-          
-          dropZone.style.position = "relative";
-          dropZone.style.border = "2px dashed rgb(187, 187, 187)";
-          dropZone.style.borderRadius = "4px";
-          dropZone.style.color = "rgb(110, 110, 110)";
-          dropZone.style.padding = "20px 0";
-          dropZone.style.width = "100%";
-          dropZone.style.marginBottom = "10px";
-          dropZone.style.textAlign = "center";
-          settingsPool.style.width = "100%";
-          settingsPool.style.height = "120px";
-          
-          dropZoneContent.style.margin = "0 auto";
-          dropZoneContent.style.display = "inline-block";
-          dropZoneContent.style.textAlign = "left";
-          
-          dropZone.appendChild(dropZoneContent);
-          dropZone.appendChild(status);
-          content.appendChild(dropZone);
-          content.appendChild(settingsPool);
-          
-          dialog.setWidth("490px");
-          
-          var settingsPoolChecker = function(){
-            try {
-              JSON.parse(settingsPool.value);
-              dialog.getActionButton("save").disabled = false;
-              settingsPool.style.background = "";
-              saveEnabled = true;
-            } catch (e) {
-              dialog.getActionButton("save").disabled  = true;
-              settingsPool.style.background = "#FFAAAA";
-              saveEnabled = false;
-            }
-          };
-          
-          ytcenter.utils.addEventListener(settingsPool, "input", settingsPoolChecker, false);
-          ytcenter.utils.addEventListener(settingsPool, "keyup", settingsPoolChecker, false);
-          ytcenter.utils.addEventListener(settingsPool, "paste", settingsPoolChecker, false);
-          ytcenter.utils.addEventListener(settingsPool, "change", settingsPoolChecker, false);
-          
-          dialog.addEventListener("visibility", function(visible){
-            if (visible) settingsPool.value = JSON.stringify(ytcenter.settings);
-            else settingsPool.value = "";
-          });
-          
-          ytcenter.utils.addEventListener(exportFileButton, "click", function(){
-            try {
-              var blob = new ytcenter.unsafe.io.Blob([VALIDATOR_STRING + settingsPool.value], { "type": "application/octet-stream" });
-              ytcenter.unsafe.io.saveAs(blob, "ytcenter-settings.ytcs");
-            } catch (e) {
-              con.error(e);
-            }
-          }, false);
-          
-          content.appendChild(exportFileButton);
-          
-          break;
-      }
-      if (elm) {
-        wrapper.appendChild(elm);
-      }
-      return wrapper;
     }
     
     function $CloneArray(arr) {
@@ -3198,7 +2121,9 @@
       list: "@styles-list@",
       confirmbox: "@styles-confirmbox@",
       panel: "@styles-panel@",
-      resizePanel: "@styles-resize-panel@"
+      resizePanel: "@styles-resize-panel@",
+      modules: "@styles-modules@",
+      settings: "@styles-settings@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -5106,7 +4031,7 @@
       return __r;
     })();
     
-    ytcenter.debug = function(){
+    ytcenter.getDebug = function(){
       var debugText = "{}";
       var dbg = {};
       try {
@@ -5565,6 +4490,9 @@
       __r.getBase = function(){
         return base;
       };
+      __r.getContent = function(){
+        return cnt;
+      };
       __r.getFooter = function(){
         return footer;
       };
@@ -5733,7 +4661,7 @@
               try {
                 a.setLaunchStatus(true);
                 a.setVisibility(false);
-                ytcenter.settingsControlVisibility(true);
+                ytcenter.settingsPanelDialog.setVisibility(true);
               } catch (e) {
                 con.error(e);
               }
@@ -6117,79 +5045,464 @@
       
       return __r;
     })();
-    ytcenter.embeds = {};
-    ytcenter.embeds.textInputField = function(){
-      var wrapper = document.createElement("span"),
-          elm = ytcenter.gui.createYouTubeTextInput();
-      wrapper.appendChild(elm);
-      wrapper.className = "ytcenter-embed";
+    ytcenter.modules = {};
+    ytcenter.modules.aboutText = function(option){
+      var elm = document.createElement("div");
+      
+      var content1 = document.createElement("div");
+      content1.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_COPYRIGHTS");
+      ytcenter.language.addLocaleElement(content1, "SETTINGS_ABOUT_COPYRIGHTS", "@textContent", {});
+      
+      var content2 = document.createElement("div");
+      content2.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_CONTACTSINFO");
+      ytcenter.language.addLocaleElement(content2, "SETTINGS_ABOUT_CONTACTSINFO", "@textContent", {});
+      
+      var contact = document.createElement("div"),
+          contactText = document.createTextNode(ytcenter.language.getLocale("SETTINGS_ABOUT_EMAIL")),
+          contactTextEnd = document.createTextNode(":"),
+          contactLink = document.createElement("a");
+      ytcenter.language.addLocaleElement(contactText, "SETTINGS_ABOUT_EMAIL", "@textContent", {});
+      
+      contactLink.href = "mailto:jepperm@gmail.com";
+      contactLink.textContent = "jepperm@gmail.com";
+      
+      contact.appendChild(contactText);
+      contact.appendChild(contactTextEnd);
+      contact.appendChild(contactLink);
+      
+      elm.appendChild(content1);
+      elm.appendChild(document.createElement("br"));
+      elm.appendChild(content2);
+      elm.appendChild(contact);
+      
       return {
-        element: wrapper, // So the element can be appended to an element.
-        bind: function(callback){
-          ytcenter.utils.addEventListener(elm, "change", function(){
-            callback(elm.value);
-          }, false);
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.bool = function(option){
+      function update(checked) {
+        checkboxInput.checked = checked;
+        if (checked) {
+          ytcenter.utils.addClass(checkboxOuter, "checked");
+        } else {
+          ytcenter.utils.removeClass(checkboxOuter, "checked");
+        }
+      }
+      function bind(callback) {
+        ytcenter.utils.addEventListener(checkboxInput, "change", function(){
+          callback(checkboxInput.checked);
+        }, false);
+      }
+      var frag = document.createDocumentFragment(),
+          checkboxOuter = document.createElement("span"),
+          checkboxInput = document.createElement("input"),
+          checkboxOverlay = document.createElement("span"),
+          checked = ytcenter.settings[option.defaultSetting];
+      if (typeof checked !== "boolean") checked = false; // Just to make sure it's a boolean!
+      checkboxOuter.className = "yt-uix-form-input-checkbox-container" + (checked ? " checked" : "");
+      checkboxInput.className = "yt-uix-form-input-checkbox";
+      checkboxOverlay.className = "yt-uix-form-input-checkbox-element";
+      checkboxInput.checked = checked;
+      checkboxInput.setAttribute("type", "checkbox");
+      checkboxInput.setAttribute("value", checked);
+      checkboxOuter.appendChild(checkboxInput);
+      checkboxOuter.appendChild(checkboxOverlay);
+      if (option && option.args && option.args.listeners) {
+        for (var i = 0; i < option.args.listeners.length; i++) {
+          checkboxInput.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+        }
+      }
+      ytcenter.utils.addEventListener(checkboxOuter, "click", function(){
+        checked = !checked;
+        if (checked) {
+          ytcenter.utils.addClass(checkboxOuter, "checked");
+        } else {
+          ytcenter.utils.removeClass(checkboxOuter, "checked");
+        }
+        checkboxInput.setAttribute("value", checked);
+      }, false);
+      
+      frag.appendChild(checkboxOuter);
+      
+      return {
+        element: frag,
+        bind: bind,
+        update: update
+      };
+    };
+    ytcenter.modules.button = function(option){
+      var elm = document.createElement("button");
+      elm.setAttribute("type", "button");
+      elm.setAttribute("role", "button");
+      elm.setAttribute("onclick", ";return false;");
+      elm.className = "yt-uix-button yt-uix-button-default";
+      var c = document.createElement("span");
+      c.className = "yt-uix-button-content";
+      if (option && option.args && option.args.text) {
+        c.textContent = ytcenter.language.getLocale(option.args.text);
+        ytcenter.language.addLocaleElement(c, option.args.text, "@textContent");
+      }
+      if (option && option.args && option.args.listeners) {
+        for (var j = 0; j < option.args.listeners.length; j++) {
+          elm.addEventListener(option.args.listeners[j].event, option.args.listeners[j].callback, (option.args.listeners[j].bubble ? option.args.listeners[j].bubble : false));
+        }
+      }
+      if (option && option.args && option.args.style) {
+        for (var key in option.args.style) {
+          if (option.args.style.hasOwnProperty(key)) {
+            elm.style[key] = option.args.style[key];
+          }
+        }
+      }
+      elm.appendChild(c);
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){},
+        addEventListener: function(event, callback, bubble){
+          elm.addEventListener(event, callback, bubble);
         },
-        update: function(value){
-          elm.value = value;
+        removeEventListener: function(event, callback, bubble){
+          elm.removeEventListener(event, callback, bubble);
         }
       };
     };
-    ytcenter.embeds.sortList = function(){
-      // Sortable list as in Resize -> Player Sizes
+    ytcenter.modules.checkbox = function(selected){
+      selected = selected || false;
+      var wrapper = document.createElement("span");
+      wrapper.className = "ytcenter-embed";
+      
+      var cw = document.createElement("span");
+      cw.className = "yt-uix-form-input-checkbox-container" + (selected ? " checked" : "");
+      var checkbox = document.createElement("input");
+      checkbox.setAttribute("type", "checkbox");
+      checkbox.setAttribute("value", "true");
+      checkbox.className = "yt-uix-form-input-checkbox";
+      if (selected) checkbox.checked = true;
+      var elm = document.createElement("span");
+      elm.className = "yt-uix-form-input-checkbox-element";
+      cw.appendChild(checkbox);
+      cw.appendChild(elm);
+      
+      wrapper.appendChild(cw);
+      
+      return {
+        element: wrapper, // So the element can be appended to an element.
+        bind: function(callback){
+          ytcenter.utils.addEventListener(checkbox, "change", function(){
+            callback(ytcenter.utils.hasClass(cw, "checked"));
+          }, false);
+        },
+        update: function(value){
+          if (value === true) {
+            ytcenter.utils.addClass(cw, "checked");
+            checkbox.checked = true;
+          } else {
+            ytcenter.utils.removeClass(cw, "checked");
+            checkbox.checked = false;
+          }
+        },
+        fixHeight: function(){
+          cw.style.height = "auto";
+        },
+        isSelected: function(){
+          return checkbox.checked;
+        }
+      };
     };
-    ytcenter.embeds.colorPickerField = function(hue, sat, val){
-      var bCallback;
+    ytcenter.modules.colorpicker = function(option){
+      function update() {
+        wrapper.style.background = ytcenter.utils.colorToHex(red, green, blue);
+        currentColor.style.background = ytcenter.utils.colorToHex(red, green, blue);
+        redRange.update(red);
+        greenRange.update(green);
+        blueRange.update(blue);
+        htmlColor.update(ytcenter.utils.colorToHex(red, green, blue));
+      }
+      function updateHueRange() {
+        if (Math.max(red, green, blue) !== Math.min(red, green, blue)) {
+          hueRange.update(hsv.hue);
+        }
+      }
+     function updateColorField() {
+        if (Math.max(red, green, blue) !== Math.min(red, green, blue)) {
+          hsv = ytcenter.utils.getHSV(red, green, blue);
+          hueRangeField.update(hsv.hue, hsv.saturation, hsv.value);
+        } else {
+          var __hsv = ytcenter.utils.getHSV(red, green, blue);
+          if (hsv.value > hsv.saturation) {
+            hsv.saturation = __hsv.saturation;
+          } else if (hsv.value < hsv.saturation) {
+            hsv.value = __hsv.value;
+          } else {
+            hsv.saturation = __hsv.saturation;
+            hsv.value = __hsv.value;
+          }
+          hueRangeField.update(hsv.hue, hsv.saturation, hsv.value);
+        }
+      }
+      var red = 0, green = 0, blue = 0, sessionHex = "#000000", hsv = ytcenter.utils.getHSV(red, green, blue), _hue = hsv.hue, bCallback,
+          wrapper = document.createElement("span"),
+          redRange = ytcenter.modules.range({
+            args: {
+              value: red,
+              min: 0,
+              max: 255
+            }
+          }), greenRange = ytcenter.modules.range({
+            args: {
+              value: green,
+              min: 0,
+              max: 255
+            }
+          }), blueRange = ytcenter.modules.range({
+            args: {
+              value: blue,
+              min: 0,
+              max: 255
+            }
+          }),
+          rWrapper = document.createElement("div"),
+          rText = ytcenter.modules.label({label: "COLORPICKER_COLOR_RED"}),
+          gWrapper = document.createElement("div"),
+          gText = ytcenter.modules.label({label: "COLORPICKER_COLOR_GREEN"}),
+          bWrapper = document.createElement("div"),
+          bText = ytcenter.modules.label({label: "COLORPICKER_COLOR_BLUE"}),
+          hueWrapper = document.createElement("div"), 
+          hueRangeField = ytcenter.modules.colorPickerField(),
+          rgb, hueRangeHandle = document.createElement("div"),
+          hueRangeHandleRight = document.createElement("div"),
+          hueRange = ytcenter.modules.range({
+            args: {
+              value: hsv.hue,
+              min: 0,
+              max: 360,
+              method: "vertical",
+              handle: hueRangeHandle,
+              offset: 7
+            }
+          }), d1, d2, d3, d4, d5, d6,
+          hWrapper = document.createElement("div"),
+          htmlColorLabel = ytcenter.utils.wrapModule(ytcenter.modules.label({label: "COLORPICKER_COLOR_HTMLCODE"})),
+          htmlColor = ytcenter.modules.textfield(),
+          currentColor = document.createElement("span"),
+          rgbWrapper = document.createElement("div"),
+          cpWrapper = document.createElement("div"),
+          dialog;
+      wrapper.className += " ytcenter-modules-colorpicker";
+      redRange.bind(function(value){
+        red = value;
+        update();
+        updateHueRange();
+        updateColorField();
+      });
+      greenRange.bind(function(value){
+        green = value;
+        update();
+        updateHueRange();
+        updateColorField();
+      });
+      blueRange.bind(function(value){
+        blue = value;
+        update();
+        updateHueRange();
+        updateColorField();
+      });
       
-      hue = hue || 0;
-      sat = sat || 0;
-      val = val || 0;
+      rWrapper.appendChild(rText.element);
+      rWrapper.appendChild(redRange.element);
+      gWrapper.appendChild(gText.element);
+      gWrapper.appendChild(greenRange.element);
+      bWrapper.appendChild(bText.element);
+      bWrapper.appendChild(blueRange.element);
       
-      var wrapper = document.createElement("div");
-      wrapper.style.background = ytcenter.utils.hsvToHex(hue, 100, 100);
-      wrapper.style.position = "relative";
-      wrapper.style.overflow = "hidden";
+      hueWrapper.className += " ytcenter-modules-colorpicker-huewrapper";
+      hueRangeField.bind(function(saturation, value){
+        hsv.saturation = saturation;
+        hsv.value = value;
+        rgb = ytcenter.utils.getRGB(hsv.hue, hsv.saturation, hsv.value);
+        red = rgb.red;
+        green = rgb.green;
+        blue = rgb.blue;
+        update();
+      });
+      hueRangeField.element.className += " ytcenter-modules-colorpickerfield-hue";
+      hueRangeHandle.className += " ytcenter-modules-range-handle";
+      hueRangeHandleRight.className += " ytcenter-modules-range-handle-right";
+      hueRangeHandle.appendChild(hueRangeHandleRight);
       
-      var _sat = document.createElement("div");
-      _sat.className = "ytcenter-colorpicker-saturation";
       
-      var _value = document.createElement("div");
-      _value.className = "ytcenter-colorpicker-value";
-      _sat.appendChild(_value);
-      
-      wrapper.appendChild(_sat);
-      
-      var handler = document.createElement("div");
-      handler.className = "ytcenter-colorpicker-handler";
-      
-      wrapper.appendChild(handler);
-      
-      var mousedown = false;
-      
-      var update = function(){
-        var x = sat/100*wrapper.clientWidth;
-        var y = (100 - val)/100*wrapper.clientHeight;
-        //var y = val*wrapper.clientHeight/100 - wrapper.clientHeight;
+      hueRange.element.className += " ytcenter-modules-huerange ytcenter-modules-hue";
+      d1 = document.createElement("div");
+      d1.className = "ie-1";
+      d2 = document.createElement("div");
+      d2.className = "ie-2";
+      d3 = document.createElement("div");
+      d3.className = "ie-3";
+      d4 = document.createElement("div");
+      d4.className = "ie-4";
+      d5 = document.createElement("div");
+      d5.className = "ie-5";
+      d6 = document.createElement("div");
+      d6.className = "ie-6";
+      hueRange.element.appendChild(d1);
+      hueRange.element.appendChild(d2);
+      hueRange.element.appendChild(d3);
+      hueRange.element.appendChild(d4);
+      hueRange.element.appendChild(d5);
+      hueRange.element.appendChild(d6);
+      hueRange.bind(function(value){
+        hsv.hue = value;
+        rgb = ytcenter.utils.getRGB(hsv.hue, hsv.saturation, hsv.value);
+        red = rgb.red;
+        green = rgb.green;
+        blue = rgb.blue;
+        update();
+        updateColorField();
+      });
+      hWrapper.className += " ytcenter-modules-hwrapper";
+      htmlColorLabel.className += " ytcenter-modules-htmlcolorlabel";
+      htmlColor.bind(function(value){
+        rgb = ytcenter.utils.hexToColor(value);
+        red = rgb.red;
+        green = rgb.green;
+        blue = rgb.blue;
         
+        hsv = ytcenter.utils.getHSV(red, green, blue);
+        
+        update();
+        updateHueRange();
+        updateColorField();
+      });
+      htmlColor.element.className += " ytcenter-modules-htmlcolor";
+      
+      currentColor.className += " ytcenter-modules-currentcolor";
+      currentColor.style.background = sessionHex;
+      
+      htmlColor.element.appendChild(currentColor);
+      
+      hWrapper.appendChild(htmlColorLabel);
+      hWrapper.appendChild(htmlColor.element);
+      
+      
+      rgbWrapper.className += " ytcenter-modules-rgbwrapper";
+      rgbWrapper.appendChild(rWrapper);
+      rgbWrapper.appendChild(gWrapper);
+      rgbWrapper.appendChild(bWrapper);
+      
+      rgbWrapper.appendChild(hWrapper);
+      
+      hueWrapper.appendChild(hueRangeField.element);
+      hueWrapper.appendChild(hueRange.element);
+      
+      cpWrapper.className += " ytcenter-modules-cpwrapper";
+      cpWrapper.appendChild(hueWrapper);
+      cpWrapper.appendChild(rgbWrapper);
+      
+      dialog = ytcenter.dialog("COLORPICKER_TITLE", cpWrapper, [
+        {
+          label: "COLORPICKER_CANCEL",
+          primary: false,
+          callback: function(){
+            rgb = ytcenter.utils.hexToColor(sessionHex);
+            red = rgb.red;
+            green = rgb.green;
+            blue = rgb.blue;
+            update();
+            updateHueRange();
+            updateColorField();
+            ytcenter.events.performEvent("ui-refresh");
+            
+            dialog.setVisibility(false);
+          }
+        }, {
+          label: "COLORPICKER_SAVE",
+          primary: true,
+          callback: function(){
+            ytcenter.events.performEvent("ui-refresh");
+            sessionHex = ytcenter.utils.colorToHex(red, green, blue);
+            if (bCallback) bCallback(sessionHex);
+            dialog.setVisibility(false);
+          }
+        }
+      ]);
+      
+      ytcenter.utils.addEventListener(wrapper, "click", function(){
+        dialog.setVisibility(true);
+        ytcenter.events.performEvent("ui-refresh");
+        update();
+      });
+      
+      update();
+      updateHueRange();
+      updateColorField();
+      
+      return {
+        element: wrapper,
+        bind: function(callback){
+          bCallback = callback;
+        },
+        update: function(value){
+          sessionHex = value;
+          rgb = ytcenter.utils.hexToColor(sessionHex);
+          red = rgb.red;
+          green = rgb.green;
+          blue = rgb.blue;
+          update();
+          updateHueRange();
+          updateColorField();
+          ytcenter.events.performEvent("ui-refresh");
+        }
+      };
+    };
+    ytcenter.modules.colorPickerField = function(option){
+      function update() {
+        var x = sat/100*wrapper.clientWidth,
+            y = (100 - val)/100*wrapper.clientHeight;
         handler.style.top = Math.round(y - handler.offsetHeight/2) + "px";
         handler.style.left = Math.round(x - handler.offsetWidth/2) + "px";
-      };
-      var updateBackground = function(){
+      }
+      function updateBackground() {
         wrapper.style.background = ytcenter.utils.hsvToHex(hue, 100, 100);
-      };
-      
-      var eventToValue = function(e){
-        var offset = ytcenter.utils.getOffset(wrapper);
-        var scrollOffset = ytcenter.utils.getScrollOffset();
-        var x = Math.max(0, Math.min(e.pageX - offset.left - scrollOffset.left, wrapper.clientWidth));
-        var y = e.pageY - offset.top - scrollOffset.top;
+      }
+      function eventToValue(e) {
+        var offset = ytcenter.utils.getOffset(wrapper),
+            scrollOffset = ytcenter.utils.getScrollOffset(),
+            x = Math.max(0, Math.min(e.pageX - offset.left - scrollOffset.left, wrapper.clientWidth)),
+            y = e.pageY - offset.top - scrollOffset.top;
         
         if (y < 0) y = 0;
         if (y > wrapper.clientHeight) y = wrapper.clientHeight;
         
         sat = x/wrapper.clientWidth*100;
         val = 100 - y/wrapper.clientHeight*100;
-      };
+      }
+      var bCallback,
+          hue = (option && option.args && option.args.hue) || 0,
+          sat = (option && option.args && option.args.sat) || 0,
+          val = (option && option.args && option.args.val) || 0,
+          wrapper = document.createElement("div"),
+          _sat = document.createElement("div"),
+          _value = document.createElement("div"),
+          handler = document.createElement("div"),
+          mousedown
+      
+      wrapper.style.background = ytcenter.utils.hsvToHex(hue, 100, 100);
+      wrapper.style.position = "relative"; // CLASS!!
+      wrapper.style.overflow = "hidden"; // CLASS!!
+      
+      _sat.className = "ytcenter-modules-colorpicker-saturation";
+      
+      _value.className = "ytcenter-modules-colorpicker-value";
+      _sat.appendChild(_value);
+      
+      wrapper.appendChild(_sat);
+      
+      handler.className = "ytcenter-modules-colorpicker-handler";
+      
+      wrapper.appendChild(handler);
       
       ytcenter.utils.addEventListener(wrapper, "mousedown", function(e){
         if (mousedown) return;
@@ -6250,558 +5563,22 @@
         }
       };
     };
-    ytcenter.embeds.colorPicker = function(){
-      var update = function(){
-        wrapper.style.background = ytcenter.utils.colorToHex(red, green, blue);
-        currentColor.style.background = ytcenter.utils.colorToHex(red, green, blue);
-        redRange.update(red);
-        greenRange.update(green);
-        blueRange.update(blue);
-        htmlColor.update(ytcenter.utils.colorToHex(red, green, blue));
-      };
-      var updateHueRange = function(){
-        if (Math.max(red, green, blue) !== Math.min(red, green, blue)) {
-          hueRange.update(hsv.hue);
-        }
-      };
-      var updateColorField = function(){
-        if (Math.max(red, green, blue) !== Math.min(red, green, blue)) {
-          hsv = ytcenter.utils.getHSV(red, green, blue);
-          hueRangeField.update(hsv.hue, hsv.saturation, hsv.value);
-        } else {
-          var __hsv = ytcenter.utils.getHSV(red, green, blue);
-          if (hsv.value > hsv.saturation) {
-            hsv.saturation = __hsv.saturation;
-          } else if (hsv.value < hsv.saturation) {
-            hsv.value = __hsv.value;
-          } else {
-            hsv.saturation = __hsv.saturation;
-            hsv.value = __hsv.value;
-          }
-          hueRangeField.update(hsv.hue, hsv.saturation, hsv.value);
-        }
-      };
-      
-      var red = 0;
-      var green = 0;
-      var blue = 0;
-      var sessionHex = "#000000"; // default is black
-      var hsv = ytcenter.utils.getHSV(red, green, blue);
-      var _hue = hsv.hue;
-      
-      var bCallback;
-      
-      var wrapper = document.createElement("span");
-      wrapper.className = "ytcenter-colorpicker";
-      
-      var redRange = ytcenter.embeds.range({
-        value: red,
-        min: 0,
-        max: 255
-      });
-      redRange.bind(function(value){
-        red = value;
-        update();
-        updateHueRange();
-        updateColorField();
-      });
-      var greenRange = ytcenter.embeds.range({
-        value: green,
-        min: 0,
-        max: 255
-      });
-      greenRange.bind(function(value){
-        green = value;
-        update();
-        updateHueRange();
-        updateColorField();
-      });
-      var blueRange = ytcenter.embeds.range({
-        value: blue,
-        min: 0,
-        max: 255
-      });
-      blueRange.bind(function(value){
-        blue = value;
-        update();
-        updateHueRange();
-        updateColorField();
-      });
-      
-      var rWrapper = document.createElement("div");
-      var rText = ytcenter.embeds.label("COLORPICKER_COLOR_RED");
-      rWrapper.appendChild(rText.element);
-      rWrapper.appendChild(redRange.element);
-      var gWrapper = document.createElement("div");
-      var gText = ytcenter.embeds.label("COLORPICKER_COLOR_GREEN");
-      gWrapper.appendChild(gText.element);
-      gWrapper.appendChild(greenRange.element);
-      var bWrapper = document.createElement("div");
-      var bText = ytcenter.embeds.label("COLORPICKER_COLOR_BLUE");
-      bWrapper.appendChild(bText.element);
-      bWrapper.appendChild(blueRange.element);
-      
-      var hueWrapper = document.createElement("div");
-      hueWrapper.style.width = "250px";
-      hueWrapper.style.height = "225px";
-      hueWrapper.style.display = "inline-block";
-      
-      var hueRangeField = ytcenter.embeds.colorPickerField();
-      hueRangeField.bind(function(saturation, value){
-        hsv.saturation = saturation;
-        hsv.value = value;
-        var rgb = ytcenter.utils.getRGB(hsv.hue, hsv.saturation, hsv.value);
-        red = rgb.red;
-        green = rgb.green;
-        blue = rgb.blue;
-        update();
-      });
-      hueRangeField.element.style.width = "225px";
-      hueRangeField.element.style.height = "225px";
-      hueRangeField.element.style.display = "inline-block";
-      hueRangeField.element.style.border = "0";
-      
-      var hueRangeHandle = document.createElement("div");
-      hueRangeHandle.className = "ytcenter-range-handle";
-      /*var hueRangeHandleLeft = document.createElement("div");
-      hueRangeHandleLeft.className = "ytcenter-range-handle-left";*/
-      var hueRangeHandleRight = document.createElement("div");
-      hueRangeHandleRight.className = "ytcenter-range-handle-right";
-      //hueRangeHandle.appendChild(hueRangeHandleLeft);
-      hueRangeHandle.appendChild(hueRangeHandleRight);
-      
-      var hueRange = ytcenter.embeds.range({
-        value: hsv.hue,
-        min: 0,
-        max: 360,
-        method: "vertical",
-        handle: hueRangeHandle,
-        offset: 7
-      });
-      hueRange.element.style.display = "inline-block";
-      hueRange.element.style.border = "0";
-      ytcenter.utils.addClass(hueRange.element, "ytcenter-hue");
-      var d1 = document.createElement("div");
-      d1.className = "ie-1";
-      var d2 = document.createElement("div");
-      d2.className = "ie-2";
-      var d3 = document.createElement("div");
-      d3.className = "ie-3";
-      var d4 = document.createElement("div");
-      d4.className = "ie-4";
-      var d5 = document.createElement("div");
-      d5.className = "ie-5";
-      var d6 = document.createElement("div");
-      d6.className = "ie-6";
-      hueRange.element.appendChild(d1);
-      hueRange.element.appendChild(d2);
-      hueRange.element.appendChild(d3);
-      hueRange.element.appendChild(d4);
-      hueRange.element.appendChild(d5);
-      hueRange.element.appendChild(d6);
-      hueRange.bind(function(value){
-        hsv.hue = value;
-        var rgb = ytcenter.utils.getRGB(hsv.hue, hsv.saturation, hsv.value);
-        red = rgb.red;
-        green = rgb.green;
-        blue = rgb.blue;
-        update();
-        updateColorField();
-      });
-      
-      var hWrapper = document.createElement("div");
-      hWrapper.style.marginTop = "10px";
-      
-      var htmlColorLabel = ytcenter.embeds.label("COLORPICKER_COLOR_HTMLCODE");
-      htmlColorLabel.element.style.width = "127px";
-      htmlColorLabel.element.style.verticalAlign = "middle";
-      
-      var htmlColor = ytcenter.embeds.textInputField();
-      htmlColor.bind(function(value){
-        var rgb = ytcenter.utils.hexToColor(value);
-        red = rgb.red;
-        green = rgb.green;
-        blue = rgb.blue;
-        
-        hsv = ytcenter.utils.getHSV(red, green, blue);
-        
-        update();
-        updateHueRange();
-        updateColorField();
-      });
-      htmlColor.element.children[0].style.width = "80px";
-      
-      var currentColor = document.createElement("span");
-      currentColor.style.display = "inline-block";
-      currentColor.style.cssFloat = "left";
-      currentColor.style.width = "20px";
-      currentColor.style.height = "29px";
-      currentColor.style.background = sessionHex;
-      
-      htmlColor.element.appendChild(currentColor);
-      
-      hWrapper.appendChild(htmlColorLabel.element);
-      hWrapper.appendChild(htmlColor.element);
-      
-      var rgbWrapper = document.createElement("div");
-      rgbWrapper.style.display = "inline-block";
-      rgbWrapper.style.verticalAlign = "top";
-      rgbWrapper.style.width = "225px";
-      rgbWrapper.style.height = "225px";
-      rgbWrapper.style.position = "relative";
-      rgbWrapper.appendChild(rWrapper);
-      rgbWrapper.appendChild(gWrapper);
-      rgbWrapper.appendChild(bWrapper);
-      
-      rgbWrapper.appendChild(hWrapper);
-      
-      hueWrapper.appendChild(hueRangeField.element);
-      hueWrapper.appendChild(hueRange.element);
-      
-      var cpWrapper = document.createElement("div");
-      cpWrapper.style.width = "475px";
-      cpWrapper.style.position = "relative";
-      cpWrapper.style.zIndex = "4";
-      cpWrapper.appendChild(hueWrapper);
-      cpWrapper.appendChild(rgbWrapper);
-      
-      var dialog = ytcenter.dialog("COLORPICKER_TITLE", cpWrapper, [
-        {
-          label: "COLORPICKER_CANCEL",
-          primary: false,
-          callback: function(){
-            var rgb = ytcenter.utils.hexToColor(sessionHex);
-            red = rgb.red;
-            green = rgb.green;
-            blue = rgb.blue;
-            update();
-            updateHueRange();
-            updateColorField();
-            ytcenter.events.performEvent("ui-refresh");
-            
-            dialog.setVisibility(false);
-          }
-        }, {
-          label: "COLORPICKER_SAVE",
-          primary: true,
-          callback: function(){
-            ytcenter.events.performEvent("ui-refresh");
-            sessionHex = ytcenter.utils.colorToHex(red, green, blue);
-            if (bCallback) bCallback(sessionHex);
-            dialog.setVisibility(false);
-          }
-        }
-      ]); // titleLabel, content, actions
-      
-      ytcenter.utils.addEventListener(wrapper, "click", function(){
-        dialog.setVisibility(true);
-        ytcenter.events.performEvent("ui-refresh");
-        update();
-      });
-      
-      update();
-      updateHueRange();
-      updateColorField();
-      
-      return {
-        element: wrapper,
-        bind: function(callback){
-          bCallback = callback;
-        },
-        update: function(value){
-          sessionHex = value;
-          var rgb = ytcenter.utils.hexToColor(sessionHex);
-          red = rgb.red;
-          green = rgb.green;
-          blue = rgb.blue;
-          update();
-          updateHueRange();
-          updateColorField();
-          ytcenter.events.performEvent("ui-refresh");
-        }
-      };
-    };
-    ytcenter.embeds.range = function(options){
-      options = ytcenter.utils.mergeObjects({
-        value: 0,
-        min: 0,
-        max: 100,
-        step: 1,
-        width: "225px",
-        height: "14px",
-        method: "horizontal", // horizontal, vertical
-        handle: null,
-        offset: 0
-      }, options);
-      
-      var handle;
-      
-      var wrapper = document.createElement("span");
-      wrapper.className = "ytcenter-range";
-      if (options.method === "vertical") {
-        wrapper.style.width = options.height;
-        wrapper.style.height = options.width;
-      } else {
-        wrapper.style.width = options.width;
-        wrapper.style.height = options.height;
-      }
-      if (options.handle) {
-        handle = options.handle;
-      } else {
-        handle = document.createElement("div");
-        handle.className = "ytcenter-range-handle";
-        handle.style.width = (parseInt(options.height)) + "px";
-        handle.style.height = parseInt(options.height) + "px";
-      }
-      
-      wrapper.appendChild(handle);
-      
-      
-      var mousedown = false;
-      var bCallback;
-      var setValue = function(val){
-        if (val === options.value) return;
-        if (options.step !== 0) {
-          var diff = val%options.step;
-          if (diff >= options.step/2 && (options.step-diff)+val <= options.max) {
-            options.value = (options.step-diff)+val;
-          } else {
-            options.value = val - diff;
-          }
-        } else {
-          options.value = val;
-        }
-        update();
-        if (options.value > options.max) {
-          setValue(options.max);
-          return;
-        }
-        if (options.value < options.min) {
-          setValue(options.min);
-          return;
-        }
-      };
-      var update = function(){
-        if (options.method === "vertical") {
-          handle.style.top = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientHeight - handle.offsetHeight)) + "px";
-        } else {
-          handle.style.left = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientWidth - handle.offsetWidth)) + "px";
-        }
-      };
-      
-      var eventToValue = function(e){
-        var offset = ytcenter.utils.getOffset(wrapper);
-        var scrollOffset = ytcenter.utils.getScrollOffset();
-        if (options.method === "vertical") {
-          offset.top += options.offset;
-          var v = e.pageY - scrollOffset.top - offset.top;
-          var l = v + parseInt(options.height)/2 - 3;
-          if (l < 0) l = 0;
-          if (l > wrapper.clientHeight - handle.clientHeight) l = wrapper.clientHeight - handle.clientHeight;
-          
-          setValue(l/(wrapper.clientHeight - handle.clientHeight)*(options.max - options.min) + options.min);
-        } else {
-          offset.left += options.offset;
-          var v = e.pageX - scrollOffset.left - offset.left;
-          var l = v - parseInt(options.height)/2;
-          if (l < 0) l = 0;
-          if (l > wrapper.clientWidth - handle.clientWidth) l = wrapper.clientWidth - handle.clientWidth;
-          
-          setValue(l/(wrapper.clientWidth - handle.clientWidth)*(options.max - options.min) + options.min);
-        }
-        update();
-      };
-      
-      ytcenter.events.addEvent("ui-refresh", function(){
-        setValue(options.value);
-        update();
-      });
-      setValue(options.value);
-      update();
-      
-      ytcenter.utils.addEventListener(wrapper, "mousedown", function(e){
-        if (mousedown) return;
-        mousedown = true;
-        
-        eventToValue(e);
-        if (bCallback) bCallback(options.value);
-        
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      ytcenter.utils.addEventListener(document, "mouseup", function(e){
-        if (!mousedown) return;
-        mousedown = false;
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      ytcenter.utils.addEventListener(document, "mousemove", function(e){
-        if (!mousedown) return;
-        eventToValue(e);
-        if (bCallback) bCallback(options.value);
-        
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      return {
-        element: wrapper,
-        bind: function(callback){
-          bCallback = callback;
-        },
-        update: function(value){
-          setValue(value);
-          update();
-        },
-        getValue: function(){
-          return options.value;
-        }
-      };
-    };
-    ytcenter.embeds.label = function(localeName){
-      var wrapper = document.createElement("span");
-      wrapper.className = "ytcenter-embed ytcenter-label";
-      wrapper.textContent = ytcenter.language.getLocale(localeName);
-      
-      ytcenter.language.addLocaleElement(wrapper, localeName, "@textContent");
-      
-      return {
-        element: wrapper, // So the element can be appended to an element.
-        bind: function(){},
-        update: function(){}
-      };
-    };
-    ytcenter.embeds.multilist = function(list){
-      function fixList(_settingData) {
-        if (_settingData === "") return "";
-        var a = _settingData.split("&"), b = [], c = [], d, i;
-        for (i = 0; i < list.length; i++) {
-          c.push(list[i].value);
-        }
-        for (i = 0; i < a.length; i++) {
-          if (a[i] !== "") {
-            d = decodeURIComponent(a[i]);
-            if ($ArrayIndexOf(c, d) !== -1 && $ArrayIndexOf(b, d) === -1) {
-              b.push(a[i]);
-            }
-          }
-        }
-        return b.join("&");
-      }
-      function saveItem(value) {
-        if (settingData === "") return encodeURIComponent(value);
-        var a = settingData.split("&"), i;
-        for (i = 0; i < a.length; i++) {
-          if (decodeURIComponent(a[i]) === value) return;
-        }
-        a.push(encodeURIComponent(value));
-        return a.join("&");
-      }
-      function removeItem(value) {
-        if (settingData === "") return encodeURIComponent(value);
-        var a = settingData.split("&"), b = [], i;
-        for (i = 0; i < a.length; i++) {
-          if (decodeURIComponent(a[i]) !== value) {
-            b.push(a[i]);
-          }
-        }
-        return b.join("&");
-      }
-      function isEnabled(value) {
-        if (settingData === "") return false;
-        var a = settingData.split("&"), i;
-        for (i = 0; i < a.length; i++) {
-          if (decodeURIComponent(a[i]) === value) return true;
-        }
-        return false;
-      }
-      function createItem(label, value) {
-        var s = document.createElement("label"),
-            cb = ytcenter.embeds.checkbox(isEnabled(value)),
-            text = document.createTextNode(ytcenter.language.getLocale(label));
-        ytcenter.language.addLocaleElement(text, label, "@textContent");
-        cb.bind(function(checked){
-          if (checked) {
-            settingData = saveItem(value);
-          } else {
-            settingData = removeItem(value);
-          }
-          if (typeof saveCallback === "function") saveCallback(settingData);
-        });
-        cb.element.style.marginRight = "6px";
-        s.appendChild(cb.element);
-        s.appendChild(text);
-        
-        return s;
-      }
-      function updateList() {
-        var d, item;
-        settingData = fixList(settingData);
-        
-        wrapper.innerHTML = "";
-        
-        for (var i = 0; i < list.length; i++) {
-          d = document.createElement("div");
-          item = createItem(list[i].label, list[i].value);
-          d.appendChild(item);
-          wrapper.appendChild(d);
-        }
-      }
-      var settingData, wrapper = document.createElement("div"), saveCallback;
-      wrapper.style.paddingLeft = "16px";
-      
-      return {
-        element: wrapper,
-        update: function(data){
-          settingData = data;
-          updateList();
-        },
-        bind: function(a){
-          saveCallback = a;
-        }
-      };
-    };
-    ytcenter.embeds.bgcolorlist = function(){
-      var saveCallback, sName;
-      
-      var wrapper = document.createElement("span");
-      
-      
-      return {
-        element: wrapper,
-        update: function(settingName){
-          sName = settingName;
-        },
-        bind: function(cb){
-          saveCallback = cb;
-        }
-      };
-    };
-    ytcenter.embeds.defaultplayersizedropdown = function(option){
+    ytcenter.modules.defaultplayersizedropdown = function(option){
       function getItemTitle(item) {
-        try{
-        var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
-        if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
-          return item.config.customName;
-        } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-          return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
-          //subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
-        } else {
-          return dim[0] + "×" + dim[1];
-          //subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
+        try {
+          var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
+          if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
+            return item.config.customName;
+          } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
+            return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+            //subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
+          } else {
+            return dim[0] + "×" + dim[1];
+            //subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
+          }
+        } catch (e) {
+          con.error(e);
         }
-        }catch(e){con.error(e)}
       }
       function getItemSubText(item) {
         try{
@@ -6918,35 +5695,30 @@
           menu.appendChild(li);
         });
       }
-      var saveCallback;
-      var selectedId;
-      var items;
-      
-      var wrapper = document.createElement("div");
-      wrapper.className = "ytcenter-embed";
-      
-      var btnLabel = ytcenter.gui.createYouTubeButtonText("Player Sizes...");
+      var saveCallback, selectedId, items,
+          wrapper = document.createElement("div"),
+          btnLabel = ytcenter.gui.createYouTubeButtonText("Player Sizes..."),
+          menu = document.createElement("ul"),
+          arrow = ytcenter.gui.createYouTubeButtonArrow(),
+          btn = ytcenter.gui.createYouTubeDefaultButton("", [btnLabel, arrow, menu]);
+      wrapper.style.display = "inline-block";
       btnLabel.style.display = "inline-block";
       btnLabel.style.width = "100%";
       
-      var menu = document.createElement("ul");
       menu.className = "yt-uix-button-menu yt-uix-button-menu-default yt-uix-button-menu-external hid";
       menu.setAttribute("role", "menu");
-      
-      var arrow = ytcenter.gui.createYouTubeButtonArrow();
       arrow.style.marginLeft = "-10px";
       
-      var btn = ytcenter.gui.createYouTubeDefaultButton("", [btnLabel, arrow, menu]);
       btn.style.width = "175px";
       btn.style.textAlign = "left";
       
       wrapper.appendChild(btn);
       
-      updateItems(ytcenter.settings[option]);
+      updateItems(ytcenter.settings[option.args.bind]);
       ytcenter.events.addEvent("ui-refresh", function(){
-        var opt = ytcenter.settings[option];
-        var found = false;
-        for (var i = 0; i < opt.length; i++) {
+        var opt = ytcenter.settings[option.args.bind],
+            found = false, i;
+        for (i = 0; i < opt.length; i++) {
           if (opt[i].id === selectedId) found = true;
         }
         if (!found && selectedId !== "default") {
@@ -6967,7 +5739,817 @@
         }
       };
     };
-    ytcenter.embeds.resizedropdown = function(option){
+    ytcenter.modules.element = function(option){
+      var elm = document.createElement(option && option.args && option.args.tagname);
+      if (option && option.args && option.args.style) {
+        for (var key in option.args.style) {
+          if (option.args.style.hasOwnProperty(key)) {
+            elm.style[key] = option.args.style[key];
+          }
+        }
+      }
+      if (option && option.args && option.args.className) {
+        elm.className += " " + option.args.className;
+      }
+      if (option && option.args && option.args.text) {
+        elm.textContent = option.args.text;
+      }
+      if (option && option.args && option.args.html) {
+        con.error("[Settings Recipe] Element attribute HTML not allowed!");
+      }
+      if (option && option.args && option.args.load) {
+        tab.addEventListener("click", function(){
+          option.args.load.apply(null, [elm]);
+        });
+      }
+      if (option && option.args && option.args.listeners) {
+        for (var i = 0; i < option.args.listeners.length; i++) {
+          elm.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+        }
+      }
+      
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.importexport = function(){
+      var textLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_TITLE"),
+          content = document.createElement("div"),
+          VALIDATOR_STRING = "YTCSettings=>",
+          dropZone = document.createElement("div"),
+          dropZoneContent = document.createElement("div"),
+          filechooser = document.createElement("input"),
+          settingsPool = document.createElement("textarea"),
+          dialog = ytcenter.dialog("SETTINGS_IMEX_TITLE", content, [
+            {
+              label: "SETTINGS_IMEX_CANCEL",
+              primary: false,
+              callback: function(){
+                dialog.setVisibility(false);
+              }
+            }, {
+              name: "save",
+              label: "SETTINGS_IMEX_SAVE",
+              primary: true,
+              callback: function(){
+                if (!saveEnabled) return;
+                ytcenter.settings = JSON.parse(settingsPool.value);
+                ytcenter.saveSettings();
+                loc.reload();
+              }
+            }
+          ]),
+          status,
+          loadingText = document.createElement("div"),
+          messageText = document.createElement("div"),
+          messageTimer,
+          dropZoneEnabled = true,
+          saveEnabled = true,
+          pushMessage = function(message, color, timer){
+            //dropZoneEnabled = false;
+            messageText.textContent = message;
+            messageText.style.display = "inline-block";
+            if (typeof color === "string") messageText.style.color = color;
+            else messageText.style.color = "";
+            
+            status.style.display = "";
+            dropZoneContent.style.visibility = "hidden";
+            uw.clearTimeout(messageTimer);
+            if (typeof timer === "number") {
+              messageTimer = uw.setTimeout(function(){
+                removeMessage();
+              }, timer);
+            }
+          },
+          removeMessage = function(){
+            status.style.display = "none";
+            dropZoneContent.style.visibility = "";
+            
+            messageText.style.display = "none";
+            messageText.textContent = "";
+            //dropZoneEnabled = true;
+            uw.clearTimeout(messageTimer);
+          },
+          validateFileAndLoad = function(file){
+            dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+            pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE"));
+            
+            var reader = new FileReader();
+            reader.onerror = function(e){
+              switch (e.target.error.code) {
+                case e.target.error.NOT_FOUND_ERR:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_FOUND"), "#ff0000", 10000);
+                  break;
+                case e.target.error.NOT_READABLE_ERR:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_READABLE"), "#ff0000", 10000);
+                  break;
+                case e.target.error.ABORT_ERR:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+                  break;
+                default:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_UNKNOWN"), "#ff0000", 10000);
+                  break;
+              }
+            };
+            reader.onabort = function(){
+              pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+            };
+            reader.onload = function(e){
+              if (e.target.result === VALIDATOR_STRING) {
+                readFile(file);
+              } else {
+                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
+                
+              }
+            };
+            
+            reader.readAsText(file.slice(0, VALIDATOR_STRING.length));
+          },
+          readFile = function(file){
+            pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_LOADING"));
+            
+            var reader = new FileReader();
+            reader.onerror = function(e){
+              switch (e.target.error.code) {
+                case e.target.error.NOT_FOUND_ERR:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_FOUND"), "#ff0000", 10000);
+                  break;
+                case e.target.error.NOT_READABLE_ERR:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_NOT_READABLE"), "#ff0000", 10000);
+                  break;
+                case e.target.error.ABORT_ERR:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+                  break;
+                default:
+                  pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_UNKNOWN"), "#ff0000", 10000);
+                  break;
+              }
+            };
+            reader.onabort = function(){
+              pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
+            };
+            reader.onload = function(e){
+              settingsPool.value = e.target.result;
+              pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_MESSAGE"), "", 10000);
+            };
+            
+            reader.readAsText(file.slice(VALIDATOR_STRING.length));
+          },
+          exportFileButtonLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_EXPORT_AS_FILE"),
+          exportFileButton = ytcenter.gui.createYouTubeDefaultButton("", [exportFileButtonLabel]),
+          statusContainer = document.createElement("div");
+      var elm = ytcenter.gui.createYouTubeDefaultButton("", [textLabel]);
+      
+      // Message Text
+      messageText.style.fontWeight = "bold";
+      messageText.style.fontSize = "16px";
+      messageText.style.textAlign = "center";
+      messageText.style.width = "100%";
+      messageText.style.display = "none";
+      
+      status = ytcenter.gui.createMiddleAlignHack(messageText);
+      status.style.position = "absolute";
+      status.style.top = "0px";
+      status.style.left = "0px";
+      status.style.width = "100%";
+      status.style.height = "100%";
+      status.style.display = "none";
+      
+      filechooser.setAttribute("type", "file");
+      ytcenter.utils.addEventListener(elm, "click", function(){
+        dialog.setVisibility(true);
+      }, false);
+      var __f = function(e){
+        validateFileAndLoad(e.target.files[0]);
+        
+        var newNode = document.createElement("input");
+        newNode.setAttribute("type", "file");
+        ytcenter.utils.addEventListener(newNode, "change", __f, false);
+        filechooser.parentNode.replaceChild(newNode, filechooser);
+        filechooser = newNode;
+      };
+      ytcenter.utils.addEventListener(filechooser, "change", __f, false);
+      
+      ytcenter.utils.addEventListener(dropZone, "drop", function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        
+        validateFileAndLoad(e.dataTransfer.files[0]);
+      }, false);
+      
+      ytcenter.utils.addEventListener(dropZone, "dragover", function(e){
+        if (!dropZoneEnabled) return;
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+        dropZone.style.border = "2px dashed rgb(130, 130, 130)";
+      }, false);
+      ytcenter.utils.addEventListener(dropZone, "dragleave", function(e){
+        if (!dropZoneEnabled) return;
+        dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+        e.dataTransfer.dropEffect = "none";
+      }, false);
+      ytcenter.utils.addEventListener(dropZone, "dragend", function(e){
+        if (!dropZoneEnabled) return;
+        dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+        e.dataTransfer.dropEffect = "none";
+      }, false);
+      var text1 = document.createElement("span");
+      text1.style.fontWeight = "bold";
+      text1.style.fontSize = "16px";
+      text1.textContent = ytcenter.language.getLocale("SETTINGS_IMEX_DROPFILEHERE");
+      ytcenter.language.addLocaleElement(text1, "SETTINGS_IMEX_DROPFILEHERE", "@textContent");
+      dropZoneContent.appendChild(text1);
+      dropZoneContent.appendChild(document.createElement("br"));
+      var text2 = document.createTextNode(ytcenter.language.getLocale("SETTINGS_IMEX_OR"));
+      ytcenter.language.addLocaleElement(text2, "SETTINGS_IMEX_OR", "@textContent");
+      dropZoneContent.appendChild(text2);
+      dropZoneContent.appendChild(document.createTextNode(" "));
+      dropZoneContent.appendChild(filechooser);
+      
+      dropZone.style.position = "relative";
+      dropZone.style.border = "2px dashed rgb(187, 187, 187)";
+      dropZone.style.borderRadius = "4px";
+      dropZone.style.color = "rgb(110, 110, 110)";
+      dropZone.style.padding = "20px 0";
+      dropZone.style.width = "100%";
+      dropZone.style.marginBottom = "10px";
+      dropZone.style.textAlign = "center";
+      settingsPool.style.width = "100%";
+      settingsPool.style.height = "120px";
+      
+      dropZoneContent.style.margin = "0 auto";
+      dropZoneContent.style.display = "inline-block";
+      dropZoneContent.style.textAlign = "left";
+      
+      dropZone.appendChild(dropZoneContent);
+      dropZone.appendChild(status);
+      content.appendChild(dropZone);
+      content.appendChild(settingsPool);
+      
+      dialog.setWidth("490px");
+      
+      var settingsPoolChecker = function(){
+        try {
+          JSON.parse(settingsPool.value);
+          dialog.getActionButton("save").disabled = false;
+          settingsPool.style.background = "";
+          saveEnabled = true;
+        } catch (e) {
+          dialog.getActionButton("save").disabled  = true;
+          settingsPool.style.background = "#FFAAAA";
+          saveEnabled = false;
+        }
+      };
+      
+      ytcenter.utils.addEventListener(settingsPool, "input", settingsPoolChecker, false);
+      ytcenter.utils.addEventListener(settingsPool, "keyup", settingsPoolChecker, false);
+      ytcenter.utils.addEventListener(settingsPool, "paste", settingsPoolChecker, false);
+      ytcenter.utils.addEventListener(settingsPool, "change", settingsPoolChecker, false);
+      
+      dialog.addEventListener("visibility", function(visible){
+        if (visible) settingsPool.value = JSON.stringify(ytcenter.settings);
+        else settingsPool.value = "";
+      });
+      
+      ytcenter.utils.addEventListener(exportFileButton, "click", function(){
+        var bb = new ytcenter.io.BlobBuilder();
+        bb.append(VALIDATOR_STRING + settingsPool.value);
+        ytcenter.io.saveAs(bb.getBlob("text/plain"), "ytcenter-settings.ytcs");
+      }, false);
+      
+      content.appendChild(exportFileButton);
+      
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.label = function(option){
+      var frag = document.createDocumentFragment(),
+          text = document.createTextNode(ytcenter.language.getLocale(option.label));
+      frag.appendChild(text);
+      ytcenter.language.addLocaleElement(text, option.label, "@textContent");
+      
+      return {
+        element: frag, // So the element can be appended to an element.
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.line = function(){
+      var frag = document.createDocumentFragment(),
+          hr = document.createElement("hr");
+      hr.className = "yt-horizontal-rule";
+      frag.appendChild(hr);
+      return {
+        element: frag,
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.link = function(option){
+      var elm = document.createElement("div"),
+          title = document.createElement("b");
+      if (option && option.args && option.args.titleLocale) {
+        var __t1 = document.createTextNode(ytcenter.language.getLocale(option.args.titleLocale)),
+            __t2 = document.createTextNode(":");
+        ytcenter.language.addLocaleElement(__t1, option.args.titleLocale, "@textContent", option.args.replace || {});
+        title.appendChild(__t1);
+        title.appendChild(__t2);
+      } else if (option && option.args && option.args.title) {
+        title.textContent = option.args.title + ":";
+      }
+      var content = document.createElement("div");
+      content.style.marginLeft = "20px";
+      
+      for (var i = 0; i < option.args.links.length; i++) {
+        if (i > 0) content.appendChild(document.createElement("br"));
+        var __a = document.createElement("a");
+        __a.href = option.args.links[i].url;
+        __a.textContent = option.args.links[i].text;
+        __a.setAttribute("target", "_blank");
+        content.appendChild(__a);
+      }
+      elm.appendChild(title);
+      elm.appendChild(content);
+      
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.list = function(option){
+      function update(value) {
+        var i;
+        for (i = 0; i < s.options.length; i++) {
+          if (s.options[i].value === value) {
+            s.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      function bind(callback) {
+        cCallback = callback;
+      }
+      var frag = document.createDocumentFragment(),
+          elm = document.createElement("span"),
+          sc = document.createElement("span"),
+          defaultLabel, s = document.createElement("select"),
+          list = [], defaultLabelText,
+          sc1 = document.createElement("img"),
+          sc2 = document.createElement("span"),
+          cCallback;
+      elm.className = "yt-uix-form-input-select";
+      sc.className = "yt-uix-form-input-select-content";
+      
+      s.className = "yt-uix-form-input-select-element";
+      s.style.cursor = "pointer";
+      if (typeof option.args.list === "function") {
+        list = option.args.list();
+      } else {
+        list = option.args.list;
+      }
+      if (option && option.args && option.args.listeners) {
+        for (var i = 0; i < option.args.listeners.length; i++) {
+          elm.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+        }
+      }
+      if (list && list.length > 0) {
+        defaultLabelText = ytcenter.language.getLocale(list[0].label);
+        for (var i = 0; i < list.length; i++) {
+          var item = document.createElement("option");
+          item.value = list[i].value;
+          
+          if (typeof list[i].label === "function") {
+            item.textContent = list[i].label();
+          } else if (typeof list[i].label !== "undefined") {
+            item.textContent = ytcenter.language.getLocale(list[i].label);
+            ytcenter.language.addLocaleElement(item, list[i].label, "@textContent");
+          }
+          if (list[i].value === ytcenter.settings[option.defaultSetting]) {
+            item.selected = true;
+            defaultLabelText = item.textContent;
+          }
+          s.appendChild(item);
+        }
+        sc1.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+        sc1.className = "yt-uix-form-input-select-arrow";
+        sc.appendChild(sc1);
+        sc2.className = "yt-uix-form-input-select-value";
+        sc2.textContent = defaultLabelText;
+        sc.appendChild(sc2);
+        ytcenter.events.addEvent("ui-refresh", function(){
+          sc2.textContent = s.options[s.selectedIndex].textContent;
+        });
+        ytcenter.events.addEvent("language-refresh", function(){
+          sc2.textContent = s.options[s.selectedIndex].textContent;
+        });
+        ytcenter.utils.addEventListener(s, "change", function(){
+          if (cCallback) cCallback(s.value);
+        }, false);
+      }
+      elm.appendChild(sc);
+      elm.appendChild(s);
+      
+      frag.appendChild(elm);
+      
+      return {
+        element: frag,
+        bind: bind,
+        update: update
+      };
+    };
+    ytcenter.modules.multilist = function(option){
+      function fixList(_settingData) {
+        if (_settingData === "") return "";
+        var a = _settingData.split("&"), b = [], c = [], d, i;
+        for (i = 0; i < list.length; i++) {
+          c.push(list[i].value);
+        }
+        for (i = 0; i < a.length; i++) {
+          if (a[i] !== "") {
+            d = decodeURIComponent(a[i]);
+            if ($ArrayIndexOf(c, d) !== -1 && $ArrayIndexOf(b, d) === -1) {
+              b.push(a[i]);
+            }
+          }
+        }
+        return b.join("&");
+      }
+      function saveItem(value) {
+        if (settingData === "") return encodeURIComponent(value);
+        var a = settingData.split("&"), i;
+        for (i = 0; i < a.length; i++) {
+          if (decodeURIComponent(a[i]) === value) return;
+        }
+        a.push(encodeURIComponent(value));
+        return a.join("&");
+      }
+      function removeItem(value) {
+        if (settingData === "") return encodeURIComponent(value);
+        var a = settingData.split("&"), b = [], i;
+        for (i = 0; i < a.length; i++) {
+          if (decodeURIComponent(a[i]) !== value) {
+            b.push(a[i]);
+          }
+        }
+        return b.join("&");
+      }
+      function isEnabled(value) {
+        if (settingData === "") return false;
+        var a = settingData.split("&"), i;
+        for (i = 0; i < a.length; i++) {
+          if (decodeURIComponent(a[i]) === value) return true;
+        }
+        return false;
+      }
+      function createItem(label, value) {
+        var s = document.createElement("label"),
+            cb = ytcenter.modules.checkbox(isEnabled(value)),
+            text = document.createTextNode(ytcenter.language.getLocale(label));
+        ytcenter.language.addLocaleElement(text, label, "@textContent");
+        cb.bind(function(checked){
+          if (checked) {
+            settingData = saveItem(value);
+          } else {
+            settingData = removeItem(value);
+          }
+          if (typeof saveCallback === "function") saveCallback(settingData);
+        });
+        cb.element.style.marginRight = "6px";
+        s.appendChild(cb.element);
+        s.appendChild(text);
+        
+        return s;
+      }
+      function updateList() {
+        var d, item;
+        settingData = fixList(settingData);
+        
+        wrapper.innerHTML = "";
+        
+        for (var i = 0; i < list.length; i++) {
+          d = document.createElement("div");
+          item = createItem(list[i].label, list[i].value);
+          d.appendChild(item);
+          wrapper.appendChild(d);
+        }
+      }
+      var list = (option && option.args && option.args.list) || [],
+          settingData, wrapper = document.createElement("div"), saveCallback;
+      wrapper.style.paddingLeft = "16px";
+      settingData = ytcenter.settings[option.defaultSetting];
+      console.log(settingData);
+      
+      updateList();
+      
+      return {
+        element: wrapper,
+        update: function(data){
+          settingData = data;
+          updateList();
+        },
+        bind: function(a){
+          saveCallback = a;
+        }
+      };
+    };
+    ytcenter.modules.newline = function(option){
+      var elm = document.createElement("br");
+      if (option && option.args && option.args.style) {
+        for (var key in option.args.style) {
+          if (option.args.style.hasOwnProperty(key)) {
+            elm.style[key] = option.args.style[key];
+          }
+        }
+      }
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.placement = function(args){
+      function createListItem(content) {
+        var a = document.createElement("li");
+        a.className = "ytcenter-module-placement-item";
+        a.textContent = content;
+        return a;
+      }
+      var template = [
+        {
+          "type": "block",
+          "id": "player",
+          "prepend": true,
+          "insert": false,
+          "append": false,
+          "content": "Player"
+        }, {
+          "type": "interactive",
+          "id": "watch7-headline",
+          "prepend": true,
+          "insert": true,
+          "append": false
+        }, {
+          "type": "interactive",
+          "id": "watch7-sentiment-actions",
+          "prepend": true,
+          "insert": true,
+          "append": false
+        }
+      ],
+      predefinedElements = [
+        {
+          "parent": "watch7-sentiment-actions",
+          "id": "watch-like-dislike-buttons",
+          "content": "Like/Dislike"
+        }, {
+          "parent": "watch7-headline",
+          "id": "watch-headline-title",
+          "content": "TITLE"
+        }
+      ];
+      var elm = document.createElement("div"), i, j, a, b, c;
+      
+      for (i = 0; i < template.length; i++) {
+        a = document.createElement("ol");
+        if (template[i].type === "interactive") {
+          a.className = "ytcenter-moduel-placement-interactive";
+        } else if (template[i].type === "block") {
+          a.className = "ytcenter-moduel-placement-block";
+        } else if (template[i].type === "hidden") {
+          a.className = "ytcenter-moduel-placement-hidden";
+        }
+        if (template[i].content) a.textContent = template[i].content;
+        if (template[i].prepend) {
+          b = document.createElement("ol");
+          b.className = "ytcenter-moduel-placement-empty";
+          b.textContent = "+";
+          elm.appendChild(b);
+        }
+        if (template[i].insert) {
+          for (j = 0; j < predefinedElements.length; j++) {
+            if (predefinedElements[j].parent === template[i].id) {
+              c = createListItem(predefinedElements[j].content);
+              a.appendChild(c);
+            }
+          }
+        }
+        elm.appendChild(a);
+        if (template[i].append) {
+          b = document.createElement("ol");
+          b.className = "ytcenter-moduel-placement-empty";
+          b.textContent = "+";
+          elm.appendChild(b);
+        }
+      }
+      
+      return {
+        element: elm,
+        update: function(){},
+        bind: function(){}
+      };
+    };
+    ytcenter.modules.range = function(option){
+      function setValue(val) {
+        if (val === options.value) return;
+        if (options.step !== 0) {
+          var diff = val%options.step;
+          if (diff >= options.step/2 && (options.step-diff)+val <= options.max) {
+            options.value = (options.step-diff)+val;
+          } else {
+            options.value = val - diff;
+          }
+        } else {
+          options.value = val;
+        }
+        update();
+        if (options.value > options.max) {
+          setValue(options.max);
+          return;
+        }
+        if (options.value < options.min) {
+          setValue(options.min);
+          return;
+        }
+      };
+      function update() {
+        if (options.method === "vertical") {
+          handle.style.top = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientHeight - handle.offsetHeight)) + "px";
+        } else {
+          handle.style.left = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientWidth - handle.offsetWidth)) + "px";
+        }
+      }
+      function eventToValue(e) {
+        var offset = ytcenter.utils.getOffset(wrapper),
+            scrollOffset = ytcenter.utils.getScrollOffset(),
+            v, l;
+        if (options.method === "vertical") {
+          offset.top += options.offset;
+          v = e.pageY - scrollOffset.top - offset.top;
+          l = v + parseInt(options.height)/2 - 3;
+          if (l < 0) l = 0;
+          if (l > wrapper.clientHeight - handle.clientHeight) l = wrapper.clientHeight - handle.clientHeight;
+          
+          setValue(l/(wrapper.clientHeight - handle.clientHeight)*(options.max - options.min) + options.min);
+        } else {
+          offset.left += options.offset;
+          v = e.pageX - scrollOffset.left - offset.left;
+          l = v - parseInt(options.height)/2;
+          if (l < 0) l = 0;
+          if (l > wrapper.clientWidth - handle.clientWidth) l = wrapper.clientWidth - handle.clientWidth;
+          
+          setValue(l/(wrapper.clientWidth - handle.clientWidth)*(options.max - options.min) + options.min);
+        }
+        update();
+      }
+      var options = ytcenter.utils.mergeObjects({
+                      value: 0,
+                      min: 0,
+                      max: 100,
+                      step: 1,
+                      width: "225px",
+                      height: "14px",
+                      method: "horizontal", // horizontal, vertical
+                      handle: null,
+                      offset: 0
+                    }, option.args),
+          handle, mousedown = false, bCallback,
+          wrapper = document.createElement("span");
+      
+      wrapper.className = "ytcenter-modules-range";
+      if (options.method === "vertical") {
+        wrapper.style.width = options.height;
+        wrapper.style.height = options.width;
+      } else {
+        wrapper.style.width = options.width;
+        wrapper.style.height = options.height;
+      }
+      if (options.handle) {
+        handle = options.handle;
+      } else {
+        handle = document.createElement("div");
+        handle.className = "ytcenter-modules-range-handle";
+        handle.style.width = (parseInt(options.height)) + "px";
+        handle.style.height = parseInt(options.height) + "px";
+      }
+      
+      wrapper.appendChild(handle);
+      
+      ytcenter.events.addEvent("ui-refresh", function(){
+        setValue(options.value);
+        update();
+      });
+      setValue(options.value);
+      update();
+      
+      ytcenter.utils.addEventListener(wrapper, "mousedown", function(e){
+        if (mousedown) return;
+        mousedown = true;
+        
+        eventToValue(e);
+        if (bCallback) bCallback(options.value);
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      });
+      ytcenter.utils.addEventListener(document, "mouseup", function(e){
+        if (!mousedown) return;
+        mousedown = false;
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      });
+      ytcenter.utils.addEventListener(document, "mousemove", function(e){
+        if (!mousedown) return;
+        eventToValue(e);
+        if (bCallback) bCallback(options.value);
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      });
+      return {
+        element: wrapper,
+        bind: function(callback){
+          bCallback = callback;
+        },
+        update: function(value){
+          setValue(value);
+          update();
+        },
+        getValue: function(){
+          return options.value;
+        }
+      };
+    };
+    ytcenter.modules.rangetext = function(option){
+      function update() {
+        _text.value = Math.round(range.getValue());
+      }
+      var range = ytcenter.modules.range(option),
+          wrapper = document.createElement("div"),
+          bCallback;
+      wrapper.style.display = "inline-block";
+      wrapper.appendChild(range.element);
+      var _text = document.createElement("input");
+      _text.setAttribute("type", "text");
+      _text.value = Math.round(range.getValue());
+      _text.style.width = "45px";
+      _text.style.marginLeft = "4px";
+      wrapper.appendChild(_text);
+      
+      range.bind(function(value){
+        update();
+        if (bCallback) bCallback(value);
+      });
+      
+      _text.addEventListener("input", function(){
+        if (this.value === "") this.value = "0";
+        this.value = parseInt(this.value);
+        if (isNaN(this.value) || this.value === Infinity) this.value = "0";
+        range.update(parseInt(this.value));
+      }, false);
+      
+      _text.addEventListener("change", function(){
+        if (this.value === '') this.value = "0";
+        else this.value = parseInt(this.value);
+        
+        range.update(parseInt(this.value));
+        this.value = range.getValue();
+        if (bCallback) bCallback(range.getValue());
+      }, false);
+      
+      return {
+        element: wrapper,
+        bind: function(callback){
+          bCallback = callback;
+        },
+        update: function(value){
+          range.update(value);
+          update();
+        },
+        getValue: function(){
+          return range.getValue();
+        }
+      };
+    };
+    ytcenter.modules.resizedropdown = function(option){
       function getItemTitle(item) {
         var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
         if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
@@ -7072,9 +6654,9 @@
       
       wrapper.appendChild(btn);
       
-      updateItems(ytcenter.settings[option]);
+      updateItems(ytcenter.settings[option.defaultSetting]);
       ytcenter.events.addEvent("ui-refresh", function(){
-        var opt = ytcenter.settings[option];
+        var opt = ytcenter.settings[option.defaultSetting];
         var found = false;
         for (var i = 0; i < opt.length; i++) {
           if (opt[i].id === selectedId) found = true;
@@ -7097,139 +6679,7 @@
         }
       };
     };
-    ytcenter.embeds.checkbox = function(selected){
-      selected = selected || false;
-      var wrapper = document.createElement("span");
-      wrapper.className = "ytcenter-embed";
-      
-      var cw = document.createElement("span");
-      cw.className = "yt-uix-form-input-checkbox-container" + (selected ? " checked" : "");
-      var checkbox = document.createElement("input");
-      checkbox.setAttribute("type", "checkbox");
-      checkbox.setAttribute("value", "true");
-      checkbox.className = "yt-uix-form-input-checkbox";
-      if (selected) checkbox.checked = true;
-      var elm = document.createElement("span");
-      elm.className = "yt-uix-form-input-checkbox-element";
-      cw.appendChild(checkbox);
-      cw.appendChild(elm);
-      
-      wrapper.appendChild(cw);
-      
-      return {
-        element: wrapper, // So the element can be appended to an element.
-        bind: function(callback){
-          ytcenter.utils.addEventListener(checkbox, "change", function(){
-            callback(ytcenter.utils.hasClass(cw, "checked"));
-          }, false);
-        },
-        update: function(value){
-          if (value === true) {
-            ytcenter.utils.addClass(cw, "checked");
-            checkbox.checked = true;
-          } else {
-            ytcenter.utils.removeClass(cw, "checked");
-            checkbox.checked = false;
-          }
-        },
-        fixHeight: function(){
-          cw.style.height = "auto";
-        },
-        isSelected: function(){
-          return checkbox.checked;
-        }
-      };
-    };
-    ytcenter.embeds.select = function(list){
-      var selectedValue, saveCallback;
-      
-      var updateList = function(){
-        select.innerHTML = "";
-        ytcenter.utils.each(list, function(i, item){
-          var o = document.createElement("option");
-          o.setAttribute("value", i);
-          if (typeof item.label !== "undefined") {
-            o.textContent = ytcenter.language.getLocale(item.label);
-            ytcenter.language.addLocaleElement(o, item.label, "@textContent");
-          } else if (typeof item.text !== "undefined") {
-            o.textContent = item.text;
-          } else {
-            o.textContent = "undefined";
-          }
-          if (selectedValue === item.value) {
-            o.setAttribute("selected", "selected");
-            selectedText.textContent = o.textContent;
-          }
-          
-          select.appendChild(o);
-        });
-      };
-      
-      var wrapper = document.createElement("span");
-      wrapper.className = "ytcenter-embed yt-uix-form-input-select";
-      wrapper.style.marginBottom = "2px";
-      wrapper.style.height = "27px";
-      
-      var selectedContentWrapper = document.createElement("span");
-      selectedContentWrapper.className = "yt-uix-form-input-select-content";
-      var selectedArrow = document.createElement("img");
-      selectedArrow.setAttribute("src", "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif");
-      selectedArrow.className = "yt-uix-form-input-select-arrow";
-      var selectedText = document.createElement("span");
-      selectedText.className = "yt-uix-form-input-select-value";
-      
-      selectedContentWrapper.appendChild(selectedArrow);
-      selectedContentWrapper.appendChild(selectedText);
-      
-      var select = document.createElement("select");
-      select.className = "yt-uix-form-input-select-element";
-      select.style.cursor = "pointer";
-      select.style.height = "27px";
-      
-      updateList();
-      ytcenter.utils.addEventListener(select, "change", function(e){
-        selectedText.textContent = select.options[select.selectedIndex].textContent;
-        if (saveCallback) saveCallback(list[select.selectedIndex].value);
-      });
-      
-      wrapper.appendChild(selectedContentWrapper);
-      wrapper.appendChild(select);
-      
-      return {
-        element: wrapper,
-        bind: function(callback){
-          saveCallback = callback;
-        },
-        setSelected: function(value){
-          selectedValue = value;
-          for (var i = 0; i < list.length; i++) {
-            if (list[i].value === value) {
-              select.selectedIndex = i;
-              break;
-            }
-          }
-          selectedText.textContent = select.options[select.selectedIndex].textContent;
-        },
-        update: function(value){
-          selectedValue = value;
-          for (var i = 0; i < list.length; i++) {
-            if (list[i].value === value) {
-              select.selectedIndex = i;
-              break;
-            }
-          }
-          selectedText.textContent = select.options[select.selectedIndex].textContent;
-        },
-        updateList: function(_list){
-          list = _list;
-          updateList();
-        },
-        getValue: function(){
-          return list[select.selectedIndex].value;
-        }
-      };
-    };
-    ytcenter.embeds.resizeItemList = function(){
+    ytcenter.modules.resizeItemList = function(option){
       function wrapItem(item) {
         if (typeof item.getItemElement !== "undefined") return item; // It's already been processed
         var selected = false;
@@ -7427,10 +6877,11 @@
           }
         });
         
-        var widthUnit = ytcenter.embeds.select([
+        var widthUnit = ytcenter.modules.select({args: {list: [
           {label: "EMBED_RESIZEITEMLIST_PIXEL", value: "px"},
           {label: "EMBED_RESIZEITEMLIST_PERCENT", value: "%"}
-        ]);
+        ]}});
+        
         widthUnit.bind(function(){
           if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") {
             __setAspectVisibility(false);
@@ -7470,10 +6921,10 @@
           }
         });
         
-        var heightUnit = ytcenter.embeds.select([
+        var heightUnit = ytcenter.modules.select({args: {list: [
           {label: "EMBED_RESIZEITEMLIST_PIXEL", value: "px"},
           {label: "EMBED_RESIZEITEMLIST_PERCENT", value: "%"}
-        ]);
+        ]}});
         
         heightUnit.bind(function(){
           if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") {
@@ -7524,7 +6975,7 @@
         largeLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_LARGE");
         ytcenter.language.addLocaleElement(largeLabel, "EMBED_RESIZEITEMLIST_LARGE", "@textContent");
         largeWrapper.appendChild(largeLabel);
-        var largeInput = ytcenter.embeds.checkbox();
+        var largeInput = ytcenter.modules.checkbox();
         largeInput.element.style.background = "#fff";
         largeInput.fixHeight();
         largeWrapper.appendChild(largeInput.element);
@@ -7536,7 +6987,7 @@
         alignLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_ALIGN");
         ytcenter.language.addLocaleElement(alignLabel, "EMBED_RESIZEITEMLIST_ALIGN", "@textContent");
         alignWrapper.appendChild(alignLabel);
-        var alignInput = ytcenter.embeds.checkbox();
+        var alignInput = ytcenter.modules.checkbox();
         alignInput.element.style.background = "#fff";
         alignInput.fixHeight();
         alignWrapper.appendChild(alignInput.element);
@@ -7547,7 +6998,7 @@
         scrollToPlayerLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_SCROLLTOPLAYER");
         ytcenter.language.addLocaleElement(scrollToPlayerLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYER", "@textContent");
         scrollToPlayerWrapper.appendChild(scrollToPlayerLabel);
-        var scrollToPlayerInput = ytcenter.embeds.checkbox();
+        var scrollToPlayerInput = ytcenter.modules.checkbox();
         scrollToPlayerInput.element.style.background = "#fff";
         scrollToPlayerInput.fixHeight();
         scrollToPlayerWrapper.appendChild(scrollToPlayerInput.element);
@@ -7558,7 +7009,7 @@
         scrollToPlayerButtonLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON");
         ytcenter.language.addLocaleElement(scrollToPlayerButtonLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON", "@textContent");
         scrollToPlayerButtonWrapper.appendChild(scrollToPlayerButtonLabel);
-        var scrollToPlayerButtonInput = ytcenter.embeds.checkbox();
+        var scrollToPlayerButtonInput = ytcenter.modules.checkbox();
         scrollToPlayerButtonInput.element.style.background = "#fff";
         scrollToPlayerButtonInput.fixHeight();
         scrollToPlayerButtonWrapper.style.marginBottom = "40px";
@@ -7799,12 +7250,8 @@
         }
       }
       function updateListHeight() {
-        try {
-          var _h = editWrapper.clientHeight || editWrapper.scrollHeight;
-          if (_h > 0) listWrapper.style.height = _h + "px";
-        } catch (e) {
-          con.error(e);
-        }
+        var _h = editWrapper.clientHeight || editWrapper.scrollHeight;
+        if (_h > 0) listWrapper.style.height = _h + "px";
       }
       function selectSizeItem(id) {
         var bypassConfirm = false;
@@ -8054,7 +7501,277 @@
           if (typeof editor !== "undefined") editor.setVisibility(false);
         }
       };
-    }
+    };
+    ytcenter.modules.select = function(option){
+      function updateList() {
+        select.innerHTML = "";
+        ytcenter.utils.each(list, function(i, item){
+          var o = document.createElement("option");
+          o.setAttribute("value", i);
+          if (typeof item.label !== "undefined") {
+            o.textContent = ytcenter.language.getLocale(item.label);
+            ytcenter.language.addLocaleElement(o, item.label, "@textContent");
+          } else if (typeof item.text !== "undefined") {
+            o.textContent = item.text;
+          } else {
+            o.textContent = "undefined";
+          }
+          if (selectedValue === item.value) {
+            o.setAttribute("selected", "selected");
+            selectedText.textContent = o.textContent;
+          }
+          
+          select.appendChild(o);
+        });
+      }
+      var list = (option && option.args && option.args.list) || [],
+          selectedValue, saveCallback,
+          wrapper = document.createElement("span"),
+          selectedContentWrapper = document.createElement("span"),
+          selectedArrow = document.createElement("img"),
+          selectedText = document.createElement("span"),
+          select = document.createElement("select");
+      wrapper.className = "ytcenter-embed yt-uix-form-input-select";
+      wrapper.style.marginBottom = "2px";
+      wrapper.style.height = "27px";
+      
+      selectedContentWrapper.className = "yt-uix-form-input-select-content";
+      selectedArrow.setAttribute("src", "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif");
+      selectedArrow.className = "yt-uix-form-input-select-arrow";
+      selectedText.className = "yt-uix-form-input-select-value";
+      
+      selectedContentWrapper.appendChild(selectedArrow);
+      selectedContentWrapper.appendChild(selectedText);
+      
+      select.className = "yt-uix-form-input-select-element";
+      select.style.cursor = "pointer";
+      select.style.height = "27px";
+      
+      updateList();
+      ytcenter.utils.addEventListener(select, "change", function(e){
+        selectedText.textContent = select.options[select.selectedIndex].textContent;
+        if (saveCallback) saveCallback(list[select.selectedIndex].value);
+      });
+      
+      wrapper.appendChild(selectedContentWrapper);
+      wrapper.appendChild(select);
+      
+      return {
+        element: wrapper,
+        bind: function(callback){
+          saveCallback = callback;
+        },
+        setSelected: function(value){
+          selectedValue = value;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].value === value) {
+              select.selectedIndex = i;
+              break;
+            }
+          }
+          if (select.options.length > 0) selectedText.textContent = select.options[select.selectedIndex].textContent;
+        },
+        update: function(value){
+          selectedValue = value;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].value === value) {
+              select.selectedIndex = i;
+              break;
+            }
+          }
+          if (select.options.length > 0) selectedText.textContent = select.options[select.selectedIndex].textContent;
+        },
+        updateList: function(_list){
+          list = _list;
+          updateList();
+        },
+        getValue: function(){
+          return list[select.selectedIndex].value;
+        }
+      };
+    };
+    ytcenter.modules.textarea = function(option){
+      var elm = document.createElement('textarea'), i, key;
+      elm.className = "yt-uix-form-textarea";
+      if (option && option.args && option.args.className) {
+        elm.className += " " + option.args.className;
+      }
+      if (option && option.args && option.args.styles) {
+        for (key in option.args.styles) {
+          if (option.args.styles.hasOwnProperty(key)) {
+            elm.style.setProperty(key, option.args.styles[key]);
+          }
+        }
+      }
+      if (option && option.args && option.args.text) {
+        elm.textContent = option.args.text;
+      }
+      if (option && option.args && option.args.attributes) {
+        for (key in option.args.attributes) {
+          if (option.args.attributes.hasOwnProperty(key)) {
+            elm.setAttribute(key, option.args.attributes[key]);
+          }
+        }
+      }
+      if (option && option.args && option.args.listeners) {
+        for (i = 0; i < option.args.listeners.length; i++) {
+          elm.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+        }
+      }
+      
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){},
+        setText: function(txt){
+          elm.textContent = txt;
+        }
+      };
+    };
+    ytcenter.modules.textContent = function(option){
+      var elm = document.createElement("div");
+      if (option && option.args && option.args.style) {
+        for (var key in option.args.style) {
+          if (option.args.style.hasOwnProperty(key)) {
+            elm.style[key] = option.args.style[key];
+          }
+        }
+      }
+      if (option && option.args && option.args.text) {
+        if (option && option.args && option.args.replace) {
+          elm.appendChild(ytcenter.utils.replaceText(option.args.text, option.args.replace));
+        } else {
+          elm.textContent = option.args.text;
+        }
+      }
+      if (option && option.args && option.args.textlocale) {
+        if (option && option.args && option.args.replace) {
+          elm.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale(option.args.textlocale), option.args.replace));
+        } else {
+          elm.textContent = ytcenter.language.getLocale(option.args.textlocale);
+        }
+        ytcenter.events.addEvent("language-refresh", function(){
+          elm.innerHTML = "";
+          if (option && option.args && option.args.replace) {
+            elm.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale(option.args.textlocale), option.args.replace));
+          } else {
+            elm.textContent = ytcenter.language.getLocale(option.args.textlocale);
+          }
+        });
+      }
+      if (option && option.args && option.args.listeners) {
+        for (var i = 0; i < option.args.listeners.length; i++) {
+          elm.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+        }
+      }
+      if (option && option.args && option.args.styles) {
+        for (var key in option.args.styles) {
+          if (option.args.styles.hasOwnProperty(key)) {
+            elm.style[key] = option.args.styles[key];
+          }
+        }
+      }
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
+    ytcenter.modules.textfield = function(option){
+      function update(text) {
+        input.value = text;
+      }
+      function bind(callback) {
+        ytcenter.utils.addEventListener(input, "change", function(){
+          callback(input.value);
+        }, false);
+      }
+      var frag = document.createDocumentFragment(),
+          input = document.createElement("input");
+      input.setAttribute("type", "text");
+      input.className = "yt-uix-form-input-text";
+      input.value = option && ytcenter.settings[option.defaultSetting];
+      if (option && option.style) {
+        for (var key in option.style) {
+          if (option.style.hasOwnProperty(key)) {
+            elm.style[key] = option.style[key];
+          }
+        }
+      }
+      frag.appendChild(input);
+      return {
+        element: frag,
+        bind: bind,
+        update: update
+      };
+    };
+    ytcenter.modules.translators = function(option){
+      option = typeof option !== "undefined" ? option : false;
+      var elm = document.createElement("div");
+      
+      var translators = document.createElement("div"),
+          table = document.createElement("table"),
+          thead = document.createElement("thead"),
+          tbody = document.createElement("tbody"),
+          tr, td;
+      table.className = "ytcenter-settings-table";
+      tr = document.createElement("tr");
+      td = document.createElement("td");
+      td.textContent = ytcenter.language.getLocale("TRANSLATOR_LANGUAGE");
+      ytcenter.language.addLocaleElement(td, "TRANSLATOR_LANGUAGE", "@textContent");
+      tr.appendChild(td);
+      
+      td = document.createElement("td");
+      td.textContent = ytcenter.language.getLocale("TRANSLATOR_ENGLISH");
+      ytcenter.language.addLocaleElement(td, "TRANSLATOR_ENGLISH", "@textContent");
+      tr.appendChild(td);
+      
+      td = document.createElement("td");
+      td.textContent = ytcenter.language.getLocale("TRANSLATOR_CONTRIBUTORS");
+      ytcenter.language.addLocaleElement(td, "TRANSLATOR_CONTRIBUTORS", "@textContent");
+      tr.appendChild(td);
+      
+      thead.appendChild(tr);
+      
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      ytcenter.utils.each(option.args.translators, function(key, value){
+        if (value.length > 0) {
+          tr = document.createElement("tr");
+          td = document.createElement("td");
+          td.textContent = ytcenter.language.getLocale("LANGUAGE", key);
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.textContent = ytcenter.language.getLocale("LANGUAGE_ENGLISH", key);
+          tr.appendChild(td);
+          td = document.createElement("td");
+
+          for (var i = 0; i < value.length; i++) {
+            if (i > 0) td.appendChild(document.createTextNode(" & "));
+            var el;
+            if (value[i].url) {
+              el = document.createElement("a");
+              el.href = value[i].url;
+              el.textContent = value[i].name;
+              el.setAttribute("target", "_blank");
+            } else {
+              el = document.createTextNode(value[i].name);
+            }
+            td.appendChild(el);
+          }
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        }
+      });
+      translators.appendChild(table);
+      elm.appendChild(translators);
+      
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
     
     /*! intercom.js | https://github.com/diy/intercom.js | Apache License (v2) */
     ytcenter.Intercom = (function(){
@@ -8476,6 +8193,73 @@
       return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
     };
     ytcenter.utils = {};
+    ytcenter.utils.replaceTextAsString = function(text, rep) {
+      if (!text) return text;
+      var tmp = "";
+      var startB = false;
+      var func = "";
+      var tmpName = "";
+      var tmpFunc = "";
+      var inFunc = false;
+      for (var i = 0; i < text.length; i++) {
+        if (text.charAt(i) == "{" && !startB && !inFunc) {
+          startB = true;
+        } else if (text.charAt(i) == "}" && startB) {
+          var t = tmpName;
+          for (var key in rep) {
+            if (rep.hasOwnProperty(key)) {
+              if (key === tmpName) {
+                tmpName = "";
+                t = rep[key];
+                break;
+              }
+            }
+          }
+          tmp += t;
+          startB = false;
+        } else if (startB) {
+          if (tmpName == "" && text.charAt(i) == "!") {
+            tmp += "{";
+            startB = false;
+          } else {
+            tmpName += text.charAt(i);
+          }
+        } else {
+          tmp += text.charAt(i);
+        }
+      }
+      return tmp;
+    };
+    ytcenter.utils.replaceTextToText = function(text, replacer){
+      var regex, arr = [], tmp = "";
+      text = text || "";
+      for (key in replacer) {
+        if (replacer.hasOwnProperty(key)) {
+          arr.push(ytcenter.utils.escapeRegExp(key));
+        }
+      }
+      regex = new RegExp(arr.join("|") + "|.", "g");
+      text.replace(regex, function(matched){
+        if (replacer[matched]) {
+          if (typeof replacer[matched] === "function") {
+            var a = replacer[matched]();
+            if (typeof a === "string") {
+              tmp += a;
+            } else {
+              con.error("[TextReplace] Unknown type of replacer!");
+            }
+          } else if (typeof replacer[matched] === "string") {
+            tmp += replacer[matched];
+          } else {
+            con.error("[TextReplace] Unknown type of replacer!");
+          }
+        } else {
+          tmp += matched;
+        }
+      });
+      
+      return tmp;
+    };
     ytcenter.utils.guid = function(){
       function S4() {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -10650,1902 +10434,2981 @@
       }
     ];
     con.log("Initializing settings ui");
-    ytcenter.ui = {};
-    try {
-    ytcenter.ui.settings = {
-      "SETTINGS_TAB_GENERAL": [
-        {
-          "label": "SETTINGS_LANGUAGE",
-          "type": "list",
-          "advlist": function(){
-            var a = [];
-            a.push({
-              "label": "LANGUAGE_AUTO",
-              "value": "auto"
+    ytcenter.settingsPanel = (function(){
+      var a = {}, categories = [], subcategories = [], options = [];
+      
+      a.createCategory = function(label){
+        var id = categories.length;
+        categories.push({
+          id: id,
+          label: label,
+          enabled: true,
+          visible: true,
+          subcategories: []
+        });
+        return a.getCategory(id);
+      };
+      a.createSubCategory = function(label){
+        var id = subcategories.length;
+        subcategories.push({
+          id: id,
+          label: label,
+          enabled: true,
+          visible: true,
+          options: [],
+          listeners: {}
+        });
+        return a.getSubCategory(id);
+      };
+      a.createOption = function(defaultSetting, module, label, args, help){
+        var id = options.length;
+        options.push({
+          id: id,
+          label: label,
+          args: args,
+          defaultSetting: defaultSetting,
+          module: module,
+          help: help,
+          enabled: true,
+          visible: true,
+          style: {},
+          listeners: {}
+        });
+        return a.getOption(id);
+      };
+      a.getCategory = function(id){
+        if (categories.length <= id || id < 0) throw new Error("[Settings Category] Category with specified id doesn't exist (" + id + ")!");
+        var cat = categories[id];
+        return {
+          getId: function(){
+            return id;
+          },
+          setVisibility: function(visible){
+            cat.visible = visible;
+            if (cat._visible) cat._visible(visible);
+          },
+          setEnabled: function(enabled){
+            cat.enabled = enabled;
+          },
+          addSubCategory: function(subcategory){
+            cat.subcategories.push(subcategories[subcategory.getId()]);
+          },
+          select: function(){
+            if (cat.select) cat.select();
+          }
+        };
+      };
+      a.getSubCategory = function(id){
+        if (subcategories.length <= id || id < 0) throw new Error("[Settings SubCategory] Category with specified id doesn't exist (" + id + ")!");
+        var subcat = subcategories[id];
+        return {
+          getId: function(){
+            return id;
+          },
+          setVisibility: function(visible){
+            subcat.visible = visible;
+            if (subcat._visible) subcat._visible(visible);
+          },
+          setEnabled: function(enabled){
+            subcat.enabled = enabled;
+          },
+          addOption: function(option){
+            subcat.options.push(options[option.getId()]);
+          },
+          select: function(){
+            if (subcat.select) subcat.select();
+          },
+          addEventListener: function(event, callback){
+            if (!subcat.listeners[event]) subcat.listeners[event] = [];
+            subcat.listeners[event].push(callback);
+          }
+        };
+      };
+      a.getOption = function(id){
+        if (options.length <= id || id < 0) throw new Error("[Settings Options] Option with specified id doesn't exist (" + id + ")!");
+        var option = options[id];
+        return {
+          getId: function(){
+            return id;
+          },
+          getLabel: function(){
+            return option.label;
+          },
+          getDefaultSetting: function(){
+            return option.defaultSetting;
+          },
+          getModule: function(){
+            return option.module;
+          },
+          getHelp: function(){
+            return option.help;
+          },
+          setVisibility: function(visible){
+            option.visible = visible;
+            if (option._visible) option._visible(visible);
+          },
+          setEnabled: function(enabled){
+            option.enabled = enabled;
+          },
+          setStyle: function(key, value){
+            option.style[key] = value;
+          },
+          getStyle: function(key){
+            return option.style[key];
+          },
+          addModuleEventListener: function(event, callback, bubble){
+            if (!option.moduleListeners) option.moduleListeners = [];
+            option.moduleListeners.push([event, callback, bubble]);
+          },
+          removeModuleEventListener: function(event, callback, bubble){
+            throw new Error("Not implemented!");
+          },
+          addEventListener: function(event, callback, bubble){
+            if (!option.listeners) option.listeners = {};
+            if (!option.listeners[event]) option.listeners[event] = [];
+            option.listeners[event].push(callback);
+          },
+          removeEventListener: function(event, callback, bubble){
+            if (!option.listeners) return;
+            if (!option.listeners[event]) return;
+            var i;
+            for (i = 0; i < option.listeners[event].length; i++) {
+              if (option.listeners[event][i] === callback) {
+                option.listeners[event].splice(i, 1);
+                return;
+              }
+            }
+          },
+          getLiveModule: function(){
+            return option.liveModule;
+          }
+        };
+      };
+      a.createOptionsForLayout = function(subcat){
+        var frag = document.createDocumentFragment();
+        
+        subcat.options.forEach(function(option){
+          var optionWrapper = document.createElement("div"),
+              label, module, moduleContainer, labelText, help, replaceHelp, i;
+          optionWrapper.className = "ytcenter-settings-subcat-option" + (option.visible ? "" : " hid");
+          option._visible = function(visible){
+            if (visible) {
+              ytcenter.utils.removeClass(optionWrapper, "hid");
+            } else {
+              ytcenter.utils.addClass(optionWrapper, "hid");
+            }
+          };
+          if (option.label && option.label !== "") {
+            labelText = document.createTextNode(ytcenter.language.getLocale(option.label));
+            ytcenter.language.addLocaleElement(labelText, option.label, "@textContent");
+            
+            if (option.style) {
+              ytcenter.utils.each(option.style, function(key, value){
+                optionWrapper.style.setProperty(key, value);
+              });
+            }
+            
+            label = document.createElement("span");
+            label.className = "ytcenter-settings-option-label";
+            label.appendChild(labelText);
+            
+            if (option.help && option.help !== "") {
+              help = document.createElement("a");
+              help.className = "ytcenter-settings-help";
+              help.setAttribute("target", "_blank");
+              help.setAttribute("href", option.help);
+              help.appendChild(document.createTextNode('?'));
+              replaceHelp = { "{option}": function() { return ytcenter.language.getLocale(option.label); } };
+              help.setAttribute("title", ytcenter.utils.replaceTextToText(ytcenter.language.getLocale("SETTINGS_HELP_ABOUT"), replaceHelp));
+              ytcenter.language.addLocaleElement(help, "SETTINGS_HELP_ABOUT", "title", replaceHelp);
+              label.appendChild(help);
+            }
+            
+            optionWrapper.appendChild(label);
+          }
+          if (!option.module) {
+            
+          } else {
+            if (!ytcenter.modules[option.module])
+              throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ", " + option.module + ") are using an non existing module!");
+
+            moduleContainer = document.createElement("span");
+            module = ytcenter.modules[option.module](option);
+            option.liveModule = module;
+            moduleContainer.appendChild(module.element);
+            
+            module.bind(function(value){
+              ytcenter.settings[option.defaultSetting] = value;
+              ytcenter.events.performEvent("ui-refresh");
+              
+              if (option.listeners && option.listeners["update"]) {
+                for (i = 0; i < option.listeners["update"].length; i++) {
+                  option.listeners["update"][i](value);
+                }
+              }
+              ytcenter.events.performEvent("settings-update-" + option.defaultSetting);
             });
-            for (var key in ytcenter.languages) {
-              if (ytcenter.languages.hasOwnProperty(key)) {
-                a.push({
-                  "value": key,
-                  "variable": (function(k){
-                    return function(){
-                      return ytcenter.languages[k].LANGUAGE;
-                    };
-                  })(key)
+            module.update(ytcenter.settings[option.defaultSetting]);
+            
+            if (option.moduleListeners) {
+              if (module.addEventListener) {
+                for (i = 0; i < option.moduleListeners.length; i++) {
+                  module.addEventListener(option.moduleListeners[i][0], option.moduleListeners[i][1], option.moduleListeners[i][2]);
+                }
+              } else {
+                throw new Error(option.module + " do not support listeners!");
+              }
+            }
+            
+            optionWrapper.appendChild(moduleContainer);
+          }
+          frag.appendChild(optionWrapper);
+        });
+        
+        return frag;
+      };
+      a.createLayout = function(){
+        var frag = document.createDocumentFragment(),
+            categoryList = document.createElement("ul"),
+            subcatList = [],
+            sSelectedList = [],
+            leftPanel = document.createElement("div"), rightPanel = document.createElement("div"),
+            rightPanelContent = document.createElement("div"),
+            productVersion = document.createElement("div"),
+            subcatTop = document.createElement("div"), subcatContent = document.createElement("div"),
+            panelWrapper = document.createElement("div"),
+            categoryHide = false;
+        subcatTop.className = "ytcenter-settings-subcat-header-wrapper";
+        subcatContent.className = "ytcenter-settings-subcat-content-wrapper";
+        leftPanel.className = "ytcenter-settings-panel-left clearfix";
+        rightPanel.className = "ytcenter-settings-panel-right clearfix";
+        
+        productVersion.className = "ytcenter-settings-version";
+        productVersion.textContent = "YouTube Center v" + ytcenter.version;
+        
+        categoryList.className = "ytcenter-settings-category-list";
+        categories.forEach(function(category){
+          var li = document.createElement("li"),
+              acat = document.createElement("a"),
+              valign = document.createElement("span"),
+              text = document.createElement("span"),
+              subcatLinkList = [],
+              subcatContentList = [],
+              topheader = document.createElement("div"),
+              topheaderList = document.createElement("ul"),
+              categoryContent = document.createElement("div"),
+              hideContent = false;
+          if (li && !category.visible) li.className = "hid";
+          sSelectedList.push(acat);
+          acat.href = ";return false;";
+          acat.className = "ytcenter-settings-category-item yt-valign" + (categoryHide || !category.visible ? "" : " ytcenter-selected");
+          
+          ytcenter.utils.addEventListener(acat, "click", function(e){
+            category.select();
+            console.log(category.subcategories[0]);
+            if (category.subcategories.length > 0 && category.subcategories[0] && category.subcategories[0].select) category.subcategories[0].select();
+            
+            ytcenter.events.performEvent("ui-refresh");
+            
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }, false);
+          valign.className = "yt-valign-container";
+          
+          text.textContent = ytcenter.language.getLocale(category.label);
+          ytcenter.language.addLocaleElement(text, category.label, "@textContent");
+          
+          valign.appendChild(text);
+          acat.appendChild(valign);
+          li.appendChild(acat);
+          categoryList.appendChild(li);
+          
+          topheaderList.className = "ytcenter-settings-subcat-header clearfix";
+          category.subcategories.forEach(function(subcat){
+            var content = document.createElement("div"),
+                liItem = document.createElement("li"),
+                liItemLink = document.createElement("a"),
+                itemTextContent = document.createElement("span");
+            content.className = "ytcenter-settings-subcat-content" + (hideContent ? " hid" : "");
+            liItem.className = "clearfix";
+            liItemLink.className = "yt-uix-button ytcenter-settings-subcat-header-item" + (hideContent ? "" : " ytcenter-selected");
+            itemTextContent.className = "ytcenter-settings-subcat-header-item-content";
+            itemTextContent.textContent = ytcenter.language.getLocale(subcat.label);
+            ytcenter.language.addLocaleElement(itemTextContent, subcat.label, "@textContent");
+            
+            content.appendChild(a.createOptionsForLayout(subcat));
+            
+            liItemLink.appendChild(itemTextContent);
+            liItem.appendChild(liItemLink);
+            topheaderList.appendChild(liItem);
+            
+            ytcenter.utils.addEventListener(liItemLink, "click", function(e){
+              subcat.select();
+              ytcenter.events.performEvent("ui-refresh");
+              
+              e.preventDefault();
+              e.stopPropagation();
+              return false;
+            }, false);
+            subcatLinkList.push(liItemLink);
+            subcatContentList.push(content);
+            subcat.select = function(){
+              if (!subcat.visible) return;
+              subcatLinkList.forEach(function(item){
+                ytcenter.utils.removeClass(item, "ytcenter-selected");
+              });
+              subcatContentList.forEach(function(item){
+                ytcenter.utils.addClass(item, "hid");
+              });
+              ytcenter.utils.removeClass(content, "hid");
+              ytcenter.utils.addClass(liItemLink, "ytcenter-selected");
+              
+              if (subcat.listeners.click) {
+                subcat.listeners.click.forEach(function(callback){
+                  callback();
                 });
               }
-            }
-            return a;
-          },
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                ytcenter.language.update();
-              }
-            }
-          ],
-          "defaultSetting": "language",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#multiple-languages"
-        }, {
-          "label": "SETTINGS_DIALOG_MODE",
-          "type": "bool",
-          "defaultSetting": "settingsDialogMode",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#settings-dialog-mode"
-        }, {
-          "label": "SETTINGS_WATCH7_CENTERPAGE",
-          "type": "bool",
-          "defaultSetting": "watch7centerpage",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-                ytcenter.classManagement.applyClasses();
-              }
-            }
-          ],
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#centering-page"
-        }, {
-          "label": "SETTINGS_REMOVEADVERTISEMENTS_LABEL",
-          "type": "bool",
-          "defaultSetting": "removeAdvertisements",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-advertisements"
-        }, {
-          "label": "SETTINGS_AUTOEXPANDDESCRIPTION_LABEL",
-          "type": "bool",
-          "defaultSetting": "expandDescription"
-        }, {
-          "label": "SETTINGS_ENABLESHORTCUTS_LABEL",
-          "type": "bool",
-          "defaultSetting": "enableShortcuts"
-        }, {
-          "label": "SETTINGS_FLEXWIDTHONPAGE_LABEL",
-          "type": "bool",
-          "defaultSetting": "flexWidthOnPage",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.classManagement.applyClasses();
-              }
-            }
-          ],
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flex-width-on-page"
-        }, {
-          "label": "SETTINGS_YTSPF",
-          "type": "bool",
-          "defaultSetting": "ytspf",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
-              }
-            }
-          ],
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#spf"
-        }, {
-          "label": "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC",
-          "type": "bool",
-          "defaultSetting": "ytExperimentalLayotTopbarStatic",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
-                  ytcenter.utils.addClass(document.body, "ytcenter-exp-topbar-static");
-                } else {
-                  ytcenter.utils.removeClass(document.body, "ytcenter-exp-topbar-static");
-                }
-              }
-            }
-          ],
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#set-experimental-topbar-to-static"
-        }, {
-          "label": "SETTINGS_GRIDSUBSCRIPTIONS",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.classManagement.applyClasses();
-              }
-            }
-          ],
-          "defaultSetting": "gridSubscriptionsPage"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_TITLE_REMOVE_YOUTUBE_SUFFIX",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.title.update();
-              }
-            }
-          ],
-          "defaultSetting": "removeYouTubeTitleSuffix"
-        }, {
-          "label": "SETTINGS_PLAYER_PLAYING_INDICATOR",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.title.update();
-              }
-            }
-          ],
-          "defaultSetting": "playerPlayingTitleIndicator"
-        }, {
-          "label": "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING",
-          "type": "bool",
-          "defaultSetting": "playerOnlyOneInstancePlaying"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_WATCHEDVIDEOS_INDICATOR",
-          "type": "bool",
-          "defaultSetting": "watchedVideosIndicator",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#watched-videos"
-        }, {
-          "label": "SETTINGS_HIDEWATCHEDVIDEOS",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.classManagement.applyClasses();
-              }
-            }
-          ],
-          "defaultSetting": "hideWatchedVideos",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#hide-watched-videos"
-        }, {
-          "text": "SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY",
-          "type": "button",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                var msgElm = document.createElement("h3");
-                msgElm.style.fontWeight = "normal";
-                msgElm.textContent = ytcenter.language.getLocale("SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY_CONTENT");
-                ytcenter.language.addLocaleElement(msgElm, "SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY_CONTENT", "@textContent");
-                
-                var dialog = ytcenter.dialog("SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY", msgElm, [
-                  {
-                    label: "CONFIRM_CANCEL",
-                    primary: false,
-                    callback: function(){
-                      dialog.setVisibility(false);
-                    }
-                  }, {
-                    label: "CONFIRM_CLEAN",
-                    primary: true,
-                    callback: function(){
-                      ytcenter.settings.watchedVideos = [];
-                      ytcenter.saveSettings(null, null, function(){
-                        loc.reload();
-                        dialog.setVisibility(false);
-                      });
-                    }
-                  }
-                ]);
-                dialog.setVisibility(true);
-              }
-            }
-          ]
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_COMMENTS_COUNTRY_ENABLE",
-          "type": "bool",
-          "defaultSetting": "commentCountryEnabled",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-for-comments"
-        }, {
-          "label": "SETTINGS_COMMENTS_COUNTRY_SHOW_FLAG",
-          "type": "bool",
-          "defaultSetting": "commentCountryShowFlag"
-        }, {
-          "label": "SETTINGS_COMMENTS_COUNTRY_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "before_username",
-              "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_BEFORE_USERNAME"
-            }, {
-              "value": "after_username",
-              "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_AFTER_USERNAME"
-            }, {
-              "value": "last",
-              "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_LAST"
-            }
-          ],
-          "defaultSetting": "commentCountryPosition"
-        }, {
-          "type": "import/export settings"
-        }, {
-          "text": "SETTINGS_RESETSETTINGS_LABEL",
-          "type": "button",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                var msgElm = document.createElement("h3");
-                msgElm.style.fontWeight = "normal";
-                msgElm.textContent = ytcenter.language.getLocale("SETTINGS_RESETSETTINGS_TEXT");
-                ytcenter.language.addLocaleElement(msgElm, "SETTINGS_RESETSETTINGS_TEXT", "@textContent");
-                
-                var dialog = ytcenter.dialog("SETTINGS_RESETSETTINGS_LABEL", msgElm, [
-                  {
-                    label: "CONFIRM_CANCEL",
-                    primary: false,
-                    callback: function(){
-                      dialog.setVisibility(false);
-                    }
-                  }, {
-                    label: "CONFIRM_RESET",
-                    primary: true,
-                    callback: function(){
-                      ytcenter.settings = ytcenter._settings;
-                      ytcenter.saveSettings(false, false);
-                      uw.setTimeout(function(){
-                        loc.reload();
-                        dialog.setVisibility(false);
-                      }, 500);
-                    }
-                  }
-                ]);
-                dialog.setVisibility(true);
-              }
-            }
-          ]
-        }
-      ],
-      "SETTINGS_TAB_WATCH": [
-        {
-          "label": "SETTINGS_REMOVE_RELATED_VIDEOS_ENDSCREEN",
-          "type": "bool",
-          "defaultSetting": "removeRelatedVideosEndscreen",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-endscreen"
-        }, {
-          "label": "SETTINGS_ENDSCREEN_AUTOPLAY",
-          "type": "bool",
-          "defaultSetting": "enableEndscreenAutoplay"
-        }, {
-          "label": "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
-              }
-            }
-          ],
-          "defaultSetting": "enableYouTubeAutoSwitchToShareTab",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#switch-to-share-tab-at-end-of-video"
-        }, {
-          "label": "SETTINGS_GUIDEMODE",
-          "type": "list",
-          "list": [
-            {
-              "value": "default",
-              "label": "SETTINGS_GUIDEMODE_DEFAULT"
-            }, {
-              "value": "always_open",
-              "label": "SETTINGS_GUIDEMODE_ALWAYS_OPEN"
-            }, {
-              "value": "always_closed",
-              "label": "SETTINGS_GUIDEMODE_ALWAYS_CLOSED"
-            }
-          ],
-          "defaultSetting": "guideMode",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#guide-mode"
-        }, {
-          "label": "SETTINGS_GUIDE_ALWAYS_HIDE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
-                ytcenter.guide.update();
-                ytcenter.player._updateResize();
-                ytcenter.classManagement.applyClasses();
-              }
-            }
-          ],
-          "defaultSetting": "watch7playerguidealwayshide"
-        }, {
-          "label": "SETTINGS_WATCH7_PLAYER_GUIDE_HIDE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.player._updateResize();
-              }
-            }
-          ],
-          "defaultSetting": "watch7playerguidehide"
-        }, {
-          "label": "SETTINGS_DASHPLAYBACK",
-          "type": "bool",
-          "defaultSetting": "dashPlayback",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
-        }, {
-          "label": "SETTINGS_FORCEPLAYERTYPE",
-          "type": "list",
-          "list": [
-            { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
-            { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
-            { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
-          ],
-          "defaultSetting": "forcePlayerType"
-        }, {
-          "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "0",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_NONE"
-            }, {
-              "value": "1",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_BOTH"
-            }, {
-              "value": "2",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_PROGRESSBAR"
-            }, {
-              "value": "3",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
-            }
-          ],
-          "listeners" : [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "watch") {
-                  ytcenter.player.setAutoHide(ytcenter.settings.autohide);
-                }
-              }
-            }
-          ],
-          "defaultSetting": "autohide",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-hide-bar"
-        }, {
-          "label": "SETTINGS_PLAYERTHEME_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "dark",
-              "label": "SETTINGS_PLAYERTHEME_DARK"
-            }, {
-              "value": "light",
-              "label": "SETTINGS_PLAYERTHEME_LIGHT"
-            }
-          ],
-          "defaultSetting": "playerTheme",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "watch") {
-                  ytcenter.player.setTheme(ytcenter.settings.playerTheme);
-                }
-              }
-            }
-          ],
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-theme"
-        }, {
-          "label": "SETTINGS_PLAYERCOLOR_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "red",
-              "label": "SETTINGS_PLAYERCOLOR_RED"
-            }, {
-              "value": "white",
-              "label": "SETTINGS_PLAYERCOLOR_WHITE"
-            }
-          ],
-          "defaultSetting": "playerColor",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "watch") {
-                  ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
-                }
-              }
-            }
-          ],
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-color"
-        }/*, {
-"label": "SETTINGS_PLAYERBGCOLOR_LABEL",
-"type": "bgcolorlist",
-"defaultSetting": "bgcolor"
-}*/, {
-          "label": "SETTINGS_WMODE_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "none",
-              "label": "SETTINGS_WMODE_NONE"
-            }, {
-              "value": "window",
-              "label": "SETTINGS_WMODE_WINDOW"
-            }, {
-              "value": "direct",
-              "label": "SETTINGS_WMODE_DIRECT"
-            }, {
-              "value": "opaque",
-              "label": "SETTINGS_WMODE_OPAQUE"
-            }, {
-              "value": "transparent",
-              "label": "SETTINGS_WMODE_TRANSPARENT"
-            }, {
-              "value": "gpu",
-              "label": "SETTINGS_WMODE_GPU"
-            }
-          ],
-          "defaultSetting": "flashWMode",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flash-wmode"
-        }, {
-          "label": "SETTINGS_ENABLEANNOTATIONS_LABEL",
-          "type": "bool",
-          "defaultSetting": "enableAnnotations",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#annotations"
-        }, {
-          "label": "SETTINGS_SCROLLTOPLAYER_LABEL",
-          "type": "bool",
-          "defaultSetting": "scrollToPlayer",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-to-player"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
-          "type": "bool",
-          "defaultSetting": "enableAutoVideoQuality",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-resolution"
-        }, {
-          "label": "SETTINGS_AUTORESOLUTION_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "highres",
-              "label": "SETTINGS_HIGHRES"
-            }, {
-              "value": "hd1080",
-              "label": "SETTINGS_HD1080"
-            }, {
-              "value": "hd720",
-              "label": "SETTINGS_HD720"
-            }, {
-              "value": "large",
-              "label": "SETTINGS_LARGE"
-            }, {
-              "value": "medium",
-              "label": "SETTINGS_MEDIUM"
-            }, {
-              "value": "small",
-              "label": "SETTINGS_SMALL"
-            }, {
-              "value": "tiny",
-              "label": "SETTINGS_TINY"
-            }
-          ],
-          "defaultSetting": "autoVideoQuality"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_BRANDING_BANNER_REMOVE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "removeBrandingBanner",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
-        }, {
-          "label": "SETTINGS_BRANDING_BACKGROUND_REMOVE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "removeBrandingBackground",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
-        }, {
-          "label": "SETTINGS_BRANDING_WATERMARK_REMOVE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "removeBrandingWatermark",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_PREVENTAUTOPLAY_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventAutoPlay",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-play"
-        }, {
-          "label": "SETTINGS_PREVENTAUTOBUFFERING_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventAutoBuffer",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-buffering"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_PLAYLIST_PREVENT_AUTOPLAY",
-          "type": "bool",
-          "defaultSetting": "preventPlaylistAutoPlay",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-play"
-        }, {
-          "label": "SETTINGS_PLAYLIST_PREVENT_AUTOBUFFERING",
-          "type": "bool",
-          "defaultSetting": "preventPlaylistAutoBuffer",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-buffering"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventTabAutoPlay"
-        }, {
-          "label": "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventTabAutoBuffer"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_PREVENTTABPLAYLISTAUTOPLAY_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventTabPlaylistAutoPlay"
-        }, {
-          "label": "SETTINGS_PREVENTTABPLAYLISTAUTOBUFFERING_LABEL",
-          "type": "bool",
-          "defaultSetting": "preventTabPlaylistAutoBuffer"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_VOLUME_ENABLE",
-          "type": "bool",
-          "defaultSetting": "enableVolume",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#volume-control"
-        }, {
-          "label": "SETTINGS_VOLUME_LABEL",
-          "type": "range",
-          "minRange": 0,
-          "maxRange": 100,
-          "defaultSetting": "volume"
-        }, {
-          "label": "SETTINGS_MUTE_LABEL",
-          "type": "bool",
-          "defaultSetting": "mute"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_LIGHTBULB_AUTO",
-          "type": "bool",
-          "defaultSetting": "lightbulbAutoOff",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#lights-off"
-        }, {
-          "label": "SETTINGS_LIGHTBULB_CLICK_THROUGH",
-          "type": "bool",
-          "defaultSetting": "lightbulbClickThrough",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#click-through"
-        }, {
-          "label": "SETTINGS_LIGHTBULB_COLOR",
-          "type": "colorpicker",
-          "defaultSetting": "lightbulbBackgroundColor"
-        }, {
-          "label": "SETTINGS_LIGHTBULB_TRANSPARENCY",
-          "type": "range",
-          "minRange": 0,
-          "maxRange": 100,
-          "defaultSetting": "lightbulbBackgroundOpaque"
-        }
-      ],
-      "SETTINGS_TAB_CHANNEL": [
-        {
-          "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "0",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_NONE"
-            }, {
-              "value": "1",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_BOTH"
-            }, {
-              "value": "2",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_PROGRESSBAR"
-            }, {
-              "value": "3",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
-            }
-          ],
-          "listeners" : [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "channel") {
-                  ytcenter.player.setAutoHide(ytcenter.settings.channel_autohide);
-                }
-              }
-            }
-          ],
-          "defaultSetting": "channel_autohide"
-        }, {
-          "label": "SETTINGS_DASHPLAYBACK",
-          "type": "bool",
-          "defaultSetting": "channel_dashPlayback",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
-        }, {
-          "label": "SETTINGS_PLAYERTHEME_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "dark",
-              "label": "SETTINGS_PLAYERTHEME_DARK"
-            }, {
-              "value": "light",
-              "label": "SETTINGS_PLAYERTHEME_LIGHT"
-            }
-          ],
-          "defaultSetting": "channel_playerTheme",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "channel") {
-                  ytcenter.player.setTheme(ytcenter.settings.channel_playerTheme);
-                }
-              }
-            }
-          ]
-        }, {
-          "label": "SETTINGS_PLAYERCOLOR_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "red",
-              "label": "SETTINGS_PLAYERCOLOR_RED"
-            }, {
-              "value": "white",
-              "label": "SETTINGS_PLAYERCOLOR_WHITE"
-            }
-          ],
-          "defaultSetting": "channel_playerColor",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "channel") {
-                  ytcenter.player.setProgressColor(ytcenter.settings.channel_playerColor);
-                }
-              }
-            }
-          ]
-        }, {
-          "label": "SETTINGS_WMODE_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "none",
-              "label": "SETTINGS_WMODE_NONE"
-            }, {
-              "value": "window",
-              "label": "SETTINGS_WMODE_WINDOW"
-            }, {
-              "value": "direct",
-              "label": "SETTINGS_WMODE_DIRECT"
-            }, {
-              "value": "opaque",
-              "label": "SETTINGS_WMODE_OPAQUE"
-            }, {
-              "value": "transparent",
-              "label": "SETTINGS_WMODE_TRANSPARENT"
-            }, {
-              "value": "gpu",
-              "label": "SETTINGS_WMODE_GPU"
-            }
-          ],
-          "defaultSetting": "channel_flashWMode"
-        }, {
-          "label": "SETTINGS_ENABLEANNOTATIONS_LABEL",
-          "type": "bool",
-          "defaultSetting": "channel_enableAnnotations"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
-          "type": "bool",
-          "defaultSetting": "channel_enableAutoVideoQuality"
-        }, {
-          "label": "SETTINGS_AUTORESOLUTION_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "highres",
-              "label": "SETTINGS_HIGHRES"
-            }, {
-              "value": "hd1080",
-              "label": "SETTINGS_HD1080"
-            }, {
-              "value": "hd720",
-              "label": "SETTINGS_HD720"
-            }, {
-              "value": "large",
-              "label": "SETTINGS_LARGE"
-            }, {
-              "value": "medium",
-              "label": "SETTINGS_MEDIUM"
-            }, {
-              "value": "small",
-              "label": "SETTINGS_SMALL"
-            }, {
-              "value": "tiny",
-              "label": "SETTINGS_TINY"
-            }
-          ],
-          "defaultSetting": "channel_autoVideoQuality"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_PREVENTAUTOPLAY_LABEL",
-          "type": "bool",
-          "defaultSetting": "channel_preventAutoPlay"
-        }, {
-          "label": "SETTINGS_PREVENTAUTOBUFFERING_LABEL",
-          "type": "bool",
-          "defaultSetting": "channel_preventAutoBuffer"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_VOLUME_ENABLE",
-          "type": "bool",
-          "defaultSetting": "channel_enableVolume"
-        }, {
-          "label": "SETTINGS_VOLUME_LABEL",
-          "type": "range",
-          "minRange": 0,
-          "maxRange": 100,
-          "defaultSetting": "channel_volume"
-        }, {
-          "label": "SETTINGS_MUTE_LABEL",
-          "type": "bool",
-          "defaultSetting": "channel_mute"
-        }
-      ],
-      "SETTINGS_TAB_EMBED": [
-        {
-          "label": "SETTINGS_EMBEDS_ENABLE",
-          "type": "bool",
-          "defaultSetting": "embed_enabled"
-        }, {
-          "label": "SETTINGS_DASHPLAYBACK",
-          "type": "bool",
-          "defaultSetting": "embed_dashPlayback",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
-        }, {
-          "label": "SETTINGS_FORCEPLAYERTYPE",
-          "type": "list",
-          "list": [
-            { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
-            { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
-            { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
-          ],
-          "defaultSetting": "embed_forcePlayerType"
-        }, {
-          "label": "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "0",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_NONE"
-            }, {
-              "value": "1",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_BOTH"
-            }, {
-              "value": "2",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_PROGRESSBAR"
-            }, {
-              "value": "3",
-              "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
-            }
-          ],
-          "listeners" : [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "embed") {
-                  ytcenter.player.setAutoHide(ytcenter.settings.embed_autohide);
-                }
-              }
-            }
-          ],
-          "defaultSetting": "embed_autohide"
-        }, {
-          "label": "SETTINGS_PLAYERTHEME_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "dark",
-              "label": "SETTINGS_PLAYERTHEME_DARK"
-            }, {
-              "value": "light",
-              "label": "SETTINGS_PLAYERTHEME_LIGHT"
-            }
-          ],
-          "defaultSetting": "embed_playerTheme",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "embed") {
-                  ytcenter.player.setTheme(ytcenter.settings.embed_playerTheme);
-                }
-              }
-            }
-          ]
-        }, {
-          "label": "SETTINGS_PLAYERCOLOR_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "red",
-              "label": "SETTINGS_PLAYERCOLOR_RED"
-            }, {
-              "value": "white",
-              "label": "SETTINGS_PLAYERCOLOR_WHITE"
-            }
-          ],
-          "defaultSetting": "embed_playerColor",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                if (ytcenter.page === "channel") {
-                  ytcenter.player.setProgressColor(ytcenter.settings.embed_playerColor);
-                }
-              }
-            }
-          ]
-        }, {
-          "label": "SETTINGS_WMODE_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "none",
-              "label": "SETTINGS_WMODE_NONE"
-            }, {
-              "value": "window",
-              "label": "SETTINGS_WMODE_WINDOW"
-            }, {
-              "value": "direct",
-              "label": "SETTINGS_WMODE_DIRECT"
-            }, {
-              "value": "opaque",
-              "label": "SETTINGS_WMODE_OPAQUE"
-            }, {
-              "value": "transparent",
-              "label": "SETTINGS_WMODE_TRANSPARENT"
-            }, {
-              "value": "gpu",
-              "label": "SETTINGS_WMODE_GPU"
-            }
-          ],
-          "defaultSetting": "embed_flashWMode"
-        }, {
-          "label": "SETTINGS_ENABLEANNOTATIONS_LABEL",
-          "type": "bool",
-          "defaultSetting": "embed_enableAnnotations"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
-          "type": "bool",
-          "defaultSetting": "embed_enableAutoVideoQuality"
-        }, {
-          "label": "SETTINGS_AUTORESOLUTION_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "highres",
-              "label": "SETTINGS_HIGHRES"
-            }, {
-              "value": "hd1080",
-              "label": "SETTINGS_HD1080"
-            }, {
-              "value": "hd720",
-              "label": "SETTINGS_HD720"
-            }, {
-              "value": "large",
-              "label": "SETTINGS_LARGE"
-            }, {
-              "value": "medium",
-              "label": "SETTINGS_MEDIUM"
-            }, {
-              "value": "small",
-              "label": "SETTINGS_SMALL"
-            }, {
-              "value": "tiny",
-              "label": "SETTINGS_TINY"
-            }
-          ],
-          "defaultSetting": "embed_autoVideoQuality"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_PREVENTAUTOPLAY_LABEL",
-          "type": "bool",
-          "defaultSetting": "embed_preventAutoPlay"
-        }, {
-          "label": "SETTINGS_PREVENTAUTOBUFFERING_LABEL",
-          "type": "bool",
-          "defaultSetting": "embed_preventAutoBuffer"
-        }, {
-          "type": "horizontalRule"
-        }, {
-          "label": "SETTINGS_VOLUME_ENABLE",
-          "type": "bool",
-          "defaultSetting": "embed_enableVolume"
-        }, {
-          "label": "SETTINGS_VOLUME_LABEL",
-          "type": "range",
-          "minRange": 0,
-          "maxRange": 100,
-          "defaultSetting": "embed_volume"
-        }, {
-          "label": "SETTINGS_MUTE_LABEL",
-          "type": "bool",
-          "defaultSetting": "embed_mute"
-        }
-      ],
-      "SETTINGS_TAB_VIDEOTHUMBNAIL": [
-        {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBNAIL_ANIMATION",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBNAIL_ANIMATION_ENABLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailAnimationEnabled",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBNAIL_ANIMATION_SHUFFLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailAnimationShuffle",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBNAIL_ANIMATION_DELAY",
-          "type": "range",
-          "minRange": 250,
-          "maxRange": 5250,
-          "defaultSetting": "videoThumbnailAnimationDelay",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBNAIL_ANIMATION_INTERVAL",
-          "type": "range",
-          "minRange": 0,
-          "maxRange": 5000,
-          "defaultSetting": "videoThumbnailAnimationInterval",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBNAIL_ANIMATION_FALLBACK_INTERVAL",
-          "type": "range",
-          "minRange": 0,
-          "maxRange": 5000,
-          "defaultSetting": "videoThumbnailAnimationFallbackInterval",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_QUALITY",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_QUALITY_ENABLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailQualityBar",
-          "style": {
-            "marginLeft": "12px"
-          },
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality"
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "topleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
-            }, {
-              "value": "topright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
-            }, {
-              "value": "bottomleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
-            }, {
-              "value": "bottomright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailQualityPosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
-          "type": "list",
-          "list": [
-            {
-              "value": "page_start",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
-            }, {
-              "value": "hover_thumbnail",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailQualityDownloadAt",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailQualityVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_RATING_BAR",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsBar",
-          "style": {
-            "marginLeft": "12px"
-          },
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-bar"
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "top",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOP"
-            }, {
-              "value": "bottom",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOM"
-            }, {
-              "value": "left",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_LEFT"
-            }, {
-              "value": "right",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsBarPosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
-          "type": "list",
-          "list": [
-            {
-              "value": "page_start",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
-            }, {
-              "value": "hover_thumbnail",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsBarDownloadAt",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsBarVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_RATING_COUNT",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_RATING_COUNT_ENABLE",
-          "type": "bool",
-          "defaultSetting": "videoThumbnailRatingsCount",
-          "style": {
-            "marginLeft": "12px"
-          },
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-count"
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "topleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
-            }, {
-              "value": "topright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
-            }, {
-              "value": "bottomleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
-            }, {
-              "value": "bottomright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsCountPosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_DOWNLOAD",
-          "type": "list",
-          "list": [
-            {
-              "value": "page_start",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
-            }, {
-              "value": "hover_thumbnail",
-              "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsCountDownloadAt",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailRatingsCountVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_WATCH_LATER",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "topleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
-            }, {
-              "value": "topright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
-            }, {
-              "value": "bottomleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
-            }, {
-              "value": "bottomright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailWatchLaterPosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }, {
-              "value": "never",
-              "label": "SETTINGS_THUMBVIDEO_NEVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailWatchLaterVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_THUMBVIDEO_TIME_CODE",
-          "style": {
-            "fontWeight": "bold"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_POSITION",
-          "type": "list",
-          "list": [
-            {
-              "value": "topleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
-            }, {
-              "value": "topright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
-            }, {
-              "value": "bottomleft",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
-            }, {
-              "value": "bottomright",
-              "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
-            }
-          ],
-          "defaultSetting": "videoThumbnailTimeCodePosition",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }, {
-          "label": "SETTINGS_THUMBVIDEO_VISIBLE",
-          "type": "list",
-          "list": [
-            {
-              "value": "always",
-              "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
-            }, {
-              "value": "show_hover",
-              "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
-            }, {
-              "value": "hide_hover",
-              "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
-            }, {
-              "value": "never",
-              "label": "SETTINGS_THUMBVIDEO_NEVER"
-            }
-          ],
-          "defaultSetting": "videoThumbnailTimeCodeVisible",
-          "style": {
-            "marginLeft": "12px"
-          }
-        }
-      ],
-      "SETTINGS_TAB_PLACEMENT": [
-        {
-          "label": "SETTINGS_ENABLEDOWNLOAD_LABEL",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "enableDownload",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
-        }, {
-          "label": "SETTINGS_ENABLEREPEAT_LABEL",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "enableRepeat",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
-        }, {
-          "label": "SETTINGS_LIGHTBULB_ENABLE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "lightbulbEnable",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
-        }, {
-          "label": "SETTINGS_RESIZE_ENABLE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "resizeEnable",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
-        }, {
-          "label": "SETTINGS_ASPECT_ENABLE",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "aspectEnable",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
-        }, {
-          "type": "newline",
-          "style": {
-            "display": (loc.href.match(/^(http|https)\:\/\/(.*?)\.youtube\.com\/watch\?/) ? "block" : "none")
-          }
-        }, {
-          "text": "SETTINGS_PLACEMENTSYSTEM_MOVEELEMENTS_LABEL",
-          "style": {
-            "display": (loc.href.match(/^(http|https)\:\/\/(.*?)\.youtube\.com\/watch\?/) ? "block" : "none")
-          },
-          "type": "button",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
+            };
+            subcat._visible = function(visible){
+              if (visible) {
                 try {
-                  if (ytcenter.placementsystem.toggleEnable()) {
-                    ytcenter.utils.addClass(this, "yt-uix-button-toggled");
-                    ytcenter.utils.addClass(document.body, "ytcenter-placementsystem-activated");
-                    ytcenter.settingsControlVisibility(false);
-                  } else {
-                    ytcenter.utils.removeClass(this, "yt-uix-button-toggled");
-                    ytcenter.utils.removeClass(document.body, "ytcenter-placementsystem-activated");
-                  }
+                  category.subcategories.forEach(function(subcat2){
+                    if (subcat2.visible && subcat2 !== subcat) {
+                      throw "SelectedException";
+                    }
+                  });
+                  if (subcat.select) subcat.select();
                 } catch (e) {
-                  con.error(e);
+                  if (e !== "SelectedException") throw e;
+                }
+                ytcenter.utils.removeClass(liItem, "hid");
+              } else {
+                ytcenter.utils.addClass(liItem, "hid");
+                ytcenter.utils.addClass(content, "hid");
+                
+                if (ytcenter.utils.hasClass(liItemLink, "ytcenter-selected")) {
+                  try {
+                    category.subcategories.forEach(function(subcat2){
+                      if (subcat2.visible && subcat2.select) {
+                        if (subcat2.select()) throw "SelectedException";
+                      }
+                    });
+                  } catch (e) {
+                    if (e !== "SelectedException") throw e;
+                  }
+                }
+                ytcenter.utils.removeClass(liItemLink, "ytcenter-selected");
+              }
+            };
+            
+            categoryContent.appendChild(content);
+            hideContent = true;
+          });
+          topheader.appendChild(topheaderList);
+          
+          topheader.className = (categoryHide || !category.visible ? "hid" : "");
+          categoryContent.className = (categoryHide || !category.visible ? "hid" : "");
+          
+          subcatList.push(topheader);
+          subcatList.push(categoryContent);
+          subcatTop.appendChild(topheader);
+          subcatContent.appendChild(categoryContent);
+          
+          category.select = function(){
+            if (!category.visible) return false;
+            sSelectedList.forEach(function(item){
+              ytcenter.utils.removeClass(item, "ytcenter-selected");
+            });
+            subcatList.forEach(function(item){
+              ytcenter.utils.addClass(item, "hid");
+            });
+            ytcenter.utils.addClass(acat, "ytcenter-selected");
+            ytcenter.utils.removeClass(topheader, "hid");
+            ytcenter.utils.removeClass(categoryContent, "hid");
+            return true;
+          };
+          category._visible = function(visible){
+            if (visible) {
+              ytcenter.utils.removeClass(li, "hid");
+            } else {
+              ytcenter.utils.addClass(li, "hid");
+              ytcenter.utils.addClass(topheader, "hid");
+              ytcenter.utils.addClass(categoryContent, "hid");
+              if (ytcenter.utils.hasClass(acat, "ytcenter-selected")) {
+                try {
+                  categories.forEach(function(category2){
+                    if (category2.visible && category2.select) {
+                      if (category2.select()) throw "SelectedException";
+                    }
+                  });
+                } catch (e) {
+                  if (e !== "SelectedException") throw e;
+                }
+              }
+              ytcenter.utils.removeClass(acat, "ytcenter-selected");
+            }
+          };
+          if (category.visible) categoryHide = true;
+        });
+        
+        leftPanel.appendChild(categoryList);
+        leftPanel.appendChild(productVersion);
+        
+        rightPanelContent.appendChild(subcatTop);
+        rightPanelContent.appendChild(subcatContent);
+        
+        rightPanel.appendChild(rightPanelContent);
+        
+        rightPanelContent.className = "ytcenter-settings-panel-right-content";
+        panelWrapper.className = "ytcenter-settings-content";
+        
+        panelWrapper.appendChild(leftPanel);
+        panelWrapper.appendChild(rightPanel);
+        
+        frag.appendChild(panelWrapper);
+        
+        return frag;
+      };
+      
+      a.createDialog = function(){
+        var dialog = ytcenter.dialog("SETTINGS_TITLE", a.createLayout(), [], "top"),
+            closeButton = document.createElement("div"),
+            closeIcon = document.createElement("img");
+        closeIcon.className = "close";
+        closeIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
+        closeButton.style.position = "absolute";
+        closeButton.style.top = "0";
+        closeButton.style.right = "0";
+        closeButton.style.margin = "0";
+        closeButton.className = "yt-alert";
+        closeButton.appendChild(closeIcon);
+        ytcenter.utils.addEventListener(closeButton, "click", function(){
+          dialog.setVisibility(false);
+        }, false);
+        dialog.getHeader().appendChild(closeButton);
+        dialog.getHeader().style.margin = "0 -20px 0px";
+        dialog.getBase().style.overflowY = "scroll";
+        dialog.getFooter().style.display = "none";
+        dialog.getContent().className += " clearfix";
+        return dialog;
+      };
+      return a;
+    })();
+    (function(){
+      var cat, subcat, option;
+
+      /* Category:General */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_TAB_GENERAL");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "language", // defaultSetting
+            "list", // Module
+            "SETTINGS_LANGUAGE", // label
+            { // Args
+              "list": function(){
+                var a = [];
+                a.push({
+                  "label": "LANGUAGE_AUTO",
+                  "value": "auto"
+                });
+                for (var key in ytcenter.languages) {
+                  if (ytcenter.languages.hasOwnProperty(key)) {
+                    a.push({
+                      "value": key,
+                      "label": (function(k){
+                        return function(){
+                          return ytcenter.languages[k].LANGUAGE;
+                        };
+                      })(key)
+                    });
+                  }
+                }
+                return a;
+              },
+              "listeners": [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    ytcenter.language.update();
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#multiple-languages" // help
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "removeAdvertisements", // defaultSetting
+            "bool", // module
+            "SETTINGS_REMOVEADVERTISEMENTS_LABEL", // label
+            null, // args
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-advertisements" // help
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "ytspf", // defaultSetting
+            "bool", // module
+            "SETTINGS_YTSPF", // label
+            null, // args
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#spf" // help
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "expandDescription", // defaultSetting
+            "bool", // module
+            "SETTINGS_AUTOEXPANDDESCRIPTION_LABEL"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "removeYouTubeTitleSuffix", // defaultSetting
+            "bool", // module
+            "SETTINGS_TITLE_REMOVE_YOUTUBE_SUFFIX", // label
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.title.update();
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "playerPlayingTitleIndicator", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_PLAYING_INDICATOR", // label
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.title.update();
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "playerOnlyOneInstancePlaying", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "importexport"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "button",
+            null,
+            {
+              "text": "SETTINGS_RESETSETTINGS_LABEL",
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    var msgElm = document.createElement("h3");
+                    msgElm.style.fontWeight = "normal";
+                    msgElm.textContent = ytcenter.language.getLocale("SETTINGS_RESETSETTINGS_TEXT");
+                    ytcenter.language.addLocaleElement(msgElm, "SETTINGS_RESETSETTINGS_TEXT", "@textContent");
+                    
+                    var dialog = ytcenter.dialog("SETTINGS_RESETSETTINGS_LABEL", msgElm, [
+                      {
+                        label: "CONFIRM_CANCEL",
+                        primary: false,
+                        callback: function(){
+                          dialog.setVisibility(false);
+                        }
+                      }, {
+                        label: "CONFIRM_RESET",
+                        primary: true,
+                        callback: function(){
+                          ytcenter.settings = ytcenter._settings;
+                          ytcenter.saveSettings(false, false);
+                          uw.setTimeout(function(){
+                            loc.reload();
+                            dialog.setVisibility(false);
+                          }, 500);
+                        }
+                      }
+                    ]);
+                    dialog.setVisibility(true);
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_WATCHEDVIDEOS"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "watchedVideosIndicator", // defaultSetting
+            "bool", // module
+            "SETTINGS_WATCHEDVIDEOS_INDICATOR",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#watched-videos"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideWatchedVideos", // defaultSetting
+            "bool", // module
+            "SETTINGS_HIDEWATCHEDVIDEOS",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#hide-watched-videos"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "button", // module
+            null,
+            {
+              "text": "SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY",
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    var msgElm = document.createElement("h3");
+                    msgElm.style.fontWeight = "normal";
+                    msgElm.textContent = ytcenter.language.getLocale("SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY_CONTENT");
+                    ytcenter.language.addLocaleElement(msgElm, "SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY_CONTENT", "@textContent");
+                    
+                    var dialog = ytcenter.dialog("SETTINGS_WATCHEDVIDEOS_CLEAN_VIDEO_HISTORY", msgElm, [
+                      {
+                        label: "CONFIRM_CANCEL",
+                        primary: false,
+                        callback: function(){
+                          dialog.setVisibility(false);
+                        }
+                      }, {
+                        label: "CONFIRM_CLEAN",
+                        primary: true,
+                        callback: function(){
+                          ytcenter.settings.watchedVideos = [];
+                          ytcenter.saveSettings(null, null, function(){
+                            loc.reload();
+                            dialog.setVisibility(false);
+                          });
+                        }
+                      }
+                    ]);
+                    dialog.setVisibility(true);
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LAYOUT"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "watch7centerpage", // defaultSetting
+            "bool", // module
+            "SETTINGS_WATCH7_CENTERPAGE", // label
+            { // args
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#centering-page" // help
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "flexWidthOnPage", // defaultSetting
+            "bool", // module
+            "SETTINGS_FLEXWIDTHONPAGE_LABEL", // label
+            { // args
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flex-width-on-page" // help
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "ytExperimentalLayotTopbarStatic", // defaultSetting
+            "bool", // module
+            "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC", // label
+            { // args
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+                      ytcenter.utils.addClass(document.body, "ytcenter-exp-topbar-static");
+                    } else {
+                      ytcenter.utils.removeClass(document.body, "ytcenter-exp-topbar-static");
+                    }
+                  }
+                }
+              ]
+            },
+            "set-experimental-topbar-to-static" // help
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "gridSubscriptionsPage", // defaultSetting
+            "bool", // module
+            "SETTINGS_GRIDSUBSCRIPTIONS", // label
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-for-comments" // help
+          );
+          option.addEventListener("update", function(newValue){
+            ytcenter.classManagement.applyClasses();
+          });
+          subcat.addOption(option);
+
+      /* Category:Player */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "removeRelatedVideosEndscreen", // defaultSetting
+            "bool", // module
+            "SETTINGS_REMOVE_RELATED_VIDEOS_ENDSCREEN", // label
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-endscreen"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "enableEndscreenAutoplay", // defaultSetting
+            "bool", // module
+            "SETTINGS_ENDSCREEN_AUTOPLAY"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "enableYouTubeAutoSwitchToShareTab", // defaultSetting
+            "bool", // module
+            "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
+            {
+              "listeners": [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#switch-to-share-tab-at-end-of-video"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "dashPlayback", // defaultSetting
+            "bool", // module
+            "SETTINGS_DASHPLAYBACK",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "forcePlayerType", // defaultSetting
+            "list", // module
+            "SETTINGS_FORCEPLAYERTYPE",
+            {
+              "list": [
+                { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
+                { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
+                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "autohide", // defaultSetting
+            "list", // module
+            "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
+            {
+              "list": [
+                {
+                  "value": "0",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_NONE"
+                }, {
+                  "value": "1",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_BOTH"
+                }, {
+                  "value": "2",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_PROGRESSBAR"
+                }, {
+                  "value": "3",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.page === "watch") {
+                      ytcenter.player.setAutoHide(ytcenter.settings.autohide);
+                    }
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-hide-bar"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "playerTheme", // defaultSetting
+            "list", // module
+            "SETTINGS_PLAYERTHEME_LABEL",
+            {
+              "list": [
+                {
+                  "value": "dark",
+                  "label": "SETTINGS_PLAYERTHEME_DARK"
+                }, {
+                  "value": "light",
+                  "label": "SETTINGS_PLAYERTHEME_LIGHT"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.page === "watch") {
+                      ytcenter.player.setTheme(ytcenter.settings.playerTheme);
+                    }
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-theme"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "playerColor", // defaultSetting
+            "list", // module
+            "SETTINGS_PLAYERCOLOR_LABEL",
+            {
+              "list": [
+                {
+                  "value": "red",
+                  "label": "SETTINGS_PLAYERCOLOR_RED"
+                }, {
+                  "value": "white",
+                  "label": "SETTINGS_PLAYERCOLOR_WHITE"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.page === "watch") {
+                      ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
+                    }
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-color"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "flashWMode", // defaultSetting
+            "list", // module
+            "SETTINGS_WMODE_LABEL",
+            {
+              "list": [
+                {
+                  "value": "none",
+                  "label": "SETTINGS_WMODE_NONE"
+                }, {
+                  "value": "window",
+                  "label": "SETTINGS_WMODE_WINDOW"
+                }, {
+                  "value": "direct",
+                  "label": "SETTINGS_WMODE_DIRECT"
+                }, {
+                  "value": "opaque",
+                  "label": "SETTINGS_WMODE_OPAQUE"
+                }, {
+                  "value": "transparent",
+                  "label": "SETTINGS_WMODE_TRANSPARENT"
+                }, {
+                  "value": "gpu",
+                  "label": "SETTINGS_WMODE_GPU"
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flash-wmode"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "enableAnnotations", // defaultSetting
+            "bool", // module
+            "SETTINGS_ENABLEANNOTATIONS_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#annotations"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "scrollToPlayer", // defaultSetting
+            "bool", // module
+            "SETTINGS_SCROLLTOPLAYER_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-to-player"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "removeBrandingBanner", // defaultSetting
+            "bool", // module
+            "SETTINGS_BRANDING_BANNER_REMOVE", // label
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "removeBrandingBackground", // defaultSetting
+            "bool", // module
+            "SETTINGS_BRANDING_BACKGROUND_REMOVE", // label
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "removeBrandingWatermark", // defaultSetting
+            "bool", // module
+            "SETTINGS_BRANDING_WATERMARK_REMOVE", // label
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
+          );
+          subcat.addOption(option);
+        
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_AUTOPLAY"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "preventAutoPlay", // defaultSetting
+            "bool", // module
+            "SETTINGS_PREVENTAUTOPLAY_LABEL", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-play"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "preventAutoBuffer", // defaultSetting
+            "bool", // module
+            "SETTINGS_PREVENTAUTOBUFFERING_LABEL", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-buffering"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "newline"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "preventPlaylistAutoPlay", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYLIST_PREVENT_AUTOPLAY", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-play"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "preventPlaylistAutoBuffer", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYLIST_PREVENT_AUTOBUFFERING", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-buffering"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "newline"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "preventTabAutoPlay", // defaultSetting
+            "bool", // module
+            "SETTINGS_PREVENTTABAUTOPLAY_LABEL"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "preventTabAutoBuffer", // defaultSetting
+            "bool", // module
+            "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "newline"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "preventTabPlaylistAutoPlay", // defaultSetting
+            "bool", // module
+            "SETTINGS_PREVENTTABPLAYLISTAUTOPLAY_LABEL"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "preventTabPlaylistAutoBuffer", // defaultSetting
+            "bool", // module
+            "SETTINGS_PREVENTTABPLAYLISTAUTOBUFFERING_LABEL"
+          );
+          subcat.addOption(option);
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RESOLUTION"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "enableAutoVideoQuality", // defaultSetting
+            "bool", // module
+            "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-resolution"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "autoVideoQuality", // defaultSetting
+            "list", // module
+            "SETTINGS_AUTORESOLUTION_LABEL",
+            {
+              "list": [
+                {
+                  "value": "highres",
+                  "label": "SETTINGS_HIGHRES"
+                }, {
+                  "value": "hd1080",
+                  "label": "SETTINGS_HD1080"
+                }, {
+                  "value": "hd720",
+                  "label": "SETTINGS_HD720"
+                }, {
+                  "value": "large",
+                  "label": "SETTINGS_LARGE"
+                }, {
+                  "value": "medium",
+                  "label": "SETTINGS_MEDIUM"
+                }, {
+                  "value": "small",
+                  "label": "SETTINGS_SMALL"
+                }, {
+                  "value": "tiny",
+                  "label": "SETTINGS_TINY"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PLAYERSIZE"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "enableResize", // defaultSetting
+            "bool", // module
+            "SETTINGS_RESIZE_FEATURE_ENABLE"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "resize-default-playersize", // defaultSetting
+            "defaultplayersizedropdown", // module
+            "SETTINGS_RESIZE_DEFAULT",
+            {
+              "bind": "resize-playersizes"
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#default-resize-button"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "resize-small-playersize", // defaultSetting
+            "defaultplayersizedropdown", // module
+            "SETTINGS_RESIZE_SMALL_BUTTON",
+            {
+              "bind": "resize-playersizes"
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#small-resize-button"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "resize-large-playersize", // defaultSetting
+            "defaultplayersizedropdown", // module
+            "SETTINGS_RESIZE_LARGE_BUTTON",
+            {
+              "bind": "resize-playersizes"
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#large-resize-button"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            null, // module
+            "SETTINGS_RESIZE_LIST",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-size-editor"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "resize-playersizes", // defaultSetting
+            "resizeItemList" // module
+          );
+          subcat.addOption(option);
+
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_VOLUME"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "enableVolume", // defaultSetting
+            "bool", // module
+            "SETTINGS_VOLUME_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#volume-control"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "volume", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_VOLUME_LABEL",
+            {
+              "min": 0,
+              "max": 100
+            }
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "mute", // defaultSetting
+            "bool", // module
+            "SETTINGS_MUTE_LABEL"
+          );
+          subcat.addOption(option);
+        
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_SHORTCUTS"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "enableShortcuts", // defaultSetting
+            "bool", // module
+            "SETTINGS_ENABLESHORTCUTS_LABEL" // label
+          );
+          subcat.addOption(option);
+
+      /* Category:External Players */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_EXTERNAL_PLAYERS");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_EMBED"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "embed_enabled",
+            "bool",
+            "SETTINGS_EMBEDS_ENABLE"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_dashPlayback",
+            "bool",
+            "SETTINGS_DASHPLAYBACK",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_forcePlayerType",
+            "list",
+            "SETTINGS_FORCEPLAYERTYPE",
+            {
+              "list": [
+                { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
+                { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
+                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_autohide",
+            "list",
+            "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
+            {
+              "list": [
+                {
+                  "value": "0",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_NONE"
+                }, {
+                  "value": "1",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_BOTH"
+                }, {
+                  "value": "2",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_PROGRESSBAR"
+                }, {
+                  "value": "3",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.getPage() === "embed") {
+                      ytcenter.player.setAutoHide(ytcenter.settings.embed_autohide);
+                    }
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_playerTheme",
+            "list",
+            "SETTINGS_PLAYERTHEME_LABEL",
+            {
+              "list": [
+                {
+                  "value": "dark",
+                  "label": "SETTINGS_PLAYERTHEME_DARK"
+                }, {
+                  "value": "light",
+                  "label": "SETTINGS_PLAYERTHEME_LIGHT"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.getPage() === "embed") {
+                      ytcenter.player.setTheme(ytcenter.settings.embed_playerTheme);
+                    }
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_playerColor",
+            "list",
+            "SETTINGS_PLAYERCOLOR_LABEL",
+            {
+              "list": [
+                {
+                  "value": "red",
+                  "label": "SETTINGS_PLAYERCOLOR_RED"
+                }, {
+                  "value": "white",
+                  "label": "SETTINGS_PLAYERCOLOR_WHITE"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.getPage() === "embed") {
+                      ytcenter.player.setProgressColor(ytcenter.settings.embed_playerColor);
+                    }
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_flashWMode",
+            "list",
+            "SETTINGS_WMODE_LABEL",
+            {
+              "list": [
+                {
+                  "value": "none",
+                  "label": "SETTINGS_WMODE_NONE"
+                }, {
+                  "value": "window",
+                  "label": "SETTINGS_WMODE_WINDOW"
+                }, {
+                  "value": "direct",
+                  "label": "SETTINGS_WMODE_DIRECT"
+                }, {
+                  "value": "opaque",
+                  "label": "SETTINGS_WMODE_OPAQUE"
+                }, {
+                  "value": "transparent",
+                  "label": "SETTINGS_WMODE_TRANSPARENT"
+                }, {
+                  "value": "gpu",
+                  "label": "SETTINGS_WMODE_GPU"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_enableAnnotations",
+            "bool",
+            "SETTINGS_ENABLEANNOTATIONS_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_enableAutoVideoQuality",
+            "bool",
+            "SETTINGS_ENABLEAUTORESOLUTION_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_autoVideoQuality",
+            "list",
+            "SETTINGS_AUTORESOLUTION_LABEL",
+            {
+              "list": [
+                {
+                  "value": "highres",
+                  "label": "SETTINGS_HIGHRES"
+                }, {
+                  "value": "hd1080",
+                  "label": "SETTINGS_HD1080"
+                }, {
+                  "value": "hd720",
+                  "label": "SETTINGS_HD720"
+                }, {
+                  "value": "large",
+                  "label": "SETTINGS_LARGE"
+                }, {
+                  "value": "medium",
+                  "label": "SETTINGS_MEDIUM"
+                }, {
+                  "value": "small",
+                  "label": "SETTINGS_SMALL"
+                }, {
+                  "value": "tiny",
+                  "label": "SETTINGS_TINY"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_preventAutoPlay",
+            "bool",
+            "SETTINGS_PREVENTAUTOPLAY_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_preventAutoBuffer",
+            "bool",
+            "SETTINGS_PREVENTAUTOBUFFERING_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_enableVolume",
+            "bool",
+            "SETTINGS_VOLUME_ENABLE"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_volume",
+            "rangetext",
+            "SETTINGS_VOLUME_LABEL",
+            {
+              "min": 0,
+              "max": 100
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "embed_mute",
+            "bool",
+            "SETTINGS_MUTE_LABEL"
+          );
+          subcat.addOption(option);
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_CHANNEL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "embed_dashPlayback",
+            "bool",
+            "SETTINGS_DASHPLAYBACK",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_autohide",
+            "list",
+            "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
+            {
+              "list": [
+                {
+                  "value": "0",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_NONE"
+                }, {
+                  "value": "1",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_BOTH"
+                }, {
+                  "value": "2",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_PROGRESSBAR"
+                }, {
+                  "value": "3",
+                  "label": "SETTINGS_AUTOHIDECONTROLBAR_LIST_CONTROLBAR"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.getPage() === "embed") {
+                      ytcenter.player.setAutoHide(ytcenter.settings.channel_autohide);
+                    }
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_playerTheme",
+            "list",
+            "SETTINGS_PLAYERTHEME_LABEL",
+            {
+              "list": [
+                {
+                  "value": "dark",
+                  "label": "SETTINGS_PLAYERTHEME_DARK"
+                }, {
+                  "value": "light",
+                  "label": "SETTINGS_PLAYERTHEME_LIGHT"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.getPage() === "embed") {
+                      ytcenter.player.setTheme(ytcenter.settings.channel_playerTheme);
+                    }
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_playerColor",
+            "list",
+            "SETTINGS_PLAYERCOLOR_LABEL",
+            {
+              "list": [
+                {
+                  "value": "red",
+                  "label": "SETTINGS_PLAYERCOLOR_RED"
+                }, {
+                  "value": "white",
+                  "label": "SETTINGS_PLAYERCOLOR_WHITE"
+                }
+              ],
+              "listeners" : [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    if (ytcenter.getPage() === "embed") {
+                      ytcenter.player.setProgressColor(ytcenter.settings.channel_playerColor);
+                    }
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_flashWMode",
+            "list",
+            "SETTINGS_WMODE_LABEL",
+            {
+              "list": [
+                {
+                  "value": "none",
+                  "label": "SETTINGS_WMODE_NONE"
+                }, {
+                  "value": "window",
+                  "label": "SETTINGS_WMODE_WINDOW"
+                }, {
+                  "value": "direct",
+                  "label": "SETTINGS_WMODE_DIRECT"
+                }, {
+                  "value": "opaque",
+                  "label": "SETTINGS_WMODE_OPAQUE"
+                }, {
+                  "value": "transparent",
+                  "label": "SETTINGS_WMODE_TRANSPARENT"
+                }, {
+                  "value": "gpu",
+                  "label": "SETTINGS_WMODE_GPU"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_enableAnnotations",
+            "bool",
+            "SETTINGS_ENABLEANNOTATIONS_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_enableAutoVideoQuality",
+            "bool",
+            "SETTINGS_ENABLEAUTORESOLUTION_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_autoVideoQuality",
+            "list",
+            "SETTINGS_AUTORESOLUTION_LABEL",
+            {
+              "list": [
+                {
+                  "value": "highres",
+                  "label": "SETTINGS_HIGHRES"
+                }, {
+                  "value": "hd1080",
+                  "label": "SETTINGS_HD1080"
+                }, {
+                  "value": "hd720",
+                  "label": "SETTINGS_HD720"
+                }, {
+                  "value": "large",
+                  "label": "SETTINGS_LARGE"
+                }, {
+                  "value": "medium",
+                  "label": "SETTINGS_MEDIUM"
+                }, {
+                  "value": "small",
+                  "label": "SETTINGS_SMALL"
+                }, {
+                  "value": "tiny",
+                  "label": "SETTINGS_TINY"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_preventAutoPlay",
+            "bool",
+            "SETTINGS_PREVENTAUTOPLAY_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_preventAutoBuffer",
+            "bool",
+            "SETTINGS_PREVENTAUTOBUFFERING_LABEL"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_enableVolume",
+            "bool",
+            "SETTINGS_VOLUME_ENABLE"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_volume",
+            "rangetext",
+            "SETTINGS_VOLUME_LABEL",
+            {
+              "min": 0,
+              "max": 100
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channel_mute",
+            "bool",
+            "SETTINGS_MUTE_LABEL"
+          );
+          subcat.addOption(option);
+
+      /* Category:Download */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_DOWNLOAD");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "downloadQuality",
+            "list",
+            "SETTINGS_DOWNLOADQUALITY_LABEL",
+            {
+              "list": [
+                {
+                  "value": "highres",
+                  "label": "SETTINGS_HIGHRES"
+                }, {
+                  "value": "hd1080",
+                  "label": "SETTINGS_HD1080"
+                }, {
+                  "value": "hd720",
+                  "label": "SETTINGS_HD720"
+                }, {
+                  "value": "large",
+                  "label": "SETTINGS_LARGE"
+                }, {
+                  "value": "medium",
+                  "label": "SETTINGS_MEDIUM"
+                }, {
+                  "value": "small",
+                  "label": "SETTINGS_SMALL"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality-1"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "downloadFormat",
+            "list",
+            "SETTINGS_DOWNLOADFORMAT_LABEL",
+            {
+              "list": [
+                {
+                  "value": "mp4",
+                  "label": "SETTINGS_DOWNLOADFORMAT_LIST_MP4"
+                }, {
+                  "value": "webm",
+                  "label": "SETTINGS_DOWNLOADFORMAT_LIST_WEBM"
+                }, {
+                  "value": "flv",
+                  "label": "SETTINGS_DOWNLOADFORMAT_LIST_FLV"
+                }, {
+                  "value": "3gp",
+                  "label": "SETTINGS_DOWNLOADFORMAT_LIST_3GP"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#format"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "downloadAsLinks",
+            "bool",
+            "SETTINGS_DOWNLOADASLINKS_LABEL",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#download-as-links"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "show3DInDownloadMenu",
+            "bool",
+            "SETTINGS_SHOW3DINDOWNLOADMENU_LABEL",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-3d-in-download-menu"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "filename",
+            "textfield",
+            "SETTINGS_FILENAME_LABEL",
+            {
+              "listeners": [
+                {
+                  "event": "change",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#filename"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "fixfilename",
+            "bool",
+            "SETTINGS_FIXDOWNLOADFILENAME_LABEL",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-non-alphanumeric-characters"
+          );
+          subcat.addOption(option);
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_MP3SERVICES"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "mp3Services",
+            "multilist",
+            "SETTINGS_MP3SERVICES_LABEL",
+            {
+              "list": ytcenter.mp3services,
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#mp3-services"
+          );
+          subcat.addOption(option);
+
+      /* Category:Repeat */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_REPEAT");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "autoActivateRepeat",
+            "bool",
+            "SETTINGS_AUTOACTIVATEREPEAT_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-activate-repeat"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "repeatShowIcon",
+            "bool",
+            "SETTINGS_REPEAT_SHOW_ICON",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-icon"
+          );
+          subcat.addOption(option);
+
+
+      /* Category:UI */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_UI");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "guideMode",
+            "list",
+            "SETTINGS_GUIDEMODE",
+            {
+              "list": [
+                {
+                  "value": "default",
+                  "label": "SETTINGS_GUIDEMODE_DEFAULT"
+                }, {
+                  "value": "always_open",
+                  "label": "SETTINGS_GUIDEMODE_ALWAYS_OPEN"
+                }, {
+                  "value": "always_closed",
+                  "label": "SETTINGS_GUIDEMODE_ALWAYS_CLOSED"
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#guide-mode"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "watch7playerguidealwayshide",
+            "bool",
+            "SETTINGS_GUIDE_ALWAYS_HIDE",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
+                    ytcenter.guide.update();
+                    ytcenter.player._updateResize();
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#guide-mode"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "watch7playerguidehide",
+            "bool",
+            "SETTINGS_WATCH7_PLAYER_GUIDE_HIDE",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.player._updateResize();
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PLACEMENT"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "enableDownload",
+            "bool",
+            "SETTINGS_ENABLEDOWNLOAD_LABEL",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "enableRepeat",
+            "bool",
+            "SETTINGS_ENABLEREPEAT_LABEL",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "lightbulbEnable",
+            "bool",
+            "SETTINGS_LIGHTBULB_ENABLE",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "resizeEnable",
+            "bool",
+            "SETTINGS_RESIZE_ENABLE",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "aspectEnable",
+            "bool",
+            "SETTINGS_ASPECT_ENABLE",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "newline"
+          );
+          option.setVisibility(ytcenter.getPage() === "watch");
+          ytcenter.events.addEvent("ui-refresh", function(){
+            this.setVisibility(ytcenter.getPage() === "watch");
+          }.bind(option));
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "button",
+            null,
+            {
+              "text": "SETTINGS_PLACEMENTSYSTEM_MOVEELEMENTS_LABEL"
+            }
+          );
+          option.addModuleEventListener("click", function(){
+            if (ytcenter.placementsystem.toggleEnable()) {
+              ytcenter.utils.addClass(this, "yt-uix-button-toggled");
+              ytcenter.utils.addClass(document.body, "ytcenter-placementsystem-activated");
+              ytcenter.settingsPanelInstance.setVisibility(false);
+            } else {
+              ytcenter.utils.removeClass(this, "yt-uix-button-toggled");
+              ytcenter.utils.removeClass(document.body, "ytcenter-placementsystem-activated");
+            }
+          });
+          option.setVisibility(ytcenter.getPage() === "watch");
+          ytcenter.events.addEvent("ui-refresh", function(){
+            this.setVisibility(ytcenter.getPage() === "watch");
+          }.bind(option));
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "textContent",
+            null,
+            {
+              "textlocale": "SETTINGS_PLACEMENTSYSTEM_MOVEELEMENTS_INSTRUCTIONS",
+              "styles": {
+                "margin-left": "20px"
+              }
+            }
+          );
+          option.setVisibility(ytcenter.getPage() === "watch");
+          ytcenter.events.addEvent("ui-refresh", function(){
+            this.setVisibility(ytcenter.getPage() === "watch");
+          }.bind(option));
+          subcat.addOption(option);
+
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LIGHTSOFF"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "lightbulbAutoOff", // defaultSetting
+            "bool", // module
+            "SETTINGS_LIGHTBULB_AUTO", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#lights-off"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "lightbulbClickThrough", // defaultSetting
+            "bool", // module
+            "SETTINGS_LIGHTBULB_CLICK_THROUGH", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#click-through"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "lightbulbBackgroundColor", // defaultSetting
+            "colorpicker", // module
+            "SETTINGS_LIGHTBULB_COLOR"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "lightbulbBackgroundOpaque", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_LIGHTBULB_TRANSPARENCY",
+            {
+              "min": 0,
+              "max": 100
+            }
+          );
+          subcat.addOption(option);
+        
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_VIDEO_THUMBNAIL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            "SETTINGS_THUMBNAIL_ANIMATION" // label
+          );
+          option.setStyle("font-weight", "bold");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailAnimationEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_THUMBNAIL_ANIMATION_ENABLE" // label
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailAnimationShuffle", // defaultSetting
+            "bool", // module
+            "SETTINGS_THUMBNAIL_ANIMATION_SHUFFLE" // label
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailAnimationDelay", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_THUMBNAIL_ANIMATION_DELAY", // label
+            {
+              "min": 250,
+              "max": 5250
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailAnimationInterval", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_THUMBNAIL_ANIMATION_INTERVAL", // label
+            {
+              "min": 0,
+              "max": 5000
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailAnimationFallbackInterval", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_THUMBNAIL_ANIMATION_FALLBACK_INTERVAL", // label
+            {
+              "min": 0,
+              "max": 5000
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            "SETTINGS_THUMBVIDEO_QUALITY", // label
+            null, // args
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality" // help
+          );
+          option.setStyle("font-weight", "bold");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailQualityBar", // defaultSetting
+            "bool", // module
+            "SETTINGS_THUMBVIDEO_QUALITY_ENABLE" // label
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailQualityPosition", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_POSITION", // label
+            { // args
+              "list": [
+                {
+                  "value": "topleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+                }, {
+                  "value": "topright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+                }, {
+                  "value": "bottomleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+                }, {
+                  "value": "bottomright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailQualityDownloadAt", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_DOWNLOAD", // label
+            { // args
+              "list": [
+                {
+                  "value": "page_start",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+                }, {
+                  "value": "hover_thumbnail",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailQualityVisible", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_VISIBLE", // label
+            { // args
+              "list": [
+                {
+                  "value": "always",
+                  "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+                }, {
+                  "value": "show_hover",
+                  "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+                }, {
+                  "value": "hide_hover",
+                  "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            "SETTINGS_THUMBVIDEO_RATING_BAR", // label
+            null, // args
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-bar" // help
+          );
+          option.setStyle("font-weight", "bold");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBar", // defaultSetting
+            "bool", // module
+            "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE" // label
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBarPosition", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_POSITION", // label
+            { // args
+              "list": [
+                {
+                  "value": "top",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOP"
+                }, {
+                  "value": "bottom",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOM"
+                }, {
+                  "value": "left",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_LEFT"
+                }, {
+                  "value": "right",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBarDownloadAt", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_DOWNLOAD", // label
+            { // args
+              "list": [
+                {
+                  "value": "page_start",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+                }, {
+                  "value": "hover_thumbnail",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBarVisible", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_VISIBLE", // label
+            { // args
+              "list": [
+                {
+                  "value": "always",
+                  "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+                }, {
+                  "value": "show_hover",
+                  "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+                }, {
+                  "value": "hide_hover",
+                  "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            "SETTINGS_THUMBVIDEO_RATING_COUNT", // label
+            null, // args
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-count" // help
+          );
+          option.setStyle("font-weight", "bold");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsCount", // defaultSetting
+            "bool", // module
+            "SETTINGS_THUMBVIDEO_QUALITY_ENABLE" // label
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsCountPosition", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_POSITION", // label
+            { // args
+              "list": [
+                {
+                  "value": "topleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+                }, {
+                  "value": "topright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+                }, {
+                  "value": "bottomleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+                }, {
+                  "value": "bottomright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsCountDownloadAt", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_DOWNLOAD", // label
+            { // args
+              "list": [
+                {
+                  "value": "page_start",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+                }, {
+                  "value": "hover_thumbnail",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsCountVisible", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_VISIBLE", // label
+            { // args
+              "list": [
+                {
+                  "value": "always",
+                  "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+                }, {
+                  "value": "show_hover",
+                  "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+                }, {
+                  "value": "hide_hover",
+                  "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            "SETTINGS_THUMBVIDEO_WATCH_LATER" // label
+          );
+          option.setStyle("font-weight", "bold");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailWatchLaterPosition", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_POSITION", // label
+            {
+              "list": [
+                {
+                  "value": "topleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+                }, {
+                  "value": "topright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+                }, {
+                  "value": "bottomleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+                }, {
+                  "value": "bottomright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailWatchLaterVisible", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_VISIBLE", // label
+            { // args
+              "list": [
+                {
+                  "value": "always",
+                  "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+                }, {
+                  "value": "show_hover",
+                  "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+                }, {
+                  "value": "hide_hover",
+                  "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }, {
+                  "value": "never",
+                  "label": "SETTINGS_THUMBVIDEO_NEVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            "SETTINGS_THUMBVIDEO_TIME_CODE" // label
+          );
+          option.setStyle("font-weight", "bold");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailTimeCodePosition", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_POSITION", // label
+            { // args
+              "list": [
+                {
+                  "value": "topleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPLEFT"
+                }, {
+                  "value": "topright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_TOPRIGHT"
+                }, {
+                  "value": "bottomleft",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMLEFT"
+                }, {
+                  "value": "bottomright",
+                  "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailTimeCodeVisible", // defaultSetting
+            "list", // module
+            "SETTINGS_THUMBVIDEO_VISIBLE", // label
+            { // args
+              "list": [
+                {
+                  "value": "always",
+                  "label": "SETTINGS_THUMBVIDEO_ALWAYSVISIBLE"
+                }, {
+                  "value": "show_hover",
+                  "label": "SETTINGS_THUMBVIDEO_SHOWONHOVER"
+                }, {
+                  "value": "hide_hover",
+                  "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }, {
+                  "value": "never",
+                  "label": "SETTINGS_THUMBVIDEO_NEVER"
+                }
+              ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_COMMENTS"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "commentCountryEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_COMMENTS_COUNTRY_ENABLE", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-for-comments" // help
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "commentCountryShowFlag", // defaultSetting
+            "bool", // module
+            "SETTINGS_COMMENTS_COUNTRY_SHOW_FLAG" // label
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "commentCountryPosition", // defaultSetting
+            "list", // module
+            "SETTINGS_COMMENTS_COUNTRY_POSITION", // label
+            {
+              "list": [
+                {
+                  "value": "before_username",
+                  "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_BEFORE_USERNAME"
+                }, {
+                  "value": "after_username",
+                  "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_AFTER_USERNAME"
+                }, {
+                  "value": "last",
+                  "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_LAST"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+
+        /* Not neede as of now
+        subcat = ytcenter.settingsPanel.createSubCategory("Subscriptions"); cat.addSubCategory(subcat);
+        */  
+
+      /* Category:Update */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_UPDATE");
+        if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
+          cat.setVisibility(false);
+        }
+        ytcenter.events.addEvent("ui-refresh", function(){
+          if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
+            this.setVisibility(false);
+          } else {
+            this.setVisibility(true);
+          }
+        }.bind(cat));
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "enableUpdateChecker",
+            "bool",
+            "SETTINGS_UPDATE_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#enable-update-checker"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "updateCheckerInterval",
+            "list",
+            "SETTINGS_UPDATE_INTERVAL",
+            {
+              "list": [
+                {
+                  "value": "0",
+                  "label": "SETTINGS_UPDATE_INTERVAL_ALWAYS"
+                }, {
+                  "value": "1",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERYHOUR"
+                }, {
+                  "value": "2",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERY2HOUR"
+                }, {
+                  "value": "12",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERY12HOUR"
+                }, {
+                  "value": "24",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERYDAY"
+                }, {
+                  "value": "48",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERY2DAY"
+                }, {
+                  "value": "168",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERYWEEK"
+                }, {
+                  "value": "336",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERY2WEEK"
+                }, {
+                  "value": "720",
+                  "label": "SETTINGS_UPDATE_INTERVAL_EVERYMONTH"
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#update-interval"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "button",
+            null,
+            {
+              "text": "SETTINGS_UPDATE_CHECKFORNEWUPDATES",
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    this.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATES");
+                    this.disabled = true;
+                    ytcenter.checkForUpdates((function(self){
+                      return function(){
+                        self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKFORNEWUPDATESSUCCESS");
+                        self.disabled = false;
+                      };
+                    })(this), (function(self){
+                      return function(){
+                        self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESERROR");
+                        self.disabled = false;
+                      };
+                    })(this), (function(self){
+                      return function(){
+                        self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESDISABLED");
+                        self.disabled = true;
+                      };
+                    })(this));
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+
+        /* DISABLED until implemented
+        subcat = ytcenter.settingsPanel.createSubCategory("Channel"); cat.addSubCategory(subcat);
+        */
+
+      /* Category:Debug */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_DEBUG");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LOG"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textarea",
+            null,
+            {
+              "styles": {
+                "width": "100%",
+                "height": "130px",
+                "background-color": "#fff",
+                "border-color": "#ccc"
+              },
+              "attributes": {
+                "disabled": "true"
+              }
+            }
+          );
+          subcat.addOption(option);
+          subcat.addEventListener("click", function(){
+            var a = this;
+            con.log("[Debug] Loading debug log...");
+            a.setText = ytcenter.language.getLocale("SETTINGS_DEBUG_LOADING");
+            uw.setTimeout(function(){
+              a.getLiveModule().setText(ytcenter.getDebug());
+            }, 0); // async
+          }.bind(option));
+          
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "button",
+            null,
+            {
+              "text": "SETTINGS_DEBUG_CREATEPASTE",
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function() {
+                    var content = document.createElement("div"), text, pasteUrl,
+                        data = [
+                          "api_dev_key=@pastebin-api-key@",
+                          "api_option=paste",
+                          "api_paste_private=1", // unlisted
+                          "api_paste_expire_date=1M", // 1 month
+                          "api_paste_format=javascript",
+                          "api_paste_name=" + encodeURIComponent("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
+                          "api_paste_code=" + encodeURIComponent(ytcenter.getDebug())
+                        ].join('&');
+
+                    text = document.createElement("p");
+                    text.appendChild(document.createTextNode(ytcenter.language.getLocale("PASTEBIN_TEXT")));
+                    text.setAttribute("style", "margin-bottom: 10px");
+
+                    content.appendChild(text);
+
+                    pasteUrl = document.createElement("input");
+                    pasteUrl.setAttribute("type", "text");
+                    pasteUrl.setAttribute("class", "yt-uix-form-input-text");
+                    pasteUrl.setAttribute("value", ytcenter.language.getLocale("PASTEBIN_LOADING"));
+                    pasteUrl.setAttribute("readonly", "readonly");
+                    pasteUrl.addEventListener("focus", function() { this.select(); }, false);
+
+                    content.appendChild(pasteUrl);
+
+                    ytcenter.dialog("PASTEBIN_TITLE", content).setVisibility(true);
+
+                    $XMLHTTPRequest({
+                      method: "POST",
+                      url: "http://pastebin.com/api/api_post.php",
+                      headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                      },
+                      data: data,
+                      contentType: "application/x-www-form-urlencoded", // Firefox Addon
+                      content: data, // Firefox Addon
+                      onload: function(response) {
+                        pasteUrl.value = response.responseText;
+                      }
+                    });
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+
+        //subcat = ytcenter.settingsPanel.createSubCategory("Options"); cat.addSubCategory(subcat);
+
+
+      /* Category:Share DISABLED until I implement it*/
+      /*cat = ytcenter.settingsPanel.createCategory("Share");
+        subcat = ytcenter.settingsPanel.createSubCategory("Share"); cat.addSubCategory(subcat);
+      */
+
+      /* Category:Donate */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_DONATE");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_DONATE"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            null, // label
+            {
+              "textlocale": "SETTINGS_DONATE_TEXT",
+              "replace": {
+                "{wiki-donate}": function(){
+                  var a = document.createElement("a");
+                  a.setAttribute("target", "_blank");
+                  a.setAttribute("href", "https://github.com/YePpHa/YouTubeCenter/wiki/Donate");
+                  a.textContent = ytcenter.language.getLocale("SETTINGS_DONATE_WIKI");
+                  ytcenter.language.addLocaleElement(a, "SETTINGS_DONATE_WIKI", "@textContent");
+                  return a;
                 }
               }
             }
-          ]
-        }, {
-          "type": "textContent",
-          "textlocale": "SETTINGS_PLACEMENTSYSTEM_MOVEELEMENTS_INSTRUCTIONS",
-          "style": {
-            "marginLeft": "20px",
-            "display": (loc.href.match(/^(http|https)\:\/\/(.*?)\.youtube\.com\/watch\?/) ? "block" : "none")
-          }
-        }
-      ],
-      "SETTINGS_TAB_RESIZE": [
-        {
-          "label": "SETTINGS_RESIZE_FEATURE_ENABLE",
-          "type": "bool",
-          "defaultSetting": "enableResize"
-        }, {
-          "label": "SETTINGS_RESIZE_DEFAULT",
-          "type": "defaultplayersizedropdown",
-          "bind": "resize-playersizes",
-          "defaultSetting": "resize-default-playersize",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#default-player-size"
-        }, {
-          "label": "SETTINGS_RESIZE_SMALL_BUTTON",
-          "type": "resizedropdown",
-          "bind": "resize-playersizes",
-          "defaultSetting": "resize-small-button",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#small-resize-button"
-        }, {
-          "label": "SETTINGS_RESIZE_LARGE_BUTTON",
-          "type": "resizedropdown",
-          "bind": "resize-playersizes",
-          "defaultSetting": "resize-large-button",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#large-resize-button"
-        }, {
-          "label": "SETTINGS_RESIZE_LIST",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-size-editor"
-        }, {
-          "type": "resizeItemList",
-          "defaultSetting": "resize-playersizes"
-        }
-      ],
-      "SETTINGS_TAB_DOWNLOAD": [
-        {
-          "label": "SETTINGS_DOWNLOADQUALITY_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "highres",
-              "label": "SETTINGS_HIGHRES"
-            }, {
-              "value": "hd1080",
-              "label": "SETTINGS_HD1080"
-            }, {
-              "value": "hd720",
-              "label": "SETTINGS_HD720"
-            }, {
-              "value": "large",
-              "label": "SETTINGS_LARGE"
-            }, {
-              "value": "medium",
-              "label": "SETTINGS_MEDIUM"
-            }, {
-              "value": "small",
-              "label": "SETTINGS_SMALL"
-            }
-          ],
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "downloadQuality",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality-1"
-        }, {
-          "label": "SETTINGS_DOWNLOADFORMAT_LABEL",
-          "type": "list",
-          "list": [
-            {
-              "value": "mp4",
-              "label": "SETTINGS_DOWNLOADFORMAT_LIST_MP4"
-            }, {
-              "value": "webm",
-              "label": "SETTINGS_DOWNLOADFORMAT_LIST_WEBM"
-            }, {
-              "value": "flv",
-              "label": "SETTINGS_DOWNLOADFORMAT_LIST_FLV"
-            }, {
-              "value": "3gp",
-              "label": "SETTINGS_DOWNLOADFORMAT_LIST_3GP"
-            }
-          ],
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "downloadFormat",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#format"
-        }, {
-          "label": "SETTINGS_DOWNLOADASLINKS_LABEL",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "downloadAsLinks",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#download-as-links"
-        }, {
-          "label": "SETTINGS_SHOW3DINDOWNLOADMENU_LABEL",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "show3DInDownloadMenu",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-3d-in-download-menu"
-        }, {
-          "label": "SETTINGS_FILENAME_LABEL",
-          "type": "text",
-          "listeners": [
-            {
-              "event": "change",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "filename",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#filename"
-        }, {
-          "label": "SETTINGS_FIXDOWNLOADFILENAME_LABEL",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "fixfilename",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-non-alphanumeric-characters"
-        }, {
-          "label": "SETTINGS_MP3SERVICES_LABEL",
-          "type": "multi",
-          "multi": ytcenter.mp3services,
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "mp3Services",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#mp3-services"
-        }
-      ],
-      "SETTINGS_TAB_REPEAT": [
-        {
-          "label": "SETTINGS_AUTOACTIVATEREPEAT_LABEL",
-          "type": "bool",
-          "defaultSetting": "autoActivateRepeat",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-activate-repeat"
-        }, {
-          "label": "SETTINGS_REPEAT_SHOW_ICON",
-          "type": "bool",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                ytcenter.events.performEvent("ui-refresh");
-              }
-            }
-          ],
-          "defaultSetting": "repeatShowIcon",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-icon"
-        }
-      ],
-      "SETTINGS_TAB_UPDATE": [
-        {
-          "label": "SETTINGS_UPDATE_ENABLE",
-          "type": "bool",
-          "defaultSetting": "enableUpdateChecker",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#enable-update-checker"
-        }, {
-          "label": "SETTINGS_UPDATE_INTERVAL",
-          "type": "list",
-          "list": [
-            {
-              "value": "0",
-              "label": "SETTINGS_UPDATE_INTERVAL_ALWAYS"
-            }, {
-              "value": "1",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERYHOUR"
-            }, {
-              "value": "2",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERY2HOUR"
-            }, {
-              "value": "12",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERY12HOUR"
-            }, {
-              "value": "24",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERYDAY"
-            }, {
-              "value": "48",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERY2DAY"
-            }, {
-              "value": "168",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERYWEEK"
-            }, {
-              "value": "336",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERY2WEEK"
-            }, {
-              "value": "720",
-              "label": "SETTINGS_UPDATE_INTERVAL_EVERYMONTH"
-            }
-          ],
-          "defaultSetting": "updateCheckerInterval",
-          "help": "https://github.com/YePpHa/YouTubeCenter/wiki/Features#update-interval"
-        }, {
-          "type": "button",
-          "text": "SETTINGS_UPDATE_CHECKFORNEWUPDATES",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function(){
-                this.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATES");
-                this.disabled = true;
-                ytcenter.checkForUpdates((function(self){
-                  return function(){
-                    self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKFORNEWUPDATESSUCCESS");
-                    self.disabled = false;
-                  };
-                })(this), (function(self){
-                  return function(){
-                    self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESERROR");
-                    self.disabled = false;
-                  };
-                })(this), (function(self){
-                  return function(){
-                    self.textContent = ytcenter.language.getLocale("SETTINGS_UPDATE_CHECKINGFORNEWUPDATESDISABLED");
-                    self.disabled = true;
-                  };
-                })(this));
-              }
-            }
-          ]
-        }
-      ],
-      "SETTINGS_TAB_DEBUG": [
-        {
-          "type": "textarea",
-          "style": {
-            "width": "985px",
-            "height": "270px"
-          },
-          "load": function(){
-            con.log("Loading debug text...");
-            this.textContent = (function(){
-              return ytcenter.debug();
-            })();
-          }
-        }, {
-          "type": "button",
-          "text": "SETTINGS_DEBUG_CREATEPASTE",
-          "listeners": [
-            {
-              "event": "click",
-              "callback": function() {
-                var content = document.createElement("div"), text, pasteUrl,
-                    data = [
-                      "api_dev_key=@pastebin-api-key@",
-                      "api_option=paste",
-                      "api_paste_private=1", // unlisted
-                      "api_paste_expire_date=1M", // 1 month
-                      "api_paste_format=javascript",
-                      "api_paste_name=" + encodeURIComponent("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
-                      "api_paste_code=" + encodeURIComponent(ytcenter.debug())
-                    ].join('&');
+          );
+          subcat.addOption(option);
 
-                text = document.createElement("p");
-                text.appendChild(document.createTextNode(ytcenter.language.getLocale("PASTEBIN_TEXT")));
-                text.setAttribute("style", "margin-bottom: 10px");
-
-                content.appendChild(text);
-
-                pasteUrl = document.createElement("input");
-                pasteUrl.setAttribute("type", "text");
-                pasteUrl.setAttribute("class", "yt-uix-form-input-text");
-                pasteUrl.setAttribute("value", ytcenter.language.getLocale("PASTEBIN_LOADING"));
-                pasteUrl.setAttribute("readonly", "readonly");
-                pasteUrl.addEventListener("focus", function() { this.select(); }, false);
-
-                content.appendChild(pasteUrl);
-
-                ytcenter.dialog("PASTEBIN_TITLE", content).setVisibility(true);
-
-                $XMLHTTPRequest({
-                  method: "POST",
-                  url: "http://pastebin.com/api/api_post.php",
-                  headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                  },
-                  data: data,
-                  contentType: "application/x-www-form-urlencoded", // Firefox Addon
-                  content: data, // Firefox Addon
-                  onload: function(response) {
-                    pasteUrl.value = response.responseText;
-                  }
-                });
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PAYPAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "textContent", // module
+            null, // label
+            {
+              "textlocale": "SETTINGS_DONATE_PAYPAL_TEXT",
+              "replace": {
+                "{paypal-link}": function(){
+                  var a = document.createElement("a");
+                  a.setAttribute("target", "_blank");
+                  a.setAttribute("href", "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=WBCAMLGT5T9J6&lc=DK&item_name=YouTube%20Center&item_number=ytcenter&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted");
+                  a.textContent = ytcenter.language.getLocale("SETTINGS_DONATE_PAYPAL_LINK");
+                  ytcenter.language.addLocaleElement(a, "SETTINGS_DONATE_PAYPAL_LINK", "@textContent");
+                  return a;
+                }
               }
             }
-          ]
-        }
-      ],
-      "SETTINGS_TAB_ABOUT": [
-        {
-          "type": "aboutText"
-        }, {
-          "type": "link",
-          "titleLocale": "SETTINGS_ABOUT_LINKS",
-          "links": [
-            {text: "Wiki", url: "https://github.com/YePpHa/YouTubeCenter/wiki"},
-            {text: "Userscript", url: "http://userscripts.org/scripts/show/114002"},
-            {text: "Facebook", url: "https://www.facebook.com/YouTubeCenter"},
-            {text: "Google+", url: "https://plus.google.com/111275247987213661483/posts"},
-            {text: "Firefox", url: "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/"},
-            {text: "Opera", url: "https://addons.opera.com/en/extensions/details/youtube-center/"},
-            {text: "Maxthon", url: "http://extension.maxthon.com/detail/index.php?view_id=1201"},
-            {text: "Github", url: "https://github.com/YePpHa/YouTubeCenter/"}
-          ]
-        }, {
-          "type": "translators",
-          "titleLocale": "SETTINGS_ABOUT_TRANSLATORS",
-          "translators": {
-            "ar-bh": [
-              { name: "alihill381" }
-            ],
-            "ca": [
-              { name: "Joan Alemany" },
-              { name: "Raül Cambeiro" }
-            ],
-            "da": [],
-            "de": [
-              { name: "Simon Artmann" },
-              { name: "Sven \"Hidden\" W" }
-            ],
-            "en": [],
-            "es": [
-              { name: "Roxz" }
-            ],
-            "fa-IR": [],
-            "fr": [
-              { name: "ThePoivron", url: "http://www.twitter.com/ThePoivron" }
-            ],
-            "he": [
-              { name: "baryoni" }
-            ],
-            "hu": [
-              { name: "Eugenox" },
-              { name: "Mateus" }
-            ],
-            "it": [
-              { name: "Pietro De Nicolao" }
-            ],
-            "jp": [
-              { name: "Lightning-Natto" }
-            ],
-            "ko": [
-              { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" },
-              { name: "U Bless", url: "http://userscripts.org/users/ubless" }
-            ],
-            "nl": [
-              { name: "Marijn Roes" }
-            ],
-            "pl": [
-              { name: "Piotr" },
-              { name: "kasper93" }
-            ],
-            "pt-BR": [
-              { name: "Thiago R. M. Pereira" },
-              { name: "José Junior" },
-              { name: "Igor Rückert" }
-            ],
-            "pt-PT": [
-              { name: "Rafael Damasceno", url: "http://userscripts.org/users/264457" }
-            ],
-            "ro": [
-              { name: "BlueMe", url: "http://www.itinerary.ro/" }
-            ],
-            "ru": [
-              { name: "KDASOFT", url: "http://kdasoft.narod.ru/" }
-            ],
-            "sk": [
-              { name: "ja1som" }
-            ],
-            "sv-SE": [
-              { name: "Christian Eriksson" }
-            ],
-            "tr": [
-              { name: "Ismail Aksu" }
-            ],
-            "UA": [
-              { name: "SPIDER-T1" }
-            ],
-            "vi": [
-              { name: "Tuấn Phạm" }
-            ],
-            "zh-CN": [
-              { name: "雅丶涵", url: "http://www.baidu.com/p/%E9%9B%85%E4%B8%B6%E6%B6%B5" },
-              { name: "MatrixGT" }
-            ],
-            "zh-TW": [
-              { name: "泰熊" }
-            ]
-          }
-        }
-      ]
-    };
-    } catch (e) {
-      con.error(e);
-    }
+          );
+          subcat.addOption(option);
+
+
+      /* Category:About */
+      cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_ABOUT");
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_ABOUT"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "aboutText", // module
+            null // label
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "link", // module
+            null, // label
+            {
+              "titleLocale": "SETTINGS_ABOUT_LINKS",
+              "links": [
+                {text: "Wiki", url: "https://github.com/YePpHa/YouTubeCenter/wiki"},
+                {text: "Userscript", url: "http://userscripts.org/scripts/show/114002"},
+                {text: "Facebook", url: "https://www.facebook.com/YouTubeCenter"},
+                {text: "Google+", url: "https://plus.google.com/111275247987213661483/posts"},
+                {text: "Firefox", url: "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/"},
+                {text: "Opera", url: "https://addons.opera.com/en/extensions/details/youtube-center/"},
+                {text: "Maxthon", url: "http://extension.maxthon.com/detail/index.php?view_id=1201"},
+                {text: "Github", url: "https://github.com/YePpHa/YouTubeCenter/"}
+              ]
+            }
+          );
+          subcat.addOption(option);
+
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_TRANSLATORS"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "translators", // module
+            null, // label
+            { // args
+              "translators": {
+                "ar-bh": [
+                  { name: "alihill381" }
+                ],
+                "ca": [
+                  { name: "Joan Alemany" },
+                  { name: "Raül Cambeiro" }
+                ],
+                "da": [],
+                "de": [
+                  { name: "Simon Artmann" },
+                  { name: "Sven \"Hidden\" W" }
+                ],
+                "en": [],
+                "es": [
+                  { name: "Roxz" }
+                ],
+                "fa-IR": [],
+                "fr": [
+                  { name: "ThePoivron", url: "http://www.twitter.com/ThePoivron" }
+                ],
+                "he": [
+                  { name: "baryoni" }
+                ],
+                "hu": [
+                  { name: "Eugenox" },
+                  { name: "Mateus" }
+                ],
+                "it": [
+                  { name: "Pietro De Nicolao" }
+                ],
+                "jp": [
+                  { name: "Lightning-Natto" }
+                ],
+                "ko": [
+                  { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" },
+                  { name: "U Bless", url: "http://userscripts.org/users/ubless" }
+                ],
+                "nl": [
+                  { name: "Marijn Roes" }
+                ],
+                "pl": [
+                  { name: "Piotr" },
+                  { name: "kasper93" }
+                ],
+                "pt-BR": [
+                  { name: "Thiago R. M. Pereira" },
+                  { name: "José Junior" },
+                  { name: "Igor Rückert" }
+                ],
+                "pt-PT": [
+                  { name: "Rafael Damasceno", url: "http://userscripts.org/users/264457" }
+                ],
+                "ro": [
+                  { name: "BlueMe", url: "http://www.itinerary.ro/" }
+                ],
+                "ru": [
+                  { name: "KDASOFT", url: "http://kdasoft.narod.ru/" }
+                ],
+                "sk": [
+                  { name: "ja1som" }
+                ],
+                "sv-SE": [
+                  { name: "Christian Eriksson" }
+                ],
+                "tr": [
+                  { name: "Ismail Aksu" }
+                ],
+                "UA": [
+                  { name: "SPIDER-T1" }
+                ],
+                "vi": [
+                  { name: "Tuấn Phạm" }
+                ],
+                "zh-CN": [
+                  { name: "雅丶涵", url: "http://www.baidu.com/p/%E9%9B%85%E4%B8%B6%E6%B6%B5" },
+                  { name: "MatrixGT" }
+                ],
+                "zh-TW": [
+                  { name: "泰熊" }
+                ]
+              }
+            }
+          );
+          subcat.addOption(option);
+    })();
     
     ytcenter.video = {};
     ytcenter.video.format = [
@@ -12573,6 +13436,7 @@
       }
     ];
     ytcenter.video.resolutions = {
+      'tiny': '144p',
       'small': '240p',
       'medium': '360p',
       'large': '480p',
@@ -13264,7 +14128,7 @@
         } else {
           config.args.dash = "0";
           config.args.dashmpd = "";
-          if (!ytcenter.settings.enableAutoVideoQuality) {
+          if (!ytcenter.settings.enableAutoVideoQuality) { // Evil hack
             config.args.vq = ytcenter.player.getQuality("large", streams);
           }
         }
@@ -15592,7 +16456,7 @@
         ytcenter.unsafe.injected = injected;
         ytcenter.unsafe.settings = ytcenter.unsafe.settings || {};
         ytcenter.unsafe.getDebug = ytcenter.utils.bind(function(){
-          return ytcenter.debug();
+          return ytcenter.getDebug();
         }, ytcenter.unsafe);
         ytcenter.unsafe.updateSignatureDecipher = ytcenter.utils.bind(function(){
           uw.postMessage("YouTubeCenter" + JSON.stringify({
@@ -15647,6 +16511,8 @@
         $AddStyle(ytcenter.css.confirmbox);
         $AddStyle(ytcenter.css.panel);
         $AddStyle(ytcenter.css.resizePanel);
+        $AddStyle(ytcenter.css.modules);
+        $AddStyle(ytcenter.css.settings);
         
         if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) {
           $AddStyle(ytcenter.css.topbar);
@@ -15696,8 +16562,7 @@
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
         }
-        ytcenter.title.originalTitle = document.title;
-        ytcenter.title.init();
+        ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         try {
@@ -15726,6 +16591,8 @@
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         var page = ytcenter.getPage();
+        ytcenter.title.originalTitle = document.title;
+        ytcenter.title.init();
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         
         ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
