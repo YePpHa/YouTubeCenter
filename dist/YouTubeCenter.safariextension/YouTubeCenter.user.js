@@ -13197,10 +13197,10 @@
           subcat.addEventListener("click", function(){
             var a = this;
             con.log("[Debug] Loading debug log...");
-            a.setText = ytcenter.language.getLocale("SETTINGS_DEBUG_LOADING");
+            a.getLiveModule().setText(ytcenter.language.getLocale("SETTINGS_DEBUG_LOADING"));
             uw.setTimeout(function(){
               a.getLiveModule().setText(ytcenter.getDebug());
-            }, 0); // async
+            }, 100); // async
           }.bind(option));
           
           option = ytcenter.settingsPanel.createOption(
