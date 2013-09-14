@@ -5047,33 +5047,41 @@
     })();
     ytcenter.modules = {};
     ytcenter.modules.aboutText = function(option){
-      var elm = document.createElement("div");
-      
-      var content1 = document.createElement("div");
+      var elm = document.createElement("div"),
+          content1 = document.createElement("div");
       content1.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_COPYRIGHTS");
-      ytcenter.language.addLocaleElement(content1, "SETTINGS_ABOUT_COPYRIGHTS", "@textContent", {});
-      
-      var content2 = document.createElement("div");
-      content2.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_CONTACTSINFO");
-      ytcenter.language.addLocaleElement(content2, "SETTINGS_ABOUT_CONTACTSINFO", "@textContent", {});
-      
-      var contact = document.createElement("div"),
-          contactText = document.createTextNode(ytcenter.language.getLocale("SETTINGS_ABOUT_EMAIL")),
-          contactTextEnd = document.createTextNode(":"),
-          contactLink = document.createElement("a");
-      ytcenter.language.addLocaleElement(contactText, "SETTINGS_ABOUT_EMAIL", "@textContent", {});
-      
-      contactLink.href = "mailto:jepperm@gmail.com";
-      contactLink.textContent = "jepperm@gmail.com";
-      
-      contact.appendChild(contactText);
-      contact.appendChild(contactTextEnd);
-      contact.appendChild(contactLink);
-      
       elm.appendChild(content1);
       elm.appendChild(document.createElement("br"));
-      elm.appendChild(content2);
-      elm.appendChild(contact);
+      elm.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SETTINGS_ABOUT_TEXT"), {
+        "{email}": function(){
+          var a = document.createElement("a");
+          a.href = "mailto:jepperm@gmail.com";
+          a.textContent = "jepperm@gmail.com";
+          return a;
+        },
+        "{lb}": function(){
+          return document.createElement("br");
+        }
+      }));
+      
+      ytcenter.events.addEvent("language-refresh", function(){
+        elm.innerHTML = "";
+        content1 = document.createElement("div");
+        content1.textContent = ytcenter.language.getLocale("SETTINGS_ABOUT_COPYRIGHTS");
+        elm.appendChild(content1);
+        elm.appendChild(document.createElement("br"));
+        elm.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SETTINGS_ABOUT_TEXT"), {
+          "{email}": function(){
+            var a = document.createElement("a");
+            a.href = "mailto:jepperm@gmail.com";
+            a.textContent = "jepperm@gmail.com";
+            return a;
+          },
+          "{lb}": function(){
+            return document.createElement("br");
+          }
+        }));
+      });
       
       return {
         element: elm,
@@ -6244,7 +6252,6 @@
           settingData, wrapper = document.createElement("div"), saveCallback;
       wrapper.style.paddingLeft = "16px";
       settingData = ytcenter.settings[option.defaultSetting];
-      console.log(settingData);
       
       updateList();
       
@@ -10705,10 +10712,9 @@
           
           ytcenter.utils.addEventListener(acat, "click", function(e){
             category.select();
-            console.log(category.subcategories[0]);
             if (category.subcategories.length > 0 && category.subcategories[0] && category.subcategories[0].select) category.subcategories[0].select();
             
-            ytcenter.events.performEvent("ui-refresh");
+            //ytcenter.events.performEvent("ui-refresh");
             
             e.preventDefault();
             e.stopPropagation();
@@ -10745,7 +10751,7 @@
             
             ytcenter.utils.addEventListener(liItemLink, "click", function(e){
               subcat.select();
-              ytcenter.events.performEvent("ui-refresh");
+              //ytcenter.events.performEvent("ui-refresh");
               
               e.preventDefault();
               e.stopPropagation();
@@ -11579,6 +11585,9 @@
           
 
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PLAYERSIZE"); cat.addSubCategory(subcat);
+          subcat.addEventListener("click", function(){
+            ytcenter.events.performEvent("ui-refresh");
+          });
           option = ytcenter.settingsPanel.createOption(
             "enableResize", // defaultSetting
             "bool", // module
@@ -12513,7 +12522,7 @@
             if (ytcenter.placementsystem.toggleEnable()) {
               ytcenter.utils.addClass(this, "yt-uix-button-toggled");
               ytcenter.utils.addClass(document.body, "ytcenter-placementsystem-activated");
-              ytcenter.settingsPanelInstance.setVisibility(false);
+              ytcenter.settingsPanelDialog.setVisibility(false);
             } else {
               ytcenter.utils.removeClass(this, "yt-uix-button-toggled");
               ytcenter.utils.removeClass(document.body, "ytcenter-placementsystem-activated");
@@ -13049,11 +13058,11 @@
 
       /* Category:Update */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_UPDATE");
-        if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
+        if ((@identifier@ === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || @identifier@ === 6) {
           cat.setVisibility(false);
         }
         ytcenter.events.addEvent("ui-refresh", function(){
-          if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
+          if ((@identifier@ === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || @identifier@ === 6) {
             this.setVisibility(false);
           } else {
             this.setVisibility(true);
