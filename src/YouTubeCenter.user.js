@@ -1111,6 +1111,7 @@
       spanText.className = "yt-uix-button-menu-item upload-menu-link";
       if (ytcenter.settings['experimentalFeatureTopGuide']) {
         ytcenter.utils.addEventListener(spanText, "click", function(){
+          if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
           ytcenter.settingsPanelDialog.setVisibility(true);
         }, false);
         
@@ -1158,6 +1159,7 @@
         btn.appendChild(ytuixbc);
         
         btn.addEventListener("click", function(){
+          if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
           ytcenter.settingsPanelDialog.setVisibility(true);
         }, false);
         if (document.getElementById("masthead-user")) {
@@ -4665,6 +4667,7 @@
               try {
                 a.setLaunchStatus(true);
                 a.setVisibility(false);
+                if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
                 ytcenter.settingsPanelDialog.setVisibility(true);
               } catch (e) {
                 con.error(e);
@@ -9689,7 +9692,7 @@
           __setElementText(currentLang, db[i][0], db[i][1], db[i][2], db[i][3]);
         }
         ytcenter.events.performEvent("language-refresh");
-        ytcenter.events.performEvent("settings-update");
+        //ytcenter.events.performEvent("settings-update");
       };
       
       return __r;
@@ -13184,7 +13187,7 @@
                 "width": "100%",
                 "height": "130px",
                 "background-color": "#fff",
-                "border-color": "#ccc"
+                "border": "1px solid #ccc"
               },
               "attributes": {
                 "disabled": "true"
@@ -16586,7 +16589,6 @@
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
           return;
         }
-        ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         try {
