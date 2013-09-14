@@ -5703,7 +5703,7 @@
           menu.appendChild(li);
         });
       }
-      var saveCallback, selectedId, items,
+      var saveCallback, selectedId = ytcenter.settings[option.defaultSetting], items,
           wrapper = document.createElement("div"),
           btnLabel = ytcenter.gui.createYouTubeButtonText("Player Sizes..."),
           menu = document.createElement("ul"),
@@ -5722,7 +5722,6 @@
       
       wrapper.appendChild(btn);
       
-      updateItems(ytcenter.settings[option.args.bind]);
       ytcenter.events.addEvent("ui-refresh", function(){
         var opt = ytcenter.settings[option.args.bind],
             found = false, i;
@@ -5735,6 +5734,21 @@
         }
         updateItems(opt);
       });
+      if (option.parent) {
+        option.parent.addEventListener("click", function(){
+          selectedId = ytcenter.settings[option.defaultSetting];
+          var opt = ytcenter.settings[option.args.bind],
+              found = false, i;
+          for (i = 0; i < opt.length; i++) {
+            if (opt[i].id === selectedId) found = true;
+          }
+          if (!found && selectedId !== "default") {
+            selectedId = opt[0].id;
+            if (saveCallback) saveCallback(selectedId);
+          }
+          updateItems(opt);
+        });
+      }
       
       return {
         element: wrapper, // So the element can be appended to an element.
@@ -10652,6 +10666,9 @@
             
             optionWrapper.appendChild(label);
           }
+          if (option.defaultSetting && !(option.defaultSetting in ytcenter._settings)) {
+            con.warn("[SettingsPanel] An option was registered, which doesn't have a default option (" + option.defaultSetting + ").");
+          }
           if (!option.module) {
             
           } else {
@@ -11622,7 +11639,7 @@
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
-            "resize-small-playersize", // defaultSetting
+            "resize-small-button", // defaultSetting
             "defaultplayersizedropdown", // module
             "SETTINGS_RESIZE_SMALL_BUTTON",
             {
@@ -11632,7 +11649,7 @@
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
-            "resize-large-playersize", // defaultSetting
+            "resize-large-button", // defaultSetting
             "defaultplayersizedropdown", // module
             "SETTINGS_RESIZE_LARGE_BUTTON",
             {
