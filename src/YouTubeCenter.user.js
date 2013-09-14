@@ -6452,6 +6452,12 @@
         setValue(options.value);
         update();
       });
+      if (option.parent) {
+        option.parent.addEventListener("click", function(){
+          setValue(options.value);
+          update();
+        });
+      }
       setValue(options.value);
       update();
       
@@ -6525,6 +6531,11 @@
         update();
         if (bCallback) bCallback(value);
       });
+      if (option.parent) {
+        option.parent.addEventListener("click", function(){
+          update();
+        });
+      }
       
       _text.addEventListener("input", function(){
         if (this.value === "") this.value = "0";
@@ -7494,6 +7505,14 @@
         }
         updateListHeight();
       });
+      if (option.parent) {
+        option.parent.addEventListener("click", function(){
+          if (!editor) {
+            editor = createEditor();
+          }
+          updateListHeight();
+        });
+      }
       
       return {
         element: wrapper, // So the element can be appended to an element.
@@ -10640,6 +10659,7 @@
               throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ", " + option.module + ") are using an non existing module!");
 
             moduleContainer = document.createElement("span");
+            option.parent = a.getSubCategory(subcat.id);
             module = ytcenter.modules[option.module](option);
             option.liveModule = module;
             moduleContainer.appendChild(module.element);
@@ -11585,9 +11605,6 @@
           
 
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PLAYERSIZE"); cat.addSubCategory(subcat);
-          subcat.addEventListener("click", function(){
-            ytcenter.events.performEvent("ui-refresh");
-          });
           option = ytcenter.settingsPanel.createOption(
             "enableResize", // defaultSetting
             "bool", // module
