@@ -13264,6 +13264,9 @@
         } else {
           config.args.dash = "0";
           config.args.dashmpd = "";
+          if (!ytcenter.settings.enableAutoVideoQuality) {
+            config.args.vq = ytcenter.player.getQuality("large", streams);
+          }
         }
         ytcenter.playlist = false;
         try {
