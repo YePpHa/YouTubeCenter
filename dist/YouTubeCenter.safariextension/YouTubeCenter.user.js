@@ -4670,13 +4670,30 @@
               "hd1080": "#fff",
               "highres": "#fff"
             },
-            text, background, color, wrapper = document.createElement("span");
+            text, background, color, wrapper = document.createElement("span"),
+            convertSizeToQuality = {
+              "144": "tiny",
+              "240": "small",
+              "360": "medium",
+              "480": "large",
+              "720": "hd720",
+              "1080": "highress"
+            };
         if (stream === "error") {
           text = tableQuality[stream];
           background = tableBackground[stream];
           color = tableColor[stream];
         } else if (stream && stream.quality) {
           text = stream.dimension.split("x")[1] + "p";
+          background = tableBackground[stream.quality];
+          color = tableColor[stream.quality];
+        } else if (stream && stream.size) {
+          if (parseInt(stream.size.split("x")[1]) > 1080) {
+            stream.quality = "highres";
+          } else {
+            stream.quality = convertSizeToQuality[stream.size.split("x")[1]];
+          }
+          text = stream.size.split("x")[1] + "p";
           background = tableBackground[stream.quality];
           color = tableColor[stream.quality];
         }
@@ -14582,14 +14599,26 @@
         stream_dim = stream.dimension.split("x");
         stream_dim[0] = parseInt(stream_dim[0]);
         stream_dim[1] = parseInt(stream_dim[1]);
+      } else if (stream.size && stream.size.indexOf("x") !== -1) {
+        stream_dim = stream.size.split("x");
+        stream_dim[0] = parseInt(stream_dim[0]);
+        stream_dim[1] = parseInt(stream_dim[1]);
       } else {
-        stream_dim = [0,0];
+        stream_dim = [0, 0];
       }
       
       for (i = 1; i < streams.length; i++) {
-        if (!streams[i].dimension) continue;
-        if (streams[i].dimension.indexOf("x") !== -1) {
+        if (!streams[i].dimension && !streams[i].size) continue;
+        if (streams[i].dimension && streams[i].dimension.indexOf("x") !== -1) {
           tmp_dim = streams[i].dimension.split("x");
+          tmp_dim[0] = parseInt(tmp_dim[0]);
+          tmp_dim[1] = parseInt(tmp_dim[1]);
+          if (stream_dim[1] < tmp_dim[1]) {
+            stream_dim = tmp_dim;
+            stream = streams[i];
+          }
+        } else if (streams[i].size && streams[i].size.indexOf("x") !== -1) {
+          tmp_dim = streams[i].size.split("x");
           tmp_dim[0] = parseInt(tmp_dim[0]);
           tmp_dim[1] = parseInt(tmp_dim[1]);
           if (stream_dim[1] < tmp_dim[1]) {
@@ -14602,11 +14631,31 @@
     };
     ytcenter.player.getClosestQuality = function(vq, streams){
       var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
+          convertSizeToQuality = {
+            "144": "tiny",
+            "240": "small",
+            "360": "medium",
+            "480": "large",
+            "720": "hd720",
+            "1080": "highress"
+          },
           a = "auto";
       for (var i = 0; i < streams.length; i++) {
         if (!streams[i]) continue;
-        if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, a)) {
-          a = streams[i].quality;
+        if (!streams[i].quality && streams[i].size) {
+          if (parseInt(streams[i].size.split("x")[1]) > 1080) {
+            streams[i].quality = "highres";
+          } else {
+            streams[i].quality = convertSizeToQuality[streams[i].size.split("x")[1]];
+          }
+          if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, a)) {
+            a = streams[i].quality;
+          }
+          delete streams[i].quality;
+        } else {
+          if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, a)) {
+            a = streams[i].quality;
+          }
         }
       }
       return a;
@@ -14615,7 +14664,15 @@
       var _vq = "auto";
       if (typeof streams === "undefined") return _vq;
       
-      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'];
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
+          convertSizeToQuality = {
+            "144": "tiny",
+            "240": "small",
+            "360": "medium",
+            "480": "large",
+            "720": "hd720",
+            "1080": "highress"
+          };
       
       if (ytcenter.html5) {
         var a = document.createElement("video");
@@ -14623,16 +14680,44 @@
           _vq = "auto";
           for (var i = 0; i < streams.length; i++) {
             if (!streams[i]) continue;
-            if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, _vq) && a.canPlayType(streams[i].type.split(";")[0]).replace(/no/, '')) {
-              _vq = streams[i].quality;
+            if ((ytcenter.getPage() === "watch" && ytcenter.settings.dashPlayback) || (ytcenter.getPage() === "embed" && ytcenter.settings.embed_dashPlayback) || (ytcenter.getPage() === "channel" && ytcenter.settings.channel_dashPlayback)) {
+              if (!streams[i].quality && streams[i].size) {
+                if (parseInt(streams[i].size.split("x")[1]) > 1080) {
+                  streams[i].quality = "highres";
+                } else {
+                  streams[i].quality = convertSizeToQuality[streams[i].size.split("x")[1]];
+                }
+                if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, _vq) && a.canPlayType(streams[i].type.split(";")[0]).replace(/no/, '')) {
+                  _vq = streams[i].quality;
+                }
+                delete streams[i].quality;
+              }
+            } else if (streams[i].quality) {
+              if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, _vq) && a.canPlayType(streams[i].type.split(";")[0]).replace(/no/, '')) {
+                _vq = streams[i].quality;
+              }
             }
           }
         }
       } else {
         for (var i = 0; i < streams.length; i++) {
           if (!streams[i]) continue;
-          if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, _vq)) {
-            _vq = streams[i].quality;
+          if ((ytcenter.getPage() === "watch" && ytcenter.settings.dashPlayback) || (ytcenter.getPage() === "embed" && ytcenter.settings.embed_dashPlayback) || (ytcenter.getPage() === "channel" && ytcenter.settings.channel_dashPlayback)) {
+            if (!streams[i].quality && streams[i].size) {
+              if (parseInt(streams[i].size.split("x")[1]) > 1080) {
+                streams[i].quality = "highres";
+              } else {
+                streams[i].quality = convertSizeToQuality[streams[i].size.split("x")[1]];
+              }
+              if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, _vq)) {
+                _vq = streams[i].quality;
+              }
+              delete streams[i].quality;
+            }
+          } else if (streams[i].quality) {
+            if ($ArrayIndexOf(priority, streams[i].quality) <= $ArrayIndexOf(priority, vq) && $ArrayIndexOf(priority, streams[i].quality) > $ArrayIndexOf(priority, _vq)) {
+              _vq = streams[i].quality;
+            }
           }
         }
       }
