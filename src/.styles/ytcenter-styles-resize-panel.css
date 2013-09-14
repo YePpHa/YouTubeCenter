@@ -94,3 +94,8 @@
   right: 0;
   margin-left: 171px;
 }
+
+.ytcenter-resize-panel-right > * > *{
+  position: relative;
+  height: 100%;
+}
