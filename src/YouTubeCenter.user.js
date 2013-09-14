@@ -10683,6 +10683,8 @@
             
             module.bind(function(value){
               ytcenter.settings[option.defaultSetting] = value;
+              ytcenter.saveSettings();
+              
               ytcenter.events.performEvent("ui-refresh");
               
               if (option.listeners && option.listeners["update"]) {
@@ -10691,6 +10693,9 @@
                 }
               }
               ytcenter.events.performEvent("settings-update-" + option.defaultSetting);
+            });
+            ytcenter.events.addEvent("settings-update", function(){
+              module.update(ytcenter.settings[option.defaultSetting]);
             });
             module.update(ytcenter.settings[option.defaultSetting]);
             
