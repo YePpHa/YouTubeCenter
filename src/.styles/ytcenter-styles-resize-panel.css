@@ -20,7 +20,6 @@
 
 .ytcenter-resize-panel-right > * {
   width: 100% !important;
-  padding-left: 5px;
 }
 .ytcenter-resize-panel-right > *:before {
   position: absolute;
@@ -98,4 +97,5 @@
 .ytcenter-resize-panel-right > * > *{
   position: relative;
   height: 100%;
+  padding-left: 5px;
 }
