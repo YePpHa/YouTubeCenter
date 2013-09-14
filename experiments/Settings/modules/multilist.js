@@ -44,7 +44,7 @@ ytcenter.modules.multilist = function(option){
   }
   function createItem(label, value) {
     var s = document.createElement("label"),
-        cb = ytcenter.embeds.checkbox(isEnabled(value)),
+        cb = ytcenter.modules.checkbox(isEnabled(value)),
         text = document.createTextNode(ytcenter.language.getLocale(label));
     ytcenter.language.addLocaleElement(text, label, "@textContent");
     cb.bind(function(checked){
@@ -77,6 +77,10 @@ ytcenter.modules.multilist = function(option){
   var list = (option && option.args && option.args.list) || [],
       settingData, wrapper = document.createElement("div"), saveCallback;
   wrapper.style.paddingLeft = "16px";
+  settingData = ytcenter.settings[option.defaultSetting];
+  console.log(settingData);
+  
+  updateList();
   
   return {
     element: wrapper,

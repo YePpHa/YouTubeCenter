@@ -1,17 +1,19 @@
 ytcenter.modules.defaultplayersizedropdown = function(option){
   function getItemTitle(item) {
-    try{
-    var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
-    if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
-      return item.config.customName;
-    } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-      return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
-      //subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
-    } else {
-      return dim[0] + "×" + dim[1];
-      //subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
+    try {
+      var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
+      if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
+        return item.config.customName;
+      } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
+        return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+        //subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
+      } else {
+        return dim[0] + "×" + dim[1];
+        //subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
+      }
+    } catch (e) {
+      con.error(e);
     }
-    }catch(e){con.error(e)}
   }
   function getItemSubText(item) {
     try{
@@ -134,7 +136,7 @@ ytcenter.modules.defaultplayersizedropdown = function(option){
       menu = document.createElement("ul"),
       arrow = ytcenter.gui.createYouTubeButtonArrow(),
       btn = ytcenter.gui.createYouTubeDefaultButton("", [btnLabel, arrow, menu]);
-  wrapper.className = "ytcenter-embed";
+  wrapper.style.display = "inline-block";
   btnLabel.style.display = "inline-block";
   btnLabel.style.width = "100%";
   
@@ -147,11 +149,11 @@ ytcenter.modules.defaultplayersizedropdown = function(option){
   
   wrapper.appendChild(btn);
   
-  updateItems(ytcenter.settings[option.defaultSetting]);
+  updateItems(ytcenter.settings[option.args.bind]);
   ytcenter.events.addEvent("ui-refresh", function(){
-    var opt = ytcenter.settings[option.defaultSetting];
-    var found = false;
-    for (var i = 0; i < opt.length; i++) {
+    var opt = ytcenter.settings[option.args.bind],
+        found = false, i;
+    for (i = 0; i < opt.length; i++) {
       if (opt[i].id === selectedId) found = true;
     }
     if (!found && selectedId !== "default") {

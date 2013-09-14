@@ -1,4 +1,4 @@
-ytcenter.modules.link = function(){
+ytcenter.modules.link = function(option){
   var elm = document.createElement("div"),
       title = document.createElement("b");
   if (option && option.args && option.args.titleLocale) {

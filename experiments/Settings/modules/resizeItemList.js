@@ -196,10 +196,11 @@ ytcenter.modules.resizeItemList = function(option){
       }
     });
     
-    var widthUnit = ytcenter.embeds.select([
+    var widthUnit = ytcenter.modules.select({args: {list: [
       {label: "EMBED_RESIZEITEMLIST_PIXEL", value: "px"},
       {label: "EMBED_RESIZEITEMLIST_PERCENT", value: "%"}
-    ]);
+    ]}});
+    
     widthUnit.bind(function(){
       if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") {
         __setAspectVisibility(false);
@@ -239,10 +240,10 @@ ytcenter.modules.resizeItemList = function(option){
       }
     });
     
-    var heightUnit = ytcenter.embeds.select([
+    var heightUnit = ytcenter.modules.select({args: {list: [
       {label: "EMBED_RESIZEITEMLIST_PIXEL", value: "px"},
       {label: "EMBED_RESIZEITEMLIST_PERCENT", value: "%"}
-    ]);
+    ]}});
     
     heightUnit.bind(function(){
       if (widthUnit.getValue() !== "px" || heightUnit.getValue() !== "px") {
@@ -293,7 +294,7 @@ ytcenter.modules.resizeItemList = function(option){
     largeLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_LARGE");
     ytcenter.language.addLocaleElement(largeLabel, "EMBED_RESIZEITEMLIST_LARGE", "@textContent");
     largeWrapper.appendChild(largeLabel);
-    var largeInput = ytcenter.embeds.checkbox();
+    var largeInput = ytcenter.modules.checkbox();
     largeInput.element.style.background = "#fff";
     largeInput.fixHeight();
     largeWrapper.appendChild(largeInput.element);
@@ -305,7 +306,7 @@ ytcenter.modules.resizeItemList = function(option){
     alignLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_ALIGN");
     ytcenter.language.addLocaleElement(alignLabel, "EMBED_RESIZEITEMLIST_ALIGN", "@textContent");
     alignWrapper.appendChild(alignLabel);
-    var alignInput = ytcenter.embeds.checkbox();
+    var alignInput = ytcenter.modules.checkbox();
     alignInput.element.style.background = "#fff";
     alignInput.fixHeight();
     alignWrapper.appendChild(alignInput.element);
@@ -316,7 +317,7 @@ ytcenter.modules.resizeItemList = function(option){
     scrollToPlayerLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_SCROLLTOPLAYER");
     ytcenter.language.addLocaleElement(scrollToPlayerLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYER", "@textContent");
     scrollToPlayerWrapper.appendChild(scrollToPlayerLabel);
-    var scrollToPlayerInput = ytcenter.embeds.checkbox();
+    var scrollToPlayerInput = ytcenter.modules.checkbox();
     scrollToPlayerInput.element.style.background = "#fff";
     scrollToPlayerInput.fixHeight();
     scrollToPlayerWrapper.appendChild(scrollToPlayerInput.element);
@@ -327,7 +328,7 @@ ytcenter.modules.resizeItemList = function(option){
     scrollToPlayerButtonLabel.textContent = ytcenter.language.getLocale("EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON");
     ytcenter.language.addLocaleElement(scrollToPlayerButtonLabel, "EMBED_RESIZEITEMLIST_SCROLLTOPLAYERBUTTON", "@textContent");
     scrollToPlayerButtonWrapper.appendChild(scrollToPlayerButtonLabel);
-    var scrollToPlayerButtonInput = ytcenter.embeds.checkbox();
+    var scrollToPlayerButtonInput = ytcenter.modules.checkbox();
     scrollToPlayerButtonInput.element.style.background = "#fff";
     scrollToPlayerButtonInput.fixHeight();
     scrollToPlayerButtonWrapper.style.marginBottom = "40px";
@@ -568,12 +569,8 @@ ytcenter.modules.resizeItemList = function(option){
     }
   }
   function updateListHeight() {
-    try {
-      var _h = editWrapper.clientHeight || editWrapper.scrollHeight;
-      if (_h > 0) listWrapper.style.height = _h + "px";
-    } catch (e) {
-      con.error(e);
-    }
+    var _h = editWrapper.clientHeight || editWrapper.scrollHeight;
+    if (_h > 0) listWrapper.style.height = _h + "px";
   }
   function selectSizeItem(id) {
     var bypassConfirm = false;
@@ -776,8 +773,12 @@ ytcenter.modules.resizeItemList = function(option){
   var contentWrapper = document.createElement("div");
   contentWrapper.className = "ytcenter-resize-panel-content";
   
+  var positionerEditWrapper = document.createElement("div");
+  positionerEditWrapper.className = "ytcenter-resize-panel-right";
   var editWrapper = document.createElement("div");
   editWrapper.className = "ytcenter-panel";
+  
+  positionerEditWrapper.appendChild(editWrapper);
   
   var listWrapper = document.createElement("div");
   listWrapper.className = "ytcenter-resize-panel-list";
@@ -795,7 +796,7 @@ ytcenter.modules.resizeItemList = function(option){
   
   listWrapper.appendChild(listOl);
   contentWrapper.appendChild(listWrapper);
-  contentWrapper.appendChild(editWrapper);
+  contentWrapper.appendChild(positionerEditWrapper);
   wrapper.appendChild(headerWrapper);
   wrapper.appendChild(contentWrapper);
   

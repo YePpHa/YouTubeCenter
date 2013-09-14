@@ -65,7 +65,7 @@ ytcenter.modules.select = function(option){
           break;
         }
       }
-      selectedText.textContent = select.options[select.selectedIndex].textContent;
+      if (select.options.length > 0) selectedText.textContent = select.options[select.selectedIndex].textContent;
     },
     update: function(value){
       selectedValue = value;
@@ -75,7 +75,7 @@ ytcenter.modules.select = function(option){
           break;
         }
       }
-      selectedText.textContent = select.options[select.selectedIndex].textContent;
+      if (select.options.length > 0) selectedText.textContent = select.options[select.selectedIndex].textContent;
     },
     updateList: function(_list){
       list = _list;
