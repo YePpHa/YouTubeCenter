@@ -7,14 +7,6 @@
   min-width: 0!important;
 }
 
-.ytcenter-settings-content {
-  padding-left: 35px;
-}
-
-.ytcenter-settings-content > div {
-  padding-left: 25px;
-}
-
 .ytcenter-exp-settings-dialog .ytcenter-settings-content,
 .ytcenter-exp-settings-dialog .ytcenter-settings-content > div {
   padding-left: 0px!important;
@@ -46,20 +38,6 @@ body.ytcenter-channelv2 #yt-masthead,body.ytcenter-channelv2 #page-container > #
 
 body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: auto!important;
-}
-
-.ytcenter-site-center .ytcenter-settings-content,
-.ytcenter-site-center .ytcenter-settings-title,
-.ytcenter-site-center .ytcenter-settings-header {
-  margin: 0 auto;
-  width: 1103px;
-}
-
-.ytcenter-site-center .ytcenter-exp-settings-dialog .ytcenter-settings-content,
-.ytcenter-site-center .ytcenter-exp-settings-dialog .ytcenter-settings-title,
-.ytcenter-site-center .ytcenter-exp-settings-dialog .ytcenter-settings-header {
-  margin: 0 auto;
-  width: auto;
 }
 
 .ytcenter-site-center #page-container > #page {
