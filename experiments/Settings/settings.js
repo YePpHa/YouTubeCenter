@@ -50,7 +50,8 @@ ytcenter.settingsPanel = (function(){
       label: label,
       enabled: true,
       visible: true,
-      options: []
+      options: [],
+      listeners: {}
     });
     return a.getSubCategory(id);
   };
@@ -79,6 +80,7 @@ ytcenter.settingsPanel = (function(){
       },
       setVisibility: function(visible){
         cat.visible = visible;
+        if (cat._visible) cat._visible(visible);
       },
       setEnabled: function(enabled){
         cat.enabled = enabled;
@@ -100,6 +102,7 @@ ytcenter.settingsPanel = (function(){
       },
       setVisibility: function(visible){
         subcat.visible = visible;
+        if (subcat._visible) subcat._visible(visible);
       },
       setEnabled: function(enabled){
         subcat.enabled = enabled;
@@ -108,7 +111,11 @@ ytcenter.settingsPanel = (function(){
         subcat.options.push(options[option.getId()]);
       },
       select: function(){
-        if (cat.select) cat.select();
+        if (subcat.select) subcat.select();
+      },
+      addEventListener: function(event, callback){
+        if (!subcat.listeners[event]) subcat.listeners[event] = [];
+        subcat.listeners[event].push(callback);
       }
     };
   };
@@ -133,6 +140,7 @@ ytcenter.settingsPanel = (function(){
       },
       setVisibility: function(visible){
         option.visible = visible;
+        if (option._visible) option._visible(visible);
       },
       setEnabled: function(enabled){
         option.enabled = enabled;
@@ -165,6 +173,9 @@ ytcenter.settingsPanel = (function(){
             return;
           }
         }
+      },
+      getLiveModule: function(){
+        return option.liveModule;
       }
     };
   };
@@ -174,6 +185,14 @@ ytcenter.settingsPanel = (function(){
     subcat.options.forEach(function(option){
       var optionWrapper = document.createElement("div"),
           label, module, moduleContainer, labelText, help, replaceHelp, i;
+      optionWrapper.className = "ytcenter-settings-subcat-option" + (option.visible ? "" : " hid");
+      option._visible = function(visible){
+        if (visible) {
+          ytcenter.utils.removeClass(optionWrapper, "hid");
+        } else {
+          ytcenter.utils.addClass(optionWrapper, "hid");
+        }
+      };
       if (option.label && option.label !== "") {
         labelText = document.createTextNode(ytcenter.language.getLocale(option.label));
         ytcenter.language.addLocaleElement(labelText, option.label, "@textContent");
@@ -202,37 +221,42 @@ ytcenter.settingsPanel = (function(){
         
         optionWrapper.appendChild(label);
       }
-      if (!option.module)
-        throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ") doesn't have module!");
-      if (!ytcenter.modules[option.module])
-        throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ", " + option.module + ") are using an non existing module!");
-
-      moduleContainer = document.createElement("span");
-      module = ytcenter.modules[option.module](option);
-      moduleContainer.appendChild(module.element);
-      
-      module.bind(function(value){
-        ytcenter.settings[option.defaultSetting] = value;
-        ytcenter.events.performEvent("ui-refresh");
+      if (!option.module) {
         
-        if (option.listeners && option.listeners["update"]) {
-          for (i = 0; i < option.listeners["update"].length; i++) {
-            option.listeners["update"][i](value);
+      } else {
+        if (!ytcenter.modules[option.module])
+          throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ", " + option.module + ") are using an non existing module!");
+
+        moduleContainer = document.createElement("span");
+        module = ytcenter.modules[option.module](option);
+        option.liveModule = module;
+        moduleContainer.appendChild(module.element);
+        
+        module.bind(function(value){
+          ytcenter.settings[option.defaultSetting] = value;
+          ytcenter.events.performEvent("ui-refresh");
+          
+          if (option.listeners && option.listeners["update"]) {
+            for (i = 0; i < option.listeners["update"].length; i++) {
+              option.listeners["update"][i](value);
+            }
+          }
+          ytcenter.events.performEvent("settings-update-" + option.defaultSetting);
+        });
+        module.update(ytcenter.settings[option.defaultSetting]);
+        
+        if (option.moduleListeners) {
+          if (module.addEventListener) {
+            for (i = 0; i < option.moduleListeners.length; i++) {
+              module.addEventListener(option.moduleListeners[i][0], option.moduleListeners[i][1], option.moduleListeners[i][2]);
+            }
+          } else {
+            throw new Error(option.module + " do not support listeners!");
           }
         }
-      });
-      
-      if (option.moduleListeners) {
-        if (module.addEventListener) {
-          for (i = 0; i < option.moduleListeners.length; i++) {
-            module.addEventListener(option.moduleListeners[i][0], option.moduleListeners[i][1], option.moduleListeners[i][2]);
-          }
-        } else {
-          throw new Error(option.module + " do not support listeners!");
-        }
+        
+        optionWrapper.appendChild(moduleContainer);
       }
-      
-      optionWrapper.appendChild(moduleContainer);
       frag.appendChild(optionWrapper);
     });
     
@@ -269,12 +293,17 @@ ytcenter.settingsPanel = (function(){
           topheaderList = document.createElement("ul"),
           categoryContent = document.createElement("div"),
           hideContent = false;
+      if (li && !category.visible) li.className = "hid";
       sSelectedList.push(acat);
       acat.href = ";return false;";
-      acat.className = "ytcenter-settings-category-item yt-valign" + (categoryHide ? "" : " ytcenter-selected");
+      acat.className = "ytcenter-settings-category-item yt-valign" + (categoryHide || !category.visible ? "" : " ytcenter-selected");
       
       ytcenter.utils.addEventListener(acat, "click", function(e){
         category.select();
+        console.log(category.subcategories[0]);
+        if (category.subcategories.length > 0 && category.subcategories[0] && category.subcategories[0].select) category.subcategories[0].select();
+        
+        ytcenter.events.performEvent("ui-refresh");
         
         e.preventDefault();
         e.stopPropagation();
@@ -311,6 +340,7 @@ ytcenter.settingsPanel = (function(){
         
         ytcenter.utils.addEventListener(liItemLink, "click", function(e){
           subcat.select();
+          ytcenter.events.performEvent("ui-refresh");
           
           e.preventDefault();
           e.stopPropagation();
@@ -319,6 +349,7 @@ ytcenter.settingsPanel = (function(){
         subcatLinkList.push(liItemLink);
         subcatContentList.push(content);
         subcat.select = function(){
+          if (!subcat.visible) return;
           subcatLinkList.forEach(function(item){
             ytcenter.utils.removeClass(item, "ytcenter-selected");
           });
@@ -327,6 +358,43 @@ ytcenter.settingsPanel = (function(){
           });
           ytcenter.utils.removeClass(content, "hid");
           ytcenter.utils.addClass(liItemLink, "ytcenter-selected");
+          
+          if (subcat.listeners.click) {
+            subcat.listeners.click.forEach(function(callback){
+              callback();
+            });
+          }
+        };
+        subcat._visible = function(visible){
+          if (visible) {
+            try {
+              category.subcategories.forEach(function(subcat2){
+                if (subcat2.visible && subcat2 !== subcat) {
+                  throw "SelectedException";
+                }
+              });
+              if (subcat.select) subcat.select();
+            } catch (e) {
+              if (e !== "SelectedException") throw e;
+            }
+            ytcenter.utils.removeClass(liItem, "hid");
+          } else {
+            ytcenter.utils.addClass(liItem, "hid");
+            ytcenter.utils.addClass(content, "hid");
+            
+            if (ytcenter.utils.hasClass(liItemLink, "ytcenter-selected")) {
+              try {
+                category.subcategories.forEach(function(subcat2){
+                  if (subcat2.visible && subcat2.select) {
+                    if (subcat2.select()) throw "SelectedException";
+                  }
+                });
+              } catch (e) {
+                if (e !== "SelectedException") throw e;
+              }
+            }
+            ytcenter.utils.removeClass(liItemLink, "ytcenter-selected");
+          }
         };
         
         categoryContent.appendChild(content);
@@ -334,8 +402,8 @@ ytcenter.settingsPanel = (function(){
       });
       topheader.appendChild(topheaderList);
       
-      topheader.className = (categoryHide ? "hid" : "");
-      categoryContent.className = (categoryHide ? "hid" : "");
+      topheader.className = (categoryHide || !category.visible ? "hid" : "");
+      categoryContent.className = (categoryHide || !category.visible ? "hid" : "");
       
       subcatList.push(topheader);
       subcatList.push(categoryContent);
@@ -343,6 +411,7 @@ ytcenter.settingsPanel = (function(){
       subcatContent.appendChild(categoryContent);
       
       category.select = function(){
+        if (!category.visible) return false;
         sSelectedList.forEach(function(item){
           ytcenter.utils.removeClass(item, "ytcenter-selected");
         });
@@ -352,8 +421,30 @@ ytcenter.settingsPanel = (function(){
         ytcenter.utils.addClass(acat, "ytcenter-selected");
         ytcenter.utils.removeClass(topheader, "hid");
         ytcenter.utils.removeClass(categoryContent, "hid");
+        return true;
       };
-      categoryHide = true;
+      category._visible = function(visible){
+        if (visible) {
+          ytcenter.utils.removeClass(li, "hid");
+        } else {
+          ytcenter.utils.addClass(li, "hid");
+          ytcenter.utils.addClass(topheader, "hid");
+          ytcenter.utils.addClass(categoryContent, "hid");
+          if (ytcenter.utils.hasClass(acat, "ytcenter-selected")) {
+            try {
+              categories.forEach(function(category2){
+                if (category2.visible && category2.select) {
+                  if (category2.select()) throw "SelectedException";
+                }
+              });
+            } catch (e) {
+              if (e !== "SelectedException") throw e;
+            }
+          }
+          ytcenter.utils.removeClass(acat, "ytcenter-selected");
+        }
+      };
+      if (category.visible) categoryHide = true;
     });
     
     leftPanel.appendChild(categoryList);

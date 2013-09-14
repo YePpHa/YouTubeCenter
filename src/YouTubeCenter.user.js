@@ -3193,7 +3193,12 @@
       html5player: "@styles-html5player@",
       gridSubscriptions: "@styles-grid-subscriptions@",
       images: "@styles-images@",
-      dialog: "@styles-dialog@"
+      dialog: "@styles-dialog@",
+      scrollbar: "@styles-scrollbar@",
+      list: "@styles-list@",
+      confirmbox: "@styles-confirmbox@",
+      panel: "@styles-panel@",
+      resizePanel: "@styles-resize-panel@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -7985,8 +7990,12 @@
       var contentWrapper = document.createElement("div");
       contentWrapper.className = "ytcenter-resize-panel-content";
       
+      var positionerEditWrapper = document.createElement("div");
+      positionerEditWrapper.className = "ytcenter-resize-panel-right";
       var editWrapper = document.createElement("div");
       editWrapper.className = "ytcenter-panel";
+      
+      positionerEditWrapper.appendChild(editWrapper);
       
       var listWrapper = document.createElement("div");
       listWrapper.className = "ytcenter-resize-panel-list";
@@ -8004,7 +8013,7 @@
       
       listWrapper.appendChild(listOl);
       contentWrapper.appendChild(listWrapper);
-      contentWrapper.appendChild(editWrapper);
+      contentWrapper.appendChild(positionerEditWrapper);
       wrapper.appendChild(headerWrapper);
       wrapper.appendChild(contentWrapper);
       
@@ -15545,6 +15554,11 @@
         $AddStyle(ytcenter.css.gridSubscriptions);
         $AddStyle(ytcenter.css.images);
         $AddStyle(ytcenter.css.dialog);
+        $AddStyle(ytcenter.css.scrollbar);
+        $AddStyle(ytcenter.css.list);
+        $AddStyle(ytcenter.css.confirmbox);
+        $AddStyle(ytcenter.css.panel);
+        $AddStyle(ytcenter.css.resizePanel);
         
         if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) {
           $AddStyle(ytcenter.css.topbar);

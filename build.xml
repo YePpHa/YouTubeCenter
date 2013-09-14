@@ -51,6 +51,11 @@
   <property name="styles.grid-subscriptions" value="ytcenter-styles-grid-subscriptions.css" />
   <property name="styles.images" value="ytcenter-styles-images.css" />
   <property name="styles.dialog" value="ytcenter-styles-dialog.css" />
+  <property name="styles.scrollbar" value="ytcenter-styles-scrollbar.css" />
+  <property name="styles.list" value="ytcenter-styles-list.css" />
+  <property name="styles.confirmbox" value="ytcenter-styles-confirmbox.css" />
+  <property name="styles.panel" value="ytcenter-styles-panel.css" />
+  <property name="styles.resizePanel" value="ytcenter-styles-resize-panel.css" />
   
   <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, firefox-legacy, safari, opera, clean" />
   <target name="preinit">
@@ -119,6 +124,31 @@
       <arg value="-o" />
       <arg value="${build}/${name.styles}/${styles.dialog}" />
     </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.scrollbar}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.scrollbar}" />
+    </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.list}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.list}" />
+    </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.confirmbox}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.confirmbox}" />
+    </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.panel}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.panel}" />
+    </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.resizePanel}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.resizePanel}" />
+    </java>
   </target>
   <target name="apply-styles">
     <loadfile property="style.minified.general" srcFile="${build}/${name.styles}/${styles.general}" />
@@ -129,6 +159,11 @@
     <loadfile property="style.minified.grid-subscriptions" srcFile="${build}/${name.styles}/${styles.grid-subscriptions}" />
     <loadfile property="style.minified.images" srcFile="${build}/${name.styles}/${styles.images}" />
     <loadfile property="style.minified.dialog" srcFile="${build}/${name.styles}/${styles.dialog}" />
+    <loadfile property="style.minified.scrollbar" srcFile="${build}/${name.styles}/${styles.scrollbar}" />
+    <loadfile property="style.minified.list" srcFile="${build}/${name.styles}/${styles.list}" />
+    <loadfile property="style.minified.confirmbox" srcFile="${build}/${name.styles}/${styles.confirmbox}" />
+    <loadfile property="style.minified.panel" srcFile="${build}/${name.styles}/${styles.panel}" />
+    <loadfile property="style.minified.resizePanel" srcFile="${build}/${name.styles}/${styles.resizePanel}" />
     <replace dir="${buildDir}" value="${style.minified.general}" token="@styles-general@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.resize}" token="@styles-resize@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.topbar}" token="@styles-topbar@" encoding="${encoding}" />
@@ -137,6 +172,11 @@
     <replace dir="${buildDir}" value="${style.minified.grid-subscriptions}" token="@styles-grid-subscriptions@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.images}" token="@styles-images@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.dialog}" token="@styles-dialog@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.scrollbar}" token="@styles-scrollbar@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.list}" token="@styles-list@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.confirmbox}" token="@styles-confirmbox@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.panel}" token="@styles-panel@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.resizePanel}" token="@styles-resize-panel@" encoding="${encoding}" />
   </target>
   <target name="clean-styles">
     <delete dir="${build}/${name.styles}" />
