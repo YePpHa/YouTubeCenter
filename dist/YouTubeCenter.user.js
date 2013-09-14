@@ -527,7 +527,7 @@
       }
       
       updateItems(ytcenter.settings["resize-playersizes"]);
-      ytcenter.events.addEvent("ui-refresh", function(){
+      ytcenter.events.addEvent("settings-update", function(){
         updateItems(ytcenter.settings["resize-playersizes"]);
       });
       ytcenter.player.resizeCallback.push(function(){
@@ -2019,8 +2019,10 @@
     ytcenter.title.previousTitle = "";
     ytcenter.title.liveTitle = "";
     ytcenter.title.init = function(){
+      if (ytcenter.title.originalTitle === "") ytcenter.title.originalTitle = ytcenter.title.liveTitle = document.title;
       document.getElementsByTagName("title")[0].addEventListener("DOMSubtreeModified", function(event){
         if (document.title !== ytcenter.title.previousTitle) {
+          if (ytcenter.title.originalTitle === "") ytcenter.title.originalTitle = ytcenter.title.liveTitle = document.title;
           con.log("[Title Listener] \"" + ytcenter.title.previousTitle + "\" => \"" + document.title + "\"");
           ytcenter.title.previousTitle = document.title;
           ytcenter.title.update();
@@ -4361,9 +4363,11 @@
       };
       __r.performEvent = function(event){
         if (!db.hasOwnProperty(event)) return;
+        var staticArguments = Array.prototype.splice.call(arguments, 1, arguments.length);
+        con.log("performEvent: " + event, staticArguments, arguments);
         for (var i = 0; i < db[event].length; i++) {
           try {
-            db[event][i]();
+            db[event][i].apply(null, staticArguments);
           } catch (e) {
             con.error(e);
           }
@@ -4805,33 +4809,6 @@
       // @media and screen (max-width: ...){...}
       
     };
-    ytcenter.events = (function(){
-      var db = [];
-      
-      var __r = {};
-      /**
-       * Adds a callback to an event.
-       * @event The event which callback will be called upon.
-       * @callback The function which will be called upon a specific event.
-       * @return The index of the new entry.
-       */
-      __r.addEvent = function(event, callback){
-        return db.push([event, callback])-1;
-      };
-      /**
-       * Performs an event which will call all callbacks which is linked to this specific event.
-       * @event The event which callback will be called upon.
-       */
-      __r.performEvent = function(event){
-        for (var i = 0; i < db.length; i++) {
-          if (db[i][0] === event) {
-            db[i][1]();
-          }
-        }
-      };
-      
-      return __r;
-    })();
     ytcenter.listeners = (function(){
       var __r = {};
       
@@ -5461,7 +5438,7 @@
           update();
           updateHueRange();
           updateColorField();
-          ytcenter.events.performEvent("ui-refresh");
+          //ytcenter.events.performEvent("ui-refresh");
         }
       };
     };
@@ -5550,7 +5527,7 @@
         }
         return false;
       });
-      ytcenter.events.addEvent("ui-refresh", function(){
+      ytcenter.events.addEvent("settings-update", function(){
         update();
         updateBackground();
       });
@@ -5722,18 +5699,6 @@
       
       wrapper.appendChild(btn);
       
-      ytcenter.events.addEvent("ui-refresh", function(){
-        var opt = ytcenter.settings[option.args.bind],
-            found = false, i;
-        for (i = 0; i < opt.length; i++) {
-          if (opt[i].id === selectedId) found = true;
-        }
-        if (!found && selectedId !== "default") {
-          selectedId = opt[0].id;
-          if (saveCallback) saveCallback(selectedId);
-        }
-        updateItems(opt);
-      });
       if (option.parent) {
         option.parent.addEventListener("click", function(){
           selectedId = ytcenter.settings[option.defaultSetting];
@@ -5757,7 +5722,16 @@
         },
         update: function(v){
           selectedId = v;
-          updateItems(items);
+          var opt = ytcenter.settings[option.args.bind],
+              found = false, i;
+          for (i = 0; i < opt.length; i++) {
+            if (opt[i].id === selectedId) found = true;
+          }
+          if (!found && selectedId !== "default") {
+            selectedId = opt[0].id;
+            if (saveCallback) saveCallback(selectedId);
+          }
+          updateItems(opt);
         }
       };
     };
@@ -6037,9 +6011,12 @@
       });
       
       ytcenter.utils.addEventListener(exportFileButton, "click", function(){
-        var bb = new ytcenter.io.BlobBuilder();
-        bb.append(VALIDATOR_STRING + settingsPool.value);
-        ytcenter.io.saveAs(bb.getBlob("text/plain"), "ytcenter-settings.ytcs");
+        try {
+          var blob = new ytcenter.unsafe.io.Blob([VALIDATOR_STRING + settingsPool.value], { "type": "application/octet-stream" });
+          ytcenter.unsafe.io.saveAs(blob, "ytcenter-settings.ytcs");
+        } catch (e) {
+          con.error(e);
+        }
       }, false);
       
       content.appendChild(exportFileButton);
@@ -6165,9 +6142,6 @@
         sc2.className = "yt-uix-form-input-select-value";
         sc2.textContent = defaultLabelText;
         sc.appendChild(sc2);
-        ytcenter.events.addEvent("ui-refresh", function(){
-          sc2.textContent = s.options[s.selectedIndex].textContent;
-        });
         ytcenter.events.addEvent("language-refresh", function(){
           sc2.textContent = s.options[s.selectedIndex].textContent;
         });
@@ -6462,10 +6436,6 @@
       
       wrapper.appendChild(handle);
       
-      ytcenter.events.addEvent("ui-refresh", function(){
-        setValue(options.value);
-        update();
-      });
       if (option.parent) {
         option.parent.addEventListener("click", function(){
           setValue(options.value);
@@ -6687,18 +6657,20 @@
       wrapper.appendChild(btn);
       
       updateItems(ytcenter.settings[option.defaultSetting]);
-      ytcenter.events.addEvent("ui-refresh", function(){
-        var opt = ytcenter.settings[option.defaultSetting];
-        var found = false;
-        for (var i = 0; i < opt.length; i++) {
-          if (opt[i].id === selectedId) found = true;
-        }
-        if (!found) {
-          selectedId = opt[0].id;
-          if (saveCallback) saveCallback(selectedId);
-        }
-        updateItems(opt);
-      });
+      if (option.parent) {
+        option.parent.addEventListener("click", function(){
+          var opt = ytcenter.settings[option.defaultSetting];
+          var found = false;
+          for (var i = 0; i < opt.length; i++) {
+            if (opt[i].id === selectedId) found = true;
+          }
+          if (!found) {
+            selectedId = opt[0].id;
+            if (saveCallback) saveCallback(selectedId);
+          }
+          updateItems(opt);
+        });
+      }
       
       return {
         element: wrapper, // So the element can be appended to an element.
@@ -6760,6 +6732,10 @@
           },
           getItemElement: function(){
             return li;
+          },
+          select: function(){
+            if (selected) return;
+            selectSizeItem(item.id);
           },
           setSelection: function(_selected){
             selected = _selected;
@@ -7461,12 +7437,14 @@
         
         listOl.innerHTML = "";
         ytcenter.utils.each(items, function(i, item){
-          listOl.appendChild(item.getItemElement());
+          var a = item.getItemElement();
+          listOl.appendChild(a);
         });
       }
       var editor;
       var saveCallback;
       var items = [];
+      var lastValue = ytcenter.settings[option.defaultSetting];
       
       var wrapper = document.createElement("div");
       wrapper.className = "ytcenter-embed ytcenter-resize-panel";
@@ -7503,8 +7481,8 @@
         var itm = items[oldIndex];
         items.splice(oldIndex, 1);
         items.splice(newIndex, 0, itm);
-        if (typeof saveCallback !== "undefined") saveCallback(getSaveArray());
-        ytcenter.events.performEvent("ui-refresh");
+        if (saveCallback) saveCallback(getSaveArray());
+        //ytcenter.events.performEvent("ui-refresh");
       });
       
       listWrapper.appendChild(listOl);
@@ -7513,12 +7491,6 @@
       wrapper.appendChild(headerWrapper);
       wrapper.appendChild(contentWrapper);
       
-      ytcenter.events.addEvent("ui-refresh", function(){
-        if (!editor) {
-          editor = createEditor();
-        }
-        updateListHeight();
-      });
       if (option.parent) {
         option.parent.addEventListener("click", function(){
           if (!editor) {
@@ -7527,16 +7499,18 @@
           updateListHeight();
         });
       }
-      
+      setItems(lastValue);
       return {
         element: wrapper, // So the element can be appended to an element.
         bind: function(callback){
           saveCallback = function(arg){
-            callback(arg);
+            if (callback) callback(arg);
             ytcenter.player.resizeUpdater();
           }
         },
         update: function(value){
+          if (value === lastValue) return;
+          lastValue = value;
           setItems(value);
           if (typeof editor !== "undefined") editor.setVisibility(false);
         }
@@ -10685,17 +10659,19 @@
               ytcenter.settings[option.defaultSetting] = value;
               ytcenter.saveSettings();
               
-              ytcenter.events.performEvent("ui-refresh");
+              //ytcenter.events.performEvent("ui-refresh");
               
               if (option.listeners && option.listeners["update"]) {
                 for (i = 0; i < option.listeners["update"].length; i++) {
                   option.listeners["update"][i](value);
                 }
               }
-              ytcenter.events.performEvent("settings-update-" + option.defaultSetting);
+              ytcenter.events.performEvent("settings-update", option.id);
             });
-            ytcenter.events.addEvent("settings-update", function(){
-              module.update(ytcenter.settings[option.defaultSetting]);
+            ytcenter.events.addEvent("settings-update", function(id){
+              if (id !== option.id) {
+                module.update(ytcenter.settings[option.defaultSetting]);
+              }
             });
             module.update(ytcenter.settings[option.defaultSetting]);
             
@@ -16639,7 +16615,6 @@
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         var page = ytcenter.getPage();
-        ytcenter.title.originalTitle = document.title;
         ytcenter.title.init();
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         
