@@ -4511,11 +4511,11 @@
             bgOverlay.parentNode.removeChild(bgOverlay);
             document.body.appendChild(bgOverlay);
           }
-          //if (document.getElementById("player-api-legacy") || document.getElementById("player-api")) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "hidden";
+          if (document.getElementById("player-api-legacy") || document.getElementById("player-api")) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "hidden";
         } else {
           if (root.parentNode) root.parentNode.removeChild(root);
           if (bgOverlay.parentNode) bgOverlay.parentNode.removeChild(bgOverlay);
-          //if ((document.getElementById("player-api-legacy") || document.getElementById("player-api")) && !___parent_dialog) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "";
+          if ((document.getElementById("player-api-legacy") || document.getElementById("player-api")) && !___parent_dialog) (document.getElementById("player-api-legacy") || document.getElementById("player-api")).style.visibility = "";
         }
       };
       __r.setFocus = function(focus){
