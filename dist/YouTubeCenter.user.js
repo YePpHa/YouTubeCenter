@@ -12874,7 +12874,7 @@
           option = ytcenter.settingsPanel.createOption(
             "videoThumbnailRatingsCount", // defaultSetting
             "bool", // module
-            "SETTINGS_THUMBVIDEO_QUALITY_ENABLE" // label
+            "SETTINGS_THUMBVIDEO_RATING_COUNT_ENABLE" // label
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -15995,11 +15995,11 @@
       {element: function(){return document.body;}, className: "white", condition: function(loc){
         var p = ytcenter.getPage();
         if (p === "watch") {
-          return ytcenter.html5 && ytcenter.settings.playerColor;
+          return ytcenter.html5 && ytcenter.settings.playerColor === "white";
         } else if (p === "embed") {
-          return ytcenter.html5 && ytcenter.settings.embed_playerColor;
+          return ytcenter.html5 && ytcenter.settings.embed_playerColor === "white";
         } else if (p === "channel") {
-          return ytcenter.html5 && ytcenter.settings.channel_playerColor;
+          return ytcenter.html5 && ytcenter.settings.channel_playerColor === "white";
         }
         return false;
       }},
