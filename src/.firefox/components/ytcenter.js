@@ -9,7 +9,7 @@ var DESCRIPTION = "YouTubeCenterService",
 
 Cu.import("resource://ytcenter/third-party/getChromeWinForContentWin.js");
 Cu.import("resource://ytcenter/request.js");
-Cu.import("resource://ytcenter/storage.js");
+Cu.import("resource://ytcenter/storage2.js");
 Cu.import("resource://ytcenter/utils/bind.js");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
