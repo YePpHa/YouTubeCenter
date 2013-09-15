@@ -3614,7 +3614,7 @@
               "360": "medium",
               "480": "large",
               "720": "hd720",
-              "1080": "highress"
+              "1080": "hd1080"
             };
         if (stream === "error") {
           text = tableQuality[stream];
@@ -10080,7 +10080,7 @@
         }
       };
     }
-    ytcenter.storageName = "ytcenter_v1.3_settings";
+    ytcenter.storageName = "YouTubeCenterSettings";
     ytcenter.loadSettings = function(callback){
       try {
         if (identifier === 1 && injected) {
@@ -10143,16 +10143,20 @@
             name: ytcenter.storageName
           });
         } else if (identifier === 6) {
-          var data = storage_getValue(ytcenter.storageName) || {};
-          try {
-            var loaded = JSON.parse(data);
-            for (var key in loaded) {
-              if (loaded.hasOwnProperty(key)) {
-                ytcenter.settings[key] = loaded[key];
+          con.log("Loading storage_getValue");
+          var data = storage_getValue(ytcenter.storageName) || "{}";
+          con.log("storage_getValue returned: " + data);
+          if (data && data !== null) {
+            try {
+              var loaded = JSON.parse(data);
+              for (var key in loaded) {
+                if (loaded.hasOwnProperty(key)) {
+                  ytcenter.settings[key] = loaded[key];
+                }
               }
+            } catch (e) {
+              con.error(e);
             }
-          } catch (e) {
-            con.error(e);
           }
           if (callback) callback();
         } else {

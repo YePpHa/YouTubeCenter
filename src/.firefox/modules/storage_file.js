@@ -1,6 +1,7 @@
 const EXPORTED_SYMBOLS = ["StorageFile"];
-const { Ci, Cu, Cc } = require('chrome');
-
+const Cc = Components.classes,
+      Ci = Components.interfaces,
+      Cu = Components.utils;
 function getLocalDirectory() {
   let directoryService = Cc["@mozilla.org/file/directory_service;1"]
                          .getService(Ci.nsIProperties);
@@ -11,8 +12,20 @@ function getLocalDirectory() {
   return localDir;
 }
 
+function StorageFile() {
+  // Empty
+}
 
-exports.writeFile = function writeFile(name, data) {
+StorageFile.prototype.exists = function exists(name) {
+  if (!(/^[a-zA-Z0-9.-]+$/.test(name))) throw new Error("Name was malformed!");
+  let file = getLocalDirectory();
+  file.append(name + ".data");
+  if (!file.exists())
+    return false;
+  return true;
+};
+
+StorageFile.prototype.writeFile = function writeFile(name, data) {
   if (!(/^[a-zA-Z0-9.-]+$/.test(name))) throw new Error("Name was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
@@ -31,12 +44,12 @@ exports.writeFile = function writeFile(name, data) {
   });
 };
 
-exports.readFile = function readFile(name) {
+StorageFile.prototype.readFile = function readFile(name) {
   if (!(/^[a-zA-Z0-9.-]+$/.test(name))) throw new Error("Name was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
   if (!file.exists())
-    return "";
+    return null;
   var data = "";
   var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
                 .createInstance(Ci.nsIFileInputStream);
