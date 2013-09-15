@@ -7031,7 +7031,6 @@
         var scrollToPlayerButtonInput = ytcenter.modules.checkbox();
         scrollToPlayerButtonInput.element.style.background = "#fff";
         scrollToPlayerButtonInput.fixHeight();
-        scrollToPlayerButtonWrapper.style.marginBottom = "40px";
         scrollToPlayerButtonWrapper.appendChild(scrollToPlayerButtonInput.element);
         
         var optionsWrapper = document.createElement("div");

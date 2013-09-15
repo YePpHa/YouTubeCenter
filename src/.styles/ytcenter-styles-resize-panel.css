@@ -81,7 +81,7 @@
 .resize-options {
   padding: 0 10px;
   position: absolute;
-  bottom: 5px;
+  bottom: -35px;
   left: 0;
   right: 0;
 }
@@ -95,6 +95,8 @@
 }
 
 .ytcenter-resize-panel-right > * > *{
+  position: relative;
   height: 100%;
   padding-left: 5px;
+  margin-bottom: 40px;
 }
