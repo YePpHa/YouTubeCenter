@@ -710,3 +710,11 @@ body > #page {
 .ytcenter-intelligentfeed .yt-shelf-grid-item {
   margin-right: 7px!important;
 }
+
+.ytcenter-ticker-hidden #ticker {
+  display: none!important;
+}
+
+.exp-top-guide.sitewide-ticker-visible.ytcenter-ticker-hidden #masthead-positioner-height-offset {
+  height: 90px!important;
+}

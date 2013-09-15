@@ -93,6 +93,12 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   min-width: 1003px!important;
 }
 
+.flex-width-enabled.exp-top-guide #yt-masthead {
+  width: auto!important;
+  max-width: none!important;
+  min-width: none!important;
+}
+
 .ytcenter-site-center.ytcenter-non-resize #player,
 .ytcenter-site-center.ytcenter-non-resize #player-legacy,
 .ytcenter-site-center.ytcenter-non-resize #content,
