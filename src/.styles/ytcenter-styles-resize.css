@@ -1,96 +1,7 @@
-.ytcenter-site-center #yt-masthead,
-.ytcenter-site-center #footer-hh {
-  width: 1003px!important;
-}
-
-#page.search.no-flex .branded-page-v2-container {
-  min-width: 0!important;
-}
-
-.ytcenter-exp-settings-dialog .ytcenter-settings-content,
-.ytcenter-exp-settings-dialog .ytcenter-settings-content > div {
-  padding-left: 0px!important;
-}
-
-.ytcenter-exp-settings-dialog .yt-uix-form-textarea {
-  width: 100% !important;
-}
-
 .player-disable #player,
 .player-disable #player-legacy {
   display: none!important;
 }
-
-.ytcenter-site-center #alerts {
-  margin: 0 auto!important;
-}
-
-
-.ytcenter-site-center #sb-wrapper {
-  width: 1003px!important;
-}
-
-body.ytcenter-channelv2 #yt-masthead,body.ytcenter-channelv2 #page-container > #page.channel {
-  width: auto!important;
-  min-width: 1003px;
-  max-width: 1422px;
-}
-
-body.ytcenter-channelv2 #page.channel > #guide + #content {
-  width: auto!important;
-}
-
-.ytcenter-site-center #page-container > #page {
-  margin: 0 auto!important;
-}
-
-.ytcenter-site-center #masthead-subnav > ul {
-  width: 1003px;
-  margin: 0 auto!important;
-}
-
-.ytcenter-site-center #page.channel.page-default {
-  width: 100%!important;
-}
-
-.ytcenter-site-center #content-container #baseDiv,
-.ytcenter-site-center #masthead-subnav {
-  margin-left: auto!important;
-  margin-right: auto!important;
-}
-
-.ytcenter-site-center #footer-container #footer {
-  width: 1003px!important;
-  margin-left: auto!important;
-  margin-right: auto!important;
-}
-
-.ytcenter-site-center #yt-masthead-container #yt-masthead,
-.ytcenter-site-center #header,
-.ytcenter-site-center #alerts {
-  width: 1003px;
-  margin: 0 auto!important;
-  padding: 0 10px!important;
-}
-
-.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #guide + #content {
-  width: 823px!important;
-}
-
-.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #page {
-  width: 1003px!important;
-}
-
-/*.ytcenter-flex-width.ytcenter-site-center #yt-masthead {
-  width: auto!important;
-  max-width: 1422px!important;
-  min-width: 1003px!important;
-}*/
-
-
-/*.ytcenter-site-watch #page-container {
-  display: table!important;
-}*/
 
 .ytcenter-site-watch.ytcenter-site-center #content,
 .site-left-aligned.ytcenter-site-center #page.watch #guide-container,
@@ -122,18 +33,6 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
 
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page-container {
   margin: 0 auto!important;
-}
-
-.ytcenter-site-not-watch.ytcenter-site-center #page {
-  width: 1003px;
-}
-
-.ytcenter-site-not-watch.ytcenter-site-center #page-container {
-  padding: 0 10px!important;
-}
-
-.ytcenter-site-not-watch.ytcenter-site-center.flex-width-enabled #page  {
-  padding: 0 10px !important;
 }
 
 .ytcenter-site-watch.ytcenter-site-center #guide-container {
@@ -449,18 +348,8 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   width: auto; /* Default fallback size when the resize feature fails. */
 }
 
-.ytcenter-intelligentfeed .yt-shelf-grid-item {
-  margin-right: 7px!important;
-}
-
 .ytcenter-resize-disaligned #player {
   min-width: auto !important;
-}
-
-.flex-width-enabled #yt-masthead {
-  width: auto!important;
-  max-width: 1422px!important;
-  min-width: 1003px!important;
 }
 
 #player-unavailable {
