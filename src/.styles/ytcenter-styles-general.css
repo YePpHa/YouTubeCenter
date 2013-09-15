@@ -706,3 +706,7 @@ body > #page {
 .ytcenter-guide-hidden.ytcenter-site-center #watch7-main-container {
   padding: 0!important;
 }
+
+.ytcenter-intelligentfeed .yt-shelf-grid-item {
+  margin-right: 7px!important;
+}

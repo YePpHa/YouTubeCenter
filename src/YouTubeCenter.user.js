@@ -2135,7 +2135,8 @@
       panel: "@styles-panel@",
       resizePanel: "@styles-resize-panel@",
       modules: "@styles-modules@",
-      settings: "@styles-settings@"
+      settings: "@styles-settings@",
+      centering: "@styles-centering@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -16571,6 +16572,7 @@
         $AddStyle(ytcenter.css.resizePanel);
         $AddStyle(ytcenter.css.modules);
         $AddStyle(ytcenter.css.settings);
+        $AddStyle(ytcenter.css.centering);
         
         if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) {
           $AddStyle(ytcenter.css.topbar);
