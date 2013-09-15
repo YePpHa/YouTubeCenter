@@ -9781,6 +9781,7 @@
       //enableCaptions: true, // %
       enableShortcuts: true,
       autohide: '2',
+      enableVolume: false,
       volume: 100,
       mute: false,
       enableDownload: true,
@@ -9803,7 +9804,6 @@
       enableUpdateChecker: true,
       updateCheckerInterval: "0",
       updateCheckerLastUpdate: 0,
-      enableVolume: true,
       buttonPlacement: {
         'watch-headline-title': ['watch-headline-title&@&//*[@id="eow-title"]'],
         'watch-headline-user-info': ['watch-headline-user-info&@&//*[@id="watch-userbanner"]', 'watch-headline-user-info&@&//*[@id="watch-headline-user-info"]/div', 'watch-headline-user-info&@&//*[@id="watch-headline-user-info"]/span', 'watch-headline-user-info&@&//*[@id="watch-mfu-button"]', '@lightbtn'],
@@ -17238,11 +17238,12 @@
       
       if (ytcenter.getPage() === "embed") {
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
-        var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1];
-        con.log("[Embed] Contacting: /get_video_info?video_id=" + id);
+        var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
+            url = "/get_video_info?html5=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cver=" + ytcenter.settings.embed_forcePlayerType + "&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
+        con.log("[Embed] Contacting: " + url);
         ytcenter.utils.xhr({
           method: "GET",
-          url: '/get_video_info?video_id=' + id,
+          url: url,
           headers: {
             "Content-Type": "text/plain"
           },
@@ -17256,25 +17257,29 @@
                 o[ss[0]] = decodeURIComponent(ss[1]);
               }
               con.log(o);
-              ytcenter._tmp_embed.loaded = true;
-              ytcenter._tmp_embed.dash = o.dash;
-              ytcenter._tmp_embed.dashmpd = o.dashmpd;
-              ytcenter.player.config.args.dash = o.dash;
-              ytcenter.player.config.args.dashmpd = o.dashmpd;
-              ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
-              
-              ytcenter._tmp_embed.fmt_list = o.fmt_list;
-              ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
-              if (o.url_encoded_fmt_stream_map) {
-                ytcenter.video.streams = ytcenter.parseStreams(o);
-                if (!ytcenter.player)
-                  ytcenter.player = {};
-                if (!ytcenter.player.config)
-                  ytcenter.player.config = {};
-                if (!ytcenter.player.config.args)
-                  ytcenter.player.config.args = {};
-                ytcenter.player.config.args.fmt_list = o.fmt_list;
-                ytcenter.player.config.args.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
+              if (o.errorcode) {
+                con.error("[YouTube] " + o.errorcode + ": " + o.reason);
+              } else {
+                ytcenter._tmp_embed.loaded = true;
+                ytcenter._tmp_embed.dash = o.dash;
+                ytcenter._tmp_embed.dashmpd = o.dashmpd;
+                ytcenter.player.config.args.dash = o.dash;
+                ytcenter.player.config.args.dashmpd = o.dashmpd;
+                ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
+                
+                ytcenter._tmp_embed.fmt_list = o.fmt_list;
+                ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
+                if (o.url_encoded_fmt_stream_map) {
+                  ytcenter.video.streams = ytcenter.parseStreams(o);
+                  if (!ytcenter.player)
+                    ytcenter.player = {};
+                  if (!ytcenter.player.config)
+                    ytcenter.player.config = {};
+                  if (!ytcenter.player.config.args)
+                    ytcenter.player.config.args = {};
+                  ytcenter.player.config.args.fmt_list = o.fmt_list;
+                  ytcenter.player.config.args.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
+                }
               }
               if (ytcenter._tmp_embed.callback) {
                 ytcenter._tmp_embed.callback();
