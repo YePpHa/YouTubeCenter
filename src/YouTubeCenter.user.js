@@ -9708,6 +9708,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      hideTicker: true,
       enableEndscreenAutoplay: false,
       removeYouTubeTitleSuffix: true,
       playerPlayingTitleIndicator: false,
@@ -11258,6 +11259,16 @@
             "bool", // module
             "SETTINGS_GRIDSUBSCRIPTIONS", // label
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-for-comments" // help
+          );
+          option.addEventListener("update", function(newValue){
+            ytcenter.classManagement.applyClasses();
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "hideTicker", // defaultSetting
+            "bool", // module
+            "SETTINGS_HIDE_TICKER"
           );
           option.addEventListener("update", function(newValue){
             ytcenter.classManagement.applyClasses();
@@ -13419,6 +13430,9 @@
                 "ko": [
                   { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" },
                   { name: "U Bless", url: "http://userscripts.org/users/ubless" }
+                ],
+                "nb-NO": [
+                  { name: "master3395" }
                 ],
                 "nl": [
                   { name: "Marijn Roes" }
@@ -16007,6 +16021,7 @@
         }
         return false;
       }},
+      {element: function(){return document.body;}, className: "ytcenter-ticker-hidden", condition: function(loc){return ytcenter.settings["hideTicker"];}},
       {element: function(){return document.body;}, className: "ytcenter-guide-hidden", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["watch7playerguidealwayshide"];}},
       {element: function(){return document.body;}, className: "ytcenter-guide-visible", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings["watch7playerguidealwayshide"];}},
       {element: function(){return document.body;}, className: "ytcenter-disable-endscreen", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["removeRelatedVideosEndscreen"];}},
@@ -16922,10 +16937,11 @@
             id = document.body.innerHTML.match(/\\\/v\\\/([0-9a-zA-Z_-]+)/)[1];
           }
           if (id) {
-            con.log("Contacting: /get_video_info?video_id=" + id);
+            var url = "/get_video_info?html5=0&cver=html5&dash=" + (ytcenter.settings.channel_dashPlayback ? "1" : "0") + "&video_id=" + id + "&eurl=" + encodeURIComponent(loc.href);
+            con.log("Contacting: " + url);
             ytcenter.utils.xhr({
               method: "GET",
-              url: '/get_video_info?video_id=' + id,
+              url: url,
               headers: {
                 "Content-Type": "text/plain"
               },
@@ -17240,7 +17256,7 @@
       if (ytcenter.getPage() === "embed") {
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
-            url = "/get_video_info?html5=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cver=" + ytcenter.settings.embed_forcePlayerType + "&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
+            url = "/get_video_info?dash=" + (ytcenter.settings.embed_dashPlayback ? "1" : "0") + "&html5=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cver=" + ytcenter.settings.embed_forcePlayerType + "&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
         con.log("[Embed] Contacting: " + url);
         ytcenter.utils.xhr({
           method: "GET",
@@ -17262,14 +17278,14 @@
                 con.error("[YouTube] " + o.errorcode + ": " + o.reason);
               } else {
                 ytcenter._tmp_embed.loaded = true;
-                ytcenter._tmp_embed.dash = o.dash;
-                ytcenter._tmp_embed.dashmpd = o.dashmpd;
-                ytcenter.player.config.args.dash = o.dash;
-                ytcenter.player.config.args.dashmpd = o.dashmpd;
-                ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
+                if (o.dash) ytcenter._tmp_embed.dash = o.dash;
+                if (o.dashmpd) ytcenter._tmp_embed.dashmpd = o.dashmpd;
+                if (o.dash) ytcenter.player.config.args.dash = o.dash;
+                if (o.dashmpd) ytcenter.player.config.args.dashmpd = o.dashmpd;
+                if (o.adaptive_fmts) ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
                 
-                ytcenter._tmp_embed.fmt_list = o.fmt_list;
-                ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
+                if (o.fmt_list) ytcenter._tmp_embed.fmt_list = o.fmt_list;
+                if (o.url_encoded_fmt_stream_map) ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
                 if (o.url_encoded_fmt_stream_map) {
                   ytcenter.video.streams = ytcenter.parseStreams(o);
                   if (!ytcenter.player)
