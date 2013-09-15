@@ -2020,11 +2020,19 @@
     ytcenter.title.originalTitle = "";
     ytcenter.title.previousTitle = "";
     ytcenter.title.liveTitle = "";
+    ytcenter.title._interval = "";
     ytcenter.title.init = function(){
-      if (ytcenter.title.originalTitle === "") ytcenter.title.originalTitle = ytcenter.title.liveTitle = document.title;
+      uw.clearTimeout(ytcenter.title._interval);
+      if (ytcenter.title.originalTitle === "") {
+        ytcenter.title.originalTitle = document.title;
+        if (ytcenter.title.originalTitle === "") {
+          ytcenter.title._interval = uw.setTimeout(ytcenter.title.init, 1000);
+        }
+      }
       document.getElementsByTagName("title")[0].addEventListener("DOMSubtreeModified", function(event){
         if (document.title !== ytcenter.title.previousTitle) {
-          if (ytcenter.title.originalTitle === "") ytcenter.title.originalTitle = ytcenter.title.liveTitle = document.title;
+          if (ytcenter.title.originalTitle === "")
+            ytcenter.title.originalTitle = document.title;
           con.log("[Title Listener] \"" + ytcenter.title.previousTitle + "\" => \"" + document.title + "\"");
           ytcenter.title.previousTitle = document.title;
           ytcenter.title.update();
@@ -7029,7 +7037,7 @@
         var optionsWrapper = document.createElement("div");
         optionsWrapper.className = "clearfix resize-options";
         
-        var saveBtn = ytcenter.gui.createYouTubePrimaryButton("", [ytcenter.gui.createYouTubeButtonText("Save")]);
+        var saveBtn = ytcenter.gui.createYouTubePrimaryButton("", [ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_PLAYERSIZE_SAVE")]);
         saveBtn.style.cssFloat = "right";
         saveBtn.style.marginLeft = "10px";
         saveBtn.style.minWidth = "60px";
@@ -7040,7 +7048,7 @@
           ytcenter.events.performEvent("ui-refresh");
         });
         
-        var cancelBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonText("Cancel")]);
+        var cancelBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_PLAYERSIZE_CANCEL")]);
         cancelBtn.style.cssFloat = "right";
         cancelBtn.style.marginLeft = "10px";
         cancelBtn.style.minWidth = "60px";
@@ -7062,7 +7070,7 @@
           }
         });
         
-        var deleteBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonText("Delete")]);
+        var deleteBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_PLAYERSIZE_DELETE")]);
         deleteBtn.style.cssFloat = "left";
         deleteBtn.style.minWidth = "60px";
         ytcenter.utils.addEventListener(deleteBtn, "click", function(){
@@ -11180,6 +11188,16 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#centering-page" // help
           );
+          if (ytcenter.settings['experimentalFeatureTopGuide']) {
+            option.setVisibility(false);
+          }
+          ytcenter.events.addEvent("ui-refresh", function(){
+            if (ytcenter.settings['experimentalFeatureTopGuide']) {
+              this.setVisibility(false);
+            } else {
+              this.setVisibility(true);
+            }
+          }.bind(option));
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "flexWidthOnPage", // defaultSetting
@@ -11219,6 +11237,16 @@
             },
             "set-experimental-topbar-to-static" // help
           );
+          if (!ytcenter.settings['experimentalFeatureTopGuide']) {
+            option.setVisibility(false);
+          }
+          ytcenter.events.addEvent("ui-refresh", function(){
+            if (!ytcenter.settings['experimentalFeatureTopGuide']) {
+              this.setVisibility(false);
+            } else {
+              this.setVisibility(true);
+            }
+          }.bind(option));
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
