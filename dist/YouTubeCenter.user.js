@@ -11023,7 +11023,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-youtube-title-suffix"
           );
           subcat.addOption(option);
 
@@ -11040,14 +11041,17 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-player-playing-icon-in-title"
           );
           subcat.addOption(option);
 
           option = ytcenter.settingsPanel.createOption(
             "playerOnlyOneInstancePlaying", // defaultSetting
             "bool", // module
-            "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING"
+            "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#only-one-player-instance-playing"
           );
           subcat.addOption(option);
 
@@ -11268,7 +11272,8 @@
           option = ytcenter.settingsPanel.createOption(
             "hideTicker", // defaultSetting
             "bool", // module
-            "SETTINGS_HIDE_TICKER"
+            "SETTINGS_HIDE_TICKER",
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#hide-ticker"
           );
           option.addEventListener("update", function(newValue){
             ytcenter.classManagement.applyClasses();
@@ -11579,13 +11584,17 @@
           option = ytcenter.settingsPanel.createOption(
             "preventTabAutoPlay", // defaultSetting
             "bool", // module
-            "SETTINGS_PREVENTTABAUTOPLAY_LABEL"
+            "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-auto-play"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "preventTabAutoBuffer", // defaultSetting
             "bool", // module
-            "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL"
+            "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-auto-buffering"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -11596,13 +11605,17 @@
           option = ytcenter.settingsPanel.createOption(
             "preventTabPlaylistAutoPlay", // defaultSetting
             "bool", // module
-            "SETTINGS_PREVENTTABPLAYLISTAUTOPLAY_LABEL"
+            "SETTINGS_PREVENTTABPLAYLISTAUTOPLAY_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-playlist-auto-play"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "preventTabPlaylistAutoBuffer", // defaultSetting
             "bool", // module
-            "SETTINGS_PREVENTTABPLAYLISTAUTOBUFFERING_LABEL"
+            "SETTINGS_PREVENTTABPLAYLISTAUTOBUFFERING_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-playlist-auto-buffering"
           );
           subcat.addOption(option);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RESOLUTION"); cat.addSubCategory(subcat);
