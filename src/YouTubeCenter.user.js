@@ -13425,6 +13425,9 @@
                   { name: "Joan Alemany" },
                   { name: "Raül Cambeiro" }
                 ],
+                "cs": [
+                  { name: "Petr Vostřel", url: "http://petr.vostrel.cz/" }
+                ],
                 "da": [],
                 "de": [
                   { name: "Simon Artmann" },
