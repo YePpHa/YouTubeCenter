@@ -14103,12 +14103,7 @@
       config = config || {};
       config.args = config.args || {};
       con.log("[Player modifyConfig] => " + page);
-      if (ytcenter._tmp_embed && page === "embed") {
-        if (ytcenter._tmp_embed.fmt_list)
-          config.args.fmt_list = ytcenter._tmp_embed.fmt_list;
-        if (ytcenter._tmp_embed.url_encoded_fmt_stream_map)
-          config.args.url_encoded_fmt_stream_map = ytcenter._tmp_embed.url_encoded_fmt_stream_map;
-      }
+      
       if (config && config.args && config.args.url_encoded_fmt_stream_map && config.args.fmt_list) {
         var streams = ytcenter.parseStreams(config.args);
         ytcenter.video.streams = streams;
@@ -15792,7 +15787,7 @@
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"),
             clone;
-        con.log("[Player Update] Checking if player exists!");
+        con.log("[Player Update] Checking if player exist!");
         if (player && player.tagName.toLowerCase() === "embed") {
           ytcenter.player.updateFlashvars(player, config);
           
@@ -15935,7 +15930,7 @@
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else if (!ytcenter.classManagement.db[i].element()) {
-          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exist!", ytcenter.classManagement.db[i]);
         }
       }
     };
@@ -15950,7 +15945,7 @@
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else if (!ytcenter.classManagement.db[i].element()) {
-          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exist!", ytcenter.classManagement.db[i]);
         }
       }
     };
@@ -15965,7 +15960,7 @@
           else
             ytcenter.utils.removeClass(ytcenter.classManagement.db[i].element(), ytcenter.classManagement.db[i].className);
         } else {
-          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exist!", ytcenter.classManagement.db[i]);
         }
       }
     };
@@ -15979,7 +15974,7 @@
               && ytcenter.classManagement.db[i].condition(url))
             a.push(ytcenter.classManagement.db[i].className);
         } else {
-          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exist!", ytcenter.classManagement.db[i]);
         }
       }
       return a.join(" ");
@@ -15994,7 +15989,7 @@
               && ytcenter.classManagement.db[i].condition(url))
             a.push(ytcenter.classManagement.db[i].className);
         } else {
-          con.warn("[Element Class Management] Element does not exists!", ytcenter.classManagement.db[i]);
+          con.warn("[Element Class Management] Element does not exist!", ytcenter.classManagement.db[i]);
         }
       }
       return a.join(" ");
@@ -17269,7 +17264,7 @@
       if (ytcenter.getPage() === "embed") {
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
-            url = "/get_video_info?dash=" + (ytcenter.settings.embed_dashPlayback ? "1" : "0") + "&html5=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cver=" + ytcenter.settings.embed_forcePlayerType + "&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
+            url = "/get_video_info?el=embedded&iv_load_policy=" + (ytcenter.settings.embed_enableAnnotations ? 1 : 3) + "&asv=3&dash=" + (ytcenter.settings.embed_dashPlayback ? "1" : "0") + "&html5=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cver=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? "html5" : "flash") + "&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
         con.log("[Embed] Contacting: " + url);
         ytcenter.utils.xhr({
           method: "GET",
@@ -17291,24 +17286,13 @@
                 con.error("[YouTube] " + o.errorcode + ": " + o.reason);
               } else {
                 ytcenter._tmp_embed.loaded = true;
-                if (o.dash) ytcenter._tmp_embed.dash = o.dash;
-                if (o.dashmpd) ytcenter._tmp_embed.dashmpd = o.dashmpd;
                 if (o.dash) ytcenter.player.config.args.dash = o.dash;
                 if (o.dashmpd) ytcenter.player.config.args.dashmpd = o.dashmpd;
                 if (o.adaptive_fmts) ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
-                
                 if (o.fmt_list) ytcenter._tmp_embed.fmt_list = o.fmt_list;
                 if (o.url_encoded_fmt_stream_map) ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
-                if (o.url_encoded_fmt_stream_map) {
+                if (o.url_encoded_fmt_stream_map || o.adaptive_fmts) {
                   ytcenter.video.streams = ytcenter.parseStreams(o);
-                  if (!ytcenter.player)
-                    ytcenter.player = {};
-                  if (!ytcenter.player.config)
-                    ytcenter.player.config = {};
-                  if (!ytcenter.player.config.args)
-                    ytcenter.player.config.args = {};
-                  ytcenter.player.config.args.fmt_list = o.fmt_list;
-                  ytcenter.player.config.args.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
                 }
               }
               if (ytcenter._tmp_embed.callback) {
@@ -17317,7 +17301,6 @@
             } else {
               con.error("[Embed] Couldn't load video data!");
               (document.getElementById("player-legacy") || document.getElementById("player")).style.display = "";
-              ytcenter.player.config = uw.yt.config_.PLAYER_CONFIG;
               if (ytcenter._tmp_embed.callback) {
                 ytcenter._tmp_embed.callback();
               }
