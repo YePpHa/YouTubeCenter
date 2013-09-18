@@ -6228,6 +6228,7 @@
             settingData = removeItem(value);
           }
           if (typeof saveCallback === "function") saveCallback(settingData);
+          callbackListeners();
         });
         cb.element.style.marginRight = "6px";
         s.appendChild(cb.element);
@@ -6246,6 +6247,16 @@
           item = createItem(list[i].label, list[i].value);
           d.appendChild(item);
           wrapper.appendChild(d);
+        }
+      }
+      function callbackListeners() {
+        var i;
+        if (option.args.listeners && option.args.listeners) {
+          for (i = 0; i < option.args.listeners.length; i++) {
+            if (option.args.listeners[i].event === "click") {
+              option.args.listeners[i].callback();
+            }
+          }
         }
       }
       var list = (option && option.args && option.args.list) || [],
