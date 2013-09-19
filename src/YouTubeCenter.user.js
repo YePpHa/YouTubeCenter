@@ -3768,7 +3768,7 @@
       }
       function processItemHeavyLoad(item) {
         if (!ytcenter.settings.videoThumbnailQualityBar && !ytcenter.settings.videoThumbnailAnimationEnabled) return;
-        if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail" || ytcenter.settings.videoThumbnailAnimationEnabled) {
+        if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail") {
           ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
             var added = false;
             return function(){
