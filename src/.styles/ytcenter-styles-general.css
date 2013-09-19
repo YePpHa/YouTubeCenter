@@ -327,7 +327,7 @@ body.ytcenter-branding-remove-background #guide-container.branded {
 }
 
 .ytcenter-branding-remove-background #watch7-sidebar {
-  background-color: #ffffff!important;
+  background-color: transparent!important;
 }
 
 .ytcenter-branding-remove-banner #watch7-sidebar {
