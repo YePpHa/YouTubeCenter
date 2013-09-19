@@ -584,12 +584,12 @@ body > #page {
 }
 
 .ytcenter-intelligentfeed.ytcenter-intelligentfeed-minimized .shelf-wrapper:first-child {
-  max-height: 350px;
+  max-height: 378px;
 }
 .ytcenter-intelligentfeed .feed-item-main-content .yt-uix-shelfslider-item {
   float: left;
   margin-bottom: 10px;
-  height: 169px;
+  height: 179px;
 }
 .ytcenter-intelligentfeed .feed-item-main-content .shelf-wrapper {
   margin-bottom: 0!important;
