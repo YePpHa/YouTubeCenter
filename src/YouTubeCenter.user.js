@@ -9081,11 +9081,18 @@
       }
     };
     ytcenter.utils.mergeObjects = function(){
-      var _o = {};
-      for (var i = 0; i < arguments.length; i++) {
+      if (arguments.length <= 0) return {};
+      if (arguments.length === 1) return arguments[0];
+      var _o = arguments[0];
+      for (var i = 1; i < arguments.length; i++) {
         if (typeof arguments[i] === "undefined") continue;
         ytcenter.utils.each(arguments[i], function(key, value){
-          _o[key] = value;
+          var type = Object.prototype.toString.call(value);
+          if (_o[key] && (type === "[object Array]" || type === "[object Object]")) {
+            _o[key] = ytcenter.utils.mergeObjects(_o[key], value);
+          } else {
+            _o[key] = value;
+          }
         });
       }
       return _o;
@@ -13804,6 +13811,17 @@
       });
     };
     ytcenter.player = {};
+    ytcenter.player.getRawPlayerConfig = function(){
+      var a = document.body.innerHTML;
+      if (a.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") === -1) return {};
+      a = a.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
+      if (JSON.parse) {
+        a = JSON.parse(a);
+      } else {
+        a = eval("(" + a + ")");
+      }
+      return a;
+    };
     ytcenter.player.parseRVS = function(rvs){
       var a = [], b = rvs.split(","), c, d, e, i, j;
       for (i = 0; i < b.length; i++) {
@@ -15797,6 +15815,10 @@
       player.setAttribute("flashvars", flashvars);
     };
     ytcenter.player.update = function(config){
+      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts) {
+        config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
+        ytcenter.player.config = config;
+      }
       if (config.html5) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"),
@@ -16440,7 +16462,11 @@
     };
     (function(){
       // Hijacks the ytplayer global variable.
-      try {
+      try {        
+        if (uw.ytplayer && uw.ytplayer.config) {
+          con.log("[PlayerConfig Hijacker] Loading player configurations...");
+          ytcenter.player.config = ytcenter.utils.mergeObjects(uw.ytplayer.config || {}, ytcenter.player.config || {});
+        }
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.loaded) {
           ytcenter.player.config = ytcenter.player.modifyConfig(ytcenter.getPage(), uw.ytplayer.config);
           ytcenter.player.disablePlayerUpdate = false;
