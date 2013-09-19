@@ -17056,6 +17056,21 @@
             }
           }
         });
+        ytcenter.player.listeners.addEventListener("onReady", function(){
+          var state = ytcenter.player.getAPI().getPlayerState();
+          if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
+            var intercom = ytcenter.Intercom.getInstance();
+            intercom.emit("player", {
+              action: "pause",
+              origin: intercom.origin
+            });
+          }
+          if (state === 1) {
+            ytcenter.title.addPlayIcon();
+          } else {
+            ytcenter.title.removePlayIcon();
+          }
+        });
         ytcenter.player.listeners.addEventListener("onStateChange", function(state, b){
           if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
             var intercom = ytcenter.Intercom.getInstance();
