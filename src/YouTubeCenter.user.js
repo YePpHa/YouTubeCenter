@@ -2038,10 +2038,11 @@
           ytcenter.title.update();
         }
       });
+      ytcenter.title.update();
     };
     ytcenter.title.update = function(){
-      if (ytcenter.settings.playerPlayingTitleIndicator) {
-        if (ytcenter && ytcenter.player && ytcenter.player.getAPI() && ytcenter.player.getAPI().getPlayerState && ytcenter.player.getAPI().getPlayerState() === 1) {
+      if (ytcenter.settings.playerPlayingTitleIndicator && ytcenter.getPage() === "watch") {
+        if (ytcenter.player.getAPI && ytcenter.player.getAPI() && ytcenter.player.getAPI().getPlayerState && ytcenter.player.getAPI().getPlayerState() === 1) {
           ytcenter.title.addPlayIcon();
         } else {
           ytcenter.title.removePlayIcon();
@@ -17057,7 +17058,9 @@
           }
         });
         ytcenter.player.listeners.addEventListener("onReady", function(){
-          var state = ytcenter.player.getAPI().getPlayerState();
+          var api, state;
+          if (ytcenter.player.getAPI) api = ytcenter.player.getAPI();
+          if (api && api.getPlayerState) state = ytcenter.player.getAPI().getPlayerState();
           if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
             var intercom = ytcenter.Intercom.getInstance();
             intercom.emit("player", {
@@ -17169,11 +17172,13 @@
           throw new Error("SPF is disabled!");
         }
       });
+      ytcenter.spf.addEventListener("received", function(url, data){
+        if (data.title) ytcenter.title.originalTitle = data.title;
+        ytcenter.title.update();
+      });
       ytcenter.spf.addEventListener("received-before", function(url, data){
         ytcenter.unsafe.spf.url = url;
         ytcenter.unsafe.spf.data = data;
-        ytcenter.title.originalTitle = data.title;
-        ytcenter.title.update();
         if (data.swfcfg && data.swfcfg.args) {
           data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
         }
