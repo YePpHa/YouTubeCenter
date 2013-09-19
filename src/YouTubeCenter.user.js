@@ -2020,27 +2020,46 @@
     ytcenter.title.originalTitle = "";
     ytcenter.title.previousTitle = "";
     ytcenter.title.liveTitle = "";
-    ytcenter.title._interval = "";
-    ytcenter.title.init = function(){
-      uw.clearTimeout(ytcenter.title._interval);
-      if (ytcenter.title.originalTitle === "") {
-        ytcenter.title.originalTitle = document.title;
-        if (ytcenter.title.originalTitle === "") {
-          ytcenter.title._interval = uw.setTimeout(ytcenter.title.init, 1000);
-        }
+    ytcenter.title._interval = null;
+    ytcenter.title.modified = function(mutations){
+      var a;
+      if (mutations) {
+        a = mutations[0].target.textContent;
+      } else {
+        a = document.getElementsByTagName("title")[0].textContent;
       }
-      document.getElementsByTagName("title")[0].addEventListener("DOMSubtreeModified", function(event){
-        if (document.title !== ytcenter.title.previousTitle) {
-          if (ytcenter.title.originalTitle === "")
-            ytcenter.title.originalTitle = document.title;
-          con.log("[Title Listener] \"" + ytcenter.title.previousTitle + "\" => \"" + document.title + "\"");
-          ytcenter.title.previousTitle = document.title;
-          ytcenter.title.update();
+      if (a !== ytcenter.title.previousTitle) {
+        if (ytcenter.title.originalTitle === "")
+          ytcenter.title.originalTitle = a;
+        con.log("[Title Listener] \"" + ytcenter.title.previousTitle + "\" => \"" + a + "\"");
+        ytcenter.title.previousTitle = a;
+        ytcenter.title.update();
+      }
+    };
+    ytcenter.title.init = function(){
+      var a = document.getElementsByTagName("title")[0];
+      uw.clearTimeout(ytcenter.title._interval);
+      if (!a.textContent || a.textContent === "") {
+        con.log("[Title Listener] Waiting for title head...");
+        ytcenter.title._interval = uw.setTimeout(ytcenter.title.init, 500);
+      } else {
+        var MutObs = ytcenter.getMutationObserver(),
+            observer;
+        ytcenter.title.originalTitle = a.textContent;
+        if (MutObs) {
+          con.log("[Title Listener] Using MutationObservers");
+          observer = new MutObs(ytcenter.title.modified);
+          observer.observe(a, { attributes: true, childList: true, characterData: true });
+        } else {
+          con.log("[Title Listener] Using DOMSubtreeModified");
+          a.addEventListener("DOMSubtreeModified", ytcenter.title.modified);
         }
-      });
-      ytcenter.title.update();
+        ytcenter.title.update();
+      }
     };
     ytcenter.title.update = function(){
+      if (ytcenter.title.originalTitle === "") return;
+      var a = document.getElementsByTagName("title")[0];
       if (ytcenter.settings.playerPlayingTitleIndicator && ytcenter.getPage() === "watch") {
         if (ytcenter.player.getAPI && ytcenter.player.getAPI() && ytcenter.player.getAPI().getPlayerState && ytcenter.player.getAPI().getPlayerState() === 1) {
           ytcenter.title.addPlayIcon();
@@ -2055,7 +2074,7 @@
       } else {
         ytcenter.title.addSuffix();
       }
-      document.title = ytcenter.title.liveTitle;
+      a.textContent = ytcenter.title.liveTitle;
     };
     ytcenter.title.hasSuffix = function(){
       return / - YouTube$/.test(ytcenter.title.liveTitle);
@@ -2068,7 +2087,7 @@
       ytcenter.title.liveTitle += " - YouTube";
     };
     ytcenter.title.hasPlayIcon = function(){
-      return document.title.indexOf("\u25b6 ") === 0;
+      return ytcenter.title.liveTitle.indexOf("\u25b6 ") === 0;
     };
     ytcenter.title.removePlayIcon = function(){
       ytcenter.title.liveTitle = ytcenter.title.originalTitle;
@@ -2997,7 +3016,8 @@
               callbacks: []
             }, {
               event: "stopInterval",
-              called: false
+              called: false,
+              callbacks: []
             }, {
               event: "bodyInteractive", test: function(){
                 if (document.readyState === "interactive" || document.readyState === "complete")
@@ -9352,7 +9372,9 @@
           var MutObs = ytcenter.getMutationObserver();
           ytcenter.guide.observer = new MutObs(ytcenter.guide.checkMutations);
         }
-        ytcenter.guide.observer.observe(ytcenter.guide.element, { childList: true });
+        if (ytcenter.guide && ytcenter.guide.observer && ytcenter.guide.observer.observe && ytcenter.guide.element) {
+          ytcenter.guide.observer.observe(ytcenter.guide.element, { childList: true });
+        }
       }
     };
     con.log("Initializing Placement System");
@@ -14464,7 +14486,7 @@
       ytcenter.player._config = config;
     };
     ytcenter.player.setYTConfig = function(config){
-      uw.yt.setConfig(config);
+      if (uw.yt && uw.yt.setConfig) uw.yt.setConfig(config);
     };
     ytcenter.player.getYTConfig = function(config){
       uw.yt.getConfig(config);
@@ -15344,8 +15366,8 @@
         
         // Content
         if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (ytcenter.settings.watch7centerpage) {
-            if (clientWidth < calcWidth && contentMain) {
+          if (ytcenter.settings.watch7centerpage && contentMain) {
+            if (clientWidth < calcWidth) {
               var __w = Math.floor(clientWidth/2 - maxInsidePlayerWidth/2);
               if (__w < 180) __w = 180;
               if (clientWidth > 1165 && __w > 180) {
@@ -16687,13 +16709,9 @@
         }
         ytcenter.classManagement.applyClassesForElement(document.body);
         
-        try {
-          if (loc.href.indexOf(".youtube.com/embed/") === -1) {
-            if (!ytcenter.welcome.hasBeenLaunched())
-              ytcenter.welcome.setVisibility(true);
-          }
-        } catch (e) {
-          con.error(e);
+        if (loc.href.indexOf(".youtube.com/embed/") === -1) {
+          if (!ytcenter.welcome.hasBeenLaunched())
+            ytcenter.welcome.setVisibility(true);
         }
         if (loc.pathname !== "/watch")
           ytcenter.player.turnLightOn();
@@ -16715,7 +16733,6 @@
         var page = ytcenter.getPage();
         ytcenter.title.init();
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
-        
         ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
         
         // Checking if the correct settings were applied and if not correct them and forcing a refresh of the page.
