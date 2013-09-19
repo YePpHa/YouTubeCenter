@@ -12710,7 +12710,9 @@
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
-            "SETTINGS_THUMBNAIL_ANIMATION" // label
+            "SETTINGS_THUMBNAIL_ANIMATION", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#animated-thumbnails"
           );
           option.setStyle("font-weight", "bold");
           subcat.addOption(option);
@@ -12726,7 +12728,9 @@
           option = ytcenter.settingsPanel.createOption(
             "videoThumbnailAnimationShuffle", // defaultSetting
             "bool", // module
-            "SETTINGS_THUMBNAIL_ANIMATION_SHUFFLE" // label
+            "SETTINGS_THUMBNAIL_ANIMATION_SHUFFLE", // label
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#shuffle"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -12738,7 +12742,8 @@
             {
               "min": 250,
               "max": 5250
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#delay"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -12750,7 +12755,8 @@
             {
               "min": 0,
               "max": 5000
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#interval"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -12762,7 +12768,8 @@
             {
               "min": 0,
               "max": 5000
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#fallback-interval"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
