@@ -5109,11 +5109,10 @@
         }
       }
       function bind(callback) {
-        ytcenter.utils.addEventListener(checkboxInput, "change", function(){
-          callback(checkboxInput.checked);
-        }, false);
+        boundCallback = callback;
       }
-      var frag = document.createDocumentFragment(),
+      var boundCallback,
+          frag = document.createDocumentFragment(),
           checkboxOuter = document.createElement("span"),
           checkboxInput = document.createElement("input"),
           checkboxOverlay = document.createElement("span"),
@@ -5127,11 +5126,14 @@
       checkboxInput.setAttribute("value", checked);
       checkboxOuter.appendChild(checkboxInput);
       checkboxOuter.appendChild(checkboxOverlay);
-      if (option && option.args && option.args.listeners) {
-        for (var i = 0; i < option.args.listeners.length; i++) {
-          checkboxInput.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
+      ytcenter.utils.addEventListener(checkboxInput, "change", function(){
+        if (boundCallback) boundCallback(checkboxInput.checked);
+        if (option && option.args && option.args.listeners) {
+          for (var i = 0; i < option.args.listeners.length; i++) {
+            if (option.args.listeners[i].event === "click") option.args.listeners[i].callback.apply(this, arguments);
+          }
         }
-      }
+      }, false);
       ytcenter.utils.addEventListener(checkboxOuter, "click", function(){
         checked = !checked;
         if (checked) {
@@ -9352,9 +9354,10 @@
       },
       checkMutations: function(mutations) {
         mutations.forEach(function(mutation) {
-          var addedNodes = mutation.addedNodes;
-          for (var index = 0; index < addedNodes.length; ++index) {
-            var addedNode = addedNodes[index];
+          var addedNodes = mutation.addedNodes,
+              addedNode;
+          for (var i = 0; i < addedNodes.length; i++) {
+            addedNode = addedNodes[i];
             if (addedNode.id === "guide-container") {
               ytcenter.guide.update();
               break;
