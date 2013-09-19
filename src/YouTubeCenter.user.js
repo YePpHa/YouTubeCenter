@@ -15670,7 +15670,7 @@
             "360": "medium",
             "480": "large",
             "720": "hd720",
-            "1080": "highress"
+            "1080": "hd1080"
           },
           a = "auto";
       for (var i = 0; i < streams.length; i++) {
@@ -15713,7 +15713,7 @@
             "360": "medium",
             "480": "large",
             "720": "hd720",
-            "1080": "highress"
+            "1080": "hd1080"
           };
       
       if (ytcenter.html5) {
