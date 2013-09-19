@@ -13961,11 +13961,11 @@
         if (a() < 10) throw "ytcenter.player.config was trying to be set to an object with a size smaller than 10!";
         if (!value.args) throw "ytcenter.player.config was trying to be set to something with no args";
         if (!value.args.adaptive_fmts && !value.args.url_encoded_fmt_stream_map) throw "ytcenter.player.config was trying to be set with no video data!";
+        ytcenter.player.___config = value;
       } catch (e) {
+        con.error(value);
         con.error(e);
-        throw e;
       }
-      ytcenter.player.___config = value;
     });
     ytcenter.player.updateConfig = function(page, config){
       if (!config || !config.args) return;
