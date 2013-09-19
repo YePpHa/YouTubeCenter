@@ -13830,7 +13830,7 @@
         d = b[i].split("&");
         for (j = 0; j < d.length; j++) {
           e = d[j].split("=");
-          c[decodeURIComponent(e[0])] = decodeURIComponent(e[1]);
+          c[unescape(e[0])] = unescape(e[1]);
         }
         a.push(c);
       }
@@ -13844,7 +13844,7 @@
         for (key in rvs[i]) {
           if (rvs[i].hasOwnProperty(key)) {
             if (j > 0) sb += "&";
-            sb += encodeURIComponent(key) + "=" + encodeURIComponent(rvs[i][key]);
+            sb += escape(key) + "=" + escape(rvs[i][key]);
             j++;
           }
         }
@@ -14846,10 +14846,9 @@
       if (state === 0) {
         time = dur + 60;
       }
-      
-      var il = ytcenter.player.listeners.addEventListener("onStateChange", function(s){
+      var __c = function(s){
         if (s !== 1) return;
-        ytcenter.player.listeners.removeEventListener("onStateChange", il);
+        ytcenter.player.listeners.removeEventListener("onStateChange", __c);
         con.log("Setting player option to last player");
         if (state === -1) {
           api.stopVideo();
@@ -14868,8 +14867,8 @@
         api.setPlaybackQuality(quality);
         
         con.log("Made a live refresh");
-      });
-      
+      };
+      ytcenter.player.listeners.addEventListener("onStateChange", __c);
       api.loadVideoByPlayerVars(ytcenter.player.getConfig().args);
     };
     ytcenter.player.currentResizeId;
