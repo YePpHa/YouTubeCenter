@@ -4241,6 +4241,7 @@
       masterCallbacks = {};
       
       _obj.setEnabled = function(enabled){
+        if (!uw.spf || !uw.spf.dispose) return;
         var objects;
         if (enabled) {
           //objects = uw.spf.init(uw.ytspf.config);
@@ -16631,23 +16632,8 @@
         return ytcenter.__settingsLoaded;
       };
       
-      ytcenter.events.addEvent("settings-update", function(){
-        /*if (ytcenter.getPage() === "watch") {
-          if (!document.getElementById("watch7-sentiment-actions") || !document.getElementById("watch7-sentiment-actions") || !document.getElementById("watch7-sentiment-actions").parentNode)
-            return;
-          ytcenter.placementsystem.clear();
-            
-          $CreateDownloadButton();
-          $CreateRepeatButton();
-          $CreateLightButton();
-          $CreateAspectButton();
-          $CreateResizeButton();
-          
-          initPlacement();
-        }*/
-      });
-      
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
+        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         con.log("Settings loaded.");
         ytcenter.language.update();
         
@@ -17449,8 +17435,8 @@
                 if (o.dash) ytcenter.player.config.args.dash = o.dash;
                 if (o.dashmpd) ytcenter.player.config.args.dashmpd = o.dashmpd;
                 if (o.adaptive_fmts) ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
-                if (o.fmt_list) ytcenter._tmp_embed.fmt_list = o.fmt_list;
-                if (o.url_encoded_fmt_stream_map) ytcenter._tmp_embed.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
+                if (o.fmt_list) ytcenter.player.config.args.fmt_list = o.fmt_list;
+                if (o.url_encoded_fmt_stream_map) ytcenter.player.config.args.url_encoded_fmt_stream_map = o.url_encoded_fmt_stream_map;
                 if (o.url_encoded_fmt_stream_map || o.adaptive_fmts) {
                   ytcenter.video.streams = ytcenter.parseStreams(o);
                 }
