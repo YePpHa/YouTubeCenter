@@ -3254,7 +3254,7 @@
                   }
                 }
                 item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
-                item.storyboard = cfg.args.storyboard_spec;
+                item.storyboard = cfg.args.storyboard_spec || cfg.args.live_storyboard_spec;
                 try {
                   delete item.stream.fallback_host;
                   delete item.stream.sig;
@@ -13956,7 +13956,7 @@
         if (ytcenter.getPage() === "watch") {
           if (!value && value !== null) throw "ytcenter.player.config was trying to be set to nothing!";
           if (!value.args) throw "ytcenter.player.config was trying to be set to something with no args";
-          if (!value.args.adaptive_fmts && !value.args.url_encoded_fmt_stream_map) throw "ytcenter.player.config was trying to be set with no video data!";
+          if (!value.args.adaptive_fmts && !value.args.url_encoded_fmt_stream_map && !value.args.live_playback) throw "ytcenter.player.config was trying to be set with no video data!";
         }
         ytcenter.player.config = value;
       } catch (e) {
@@ -14003,7 +14003,11 @@
         if (ytcenter.settings.enableAutoVideoQuality) {
           if (api.getPlaybackQuality() !== config.args.vq) {
             con.log("[Player Update] Quality => " + config.args.vq);
-            api.setPlaybackQuality(config.args.vq);
+            if (config.args.vq === "auto") {
+              api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.autoVideoQuality, api.getAvailableQualityLevels()));
+            } else {
+              api.setPlaybackQuality(config.args.vq);
+            }
           }
         }
         
@@ -14140,7 +14144,11 @@
         
         if (api.getPlaybackQuality() != config.args.vq) {
           con.log("[Player Update] Quality => " + config.args.vq);
-          api.setPlaybackQuality(config.args.vq);
+          if (config.args.vq === "auto") {
+            api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.channel_autoVideoQuality, api.getAvailableQualityLevels()));
+          } else {
+            api.setPlaybackQuality(config.args.vq);
+          }
         }
       } else if (page === "embed") {
         if (ytcenter.settings.embed_enableVolume) {
@@ -14171,7 +14179,11 @@
             played = true;
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
               con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-              api.setPlaybackQuality(ytcenter.settings.embed_autoVideoQuality);
+              if (config.args.vq === "auto") {
+                api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
+              } else {
+                api.setPlaybackQuality(config.args.vq);
+              }
             }
           });
         } else if (ytcenter.settings.embed_preventAutoPlay) {
@@ -14180,7 +14192,11 @@
           uw.setTimeout(function(){
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
               con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-              api.setPlaybackQuality(ytcenter.settings.embed_autoVideoQuality);
+              if (config.args.vq === "auto") {
+                api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
+              } else {
+                api.setPlaybackQuality(config.args.vq);
+              }
             }
           }, 600);
         } else {
@@ -14189,7 +14205,11 @@
             played = true;
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
               con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-              api.setPlaybackQuality(ytcenter.settings.embed_autoVideoQuality);
+              if (config.args.vq === "auto") {
+                api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
+              } else {
+                api.setPlaybackQuality(config.args.vq);
+              }
             }
           });
           api.playVideo();
@@ -14197,7 +14217,11 @@
         
         if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
           con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-          api.setPlaybackQuality(ytcenter.settings.embed_autoVideoQuality);
+          if (config.args.vq === "auto") {
+            api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
+          } else {
+            api.setPlaybackQuality(config.args.vq);
+          }
         }
       }
     };
@@ -15699,6 +15723,15 @@
         }
       }
       return a;
+    };
+    ytcenter.player.getBestQuality = function(vq, aq){
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
+          p = $ArrayIndexOf(priority, vq),
+          i, j;
+      for (i = p; i >= 0; i--) {
+        if ($ArrayIndexOf(aq, vq) !== -1) return vq;
+      }
+      return "auto";
     };
     ytcenter.player.getQuality = function(vq, streams, dash){
       var _vq = "auto";
