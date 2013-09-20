@@ -14002,12 +14002,11 @@
         
         if (ytcenter.settings.enableAutoVideoQuality) {
           if (api.getPlaybackQuality() !== config.args.vq) {
-            con.log("[Player Update] Quality => " + config.args.vq);
             if (config.args.vq === "auto") {
-              api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.autoVideoQuality, api.getAvailableQualityLevels()));
-            } else {
-              api.setPlaybackQuality(config.args.vq);
+              config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.autoVideoQuality, api.getAvailableQualityLevels());
             }
+            con.log("[Player Update] Quality => " + config.args.vq);
+            api.setPlaybackQuality(config.args.vq);
           }
         }
         
@@ -14143,12 +14142,11 @@
         }
         
         if (api.getPlaybackQuality() != config.args.vq) {
-          con.log("[Player Update] Quality => " + config.args.vq);
           if (config.args.vq === "auto") {
-            api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.channel_autoVideoQuality, api.getAvailableQualityLevels()));
-          } else {
-            api.setPlaybackQuality(config.args.vq);
+            config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.channel_autoVideoQuality, api.getAvailableQualityLevels());
           }
+          con.log("[Player Update] Quality => " + config.args.vq);
+          api.setPlaybackQuality(config.args.vq);
         }
       } else if (page === "embed") {
         if (ytcenter.settings.embed_enableVolume) {
@@ -14178,12 +14176,11 @@
             if (s !== 1 || played) return;
             played = true;
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
-              con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
               if (config.args.vq === "auto") {
-                api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
-              } else {
-                api.setPlaybackQuality(config.args.vq);
+                config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
               }
+              con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
+              api.setPlaybackQuality(config.args.vq);
             }
           });
         } else if (ytcenter.settings.embed_preventAutoPlay) {
@@ -14191,12 +14188,11 @@
           api.pauseVideo();
           uw.setTimeout(function(){
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
-              con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
               if (config.args.vq === "auto") {
-                api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
-              } else {
-                api.setPlaybackQuality(config.args.vq);
+                config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
               }
+              con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
+              api.setPlaybackQuality(config.args.vq);
             }
           }, 600);
         } else {
@@ -14204,24 +14200,22 @@
             if (s !== 1 || played) return;
             played = true;
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
-              con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
               if (config.args.vq === "auto") {
-                api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
-              } else {
-                api.setPlaybackQuality(config.args.vq);
+                config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
               }
+              con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
+              api.setPlaybackQuality(config.args.vq);
             }
           });
           api.playVideo();
         }
         
         if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
-          con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
           if (config.args.vq === "auto") {
-            api.setPlaybackQuality(ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels()));
-          } else {
-            api.setPlaybackQuality(config.args.vq);
+            config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
           }
+          con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
+          api.setPlaybackQuality(config.args.vq);
         }
       }
     };
@@ -15729,7 +15723,7 @@
           p = $ArrayIndexOf(priority, vq),
           i, j;
       for (i = p; i >= 0; i--) {
-        if ($ArrayIndexOf(aq, vq) !== -1) return vq;
+        if ($ArrayIndexOf(aq, priority[i]) !== -1) return vq;
       }
       return "auto";
     };
