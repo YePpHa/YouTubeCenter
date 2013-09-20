@@ -1984,9 +1984,11 @@
     var yt, ytcenter = {};
     try {
       ytcenter._writeEmbed = uw.writeEmbed;
+      ytcenter._writeEmbedCallback = null;
       ytcenter._calledWriteEmbed = false;
       uw.__defineGetter__("writeEmbed", function(){
         return function(){
+          con.log("[writeEmbed] Externally Called (most likely by YouTube)");
           ytcenter._calledWriteEmbed = true;
           if (typeof ytcenter._writeEmbedCallback === "function") {
             ytcenter._writeEmbedCallback();
@@ -2020,7 +2022,6 @@
     ytcenter.title.originalTitle = "";
     ytcenter.title.previousTitle = "";
     ytcenter.title.liveTitle = "";
-    ytcenter.title._interval = null;
     ytcenter.title.modified = function(mutations){
       var a;
       if (mutations) {
@@ -2038,10 +2039,9 @@
     };
     ytcenter.title.init = function(){
       var a = document.getElementsByTagName("title")[0];
-      uw.clearTimeout(ytcenter.title._interval);
-      if (!a.textContent || a.textContent === "") {
+      if (!a || !a.textContent || a.textContent === "") {
         con.log("[Title Listener] Waiting for title head...");
-        ytcenter.title._interval = uw.setTimeout(ytcenter.title.init, 500);
+        uw.setTimeout(ytcenter.title.init, 500);
       } else {
         var MutObs = ytcenter.getMutationObserver(),
             observer;
@@ -13471,7 +13471,9 @@
                 "cs": [
                   { name: "Petr Vostřel", url: "http://petr.vostrel.cz/" }
                 ],
-                "da": [],
+                "da": [
+                  { name: "Jeppe Rune Mortensen", url: "https://github.com/YePpHa/YouTubeCenter/wiki" }
+                ],
                 "de": [
                   { name: "Simon Artmann" },
                   { name: "Sven \"Hidden\" W" }
@@ -16557,7 +16559,7 @@
     };
     (function(){
       // Hijacks the ytplayer global variable.
-      try {        
+      try {
         if (uw.ytplayer && uw.ytplayer.config) {
           con.log("[PlayerConfig Hijacker] Loading player configurations...");
           ytcenter.player.setConfig(ytcenter.utils.mergeObjects(uw.ytplayer.config || {}, ytcenter.player.config || {}));
@@ -16646,7 +16648,7 @@
       });
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
-        con.log("Loading Settings");
+        con.log("Settings loaded.");
         ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
@@ -16780,6 +16782,16 @@
       ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
         /* ytplayer is initialized! */
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
+          if (ytcenter._calledWriteEmbed) {
+            con.log("[Embed] Writing Embed at bodyInitialized");
+            ytcenter._writeEmbed();
+          } else {
+            con.log("[Embed] Waiting");
+            ytcenter._writeEmbedCallback = function(){
+              con.log("[Embed] Writing Embed by callback");
+              ytcenter._writeEmbed();
+            };
+          }
           return;
         }
         ytcenter.classManagement.applyClassesForElement(document.body);
@@ -16967,7 +16979,6 @@
         
         /* bodyInteractive should only be used for the UI, use the other listeners for player configuration */
         if (page === "embed") {
-          (document.getElementById("player-legacy") || document.getElementById("player")).style.display = "none";
           if (uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG) {
             ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), uw.yt.config_.PLAYER_CONFIG));
           }
@@ -16977,6 +16988,7 @@
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config));
               uw.yt.config_.PLAYERCONFIG = ytcenter.player.config;
               ytcenter._writeEmbed();
+              ytcenter.player.update(ytcenter.player.config);
             } else {
               con.log("[Embed] Waiting");
               ytcenter._writeEmbedCallback = function(){
@@ -16984,11 +16996,9 @@
                 ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config));
                 uw.yt.config_.PLAYERCONFIG = ytcenter.player.config;
                 ytcenter._writeEmbed();
+                ytcenter.player.update(ytcenter.player.config);
               };
             }
-            ytcenter.player.update(ytcenter.player.config);
-            
-            (document.getElementById("player-legacy") || document.getElementById("player")).style.display = "";
           };
           if (ytcenter._tmp_embed.loaded) {
             ytcenter._tmp_embed._callback();
@@ -17412,8 +17422,7 @@
       };
       ytcenter.spf.addEventListener("processed", ytcenter.unsafe.spf.processed);
       
-      if (ytcenter.getPage() === "embed") {
-        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
+      if (ytcenter.getPage() === "embed" && !(loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled)) {
         var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
             url = "/get_video_info?el=embedded&iv_load_policy=" + (ytcenter.settings.embed_enableAnnotations ? 1 : 3) + "&asv=3&dash=" + (ytcenter.settings.embed_dashPlayback ? "1" : "0") + "&html5=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cver=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? "html5" : "flash") + "&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
         con.log("[Embed] Contacting: " + url);
