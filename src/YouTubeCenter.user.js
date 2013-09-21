@@ -1109,7 +1109,7 @@
       liSettings.setAttribute("role", "menuitem");
       
       spanText.className = "yt-uix-button-menu-item upload-menu-link";
-      if (ytcenter.settings['experimentalFeatureTopGuide']) {
+      if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
         ytcenter.utils.addEventListener(spanText, "click", function(){
           if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
           ytcenter.settingsPanelDialog.setVisibility(true);
@@ -3669,12 +3669,24 @@
         item.content.appendChild(wrapper);
       }
       function applyWatchLaterSettings(item) {
+        // TODO   Apply these to the body element instead.
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-pos-" + ytcenter.settings.videoThumbnailWatchLaterPosition);
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-visible-" + ytcenter.settings.videoThumbnailWatchLaterVisible);
+        ytcenter.events.addEvent("ui-refresh", function(){
+          ytcenter.utils.removeClass(item.wrapper, "ytcenter-thumbnail-watchlater-pos-topleft ytcenter-thumbnail-watchlater-pos-topright ytcenter-thumbnail-watchlater-pos-bottomleft ytcenter-thumbnail-watchlater-pos-bottomright ytcenter-thumbnail-watchlater-visible-always ytcenter-thumbnail-watchlater-visible-show_hover ytcenter-thumbnail-watchlater-visible-hide_hover ytcenter-thumbnail-watchlater-visible-never");
+          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-pos-" + ytcenter.settings.videoThumbnailWatchLaterPosition);
+          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-visible-" + ytcenter.settings.videoThumbnailWatchLaterVisible);
+        });
       }
       function applyTimeCodeSettings(item) {
+        // TODO   Apply these to the body element instead.
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-" + ytcenter.settings.videoThumbnailTimeCodePosition);
         ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
+        ytcenter.events.addEvent("ui-refresh", function(){
+          ytcenter.utils.removeClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-topleft ytcenter-thumbnail-timecode-pos-topright ytcenter-thumbnail-timecode-pos-bottomleft ytcenter-thumbnail-timecode-pos-bottomright ytcenter-thumbnail-timecode-visible-always ytcenter-thumbnail-timecode-visible-show_hover ytcenter-thumbnail-timecode-visible-hide_hover ytcenter-thumbnail-timecode-visible-never");
+          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-" + ytcenter.settings.videoThumbnailTimeCodePosition);
+          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
+        });
       }
       function applyWatchedMessage(item) {
         var ivw = ytcenter.videoHistory.isVideoWatched(item.id),
@@ -6150,11 +6162,6 @@
       } else {
         list = option.args.list;
       }
-      if (option && option.args && option.args.listeners) {
-        for (var i = 0; i < option.args.listeners.length; i++) {
-          elm.addEventListener(option.args.listeners[i].event, option.args.listeners[i].callback, (option.args.listeners[i].bubble ? option.args.listeners[i].bubble : false));
-        }
-      }
       if (list && list.length > 0) {
         defaultLabelText = ytcenter.language.getLocale(list[0].label);
         for (var i = 0; i < list.length; i++) {
@@ -6184,6 +6191,13 @@
         });
         ytcenter.utils.addEventListener(s, "change", function(){
           if (cCallback) cCallback(s.value);
+          if (option && option.args && option.args.listeners) {
+            for (var i = 0; i < option.args.listeners.length; i++) {
+              if (option.args.listeners[i].event === "click") {
+                option.args.listeners[i].callback();
+              }
+            }
+          }
         }, false);
       }
       elm.appendChild(sc);
@@ -12813,6 +12827,14 @@
                   "value": "bottomright",
                   "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
                 }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
               ]
             }
           );
@@ -12831,6 +12853,14 @@
                 }, {
                   "value": "hover_thumbnail",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -12853,6 +12883,14 @@
                 }, {
                   "value": "hide_hover",
                   "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -12897,6 +12935,14 @@
                   "value": "right",
                   "label": "SETTINGS_THUMBVIDEO_POSITION_RIGHT"
                 }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
               ]
             }
           );
@@ -12915,6 +12961,14 @@
                 }, {
                   "value": "hover_thumbnail",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -12937,6 +12991,14 @@
                 }, {
                   "value": "hide_hover",
                   "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -12981,6 +13043,14 @@
                   "value": "bottomright",
                   "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
                 }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
               ]
             }
           );
@@ -12999,6 +13069,14 @@
                 }, {
                   "value": "hover_thumbnail",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -13021,6 +13099,14 @@
                 }, {
                   "value": "hide_hover",
                   "label": "SETTINGS_THUMBVIDEO_HIDEONHOVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -13055,6 +13141,14 @@
                   "value": "bottomright",
                   "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
                 }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
               ]
             }
           );
@@ -13078,6 +13172,14 @@
                 }, {
                   "value": "never",
                   "label": "SETTINGS_THUMBVIDEO_NEVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -13112,6 +13214,14 @@
                   "value": "bottomright",
                   "label": "SETTINGS_THUMBVIDEO_POSITION_BOTTOMRIGHT"
                 }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
               ]
             }
           );
@@ -13136,6 +13246,14 @@
                 }, {
                   "value": "never",
                   "label": "SETTINGS_THUMBVIDEO_NEVER"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
                 }
               ]
             }
@@ -15919,9 +16037,13 @@
       player.setAttribute("flashvars", flashvars);
     };
     ytcenter.player.update = function(config){
-      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts) {
+      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== "1") {
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
+      }
+      if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== "1") {
+        con.error("[Player update] Not enough data to refresh the player!");
+        return;
       }
       if (config.html5) return;
       try {

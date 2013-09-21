@@ -649,12 +649,12 @@ body > #page {
 
 
 .ytcenter-thumbnail-watchlater-visible-always .addto-watch-later-button,
-.ytcenter-thumbnail-watchlater-visible-hide_hover:hover .addto-watch-later-button {
+.ytcenter-thumbnail-watchlater-visible-hide_hover .addto-watch-later-button {
   display: block !important;
   opacity: 1 !important;
 }
 .ytcenter-thumbnail-timecode-visible-always .video-time,
-.ytcenter-thumbnail-timecode-visible-hide_hover:hover .video-time {
+.ytcenter-thumbnail-timecode-visible-hide_hover .video-time {
   display: block !important;
   opacity: 0.75 !important;
   filter: alpha(opacity=75) !important;

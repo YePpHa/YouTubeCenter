@@ -1109,7 +1109,7 @@
       liSettings.setAttribute("role", "menuitem");
       
       spanText.className = "yt-uix-button-menu-item upload-menu-link";
-      if (ytcenter.settings['experimentalFeatureTopGuide']) {
+      if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
         ytcenter.utils.addEventListener(spanText, "click", function(){
           if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
           ytcenter.settingsPanelDialog.setVisibility(true);
@@ -15919,9 +15919,13 @@
       player.setAttribute("flashvars", flashvars);
     };
     ytcenter.player.update = function(config){
-      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts) {
+      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== "1") {
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
+      }
+      if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== "1") {
+        con.error("[Player update] Not enough data to refresh the player!");
+        return;
       }
       if (config.html5) return;
       try {
