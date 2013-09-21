@@ -14101,9 +14101,10 @@
         ytcenter.player.updateResize();
         
         if (ytcenter.settings.enableAutoVideoQuality) {
-          if (api.getPlaybackQuality() !== config.args.vq) {
+          if (api.getPlaybackQuality() !== config.args.vq || config.args.vq === "auto") {
+            con.log("getPlaybackQuality = " + config.args.vq);
             if (config.args.vq === "auto") {
-              config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.autoVideoQuality, api.getAvailableQualityLevels());
+              config.args.vq = ytcenter.settings.autoVideoQuality;
             }
             con.log("[Player Update] Quality => " + config.args.vq);
             api.setPlaybackQuality(config.args.vq);
@@ -14241,9 +14242,9 @@
           api.playVideo();
         }
         
-        if (api.getPlaybackQuality() != config.args.vq) {
+        if (api.getPlaybackQuality() !== config.args.vq) {
           if (config.args.vq === "auto") {
-            config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.channel_autoVideoQuality, api.getAvailableQualityLevels());
+            config.args.vq = ytcenter.settings.channel_autoVideoQuality;
           }
           con.log("[Player Update] Quality => " + config.args.vq);
           api.setPlaybackQuality(config.args.vq);
@@ -14277,7 +14278,7 @@
             played = true;
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
               if (config.args.vq === "auto") {
-                config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
+                config.args.vq = ytcenter.settings.embed_autoVideoQuality;
               }
               con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
               api.setPlaybackQuality(config.args.vq);
@@ -14289,7 +14290,7 @@
           uw.setTimeout(function(){
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
               if (config.args.vq === "auto") {
-                config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
+                config.args.vq = ytcenter.settings.embed_autoVideoQuality;
               }
               con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
               api.setPlaybackQuality(config.args.vq);
@@ -14301,7 +14302,7 @@
             played = true;
             if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
               if (config.args.vq === "auto") {
-                config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
+                config.args.vq = ytcenter.settings.embed_autoVideoQuality;
               }
               con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
               api.setPlaybackQuality(config.args.vq);
@@ -14312,7 +14313,7 @@
         
         if (api.getPlaybackQuality() !== ytcenter.settings.embed_autoVideoQuality) {
           if (config.args.vq === "auto") {
-            config.args.vq = ytcenter.player.getBestQuality(ytcenter.settings.embed_autoVideoQuality, api.getAvailableQualityLevels());
+            config.args.vq = ytcenter.settings.embed_autoVideoQuality;
           }
           con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
           api.setPlaybackQuality(config.args.vq);
@@ -14494,7 +14495,9 @@
       } else if (page === "embed") {
         if (ytcenter.settings.embed_forcePlayerType === "flash") {
           config.html5 = false;
-        } else if (ytcenter.settings.embed_forcePlayerType === "html5") {
+        } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream()) {
+          config.html5 = true;
+        } else {
           config.html5 = true;
         }
         if (ytcenter.settings.removeAdvertisements) {
@@ -15824,9 +15827,11 @@
       var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
           p = $ArrayIndexOf(priority, vq),
           i, j;
+      con.log(vq, aq);
       for (i = p; i >= 0; i--) {
         if ($ArrayIndexOf(aq, priority[i]) !== -1) return vq;
       }
+      con.log("NOOOO");
       return "auto";
     };
     ytcenter.player.getQuality = function(vq, streams, dash){
@@ -17013,10 +17018,10 @@
               }
             } else {
               if (ytcenter.getPage() === "watch") {
-                if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash") {
+                if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream()) {
                   ytcenter.player.setPlayerType("flash");
                   return;
-                } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5") {
+                } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream()) {
                   ytcenter.player.setPlayerType("html5");
                   return;
                 }
@@ -17030,10 +17035,10 @@
                 
                 initPlacement();
               } else if (ytcenter.getPage() === "embed") {
-                if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash") {
+                if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream()) {
                   ytcenter.player.setPlayerType("flash");
                   return;
-                } else if (ytcenter.settings.embed_forcePlayerType === "html5" && api.getPlayerType() !== "html5") {
+                } else if (ytcenter.settings.embed_forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream()) {
                   ytcenter.player.setPlayerType("html5");
                   return;
                 }
