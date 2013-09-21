@@ -2022,13 +2022,8 @@
     ytcenter.title.originalTitle = "";
     ytcenter.title.previousTitle = "";
     ytcenter.title.liveTitle = "";
-    ytcenter.title.modified = function(mutations){
-      var a;
-      if (mutations) {
-        a = mutations[0].target.textContent;
-      } else {
-        a = document.getElementsByTagName("title")[0].textContent;
-      }
+    ytcenter.title.modified = function(){
+      var a = document.getElementsByTagName("title")[0].textContent;
       if (a !== ytcenter.title.previousTitle) {
         if (ytcenter.title.originalTitle === "")
           ytcenter.title.originalTitle = a;
@@ -2049,10 +2044,10 @@
         if (MutObs) {
           con.log("[Title Listener] Using MutationObservers");
           observer = new MutObs(ytcenter.title.modified);
-          observer.observe(a, { attributes: true, childList: true, characterData: true });
+          observer.observe(document.head, { attributes: true, childList: true, characterData: true });
         } else {
           con.log("[Title Listener] Using DOMSubtreeModified");
-          a.addEventListener("DOMSubtreeModified", ytcenter.title.modified);
+          document.head.addEventListener("DOMSubtreeModified", ytcenter.title.modified);
         }
         ytcenter.title.update();
       }
