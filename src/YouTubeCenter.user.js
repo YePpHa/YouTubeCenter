@@ -15996,6 +15996,7 @@
       }
       if (ytcenter.player.isLiveStream()) {
         con.log("[Player setPlayerType] Is disabled on live streams!");
+        return;
       }
       var api = ytcenter.player.getAPI();
       con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to " + type);
