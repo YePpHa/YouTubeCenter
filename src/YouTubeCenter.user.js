@@ -16439,6 +16439,7 @@
         clicked = true;
       }
       function updateGuide() {
+        if (ytcenter.getPage() !== "watch") return;
         if (ytcenter.settings.guideMode === "always_open") {
           ytcenter.utils.removeClass(document.getElementById("guide-main"), "collapsed");
           document.getElementById("guide-main").children[1].style.display = "block";
@@ -16462,79 +16463,81 @@
           observer2 = null;
         }
       });
-      return function(){
-        con.log("[Guide] Configurating the state updater!");
-        if (observer) {
-          observer.disconnect();
-          observer = null;
-        }
-        if (observer2) {
-          observer2.disconnect();
-          observer2 = null;
-        }
-        guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
-        if (guideToggle)
-          ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
-        
-        if (MutObs) {
-          observer2 = new MutObs(function(mutations){
-            mutations.forEach(function(mutation){
-              if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
-                con.log("[Guide] Main Guide has been removed");
-                main_guide = document.getElementById("guide-main");
-                guide_container = document.getElementById("guide-container");
-                if (main_guide) {
-                  observer.disconnect();
-                  observer.observe(main_guide, config);
-                }
-                if (guideToggle)
-                  ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
-                guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
-                if (guideToggle)
-                  ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
-                if (clicked) {
-                  clicked = false;
-                  return;
-                }
-                updateGuide();
-              } else {
-                con.log("[Guide] Main Guide is still intact");
-              }
-            });
-          });
-          observer = new MutObs(function(mutations){
-            mutations.forEach(function(mutation){
-              if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
-                if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
-                if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
-                con.log("[Guide] Updating State!");
-                
-                uw.clearTimeout(timer);
-                
-                if (clicked) {
-                  clicked = false;
-                  return;
-                }
-                
-                timer = uw.setTimeout(function(){
-                  updateGuide();
-                }, 500);
-              }
-            });
-          });
-        }
-        if (observer && ytcenter.settings.guideMode !== "default") {
-          if (document.getElementById("guide"))
-            observer2.observe(document.getElementById("guide"), confi2);
-          main_guide = document.getElementById("guide-main");
-          guide_container = document.getElementById("guide-container");
-          if (main_guide)
-            observer.observe(main_guide, config);
+      return {
+        setup: function(){
+          con.log("[Guide] Configurating the state updater!");
+          if (observer) {
+            observer.disconnect();
+            observer = null;
+          }
+          if (observer2) {
+            observer2.disconnect();
+            observer2 = null;
+          }
+          guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
           if (guideToggle)
-            ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
+            ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
+          
+          if (MutObs) {
+            observer2 = new MutObs(function(mutations){
+              mutations.forEach(function(mutation){
+                if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
+                  con.log("[Guide] Main Guide has been removed");
+                  main_guide = document.getElementById("guide-main");
+                  guide_container = document.getElementById("guide-container");
+                  if (main_guide) {
+                    observer.disconnect();
+                    observer.observe(main_guide, config);
+                  }
+                  if (guideToggle)
+                    ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
+                  guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
+                  if (guideToggle)
+                    ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
+                  if (clicked) {
+                    clicked = false;
+                    return;
+                  }
+                  updateGuide();
+                } else {
+                  con.log("[Guide] Main Guide is still intact");
+                }
+              });
+            });
+            observer = new MutObs(function(mutations){
+              mutations.forEach(function(mutation){
+                if (mutation.type === "attributes" && mutation.attributeName === "class" && ((mutation.oldValue.indexOf("collapsed") !== -1) !== (mutation.target.className.indexOf("collapsed") !== -1))) {
+                  con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, mutation.target.className.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
+                  if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
+                  if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
+                  con.log("[Guide] Updating State!");
+                  
+                  uw.clearTimeout(timer);
+                  
+                  if (clicked) {
+                    clicked = false;
+                    return;
+                  }
+                  
+                  timer = uw.setTimeout(function(){
+                    updateGuide();
+                  }, 500);
+                }
+              });
+            });
+          }
+          if (observer && ytcenter.settings.guideMode !== "default") {
+            if (document.getElementById("guide"))
+              observer2.observe(document.getElementById("guide"), confi2);
+            main_guide = document.getElementById("guide-main");
+            guide_container = document.getElementById("guide-container");
+            if (main_guide)
+              observer.observe(main_guide, config);
+            if (guideToggle)
+              ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
+          }
+          updateGuide();
         }
-        updateGuide();
       };
     })();
     ytcenter.events.addEvent("ui-refresh", function(){
@@ -17379,7 +17382,7 @@
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
-        ytcenter.guideMode();
+        ytcenter.guideMode.setup();
       });
       ytcenter.spf.addEventListener("requested-before", function(url){
         if (!ytcenter.settings.ytspf) {
@@ -17485,7 +17488,7 @@
         } else {
           if (ytcenter.settings.lightbulbAutoOff)
             ytcenter.player.turnLightOff();
-          ytcenter.guideMode();
+          ytcenter.guideMode.setup();
           ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
           if (ytcenter.settings["resize-default-playersize"] === "default") {
             ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
