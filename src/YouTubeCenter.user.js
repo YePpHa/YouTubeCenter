@@ -3668,26 +3668,6 @@
         
         item.content.appendChild(wrapper);
       }
-      function applyWatchLaterSettings(item) {
-        // TODO   Apply these to the body element instead.
-        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-pos-" + ytcenter.settings.videoThumbnailWatchLaterPosition);
-        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-visible-" + ytcenter.settings.videoThumbnailWatchLaterVisible);
-        ytcenter.events.addEvent("ui-refresh", function(){
-          ytcenter.utils.removeClass(item.wrapper, "ytcenter-thumbnail-watchlater-pos-topleft ytcenter-thumbnail-watchlater-pos-topright ytcenter-thumbnail-watchlater-pos-bottomleft ytcenter-thumbnail-watchlater-pos-bottomright ytcenter-thumbnail-watchlater-visible-always ytcenter-thumbnail-watchlater-visible-show_hover ytcenter-thumbnail-watchlater-visible-hide_hover ytcenter-thumbnail-watchlater-visible-never");
-          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-pos-" + ytcenter.settings.videoThumbnailWatchLaterPosition);
-          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-watchlater-visible-" + ytcenter.settings.videoThumbnailWatchLaterVisible);
-        });
-      }
-      function applyTimeCodeSettings(item) {
-        // TODO   Apply these to the body element instead.
-        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-" + ytcenter.settings.videoThumbnailTimeCodePosition);
-        ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
-        ytcenter.events.addEvent("ui-refresh", function(){
-          ytcenter.utils.removeClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-topleft ytcenter-thumbnail-timecode-pos-topright ytcenter-thumbnail-timecode-pos-bottomleft ytcenter-thumbnail-timecode-pos-bottomright ytcenter-thumbnail-timecode-visible-always ytcenter-thumbnail-timecode-visible-show_hover ytcenter-thumbnail-timecode-visible-hide_hover ytcenter-thumbnail-timecode-visible-never");
-          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-pos-" + ytcenter.settings.videoThumbnailTimeCodePosition);
-          ytcenter.utils.addClass(item.wrapper, "ytcenter-thumbnail-timecode-visible-" + ytcenter.settings.videoThumbnailTimeCodeVisible);
-        });
-      }
       function applyWatchedMessage(item) {
         var ivw = ytcenter.videoHistory.isVideoWatched(item.id),
             hc = ytcenter.utils.hasClass(item.content, "watched"), a, i, b, watchedElement;
@@ -3990,8 +3970,6 @@
           updateReuse(vt[i]);
           processItem(vt[i]);
           processItemHeavyLoad(vt[i]);
-          applyWatchLaterSettings(vt[i]);
-          applyTimeCodeSettings(vt[i]);
           if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
             subscriptionGrid(vt[i]);
           }
@@ -4059,8 +4037,6 @@
             updateReuse(videoThumbs[i]);
             processItem(videoThumbs[i]);
             processItemHeavyLoad(videoThumbs[i]);
-            applyWatchLaterSettings(videoThumbs[i]);
-            applyTimeCodeSettings(videoThumbs[i]);
             if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
               subscriptionGrid(videoThumbs[i]);
             }
@@ -16291,6 +16267,22 @@
         }
         return false;
       }},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topleft";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topright", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topright";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-bottomleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "bottomleft";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-bottomright", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "bottomright";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-visible-always", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterVisible === "always";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-visible-show_hover", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterVisible === "show_hover";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-visible-hide_hover", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterVisible === "hide_hover";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-visible-never", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterVisible === "never";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-pos-topleft", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodePosition === "topleft";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-pos-topright", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodePosition === "topright";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-pos-bottomleft", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodePosition === "bottomleft";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-pos-bottomright", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodePosition === "bottomright";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-visible-always", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodeVisible === "always";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-visible-show_hover", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodeVisible === "show_hover";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-visible-hide_hover", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodeVisible === "hide_hover";}},
+      {element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-visible-never", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodeVisible === "never";}},
       {element: function(){return document.body;}, className: "ytcenter-ticker-hidden", condition: function(loc){return ytcenter.settings["hideTicker"];}},
       {element: function(){return document.body;}, className: "ytcenter-guide-hidden", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["watch7playerguidealwayshide"] && !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {element: function(){return document.body;}, className: "ytcenter-guide-visible", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings["watch7playerguidealwayshide"] && !ytcenter.settings['experimentalFeatureTopGuide'];}},
