@@ -13945,7 +13945,7 @@
     };
     ytcenter.player = {};
     ytcenter.player.isLiveStream = function(){
-      return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.live_playback === "1");
+      return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.live_playback === 1);
     };
     ytcenter.player.getRawPlayerConfig = function(){
       var a = document.body.innerHTML;
@@ -14416,8 +14416,10 @@
         }
         if (ytcenter.settings.forcePlayerType === "flash") {
           config.html5 = false;
-        } else if (ytcenter.settings.forcePlayerType === "html5") {
+        } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream()) {
           config.html5 = true;
+        } else {
+          config.html5 = false;
         }
         if (ytcenter.settings.enableAnnotations) {
           config.args.iv_load_policy = 1;
@@ -16014,11 +16016,11 @@
       player.setAttribute("flashvars", flashvars);
     };
     ytcenter.player.update = function(config){
-      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== "1") {
+      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
-      if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== "1") {
+      if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
         con.error("[Player update] Not enough data to refresh the player!");
         return;
       }
@@ -16999,7 +17001,7 @@
           con.log("[onYouTubePlayerReady]", arguments);
           if (typeof api !== "string") {
             ytcenter.player.__getAPI = api;
-            ytcenter.html5 = (api.getPlayerType() === "html5");
+            ytcenter.html5 = (api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream());
             ytcenter.player.listeners.dispose();
             ytcenter.player.listeners.setup();
             
