@@ -2044,7 +2044,7 @@
         if (MutObs) {
           con.log("[Title Listener] Using MutationObservers");
           observer = new MutObs(ytcenter.title.modified);
-          observer.observe(document.head, { attributes: true, childList: true, characterData: true });
+          observer.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true });
         } else {
           con.log("[Title Listener] Using DOMSubtreeModified");
           document.head.addEventListener("DOMSubtreeModified", ytcenter.title.modified);
@@ -17286,6 +17286,7 @@
           } else {
             ytcenter.title.removePlayIcon();
           }
+          ytcenter.title.update();
         });
         ytcenter.player.listeners.addEventListener("onStateChange", function(state, b){
           if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
@@ -17300,6 +17301,7 @@
           } else {
             ytcenter.title.removePlayIcon();
           }
+          ytcenter.title.update();
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
             ytcenter.player.getAPI().playVideo();
           }
