@@ -13850,6 +13850,9 @@
       });
     };
     ytcenter.player = {};
+    ytcenter.player.isLiveStream = function(){
+      return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.live_playback === "1");
+    };
     ytcenter.player.getRawPlayerConfig = function(){
       var a = document.body.innerHTML;
       if (a.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") === -1) return {};
@@ -15896,6 +15899,9 @@
       if (type !== "html5" && type !== "flash") {
         con.error("[Player setPlayerType] Invalid type: " + type);
         return;
+      }
+      if (ytcenter.player.isLiveStream()) {
+        con.log("[Player setPlayerType] Is disabled on live streams!");
       }
       var api = ytcenter.player.getAPI();
       con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to " + type);
