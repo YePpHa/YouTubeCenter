@@ -2405,31 +2405,45 @@
     };
     ytcenter.videoHistory = (function(){
       var __r = {};
-      __r.isVideoWatched = function(id){
-        var i;
-        for (i = 0; i < ytcenter.settings.watchedVideos.length; i++) {
-          if (ytcenter.settings.watchedVideos[i] === id) {
-            return true;
+      __r.watchedVideos = [];
+      __r.loadWatchedVideosFromYouTubePage = function(){
+        var a = document.getElementsByClassName("watched"), i, b;
+        for (i = 0; i < a.length; i++) {
+          if (a[i].tagName === "A") {
+            b = ytcenter.utils.getVideoIdFromLink(a[i].getAttribute("href"));
+            if (b && !ytcenter.utils.inArray(__r.watchedVideos, b)) __r.watchedVideos.push(b);
           }
         }
+      };
+      __r.isVideoWatched = function(id){
+        if (ytcenter.utils.inArray(ytcenter.settings.notwatchedVideos, id)) return false;
+        if (ytcenter.utils.inArray(ytcenter.settings.watchedVideos, id) || ytcenter.utils.inArray(__r.watchedVideos, id)) return true;
         return false;
       };
       __r.removeVideo = function(id){
-        var i;
-        for (i = 0; i < ytcenter.settings.watchedVideos.length; i++) {
-          if (ytcenter.settings.watchedVideos[i] === id) {
-            ytcenter.settings.watchedVideos.splice(i, 1);
-            ytcenter.saveSettings();
-            break;
-          }
+        var i = ytcenter.utils.inArrayIndex(ytcenter.settings.watchedVideos, id);
+        if (i !== -1) {
+          ytcenter.settings.watchedVideos.splice(i, 1);
         }
+        if (!ytcenter.utils.inArray(ytcenter.settings.notwatchedVideos, id)) {
+          if (ytcenter.settings.notwatchedVideosLimit < ytcenter.settings.notwatchedVideos.length) {
+            ytcenter.settings.notwatchedVideos.splice(0, ytcenter.settings.notwatchedVideos.length - ytcenter.settings.notwatchedVideosLimit);
+          }
+          ytcenter.settings.notwatchedVideos.push(id);
+        }
+        ytcenter.saveSettings();
       };
       __r.addVideo = function(id){
-        if (__r.isVideoWatched(id)) return;
-        if (ytcenter.settings.watchedVideosLimit < ytcenter.settings.watchedVideos.length) {
-          ytcenter.settings.watchedVideos.splice(0, ytcenter.settings.watchedVideos.length - ytcenter.settings.watchedVideosLimit);
+        var i = ytcenter.utils.inArrayIndex(ytcenter.settings.notwatchedVideos, id);
+        if (i !== -1) {
+          ytcenter.settings.notwatchedVideos.splice(i, 1);
         }
-        ytcenter.settings.watchedVideos.push(id);
+        if (!ytcenter.utils.inArray(ytcenter.settings.watchedVideos, id)) {
+          if (ytcenter.settings.watchedVideosLimit < ytcenter.settings.watchedVideos.length) {
+            ytcenter.settings.watchedVideos.splice(0, ytcenter.settings.watchedVideos.length - ytcenter.settings.watchedVideosLimit);
+          }
+          ytcenter.settings.watchedVideos.push(id);
+        }
         ytcenter.saveSettings();
       };
       
@@ -3122,8 +3136,8 @@
             linkRegex3 = /video_ids=([0-9a-zA-Z-_%]+)/,
             vt = document.getElementsByClassName("video-thumb"),
             videos = [],
-            i, id, videoElement, cacheData, data, index, rgx, wrapper,
-            playlistVideoThumbs = getPlaylistVideoThumbs();
+            i, j, id, videoElement, cacheData, data, index, rgx, wrapper,
+            playlistVideoThumbs = getPlaylistVideoThumbs(), maxIterations = 10, a;
         for (i = 0; i < vt.length; i++) {
           if (ytcenter.utils.inArray(playlistVideoThumbs, vt[i])) continue;
           videoElement = vt[i].parentNode;
@@ -3165,7 +3179,18 @@
                 if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
               }
             }
-            if (data) videos.push(data);
+            if (data) {
+              a = wrapper;
+              for (j = 0; j < maxIterations; j++) {
+                a = a.parentNode;
+                if (!a) break; // At the top of the tree
+                if (a.tagName === "LI") { // We found it guys. Great job.
+                  data.itemWrapper = a;
+                  break;
+                }
+              }
+              videos.push(data);
+            }
           }
         }
         return videos;
@@ -3663,58 +3688,18 @@
         
         item.content.appendChild(wrapper);
       }
-      function applyWatchedMessage(item) {
-        var ivw = ytcenter.videoHistory.isVideoWatched(item.id),
-            hc = ytcenter.utils.hasClass(item.content, "watched"), a, i, b, watchedElement;
-        if (ivw) {
-          watchedElement = document.createElement("div");
-          if (item.content.getElementsByClassName("watched-message").length === 0) {
-            watchedElement.className = "watched-message";
-            watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
-            ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
-            item.content.insertBefore(watchedElement, item.content.children[0]);
-          }
-          ytcenter.utils.addClass(item.content, "watched");
-          a = item.content;
-          for (i = 0; i < 10; i++) {
-            a = a.parentNode;
-            if (a.tagName === "LI" || !a) {
-              b = a;
-              break;
-            }
-          }
-          if (b) ytcenter.utils.addClass(b, "ytcenter-video-watched-wrapper");
-        } else if (!ivw && hc) {
-          a = item.content;
-          ytcenter.utils.removeClass(item.content, "watched");
-          for (i = 0; i < 10; i++) {
-            a = a.parentNode;
-            if (a.tagName === "LI" || !a) {
-              b = a;
-              break;
-            }
-          }
-          if (b) ytcenter.utils.removeClass(b, "ytcenter-video-watched-wrapper");
+      function updateWatchedClass(item) {
+        var watched = ytcenter.utils.hasClass(item.content, "watched"),
+            am, li, s;
+        if (item.itemWrapper && watched) {
+          ytcenter.utils.addClass(item.itemWrapper, "ytcenter-video-watched-wrapper"); // For hiding the item
+        } else if (item.itemWrapper) {
+          ytcenter.utils.removeClass(item.itemWrapper, "ytcenter-video-watched-wrapper"); // For hiding the item
         }
-      }
-      function subscriptionGrid(item) {
-        var username = item.content.parentNode.parentNode.parentNode.parentNode.getElementsByClassName("yt-user-name")[0],
-            metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
-            actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
-            usernameWrapper = document.createElement("div"), i, am, li, s,
-            primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
-        if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username") || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
-          if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
-            primaryCol[0].style.overflow = "visible";
-            ytcenter.utils.addClass(primaryCol[0], "clearfix");
-            primaryCol[0].getElementsByClassName("feed-header")[0].style.height = "32px";
-          }
-          usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
-          usernameWrapper.className = "ytcenter-grid-subscriptions-username";
-          metadata.parentNode.insertBefore(usernameWrapper, metadata);
-          
-          if (ytcenter.settings.watchedVideosIndicator) {
-            am = actionMenu.getElementsByTagName("ul")[0];
+        if (loc.pathname === "/feed/subscriptions" && !item.actionMenu) {
+          item.actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling;
+          if (item.actionMenu) {
+            am = item.actionMenu.getElementsByTagName("ul")[0];
             li = document.createElement("li");
             li.setAttribute("role", "menuitem");
             s = document.createElement("span");
@@ -3733,7 +3718,7 @@
                 ytcenter.videoHistory.addVideo(item.id);
                 s.textContent = ytcenter.language.getLocale("VIDEOWATCHED_REMOVE");
               }
-              applyWatchedMessage(item);
+              updateWatchedMessage(item);
             }, false);
             
             li.appendChild(s);
@@ -3746,6 +3731,41 @@
               }
             });
           }
+        }
+      }
+      
+      function updateWatchedMessage(item) {
+        var ivw = ytcenter.videoHistory.isVideoWatched(item.id),
+            watchedElement;
+        if (ivw) {
+          watchedElement = document.createElement("div");
+          if (item.content.getElementsByClassName("watched-message").length === 0) {
+            watchedElement.className = "watched-message";
+            watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
+            ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
+            item.content.insertBefore(watchedElement, item.content.children[0]);
+          }
+          ytcenter.utils.addClass(item.content, "watched");
+        } else {
+          ytcenter.utils.removeClass(item.content, "watched");
+          if (item.itemWrapper) ytcenter.utils.removeClass(item.itemWrapper, "ytcenter-video-watched-wrapper");
+        }
+      }
+      function subscriptionGrid(item) {
+        var username = item.content.parentNode.parentNode.parentNode.parentNode.getElementsByClassName("yt-user-name")[0],
+            metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
+            actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
+            usernameWrapper = document.createElement("div"), i, am, li, s,
+            primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
+        if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username") || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
+          if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
+            primaryCol[0].style.overflow = "visible";
+            ytcenter.utils.addClass(primaryCol[0], "clearfix");
+            primaryCol[0].getElementsByClassName("feed-header")[0].style.height = "32px";
+          }
+          usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
+          usernameWrapper.className = "ytcenter-grid-subscriptions-username";
+          metadata.parentNode.insertBefore(usernameWrapper, metadata);
           
           ytcenter.events.addEvent("language-refresh", function(){
             usernameWrapper.innerHTML = "";
@@ -3953,6 +3973,8 @@
       }
       var __r = {}, observer, observer2, videoThumbs;
       __r.update = function(){
+        ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
+        
         var vt = compareDifference(getVideoThumbs(), videoThumbs), i;
         for (i = 0; i < vt.length; i++) {
           ytcenter.utils.addEventListener(vt[i].wrapper, "mouseover", (function(item){
@@ -3968,8 +3990,11 @@
           if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
             subscriptionGrid(vt[i]);
           }
+          if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
+            updateWatchedClass(vt[i]);
+          }
           if ((loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
-            applyWatchedMessage(vt[i]);
+            updateWatchedMessage(vt[i]);
           }
         }
       };
@@ -4021,6 +4046,7 @@
         try {
           var i;
           cacheChecker();
+          ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
           videoThumbs = getVideoThumbs();
           for (i = 0; i < videoThumbs.length; i++) {
             ytcenter.utils.addEventListener(videoThumbs[i].wrapper, "mouseover", (function(item){
@@ -4035,8 +4061,11 @@
             if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
               subscriptionGrid(videoThumbs[i]);
             }
+            if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
+              updateWatchedClass(videoThumbs[i]);
+            }
             if ((loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
-              applyWatchedMessage(videoThumbs[i]);
+              updateWatchedMessage(videoThumbs[i]);
             }
           }
           __r.setupObserver();
@@ -8239,6 +8268,28 @@
       return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
     };
     ytcenter.utils = {};
+    ytcenter.utils.getVideoIdFromLink = function(url){
+      var videoIdRegex = /v=([a-zA-Z0-9-_]+)/,
+          indexRegex = /index=([0-9]+)/,
+          videoIdsRegex = /video_ids=([0-9a-zA-Z-_%]+)/,
+          i = 0, a;
+      if (url.match(videoIdRegex)) {
+        a = videoIdRegex.exec(url);
+        if (a && a[1]) return a[1];
+      } else if (url.match(videoIdsRegex)) {
+        a = indexRegex.exec(url);
+        if (a && a[1]) {
+          i = parseInt(a[1]);
+        }
+        
+        a = videoIdsRegex.exec(url);
+        if (a && a[1] && a[1].split("%2C").length > 0 && a[1].split("%2C")[i]) {
+          return a[1].split("%2C")[i];
+        }
+      }
+      
+      return null;
+    };
     ytcenter.utils.replaceTextAsString = function(text, rep) {
       if (!text) return text;
       var tmp = "";
@@ -9758,10 +9809,12 @@
       ytspf: true,
       videoThumbnailCacheSize: 500,
       commentCacheSize: 150,
-      watchedVideosIndicator: false,
+      watchedVideosIndicator: true,
       hideWatchedVideos: false,
       watchedVideos: [],
+      notwatchedVideos: [],
       watchedVideosLimit: 10000, // Hope this isn't too big.
+      notwatchedVideosLimit: 10000, // Hope this isn't too big.
       gridSubscriptionsPage: true,
       compatibilityCheckerForChromeDisable: false,
       removeRelatedVideosEndscreen: false,
@@ -11196,6 +11249,7 @@
                         primary: true,
                         callback: function(){
                           ytcenter.settings.watchedVideos = [];
+                          ytcenter.settings.notwatchedVideos = [];
                           ytcenter.saveSettings(null, null, function(){
                             loc.reload();
                             dialog.setVisibility(false);
