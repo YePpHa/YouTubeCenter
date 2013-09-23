@@ -1,3 +1,6 @@
+ - Fetch download links for whole playlist.
+ - Set the width of a video shelf to not cut off videos.
+ - Auto expand long video titles.
  - Thumbnail download video
  - Paged comments, auto load comments, nested comments (http://userscripts.org/topics/130800).
  - Reverse playlist order (more like make it play the previous video in the playlist instead of the next video).

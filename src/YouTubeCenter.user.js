@@ -4253,26 +4253,33 @@
       masterCallbacks = {};
       
       _obj.setEnabled = function(enabled){
+        if (ytcenter.getPage() === "embed") return;
         if (!uw.spf || !uw.spf.dispose) return;
         var objects;
         if (enabled) {
           //objects = uw.spf.init(uw.ytspf.config);
         } else {
           con.log("[SPF] Disposing of the SPF injections.");
-          objects = uw.spf.dispose();
+          if (uw.spf && uw.spf.dispose && typeof uw.spf.dispose === "function") {
+            objects = uw.spf.dispose();
+          }
         }
       };
       _obj.addEventListener = function(event, callback){
+        if (ytcenter.getPage() === "embed") return;
         if (!listeners.hasOwnProperty(event)) return;
         listeners[event].push(callback);
       };
       _obj.isInjected = function(){
+        if (ytcenter.getPage() === "embed") return false;
         return injected ? true : false;
       };
       _obj.isEnabled = function(){
+        if (ytcenter.getPage() === "embed") return false;
         return uw && uw.ytspf && uw.ytspf.enabled ? true : false;
       };
       _obj.isReadyToInject = function(){
+        if (ytcenter.getPage() === "embed") return;
         var obj_name, i;
         con.log("[SPF] Checking if SPF is ready...");
         if (typeof uw._spf_state !== "object") {
@@ -4293,6 +4300,7 @@
         return true;
       };
       _obj._init = function(callbacks){
+        if (ytcenter.getPage() === "embed") return;
         ytcenter.utils.each(callbacks, function(key, value){
           var a = key.replace(/-callback$/, "");
           if (key.indexOf("navigate-") === 0) {
@@ -4304,6 +4312,7 @@
         return callbacks;
       };
       _obj.inject = function(){ // Should only be called once every instance (page reload).
+        if (ytcenter.getPage() === "embed") return;
         if (!_obj.isEnabled() || injected) return; // Should not inject when SPF is not enabled!
         injected = true;
         var ytspf = uw._spf_state,
