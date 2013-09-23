@@ -6193,8 +6193,10 @@
           if (cCallback) cCallback(s.value);
           if (option && option.args && option.args.listeners) {
             for (var i = 0; i < option.args.listeners.length; i++) {
-              if (option.args.listeners[i].event === "click") {
+              if (option.args.listeners[i].event === "update") {
                 option.args.listeners[i].callback();
+              } else {
+                con.error("[Module:List] Unknown event " + option.args.listeners[i].event);
               }
             }
           }
@@ -11054,7 +11056,7 @@
               },
               "listeners": [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.language.update();
                   }
@@ -11454,7 +11456,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.page === "watch") {
                       ytcenter.player.setAutoHide(ytcenter.settings.autohide);
@@ -11482,7 +11484,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.page === "watch") {
                       ytcenter.player.setTheme(ytcenter.settings.playerTheme);
@@ -11510,7 +11512,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.page === "watch") {
                       ytcenter.player.setProgressColor(ytcenter.settings.playerColor);
@@ -11888,7 +11890,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.getPage() === "embed") {
                       ytcenter.player.setAutoHide(ytcenter.settings.embed_autohide);
@@ -11916,7 +11918,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.getPage() === "embed") {
                       ytcenter.player.setTheme(ytcenter.settings.embed_playerTheme);
@@ -11944,7 +11946,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.getPage() === "embed") {
                       ytcenter.player.setProgressColor(ytcenter.settings.embed_playerColor);
@@ -12121,7 +12123,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.getPage() === "embed") {
                       ytcenter.player.setAutoHide(ytcenter.settings.channel_autohide);
@@ -12149,7 +12151,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.getPage() === "embed") {
                       ytcenter.player.setTheme(ytcenter.settings.channel_playerTheme);
@@ -12177,7 +12179,7 @@
               ],
               "listeners" : [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     if (ytcenter.getPage() === "embed") {
                       ytcenter.player.setProgressColor(ytcenter.settings.channel_playerColor);
@@ -12354,7 +12356,7 @@
               ],
               "listeners": [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -12386,7 +12388,7 @@
               ],
               "listeners": [
                 {
-                  "event": "change",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -12473,7 +12475,7 @@
               "list": ytcenter.mp3services,
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -12855,7 +12857,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -12882,7 +12884,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -12912,7 +12914,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -12963,7 +12965,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -12990,7 +12992,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13020,7 +13022,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13071,7 +13073,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13098,7 +13100,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13128,7 +13130,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13169,7 +13171,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13201,7 +13203,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13242,7 +13244,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
@@ -13275,7 +13277,7 @@
               ],
               "listeners": [
                 {
-                  "event": "click",
+                  "event": "update",
                   "callback": function(){
                     ytcenter.events.performEvent("ui-refresh");
                   }
