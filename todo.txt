@@ -1,3 +1,7 @@
+ - Thumbnail - Show progress bar of the thumbnail's position in the video.
+ - Thumbnail - Show in some way when thumbnails have finished loading (to see a smooth preview).
+ - Test the watch later button position when logged out of YouTube in Chrome.
+ - It seems like restricted video in a playlist stops the whole autoplay + the width of the topbar of the playlist isn't correct.
  - Fetch download links for whole playlist.
  - Set the width of a video shelf to not cut off videos.
  - Auto expand long video titles.
