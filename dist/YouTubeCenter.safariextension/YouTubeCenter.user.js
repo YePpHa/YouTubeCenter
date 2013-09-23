@@ -26,7 +26,7 @@
 // @grant           GM_log
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
-// @updateVersion   147
+// @updateVersion   148
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
@@ -2126,7 +2126,7 @@
       };
     })();
     ytcenter.version = "2.0.1";
-    ytcenter.revision = 147;
+    ytcenter.revision = 148;
     ytcenter.icon = {};
     ytcenter.page = "none";
     ytcenter._tmp_embed = {loaded: false, onReady: false};
