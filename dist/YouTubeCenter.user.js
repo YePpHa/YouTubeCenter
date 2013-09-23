@@ -50,12 +50,16 @@
     } catch (e) {}
   }
   function injected_saveSettings(id, key, data) {
-    chrome.runtime.sendMessage({ "method": "setLocalStorage", "key": key, "data": data }, function(response) {
+    var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
+    chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "setLocalStorage", "key": key, "data": data }), function(response) {
+      if (typeof response === "string") response = (JSON && JSON.parse ? JSON.parse(response) : eval("(" + response + ")"));
       inject("window.ytcenter.storage.onsaved(" + id + ")");
     });
   }
   function injected_loadSettings(id, key) {
-    chrome.runtime.sendMessage({ "method": "getLocalStorage", "key": key }, function(response) {
+    var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
+    chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "getLocalStorage", "key": key }), function(response) {
+      if (typeof response === "string") response = (JSON && JSON.parse ? JSON.parse(response) : eval("(" + response + ")"));
       inject("window.ytcenter.storage.onloaded(" + id + ", " + (response ? (response.data ? (typeof response.data === "string" ? response.data : JSON.stringify(response.data)) : "{}") : {}) + ")");
     });
   }
@@ -17685,7 +17689,7 @@
       })();
       if (__uw === window) {
         window.addEventListener("message", function(e){
-          try {
+          //try {
             var d = JSON.parse(e.data);
             if (d.method === "CrossOriginXHR") {
               injected_xhr(d.id, d.arguments[0]); // id, details
@@ -17694,19 +17698,20 @@
             } else if (d.method === "loadSettings") {
               injected_loadSettings(d.id, d.arguments[0]); // id, key
             }
-          } catch (e) {}
+          /*} catch (e) {
+          }*/
         }, false);
         
         inject(main_function);
       } else {
-        try {
+        //try {
           main_function(false, 0);
-        } catch (e) {
-        }
+        /*} catch (e) {
+        }*/
       }
     } catch (e) {
       window.addEventListener("message", function(e){
-        try {
+        //try {
           var d = JSON.parse(e.data);
           if (d.method === "CrossOriginXHR") {
             injected_xhr(d.id, d.arguments[0]); // id, details
@@ -17715,7 +17720,7 @@
           } else if (d.method === "loadSettings") {
             injected_loadSettings(d.id, d.arguments[0]); // id, key
           }
-        } catch (e) {}
+        //} catch (e) {}
       }, false);
       
       inject(main_function);
