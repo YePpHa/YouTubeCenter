@@ -610,6 +610,7 @@ body > #page {
 
 
 .ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-topleft .video-time,
 .ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
 .ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
@@ -618,6 +619,7 @@ body > #page {
 }
 
 .watched.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
+.watched.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-sign-in,
 .watched.ytcenter-thumbnail-timecode-pos-topleft .video-time,
 .watched.ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
 .watched.ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
@@ -626,6 +628,7 @@ body > #page {
 }
 
 .ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-topright .video-time,
 .ytcenter-thumbnail-quality-pos-topright .ytcenter-thumbnail-quality,
 .ytcenter-thumbnail-ratingcount-pos-topright .ytcenter-thumbnail-ratingcount {
@@ -633,6 +636,7 @@ body > #page {
   right: 2px!important;
 }
 .ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-bottomleft .video-time,
 .ytcenter-thumbnail-quality-pos-bottomleft .ytcenter-thumbnail-quality,
 .ytcenter-thumbnail-ratingcount-pos-bottomleft .ytcenter-thumbnail-ratingcount {
@@ -640,6 +644,7 @@ body > #page {
   left: 2px!important;
 }
 .ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-bottomright .video-time,
 .ytcenter-thumbnail-quality-pos-bottomright .ytcenter-thumbnail-quality,
 .ytcenter-thumbnail-ratingcount-pos-bottomright .ytcenter-thumbnail-ratingcount {
@@ -649,7 +654,9 @@ body > #page {
 
 
 .ytcenter-thumbnail-watchlater-visible-always .addto-watch-later-button,
-.ytcenter-thumbnail-watchlater-visible-hide_hover .addto-watch-later-button {
+.ytcenter-thumbnail-watchlater-visible-hide_hover .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-always .addto-watch-later-button-sign-in,
+.ytcenter-thumbnail-watchlater-visible-hide_hover .addto-watch-later-button-sign-in {
   display: block !important;
   opacity: 1 !important;
 }
@@ -662,16 +669,20 @@ body > #page {
 
 .ytcenter-thumbnail-watchlater-visible-show_hover .addto-watch-later-button,
 .ytcenter-thumbnail-watchlater-visible-never .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-show_hover .addto-watch-later-button-sign-in,
+.ytcenter-thumbnail-watchlater-visible-never .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-visible-show_hover .video-time,
 .ytcenter-thumbnail-timecode-visible-never .video-time,
 .ytcenter-thumbnail-watchlater-visible-hide_hover a:hover .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-hide_hover a:hover .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-visible-hide_hover a:hover .video-time {
   display: none!important;
   opacity: 0 !important;
   filter: alpha(opacity=0) !important;
 }
 
-.ytcenter-thumbnail-watchlater-visible-show_hover a:hover .addto-watch-later-button{
+.ytcenter-thumbnail-watchlater-visible-show_hover a:hover .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-show_hover a:hover .addto-watch-later-button-sign-in {
   display: block !important;
   opacity: 1 !important;
   filter: alpha(opacity=100) !important;
