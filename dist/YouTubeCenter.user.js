@@ -6845,15 +6845,19 @@
           __r.width = "";
           __r.height = "";
         } else {
-          if (typeof dim[0] === "number") {
+          if (typeof dim[0] === "number" && !isNaN(parseInt(item.getConfig().width))) {
             __r.width = dim[0] + "px";
-          } else {
+          } else if (!isNaN(parseInt(item.getConfig().width))) {
             __r.width = dim[0];
-          }
-          if (typeof dim[1] === "number") {
-            __r.height = dim[1] + "px";
           } else {
+            __r.width = "";
+          }
+          if (typeof dim[1] === "number" && !isNaN(parseInt(item.getConfig().height))) {
+            __r.height = dim[1] + "px";
+          } else if (!isNaN(parseInt(item.getConfig().height))) {
             __r.height = dim[1];
+          } else {
+            __r.height = "";
           }
         }
         __r.large = item.getConfig().large;
@@ -14393,6 +14397,42 @@
         }
       }
     };
+    ytcenter.player.calculateRatio = function(dash){
+      var i, a;
+      // Checking if the ratio is predefined
+      if (ytcenter.settings['aspectValue'] && ytcenter.settings['aspectValue'].indexOf("=") !== -1) {
+        a = ytcenter.settings['aspectValue'].split("=")[1];
+        if (a.indexOf(":") !== -1) {
+          a = a.split(":");
+          a = parseInt(a[0])/parseInt(a[1]);
+          if (!isNaN(a)) return a;
+        }
+      }
+      
+      // Calculating the aspect ratio...
+      if (dash) {
+        for (i = 0; i < ytcenter.video.streams.length; i++) {
+          if (ytcenter.video.streams[i].size) {
+            a = ytcenter.video.streams[i].size.split("x");
+            break;
+          }
+        }
+      } else {
+        for (i = 0; i < ytcenter.video.streams.length; i++) {
+          if (ytcenter.video.streams[i].dimension) {
+            a = ytcenter.video.streams[i].dimension.split("x");
+            break;
+          }
+        }
+      }
+      if (a) {
+        a = parseInt(a[0])/parseInt(a[1]);
+        if (isNaN(a)) return 16/9;
+        return a;
+      } else {
+        return 16/9;
+      }
+    };
     ytcenter.player.modifyConfig = function(page, config){
       if (page !== "watch" && page !== "embed" && page !== "channel") return config;
       if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return config;
@@ -14471,6 +14511,11 @@
           var vq = ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
           con.log("[Player Quality] => " + ytcenter.settings.autoVideoQuality + " => " + vq);
           config.args.vq = vq;
+        }
+        if (config.args.dash === "1" && config.args.adaptive_fmts) {
+          ytcenter.player.setRatio(ytcenter.player.calculateRatio(true));
+        } else {
+          ytcenter.player.setRatio(ytcenter.player.calculateRatio(false));
         }
         if (ytcenter.settings.removeAdvertisements) {
           config = ytcenter.site.removeAdvertisement(config);
@@ -15371,6 +15416,10 @@
         }
       };
     })();
+    ytcenter.player.ratio = 16/9;
+    ytcenter.player.setRatio = function(ratio){
+      ytcenter.player.ratio = ratio;
+    };
     ytcenter.player._resize = (function(){
       var _width = "";
       var _height = "";
@@ -15476,10 +15525,10 @@
         if (isNaN(parseInt(width)) && isNaN(parseInt(height))) {
           if (large) {
             width = "854px";
-            height = "480px";
+            height = "";
           } else {
             width = "640px";
-            height = "360px";
+            height = "";
           }
         }
         
@@ -15539,14 +15588,14 @@
         }
         if (!isNaN(calcWidth) && isNaN(calcHeight) && !calcedHeight) {
           calcedHeight = true;
-          if (player_ratio !== 0) calcHeight = Math.round(calcWidth/player_ratio);
+          if (ytcenter.player.ratio !== 0) calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
           else calcHeight = calcWidth;
         } else if (isNaN(calcWidth) && !isNaN(calcHeight) && !calcedWidth) {
           calcedWidth = true;
           if (height.indexOf("%") !== -1 && height.match(/%$/) && height !== "%") {
-            calcWidth = Math.round((calcHeight - _pbh)*player_ratio);
+            calcWidth = Math.round((calcHeight - _pbh)*ytcenter.player.ratio);
           } else {
-            calcWidth = Math.round(calcHeight*player_ratio);
+            calcWidth = Math.round(calcHeight*ytcenter.player.ratio);
           }
         }
         
@@ -15945,7 +15994,6 @@
             "1280": "hd720",
             "1920": "hd1080"
           };
-      
       if (ytcenter.html5) {
         var a = document.createElement("video");
         if (a && a.canPlayType) {
@@ -15993,6 +16041,7 @@
           }
         }
       }
+      
       return _vq;
     };
     ytcenter.player.setQuality = function(vq, config){
