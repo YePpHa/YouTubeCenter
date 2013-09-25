@@ -12,11 +12,15 @@
 // @domain          gdata.youtube.com
 // @match           http://*.youtube.com/*
 // @match           https://*.youtube.com/*
+// @match           http://*.youtube.com\./*
+// @match           https://*.youtube.com\./*
 // @match           http://userscripts.org/scripts/source/114002.meta.js
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @include         http://*.youtube.com/*
 // @include         https://*.youtube.com/*
+// @include         http://*.youtube.com\./*
+// @include         https://*.youtube.com\./*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
 // @grant           GM_getValue
@@ -1741,19 +1745,32 @@
     /* END UTILS */
     
     /* Classes */
+    function defineLockedProperty(obj, key, setter, getter) {
+      if (ytcenter.utils.ie) {
+        Object.defineProperty(obj, key, {
+          get: getter,
+          set: setter
+        });
+        return obj;
+      } else {
+        obj.__defineGetter__(key, getter);
+        obj.__defineSetter__(key, setter);
+        return obj;
+      }
+    }
     function PlayerConfig(configSetter, configGetter) {
-      this.__defineGetter__("config", function(){
+      defineLockedProperty(this, "config", function(){
+        con.log("[PlayerConfig] Setting config!", value);
+        configSetter(value);
+      }, function(){
         con.log("[PlayerConfig] Getting config!");
         return configGetter();
       });
-      this.__defineSetter__("config", function(value){
-        con.log("[PlayerConfig] Setting config!", value);
-        configSetter(value);
-      });
     }
     function SPF(objects) {
-      this.__defineGetter__("enabled", function(){ return true; });
-      this.__defineSetter__("enabled", function(value){ });
+      defineLockedProperty(this, "enabled", function(){
+        return true;
+      }, function(value){ });
       for (key in objects) {
         if (key === "enabled") continue;
         if (objects.hasOwnProperty(key)) {
@@ -1772,11 +1789,12 @@
       
       this._config = config;
       
-      this.__defineGetter__("config", function(){return this._config;});
-      this.__defineSetter__("config", function(cfg){
+      defineLockedProperty(this, "config", function(cfg){
         ytcenter.utils.each(cfg, function(key, value){
           config[key] = value;
         });
+      }, function(){
+        return this._config;
       });
     }
     function SPFConfig(spf, config) {
@@ -1785,15 +1803,16 @@
         __self[key] = value;
       });
       for (i = 0; i < spf.length; i++) {
-        this.__defineGetter__(spf[i].key, (function(a){return function(){return a.callback;};})(spf[i]));
-        this.__defineSetter__(spf[i].key, (function(a){return function(value){return a.update(value);};})(spf[i]));
+        defineLockedProperty(this, spf[i].key,
+                            (function(a){return function(value){return a.update(value);};})(spf[i]),
+                            (function(a){return function(){return a.callback;};})(spf[i]));
       }
     }
     
     var console_debug = true; // Disable this to stop YouTube Center from writing in the console log.
     var _console = [];
     
-    var uw, loc, con;
+    var uw, loc, con, ytcenter = {}, yt = {};
     
     uw = (function(){
       var a;
@@ -1811,6 +1830,13 @@
         }());
       }
     })();
+    
+    ytcenter.utils = {};
+    ytcenter.utils.ie = (function(){
+      for (var v = 3, el = document.createElement('b'), all = el.all || []; el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];);
+      return v > 4 ? v : !!document.documentMode;
+    }());
+    
     uw.ytspf = new SPF(uw.ytspf);
     loc = (function(){
       try {
@@ -1984,13 +2010,13 @@
     
     
     con.log("Initializing Functions");
-    
-    var yt, ytcenter = {};
     try {
       ytcenter._writeEmbed = uw.writeEmbed;
       ytcenter._writeEmbedCallback = null;
       ytcenter._calledWriteEmbed = false;
-      uw.__defineGetter__("writeEmbed", function(){
+      defineLockedProperty(uw, "writeEmbed", function(a){
+        ytcenter._writeEmbed = a;
+      }, function(){
         return function(){
           con.log("[writeEmbed] Externally Called (most likely by YouTube)");
           ytcenter._calledWriteEmbed = true;
@@ -1998,9 +2024,6 @@
             ytcenter._writeEmbedCallback();
           }
         };
-      });
-      uw.__defineSetter__("writeEmbed", function(a){
-        ytcenter._writeEmbed = a;
       });
     } catch (e) {
       con.error(e);
@@ -8294,7 +8317,6 @@
     ytcenter.experiments.isFixedTopbar = function(){
       return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
     };
-    ytcenter.utils = {};
     ytcenter.utils.getVideoIdFromLink = function(url){
       var videoIdRegex = /v=([a-zA-Z0-9-_]+)/,
           indexRegex = /index=([0-9]+)/,
@@ -8459,42 +8481,11 @@
     };
     ytcenter.storageType = ytcenter.utils.getStorageType();
     ytcenter.utils.setterGetterClassCompatible = function(){
-      function A() {
-        this.__defineGetter__("test", function(){
-          a_getter = true;
-          return a_confirm;
-        });
-        this.__defineSetter__("test", function(value){
-          a_setter = value === a_confirm;
-        });
-      }
       try {
         var a_getter = false, a_setter = false, a_instance, a_confirm = "WORKS";
-        a_instance = new A();
+        a_instance = defineLockedProperty({}, "test", function(value){a_setter = value === a_confirm}, function(){a_getter = true;return a_confirm;});
         if (a_confirm === a_instance.test) {
           a_instance.test = a_confirm;
-          if (a_getter && a_setter)
-            return true;
-        }
-      } catch (e) {
-        con.error(e);
-        return false;
-      }
-      return false;
-    };
-    ytcenter.utils.setterGetterObjectCompatible = function(){
-      try {
-        var a = {
-          get test() {
-            a_getter = true;
-            return a_confirm;
-          },
-          set config(value) {
-            a_setter = value === a_confirm;
-          }
-        }, a_getter = false, a_setter = false, a_confirm = "WORKS";
-        if (a_confirm === a.test) {
-          a.test = a_confirm;
           if (a_getter && a_setter)
             return true;
         }

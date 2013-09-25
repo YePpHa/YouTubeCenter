@@ -1,3 +1,6 @@
+ - Select which qualities should be shown on thumbnails. Like only 720p, 1080p and 1080p+.
+ - Thumbnail - Show amount of subs the author of the video has.
+ - Revamp the tags (download tags) and include two digits (05 instead of just 5).
  - [Embed] Inform users if a video isn't available by display an image/text and it's a requirement to link to the original video.
  - Thumbnail - Show progress bar of the thumbnail's position in the video.
  - Thumbnail - Show in some way when thumbnails have finished loading (to see a smooth preview).
