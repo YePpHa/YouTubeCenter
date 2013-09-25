@@ -14397,11 +14397,12 @@
         }
       }
     };
-    ytcenter.player.calculateRatio = function(dash){
+    ytcenter.player.calculateRatio = function(dash, predefinedAspect){
       var i, a;
+      predefinedAspect = predefinedAspect || ytcenter.settings['aspectValue'];
       // Checking if the ratio is predefined
-      if (ytcenter.settings['aspectValue'] && ytcenter.settings['aspectValue'].indexOf("=") !== -1) {
-        a = ytcenter.settings['aspectValue'].split("=")[1];
+      if (predefinedAspect && predefinedAspect.indexOf("=") !== -1) {
+        a = predefinedAspect.split("=")[1];
         if (a.indexOf(":") !== -1) {
           a = a.split(":");
           a = parseInt(a[0])/parseInt(a[1]);
@@ -15142,8 +15143,9 @@
       ytcenter.classManagement.applyClasses();
     };
     ytcenter.player.aspect = function(option){
-      ytcenter.player.getConfig().args.keywords = option;
-      con.log("Keywords changed to " + ytcenter.player.getConfig().args.keywords);
+      var config = ytcenter.player.getConfig();
+      config.args.keywords = option;
+      con.log("Keywords changed to " + config.args.keywords);
       var api = ytcenter.player.getAPI();
       var muted = api.isMuted();
       var volume = api.getVolume();
@@ -15179,6 +15181,13 @@
       };
       ytcenter.player.listeners.addEventListener("onStateChange", __c);
       api.loadVideoByPlayerVars(ytcenter.player.getConfig().args);
+      
+      if (config.args.dash === "1" && config.args.adaptive_fmts) {
+        ytcenter.player.setRatio(ytcenter.player.calculateRatio(true, option));
+      } else {
+        ytcenter.player.setRatio(ytcenter.player.calculateRatio(false, option));
+      }
+      ytcenter.player.resizeUpdater();
     };
     ytcenter.player.currentResizeId;
     ytcenter.player.resizeCallback = [];
@@ -15418,6 +15427,7 @@
     })();
     ytcenter.player.ratio = 16/9;
     ytcenter.player.setRatio = function(ratio){
+      con.log("[Player Ratio] Player ratio set to " + ratio);
       ytcenter.player.ratio = ratio;
     };
     ytcenter.player._resize = (function(){
