@@ -1,8 +1,9 @@
+ - IE11 with WebM plugin installed. Causes the HTML5 player not to work.
  - Look into this http://userscripts.org/topics/131958
- - Fix no-cookies preventing YouTube Center from working correctly in Firefox.
  - Entire video reloads 1 second if not using HTML5.
  - Make it work - http://www.youtube.com/watch?v=30uqNpQ_7So - Use Hulu Unblocker!
  - Flashblock doesn't like YouTube Center v2.0.x
+ - Embed videos can at times leave a black box (writeEmbeds are not called).
 
  ---
  - Add Force HTTPS on YouTube.

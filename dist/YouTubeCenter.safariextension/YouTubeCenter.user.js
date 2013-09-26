@@ -14162,11 +14162,11 @@
     ytcenter.player.config = ytcenter.player.config || {}; // Never set this variable directly!
     ytcenter.player.setConfig = function(value){
       try {
-        if (ytcenter.getPage() === "watch") {
+        /*if (ytcenter.getPage() === "watch") {
           if (!value && value !== null) throw "ytcenter.player.config was trying to be set to nothing!";
           if (!value.args) throw "ytcenter.player.config was trying to be set to something with no args";
           if (!value.args.adaptive_fmts && !value.args.url_encoded_fmt_stream_map && !value.args.live_playback) throw "ytcenter.player.config was trying to be set with no video data!";
-        }
+        }*/
         ytcenter.player.config = value;
       } catch (e) {
         con.error(value);
