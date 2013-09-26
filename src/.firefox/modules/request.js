@@ -92,7 +92,7 @@ Request.prototype.addEventListener = function(wrappedContentWin, req, event, det
           responseText: "r",
           status: "r",
           statusText: "r",
-          total: "r",
+          total: "r"
           },
       context: details.context || null,
       responseText: req.responseText,

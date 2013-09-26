@@ -10,11 +10,13 @@ var DESCRIPTION = "YouTubeCenterService",
 Cu.import("resource://ytcenter/third-party/getChromeWinForContentWin.js");
 Cu.import("resource://ytcenter/request.js");
 Cu.import("resource://ytcenter/storage2.js");
+Cu.import("resource://ytcenter/session.js");
 Cu.import("resource://ytcenter/utils/bind.js");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
-var sandbox_storage = new Storage();
+var sandbox_storage = new Storage(),
+    session_storage = new Session();
 
 function createSandbox(wrappedContentWin, chromeWin) {
   var sandbox = new Components.utils.Sandbox(
@@ -26,11 +28,23 @@ function createSandbox(wrappedContentWin, chromeWin) {
   );
   sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
   sandbox.request = bind(new Request(wrappedContentWin, chromeWin), "sendRequest");
+  
   sandbox.storage_setValue = bind(sandbox_storage, "setValue");
   sandbox.storage_getValue = bind(sandbox_storage, "getValue");
   sandbox.storage_listValues = bind(sandbox_storage, "listValues");
   sandbox.storage_exists = bind(sandbox_storage, "exists");
   sandbox.storage_remove = bind(sandbox_storage, "remove");
+  sandbox.storage_addEventListener = bind(sandbox_storage, "addEventListener", wrappedContentWin);
+  sandbox.storage_removeEventListener = bind(sandbox_storage, "removeEventListener", wrappedContentWin);
+  
+  sandbox.session_setValue = bind(session_storage, "setValue");
+  sandbox.session_getValue = bind(session_storage, "getValue");
+  sandbox.session_listValues = bind(session_storage, "listValues");
+  sandbox.session_exists = bind(session_storage, "exists");
+  sandbox.session_remove = bind(session_storage, "remove");
+  sandbox.session_addEventListener = bind(session_storage, "addEventListener", wrappedContentWin);
+  sandbox.session_removeEventListener = bind(session_storage, "removeEventListener", wrappedContentWin);
+  
   return sandbox;
 }
 function contentLoad(e) {
