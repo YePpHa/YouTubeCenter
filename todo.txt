@@ -1,3 +1,13 @@
+ - Look into this http://userscripts.org/topics/131958
+ - Fix no-cookies preventing YouTube Center from working correctly in Firefox.
+ - Entire video reloads 1 second if not using HTML5.
+ - Make it work - http://www.youtube.com/watch?v=30uqNpQ_7So - Use Hulu Unblocker!
+ - Flashblock doesn't like YouTube Center v2.0.x
+
+ ---
+ - Add Force HTTPS on YouTube.
+ - Add option to hide the "Add Video To Watched Videos".
+ - Remove unwanted videos from feeds.
  - Select which qualities should be shown on thumbnails. Like only 720p, 1080p and 1080p+.
  - Thumbnail - Show amount of subs the author of the video has.
  - Revamp the tags (download tags) and include two digits (05 instead of just 5).

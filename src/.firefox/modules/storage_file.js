@@ -2,6 +2,7 @@ const EXPORTED_SYMBOLS = ["StorageFile"];
 const Cc = Components.classes,
       Ci = Components.interfaces,
       Cu = Components.utils;
+const filename_regex = /^[a-zA-Z0-9\.,-_]+$/;
 function getLocalDirectory() {
   let directoryService = Cc["@mozilla.org/file/directory_service;1"]
                          .getService(Ci.nsIProperties);
@@ -17,7 +18,7 @@ function StorageFile() {
 }
 
 StorageFile.prototype.exists = function exists(name) {
-  if (!(/^[a-zA-Z0-9.-]+$/.test(name))) throw new Error("Name was malformed!");
+  if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
   if (!file.exists())
@@ -26,7 +27,7 @@ StorageFile.prototype.exists = function exists(name) {
 };
 
 StorageFile.prototype.writeFile = function writeFile(name, data) {
-  if (!(/^[a-zA-Z0-9.-]+$/.test(name))) throw new Error("Name was malformed!");
+  if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
   if (!file.exists())
@@ -45,7 +46,7 @@ StorageFile.prototype.writeFile = function writeFile(name, data) {
 };
 
 StorageFile.prototype.readFile = function readFile(name) {
-  if (!(/^[a-zA-Z0-9.-]+$/.test(name))) throw new Error("Name was malformed!");
+  if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
   if (!file.exists())
@@ -69,4 +70,12 @@ StorageFile.prototype.readFile = function readFile(name) {
     cstream.close();
   }
   return data;
+};
+
+StorageFile.prototype.removeFile = function removeFile(name) {
+  if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
+  let file = getLocalDirectory();
+  file.append(name + ".data");
+  if (!file.exists() || !file.isFile()) return;
+  file.remove(false);
 };
