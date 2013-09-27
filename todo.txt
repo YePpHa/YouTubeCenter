@@ -6,6 +6,7 @@
  - Embed videos can at times leave a black box (writeEmbeds are not called).
 
  ---
+ - Warning when click-through is enabled.
  - Add Force HTTPS on YouTube.
  - Add option to hide the "Add Video To Watched Videos".
  - Remove unwanted videos from feeds.
