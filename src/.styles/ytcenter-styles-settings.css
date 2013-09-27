@@ -152,3 +152,89 @@
   border: 1px solid #ddd;
   padding: 6px 13px;
 }
+
+/* Theme: Dark */
+.ytcenter-theme-dark .ytcenter-dialog-fg {
+  background: #000;
+  border: 1px solid #1d1d1d;
+}
+
+.ytcenter-theme-dark .ytcenter-dialog-bg {
+  background: #000;
+}
+
+.ytcenter-theme-dark .yt-alert .close:hover {
+  background-color: rgba(255, 255, 255, .15);
+}
+
+.ytcenter-theme-dark .ytcenter-settings-content,
+.ytcenter-theme-dark .ytcenter-dialog-base .ytcenter-dialog-header h2,
+.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item {
+  color: #aaa;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-content a {
+  color: #1a6299;
+}
+
+.ytcenter-theme-dark .ytcenter-dialog-base .ytcenter-dialog-header,
+.ytcenter-theme-dark .ytcenter-settings-subcat-header {
+  border-bottom: 1px solid #1d1d1d;
+}
+
+.ytcenter-theme-dark .ytcenter-dialog .yt-horizontal-rule {
+  border-top: 1px solid #1d1d1d;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-option-label {
+  color: #aaa;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-panel-left {
+  border-right: 1px solid #1d1d1d;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item:hover {
+  background: #333;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item {
+  color: #636363;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item.ytcenter-selected,
+.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item:hover {
+  color: #ccc;
+  border-color: #400;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-table tr {
+  border-top: 1px solid #333;
+  background-color: #000;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-table tr:nth-child(2n) {
+  background-color: #070707;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-table thead tr {
+  background-color: #070707;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-table thead tr td {
+  font-weight: bold;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-table tr td {
+  border: 1px solid #222;
+  padding: 6px 13px;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item:hover {
+  color: #ddd;
+}
+
+.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item.ytcenter-selected {
+  background: #330607;
+  color: #fff;
+}
