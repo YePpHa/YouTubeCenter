@@ -16377,6 +16377,7 @@
     };
     ytcenter.classManagement = {};
     ytcenter.classManagement.applyClassesExceptElement = function(el, url){
+      if (ytcenter.page === "embed") return;
       if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i;
@@ -16392,6 +16393,7 @@
       }
     };
     ytcenter.classManagement.applyClassesForElement = function(el, url){
+      if (ytcenter.page === "embed") return;
       if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i;
@@ -16407,6 +16409,7 @@
       }
     };
     ytcenter.classManagement.applyClasses = function(url){
+      if (ytcenter.page === "embed") return;
       if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i;
@@ -16422,6 +16425,7 @@
       }
     };
     ytcenter.classManagement.getClassesForElementById = function(id, url){
+      if (ytcenter.page === "embed") return;
       if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i, a = [];
@@ -16437,6 +16441,7 @@
       return a.join(" ");
     };
     ytcenter.classManagement.getClassesForElementByTagName = function(tagname, url){
+      if (ytcenter.page === "embed") return;
       if (url) url = ytcenter.utils.getURL(url);
       else url = loc;
       var i, a = [];
