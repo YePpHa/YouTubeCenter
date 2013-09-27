@@ -3316,6 +3316,13 @@
                   }
                 }
                 item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
+                if (!item.stream) {
+                  if (cfg.args.ypc_module && cfg.args.ypc_vid) {
+                    item.stream = {
+                      quality: "ondemand"
+                    };
+                  }
+                }
                 item.storyboard = cfg.args.storyboard_spec || cfg.args.live_storyboard_spec;
                 try {
                   delete item.stream.fallback_host;
@@ -3661,6 +3668,7 @@
         var tableQuality = {
               "error": errorMessage,
               "auto": errorMessage,
+              "ondemand": "OnDemand",
               "tiny": "144p",
               "small": "240p",
               "medium": "360p",
@@ -3672,6 +3680,7 @@
             tableBackground = {
               "error": "#b00",
               "auto": "#b00",
+              "ondemand": "#aaa",
               "tiny": "#7e587e",
               "small": "#aaa",
               "medium": "#0aa",
@@ -3683,6 +3692,7 @@
             tableColor = {
               "error": "#fff",
               "auto": "#fff",
+              "ondemand": "#fff",
               "tiny": "#fff",
               "small": "#fff",
               "medium": "#fff",
@@ -3712,6 +3722,10 @@
           text = tableQuality[stream];
           background = tableBackground[stream];
           color = tableColor[stream];
+        } else if (stream && stream.quality === "ondemand") {
+          text = tableQuality[stream.quality];
+          background = tableBackground[stream.quality];
+          color = tableColor[stream.quality];
         } else if (stream && stream.quality) {
           text = stream.dimension.split("x")[1] + "p";
           background = tableBackground[stream.quality];
@@ -14085,6 +14099,9 @@
     ytcenter.player.isLiveStream = function(){
       return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.live_playback === 1);
     };
+    ytcenter.player.isOnDemandStream = function(){
+      return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.ypc_module && ytcenter.player.config.args.ypc_vid);
+    };
     ytcenter.player.getRawPlayerConfig = function(){
       if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
         var a = document.body.innerHTML;
@@ -14551,7 +14568,7 @@
           } catch (e) {
             con.error(e);
           }
-          ytcenter.events.performEvent("ui-refresh");
+          //ytcenter.events.performEvent("ui-refresh");
         };
         $XMLHTTPRequest({
           method: "GET",
@@ -14599,7 +14616,7 @@
         }
         if (ytcenter.settings.forcePlayerType === "flash") {
           config.html5 = false;
-        } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream()) {
+        } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
         } else {
           config.html5 = false;
@@ -14677,7 +14694,7 @@
       } else if (page === "embed") {
         if (ytcenter.settings.embed_forcePlayerType === "flash") {
           config.html5 = false;
-        } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream()) {
+        } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
         } else {
           config.html5 = true;
@@ -15953,6 +15970,7 @@
     })();
     ytcenter.player.getHighestStreamQuality = function(streams){
       var i, stream = streams[0], stream_dim, tmp_dim;
+      if (!stream) return null;
       if (stream.dimension && stream.dimension.indexOf("x") !== -1) {
         stream_dim = stream.dimension.split("x");
         stream_dim[0] = parseInt(stream_dim[0]);
@@ -16216,6 +16234,10 @@
         con.log("[Player setPlayerType] Is disabled on live streams!");
         return;
       }
+      if (ytcenter.player.isOnDemandStream()) {
+        con.log("[Player setPlayerType] Is disabled on live streams!");
+        return;
+      }
       var api = ytcenter.player.getAPI();
       con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to " + type);
       api.writePlayer(type);
@@ -16236,10 +16258,10 @@
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
-      if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
+      /*if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
         con.error("[Player update] Not enough data to refresh the player!");
         return;
-      }
+      }*/
       if (config.html5) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"),
@@ -16940,7 +16962,7 @@
             if (!ytcenter.player.config || !ytcenter.player.config.args)
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.getRawPlayerConfig()));
             if (!ytcenter.player.config.args) ytcenter.player.config.args = {};
-            if (!ytcenter.player.config.args.url_encoded_fmt_stream_map && !ytcenter.player.config.args.adaptive_fmts)
+            if (!ytcenter.player.config.args.url_encoded_fmt_stream_map && !ytcenter.player.config.args.adaptive_fmts && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream())
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.getRawPlayerConfig()));
             return ytcenter.player.config;
           });
@@ -17221,7 +17243,7 @@
           con.log("[onYouTubePlayerReady]", arguments);
           if (typeof api !== "string") {
             ytcenter.player.__getAPI = api;
-            ytcenter.html5 = (api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream());
+            ytcenter.html5 = (api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
             ytcenter.player.listeners.dispose();
             ytcenter.player.listeners.setup();
             
@@ -17233,10 +17255,10 @@
               }
             } else {
               if (ytcenter.getPage() === "watch") {
-                if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream()) {
+                if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("flash");
                   return;
-                } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream()) {
+                } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("html5");
                   return;
                 }
@@ -17250,10 +17272,10 @@
                 
                 initPlacement();
               } else if (ytcenter.getPage() === "embed") {
-                if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream()) {
+                if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("flash");
                   return;
-                } else if (ytcenter.settings.embed_forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream()) {
+                } else if (ytcenter.settings.embed_forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("html5");
                   return;
                 }
