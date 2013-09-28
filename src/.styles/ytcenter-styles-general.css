@@ -321,10 +321,10 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   pointer-events: none;
 }
 
-.ytcenter-branding-remove-background #player,
+/*.ytcenter-branding-remove-background #player,
 .ytcenter-branding-remove-background #player-legacy {
   background: none!important;
-}
+}*/
 
 .ytcenter-branding-remove-background #watch7-sidebar {
   background-color: transparent!important;

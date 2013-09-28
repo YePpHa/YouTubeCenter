@@ -2013,9 +2013,20 @@
     try {
       ytcenter._writeEmbed = uw.writeEmbed;
       ytcenter._writeEmbedCallback = null;
+      ytcenter._writeEmbedChecker = null;
       ytcenter._calledWriteEmbed = false;
       ytcenter.writeEmbed = function(c1, c2){
         function update() {
+          try {
+            var api = ytcenter.player.getAPI();
+            if (api && api.destroy) {
+              con.log("[Embed] Destroying existing player!");
+              ytcenter.player.getAPI().destroy();
+            }
+          } catch (e) {
+            con.error(e);
+          }
+          
           con.log("[Embed] Writing Player...");
           if (c1) c1();
           ytcenter._writeEmbed();
@@ -2024,10 +2035,24 @@
         if (ytcenter._calledWriteEmbed) {
           update();
         } else {
-          con.log("[Embed] Waiting for YouTube Center to be ready...");
+          con.log("[Embed] Waiting for YouTube to be ready...");
           ytcenter._writeEmbedCallback = function(){
+            uw.clearInterval(ytcenter._writeEmbedChecker);
             update();
           };
+          ytcenter._writeEmbedChecker = uw.setInterval(function(){
+            try {
+              var api = ytcenter.player.getAPI();
+              if (api && api.destroy) {
+                con.log("[Embed] Player has already been initialized...");
+                ytcenter._writeEmbedCallback();
+              } else {
+                con.log("[Embed] Waiting for api...");
+              }
+            } catch (e) {
+              con.error(e);
+            }
+          }, 500);
         }
       };
       defineLockedProperty(uw, "writeEmbed", function(a){
@@ -8924,15 +8949,6 @@
       }
       return a.join(",");
     };
-    ytcenter.utils.__signatureDecipher = [ // Just a fallback, if the signature decode detector fails.
-      {func: "slice", value: 3},
-      {func: "reverse", value: null},
-      {func: "swapHeadAndPosition", value: 63},
-      {func: "slice", value: 2},
-      {func: "reverse", value: null},
-      {func: "slice", value: 1}
-    ];
-    ytcenter.utils._signatureDecipher = ytcenter.utils.__signatureDecipher;
     ytcenter.utils.updateSignatureDecipher = function(){
       var js = ytcenter.player.config.assets.js,
           regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(.*?)return a\.join\(""\)}/g,
@@ -8947,43 +8963,38 @@
             if (response.responseText.match(regex2)) {
               con.log("[updateSignatureDecipher] First regex");
               a = regex2.exec(response.responseText)[0].split("{")[1].split("}")[0].split(";");
-              ytcenter.utils._signatureDecipher = []; // Clearing signatureDecipher
+              ytcenter.settings['signatureDecipher'] = []; // Clearing signatureDecipher
               for (i = 1; i < a.length-1; i++) {
                 b = a[i];
                 if (b.indexOf("a.slice") !== -1) { // Slice
                   con.log("Slice/Clone (" + b + ")");
                   v = b.split("(")[1].split(")")[0];
                   con.log("=> " + v);
-                  ytcenter.utils._signatureDecipher.push({func: "slice", value: parseInt(v)});
+                  ytcenter.settings['signatureDecipher'].push({func: "slice", value: parseInt(v)});
                 } else if (b.indexOf("a.reverse") !== -1) { // Reverse
                   con.log("Reverse (" + b + ")");
-                  ytcenter.utils._signatureDecipher.push({func: "reverse", value: null});
+                  ytcenter.settings['signatureDecipher'].push({func: "reverse", value: null});
                 } else if ((a[i] + ";" + a[i+1] + ";" + a[i+2]).indexOf("var b=a[0];a[0]=a[") !== -1){ // swapHeadAndPosition
                   con.log("swapHeadAndPosition (" + (a[i] + ";" + a[i+1] + ";" + a[i+2]) + ")");
                   v = (a[i] + ";" + a[i+1] + ";" + a[i+2]).split("var b=a[0];a[0]=a[")[1].split("%")[0];
                   con.log("=> " + v);
-                  ytcenter.utils._signatureDecipher.push({func: "swapHeadAndPosition", value: parseInt(v)});
+                  ytcenter.settings['signatureDecipher'].push({func: "swapHeadAndPosition", value: parseInt(v)});
                   i = i+2;
                 } else { // swapHeadAndPosition (maybe it's deprecated by YouTube)
                   con.log("swapHeadAndPosition (" + b + ")");
                   v = b.split("(a,")[1].split(")")[0];
                   con.log("=> " + v);
-                  ytcenter.utils._signatureDecipher.push({func: "swapHeadAndPosition", value: parseInt(v)});
+                  ytcenter.settings['signatureDecipher'].push({func: "swapHeadAndPosition", value: parseInt(v)});
                 }
               }
             } else {
               con.log("[updateSignatureDecipher] Second regex");
               a = regex.exec(response.responseText)[1];
-              ytcenter.utils._signatureDecipher = []; // Clearing signatureDecoder
-              ytcenter.utils._signatureDecipher.push({func: "code", value: a});
-            }
-            if (ytcenter.utils.__signatureDecipher !== ytcenter.utils._signatureDecipher) {
-              con.log("[SignatureDecipher] YouTube updated their signatureDecipher!");
-            }
-            if (ytcenter.unsafe) {
-              ytcenter.unsafe.signatureDecoder = ytcenter.utils._signatureDecipher;
+              ytcenter.settings['signatureDecipher'] = []; // Clearing signatureDecoder
+              ytcenter.settings['signatureDecipher'].push({func: "code", value: a});
             }
             ytcenter.events.performEvent("ui-refresh");
+            ytcenter.saveSettings();
           },
           onerror: function() {
             con.error("[SignatureDecipher] Couldn't download data!");
@@ -9000,24 +9011,21 @@
       }
       if (!signatureCipher) return "";
       var cipherArray = signatureCipher.split(""), i;
-      decipherRecipe = decipherRecipe || ytcenter.utils._signatureDecipher;
+      decipherRecipe = decipherRecipe || ytcenter.settings['signatureDecipher'];
       
-      for (i = 0; i < ytcenter.utils._signatureDecipher.length; i++) {
-        if (ytcenter.utils._signatureDecipher[i].func === "code") {
-          cipherArray = new Function("a", ytcenter.utils._signatureDecipher[i].value + "return a.join(\"\")")(cipherArray);
-          if (!ytcenter.utils.isArray(cipherArray) && decipherRecipe !== ytcenter.utils.__signatureDecipher) {
-            return ytcenter.utils.signatureDecipher(signatureCipher, ytcenter.utils.__signatureDecipher);
-          }
-        } else if (ytcenter.utils._signatureDecipher[i].func === "swapHeadAndPosition") {
-          cipherArray = swapHeadAndPosition(cipherArray, ytcenter.utils._signatureDecipher[i].value);
-        } else if (ytcenter.utils._signatureDecipher[i].func === "slice") {
-          cipherArray = cipherArray.slice(ytcenter.utils._signatureDecipher[i].value);
-        } else if (ytcenter.utils._signatureDecipher[i].func === "reverse") {
+      for (i = 0; i < decipherRecipe.length; i++) {
+        if (decipherRecipe[i].func === "code") {
+          cipherArray = new Function("a", decipherRecipe[i].value + "return a.join(\"\")")(cipherArray);
+        } else if (decipherRecipe[i].func === "swapHeadAndPosition") {
+          cipherArray = swapHeadAndPosition(cipherArray, decipherRecipe[i].value);
+        } else if (decipherRecipe[i].func === "slice") {
+          cipherArray = cipherArray.slice(decipherRecipe[i].value);
+        } else if (decipherRecipe[i].func === "reverse") {
           cipherArray = cipherArray.reverse();
         }
       }
-      
-      return cipherArray.join("")
+      if (!ytcenter.utils.isArray(cipherArray)) return signatureCipher;
+      return cipherArray.join("");
     };
     ytcenter.utils.crypt_h = void 0;
     ytcenter.utils.crypt_l = !0;
@@ -9883,6 +9891,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      signatureDecipher: [],
       embed_defaultAutoplay: true,
       hideTicker: true,
       enableEndscreenAutoplay: false,
@@ -10088,7 +10097,7 @@
           config: {
             customName: "720p",
             width: "1280px",
-            height: "720px",
+            height: "",
             large: true,
             align: false,
             scrollToPlayer: false,
@@ -10099,7 +10108,7 @@
           config: {
             customName: "1080p",
             width: "1920px",
-            height: "1080px",
+            height: "",
             large: true,
             align: false,
             scrollToPlayer: false,
@@ -10110,7 +10119,7 @@
           config: {
             customName: "70%",
             width: "70%",
-            height: "70%",
+            height: "",
             large: true,
             align: false,
             scrollToPlayer: false,
@@ -10121,7 +10130,7 @@
           config: {
             customName: "80%",
             width: "80%",
-            height: "80%",
+            height: "",
             large: true,
             align: false,
             scrollToPlayer: false,
@@ -10132,7 +10141,7 @@
           config: {
             customName: "90%",
             width: "90%",
-            height: "90%",
+            height: "",
             large: true,
             align: false,
             scrollToPlayer: false,
@@ -14096,6 +14105,80 @@
       });
     };
     ytcenter.player = {};
+    ytcenter.player.cpn = ytcenter.utils.crypt();
+    ytcenter.player.getVideoDataRequest = function(){
+      var a = {
+        html5: (ytcenter.player.config.html5 ? "1" : "0"),
+        video_id: loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
+        cpn: ytcenter.player.cpn,
+        eurl: loc.href,
+        ps: null,
+        el: "embedded",
+        hl: ytcenter.player.config.args.hl,
+        sts: 15973,
+        c: "web",
+        cver: (ytcenter.player.config.html5 ? "html5" : "flash")
+      }, b = [], k;
+      if (ytcenter.player.config.args.list) {
+        a.list = ytcenter.player.config.args.list;
+      }
+      if (ytcenter.player.config.args.cr) {
+        a.cr = ytcenter.player.config.args.cr;
+      }
+      if (ytcenter.player.config.args.access_token) {
+        a.access_token = ytcenter.player.config.args.access_token;
+      }
+      if (ytcenter.player.config.args.adformat) {
+        a.adformat = ytcenter.player.config.args.adformat;
+      }
+      if (ytcenter.player.config.args.iv_load_policy) {
+        a.iv_load_policy = ytcenter.player.config.args.iv_load_policy;
+      }
+      if (ytcenter.player.config.args.autoplay) {
+        a.autoplay = ytcenter.player.config.args.autoplay;
+      }
+      if (ytcenter.player.config.args.mdx) {
+        a.mdx = ytcenter.player.config.args.mdx;
+      }
+      if (ytcenter.player.config.args.utpsa) {
+        a.utpsa = ytcenter.player.config.args.utpsa;
+      }
+      if (ytcenter.player.config.args.is_fling) {
+        a.is_fling = ytcenter.player.config.args.is_fling;
+      }
+      if (window.clientWidth) {
+        a.width = window.clientWidth;
+      }
+      if (window.clientHeight) {
+        a.width = window.clientHeight;
+      }
+      if (ytcenter.player.config.args.ypc_preview) {
+        a.ypc_preview = ytcenter.player.config.args.ypc_preview;
+      }
+      if (ytcenter.player.config.args.splay) {
+        a.splay = ytcenter.player.config.args.splay;
+      }
+      if (ytcenter.player.config.args.content_v) {
+        a.content_v = ytcenter.player.config.args.content_v;
+      }
+      if (ytcenter.player.config.args.livemonitor) {
+        a.livemonitor = ytcenter.player.config.args.livemonitor;
+      }
+      if (ytcenter.player.config.args.authuser) {
+        a.authuser = ytcenter.player.config.args.authuser;
+      }
+      if (ytcenter.player.config.args.pageid) {
+        a.pageid = ytcenter.player.config.args.pageid;
+      }
+      for (k in a) {
+        if (a.hasOwnProperty(k)) {
+          if (a[k] !== null) {
+            b.push(encodeURIComponent(k) + "=" + encodeURIComponent(a[k]));
+          }
+        }
+      }
+      return "/get_video_info?" + b.join("&");
+    };
     ytcenter.player.isLiveStream = function(){
       return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.live_playback === 1);
     };
@@ -14108,11 +14191,39 @@
         a = a.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
         if (!a || !a[1]) return {};
         a = a[1];
-        a = a.split(";</script>")[0];
-        if (JSON.parse) {
-          a = JSON.parse(a);
-        } else {
-          a = eval("(" + a + ")");
+        a = a.split(";</script>");
+        if (!a || !a[0]) return {};
+        a = a[0];
+        try {
+          if (JSON.parse) {
+            a = JSON.parse(a);
+          } else {
+            a = eval("(" + a + ")");
+          }
+        } catch (e) {
+          con.error(e);
+          con.log(a);
+          return {};
+        }
+        return a;
+      } else if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1) {
+        var a = document.body.innerHTML;
+        a = a.split("'PLAYER_CONFIG': ");
+        if (!a || !a[1]) return {};
+        a = a[1];
+        a = a.split(");");
+        if (!a || !a[0]) return {};
+        a = a[0];
+        try {
+          if (JSON.parse) {
+            a = JSON.parse(a);
+          } else {
+            a = eval("(" + a + ")");
+          }
+        } catch (e) {
+          con.error(e);
+          con.log(a);
+          return {};
         }
         return a;
       } else {
@@ -14787,6 +14898,9 @@
       return config;
     };
     ytcenter.player.getAPI = function(){
+      if (loc.pathname.indexOf("/embed/") === 0) {
+        return uw.yt.player.getPlayerByElement(document.getElementById("player"));
+      }
       return ytcenter.player.__getAPI; // Note: Never use yt.palyer.embed function to fetch the API. Just catch the API through onYouTubePlayerReady.
     };
     ytcenter.player.setPlayerSize = function(center){
@@ -17783,7 +17897,8 @@
       
       if (ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled && loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)) {
         var id = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
-            url = "/get_video_info?noflv=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cpn=" + encodeURIComponent(ytcenter.utils.crypt()) + "&referrer&el=embedded&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
+            url = ytcenter.player.getVideoDataRequest();
+            //url = "/get_video_info?noflv=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cpn=" + encodeURIComponent(ytcenter.utils.crypt()) + "&referrer&el=embedded&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
             //url = "/get_video_info?el=embedded&iv_load_policy=" + (ytcenter.settings.embed_enableAnnotations ? 1 : 3) + "&asv=3&dash=" + (ytcenter.settings.embed_dashPlayback ? "1" : "0") + "&html5=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? 1 : 0) + "&video_id=" + id + "&cver=" + (ytcenter.settings.embed_forcePlayerType === "html5" ? "html5" : "flash") + "&eurl=https%3A%2F%2Fwww.youtube.com%2Fembed%2F" + id;
         con.log("[Embed] Contacting: " + url);
         ytcenter.utils.xhr({
@@ -17805,7 +17920,6 @@
               if (o.errorcode) {
                 con.error("[YouTube] " + o.errorcode + ": " + o.reason);
               } else {
-                ytcenter._tmp_embed.loaded = true;
                 if (o.dash) ytcenter.player.config.args.dash = o.dash;
                 if (o.dashmpd) ytcenter.player.config.args.dashmpd = o.dashmpd;
                 if (o.adaptive_fmts) ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
@@ -17814,6 +17928,8 @@
                 if (o.url_encoded_fmt_stream_map || o.adaptive_fmts) {
                   ytcenter.video.streams = ytcenter.parseStreams(o);
                 }
+                
+                ytcenter._tmp_embed.loaded = true;
               }
               if (ytcenter._tmp_embed.callback) {
                 ytcenter._tmp_embed.callback();
