@@ -1,10 +1,11 @@
  - IE11 with WebM plugin installed. Causes the HTML5 player not to work.
  - Look into this http://userscripts.org/topics/131958
- - Entire video reloads 1 second if not using HTML5.
- - Make it work - http://www.youtube.com/watch?v=30uqNpQ_7So - Use Hulu Unblocker!
+ - Entire video reloads 1 second if YouTube's default is HTML5 and YouTube Center forces it to be Flash.
  - Embed videos can at times leave a black box (writeEmbeds are not called).
 
  ---
+ - Fix http://www.youtube-mp3.org/
+ - Auto fullscreen for the HTML5 player.
  - Warning when click-through is enabled.
  - Add Force HTTPS on YouTube.
  - Add option to hide the "Add Video To Watched Videos".
