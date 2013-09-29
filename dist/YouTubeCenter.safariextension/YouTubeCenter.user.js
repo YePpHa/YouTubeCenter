@@ -14108,42 +14108,42 @@
     ytcenter.player.cpn = ytcenter.utils.crypt();
     ytcenter.player.getVideoDataRequest = function(){
       var a = {
-        html5: (ytcenter.player.config.html5 ? "1" : "0"),
+        html5: (ytcenter.player.config && ytcenter.player.config.html5 ? "1" : "0"),
         video_id: loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
         cpn: ytcenter.player.cpn,
         eurl: loc.href,
         ps: null,
         el: "embedded",
-        hl: ytcenter.player.config.args.hl,
+        hl: (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.hl ? ytcenter.player.config.args.hl : null),
         sts: 15973,
         c: "web",
         cver: (ytcenter.player.config.html5 ? "html5" : "flash")
       }, b = [], k;
-      if (ytcenter.player.config.args.list) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.list) {
         a.list = ytcenter.player.config.args.list;
       }
-      if (ytcenter.player.config.args.cr) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.cr) {
         a.cr = ytcenter.player.config.args.cr;
       }
-      if (ytcenter.player.config.args.access_token) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.access_token) {
         a.access_token = ytcenter.player.config.args.access_token;
       }
-      if (ytcenter.player.config.args.adformat) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.adformat) {
         a.adformat = ytcenter.player.config.args.adformat;
       }
-      if (ytcenter.player.config.args.iv_load_policy) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.iv_load_policy) {
         a.iv_load_policy = ytcenter.player.config.args.iv_load_policy;
       }
-      if (ytcenter.player.config.args.autoplay) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.autoplay) {
         a.autoplay = ytcenter.player.config.args.autoplay;
       }
-      if (ytcenter.player.config.args.mdx) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.mdx) {
         a.mdx = ytcenter.player.config.args.mdx;
       }
-      if (ytcenter.player.config.args.utpsa) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.utpsa) {
         a.utpsa = ytcenter.player.config.args.utpsa;
       }
-      if (ytcenter.player.config.args.is_fling) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.is_fling) {
         a.is_fling = ytcenter.player.config.args.is_fling;
       }
       if (window.clientWidth) {
@@ -14152,22 +14152,22 @@
       if (window.clientHeight) {
         a.width = window.clientHeight;
       }
-      if (ytcenter.player.config.args.ypc_preview) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.ypc_preview) {
         a.ypc_preview = ytcenter.player.config.args.ypc_preview;
       }
-      if (ytcenter.player.config.args.splay) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.splay) {
         a.splay = ytcenter.player.config.args.splay;
       }
-      if (ytcenter.player.config.args.content_v) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.content_v) {
         a.content_v = ytcenter.player.config.args.content_v;
       }
-      if (ytcenter.player.config.args.livemonitor) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.livemonitor) {
         a.livemonitor = ytcenter.player.config.args.livemonitor;
       }
-      if (ytcenter.player.config.args.authuser) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.authuser) {
         a.authuser = ytcenter.player.config.args.authuser;
       }
-      if (ytcenter.player.config.args.pageid) {
+      if (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.pageid) {
         a.pageid = ytcenter.player.config.args.pageid;
       }
       for (k in a) {
