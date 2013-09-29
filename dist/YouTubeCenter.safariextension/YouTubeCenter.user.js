@@ -14188,50 +14188,55 @@
       return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.ypc_module && ytcenter.player.config.args.ypc_vid);
     };
     ytcenter.player.getRawPlayerConfig = function(){
-      if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-        var a = document.body.innerHTML;
-        a = a.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
-        if (!a || !a[1]) return {};
-        a = a[1];
-        a = a.split(";</script>");
-        if (!a || !a[0]) return {};
-        a = a[0];
+      function loadMethod1() {
         try {
+          var a = document.body.innerHTML;
+          a = a.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
+          if (!a || !a[1]) return null;
+          a = a[1];
+          a = a.split(";</script>");
+          if (!a || !a[0]) return null;
+          a = a[0];
           if (JSON.parse) {
             a = JSON.parse(a);
           } else {
             a = eval("(" + a + ")");
           }
+          return a;
         } catch (e) {
           con.error(e);
-          con.log(a);
-          return {};
+          return null;
         }
-        return a;
-      } else if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1) {
-        var a = document.body.innerHTML;
-        a = a.split("'PLAYER_CONFIG': ");
-        if (!a || !a[1]) return {};
-        a = a[1];
-        a = a.split(");");
-        if (!a || !a[0]) return {};
-        a = a[0];
-        try {
-          if (JSON.parse) {
-            a = JSON.parse(a);
-          } else {
-            a = eval("(" + a + ")");
-          }
-        } catch (e) {
-          con.error(e);
-          con.log(a);
-          return {};
-        }
-        return a;
-      } else {
-        con.error("[Player getRawPlayerConfig] Couldn't get document.body.innerHTML");
-        return {};
       }
+      function loadMethod2() {
+        try {
+          var a = document.body.innerHTML;
+          a = a.split("'PLAYER_CONFIG': ");
+          if (!a || !a[1]) return null;
+          a = a[1];
+          a = a.split(");");
+          if (!a || !a[0]) return null;
+          a = a[0];
+          if (JSON.parse) {
+            a = JSON.parse(a);
+          } else {
+            a = eval("(" + a + ")");
+          }
+          return a;
+        } catch (e) {
+          con.error(e);
+          return null;
+        }
+      }
+      
+      var _a = null;
+      if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1)
+        _a = loadMethod1();
+      if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1)
+        _a = loadMethod2();
+      if (_a !== null) return _a;
+      
+      return {};
     };
     ytcenter.player.parseRVS = function(rvs){
       var a = [], b = rvs.split(","), c, d, e, i, j;
