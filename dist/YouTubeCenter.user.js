@@ -14107,8 +14107,10 @@
     ytcenter.player = {};
     ytcenter.player.cpn = ytcenter.utils.crypt();
     ytcenter.player.getVideoDataRequest = function(){
+      if (!ytcenter.player.config || !ytcenter.player.config.args)
+        ytcenter.player.config = ytcenter.player.getRawPlayerConfig();
       var a = {
-        html5: (ytcenter.player.config.html5 ? "1" : "0"),
+        html5: (ytcenter.player.config && ytcenter.player.config.html5 ? "1" : "0"),
         video_id: loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
         cpn: ytcenter.player.cpn,
         eurl: loc.href,
@@ -17920,6 +17922,8 @@
               if (o.errorcode) {
                 con.error("[YouTube] " + o.errorcode + ": " + o.reason);
               } else {
+                ytcenter._tmp_embed.loaded = true;
+                
                 if (o.dash) ytcenter.player.config.args.dash = o.dash;
                 if (o.dashmpd) ytcenter.player.config.args.dashmpd = o.dashmpd;
                 if (o.adaptive_fmts) ytcenter.player.config.args.adaptive_fmts = o.adaptive_fmts;
@@ -17928,8 +17932,6 @@
                 if (o.url_encoded_fmt_stream_map || o.adaptive_fmts) {
                   ytcenter.video.streams = ytcenter.parseStreams(o);
                 }
-                
-                ytcenter._tmp_embed.loaded = true;
               }
               if (ytcenter._tmp_embed.callback) {
                 ytcenter._tmp_embed.callback();
