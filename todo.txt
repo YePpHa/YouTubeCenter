@@ -1,3 +1,4 @@
+ - #t=SECONDS doesn't work.
  - IE11 with WebM plugin installed. Causes the HTML5 player not to work.
  - Look into this http://userscripts.org/topics/131958
  - Entire video reloads 1 second if YouTube's default is HTML5 and YouTube Center forces it to be Flash.

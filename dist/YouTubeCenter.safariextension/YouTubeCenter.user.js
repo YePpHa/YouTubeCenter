@@ -18024,10 +18024,10 @@
       inject(main_function);
     }
   } else {
-    try {
+    //try {
       main_function(false, 4);
-    } catch (e) {
-      console.error(e);
-    }
+    //} catch (e) {
+      //console.error(e);
+    //}
   }
 })();
