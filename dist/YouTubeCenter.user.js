@@ -1107,22 +1107,28 @@
       var appbar = document.getElementById("appbar-settings-menu"),
           liSettings = document.createElement("li"),
           spanText = document.createElement("span"),
+          textIconContainer = document.createElement("span"),
           textIcon = document.createElement("img"),
           text = document.createTextNode("YouTube Center Settings");
-      liSettings.setAttribute("id", "ytcenter-settings-toggler");
-      liSettings.setAttribute("role", "menuitem");
       
-      spanText.className = "yt-uix-button-menu-item upload-menu-link";
       if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
+        liSettings.setAttribute("id", "ytcenter-settings-toggler");
+        liSettings.setAttribute("role", "menuitem");
+        //liSettings.className = "yt-uix-button-menu-new-section-separator";
+        
+        spanText.className = "yt-uix-button-menu-item upload-menu-item";
         ytcenter.utils.addEventListener(spanText, "click", function(){
           if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
           ytcenter.settingsPanelDialog.setVisibility(true);
         }, false);
         
-        textIcon.className = "upload-menu-account-settings";
-        textIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
+        textIconContainer.className = "yt-valign icon-container";
         
-        spanText.appendChild(textIcon);
+        textIcon.className = "upload-menu-account-settings-icon yt-valign-container";
+        textIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
+        textIconContainer.appendChild(textIcon);
+        
+        spanText.appendChild(textIconContainer);
         spanText.appendChild(text);
         
         liSettings.appendChild(spanText);
@@ -14665,6 +14671,9 @@
       if (ytcenter.settings.enableResize)
         config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
       
+      config.args.allow_html5_ads = 1;
+      config.args.html5_sdk_version = "3.1";
+      
       if (page === "watch") {
         var ___callback = function(response){
           try {
@@ -14732,6 +14741,7 @@
           config.html5 = false;
         } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
+          delete config.args.ad3_module;
         }
         if (ytcenter.settings.enableAnnotations) {
           config.args.iv_load_policy = 1;
@@ -14808,6 +14818,7 @@
           config.html5 = false;
         } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
+          delete config.args.ad3_module;
         }
         if (ytcenter.settings.removeAdvertisements) {
           config = ytcenter.site.removeAdvertisement(config);
