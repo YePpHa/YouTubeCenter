@@ -5,6 +5,8 @@
  - Embed videos can at times leave a black box (writeEmbeds are not called).
 
  ---
+ - Auto-play after a percentage of the video has loaded.
+ - Replay button, which wont make the player rebuffer the whole video (might have to do some hacks to make this).
  - Fix http://www.youtube-mp3.org/
  - Auto fullscreen for the HTML5 player.
  - Warning when click-through is enabled.
