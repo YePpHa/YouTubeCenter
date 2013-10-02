@@ -12,15 +12,11 @@
 // @domain          gdata.youtube.com
 // @match           http://*.youtube.com/*
 // @match           https://*.youtube.com/*
-// @match           http://*.youtube.com\./*
-// @match           https://*.youtube.com\./*
 // @match           http://userscripts.org/scripts/source/114002.meta.js
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @include         http://*.youtube.com/*
 // @include         https://*.youtube.com/*
-// @include         http://*.youtube.com\./*
-// @include         https://*.youtube.com\./*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
 // @grant           GM_getValue
@@ -14736,8 +14732,6 @@
           config.html5 = false;
         } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
-        } else {
-          config.html5 = false;
         }
         if (ytcenter.settings.enableAnnotations) {
           config.args.iv_load_policy = 1;
@@ -14813,8 +14807,6 @@
         if (ytcenter.settings.embed_forcePlayerType === "flash") {
           config.html5 = false;
         } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
-          config.html5 = true;
-        } else {
           config.html5 = true;
         }
         if (ytcenter.settings.removeAdvertisements) {
