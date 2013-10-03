@@ -60,7 +60,7 @@
   <property name="styles.settings" value="ytcenter-styles-settings.css" />
   <property name="styles.centering" value="ytcenter-styles-centering.css" />
   
-  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, firefox-legacy, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
