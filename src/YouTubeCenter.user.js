@@ -3830,8 +3830,10 @@
             watchedElement;
         if (ivw) {
           watchedElement = document.createElement("div");
-          if (item.content.getElementsByClassName("watched-message").length === 0) {
-            watchedElement.className = "watched-message";
+          if (item.content.getElementsByClassName("watched-message").length === 0
+              && item.content.getElementsByClassName("watched-badge").length === 0) {
+            //watchedElement.className = "watched-message";
+            watchedElement.className = "watched-badge";
             watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
             ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
             item.content.insertBefore(watchedElement, item.content.children[0]);
