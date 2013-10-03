@@ -2,9 +2,11 @@
  - IE11 with WebM plugin installed. Causes the HTML5 player not to work.
  - Look into this http://userscripts.org/topics/131958
  - Entire video reloads 1 second if YouTube's default is HTML5 and YouTube Center forces it to be Flash.
- - Embed videos can at times leave a black box (writeEmbeds are not called).
+ - Flashblock + embed videos not working (need verification as a lot of changes have been made to embed videos).
 
  ---
+ - Use full country names for country flags in comments.
+ - Grid Layout for Subscription Collection.
  - Auto-play after a percentage of the video has loaded.
  - Replay button, which wont make the player rebuffer the whole video (might have to do some hacks to make this).
  - Fix http://www.youtube-mp3.org/
