@@ -623,7 +623,7 @@ body > #page {
 .watched.ytcenter-thumbnail-timecode-pos-topleft .video-time,
 .watched.ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
 .watched.ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
-  top: 28px!important;
+  top: 18px!important;
   left: 2px!important;
 }
 
@@ -728,4 +728,14 @@ body > #page {
 
 .exp-top-guide.sitewide-ticker-visible.ytcenter-ticker-hidden #masthead-positioner-height-offset {
   height: 90px!important;
+}
+
+.watched-badge {
+  display: none;
+  top: 2px !important;
+  left: 2px !important;
+}
+
+.watched .watched-badge {
+  display: block;
 }
