@@ -4491,13 +4491,15 @@
           ytspf.config[obj_name] = masterCallbacks[obj_name];
           uw.ytspf.config[obj_name] = masterCallbacks[obj_name];
         }
-        /*ytspf = new SPFConfigWrapper(ytspf, new SPFConfig(_spf, ytspf.config));
-        uw.__defineGetter__("_spf_state", function(){return ytspf;});
-        uw.__defineSetter__("_spf_state", function(value){
-          ytcenter.utils.each(value, function(key, value){
+        
+        ytspf = new SPFConfigWrapper(ytspf, new SPFConfig(_spf, ytspf.config));
+        defineLockedProperty(uw, "_spf_state", function(s){
+          ytcenter.utils.each(s, function(key, value){
             ytspf[key] = value;
           });
-        });*/
+        }, function(){
+          return ytspf;
+        });
       };
       
       return _obj;
@@ -17781,6 +17783,15 @@
         ytcenter.unsafe.spf.data = data;
         if (data.swfcfg && data.swfcfg.args) {
           data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
+        }
+        if (ytcenter.settings.experimentalFeatureTopGuide) {
+          if (data.attr && data.attr.player && url.indexOf("youtube.com/watch?") !== -1) {
+            if (!data.attr.content)
+              data.attr.content = {};
+            if (!data.attr.content["class"])
+              data.attr.content["class"] = "  ";
+            data.attr.content["class"] += "  yt-card  ";
+          }
         }
         if (data.html && data.html.content && data.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
           var a, i1, i2, content, tmp, tmp2, swfcfg;
