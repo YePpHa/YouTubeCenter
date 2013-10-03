@@ -7955,6 +7955,7 @@
       };
     };
     
+    ytcenter._intercomOnPlayer = false;
     /*! intercom.js | https://github.com/diy/intercom.js | Apache License (v2) */
     ytcenter.Intercom = (function(){
       
@@ -16603,6 +16604,14 @@
       return a.join(" ");
     };
     ytcenter.classManagement.db = [
+      {element: function(){return document.getElementById("player");}, className: "", condition: function(loc){
+        if (ytcenter.settings.removeBrandingBackground) {
+          var p = document.getElementById("player");
+          p.style.backgroundImage = "";
+          p.style.backgroundColor = "";
+        }
+        return false;
+      }},
       {element: function(){return document.getElementById("masthead-subnav");}, className: "", condition: function(loc){
         if (ytcenter.settings.watch7centerpage) {
           document.getElementById("masthead-subnav").style.setProperty("margin-left", "auto", "important");
@@ -17408,6 +17417,12 @@
                 ytcenter._intercomOnPlayer = true;
                 ytcenter.Intercom.getInstance().on("player", function(data){
                   if (data.origin === ytcenter.Intercom.getInstance().origin) return;
+                  var api = ytcenter.player.getAPI();
+                  if (!api) {
+                    con.log("[Intercom] Player API not ready!");
+                    return;
+                  }
+                  con.log("[Intercom] Player Action: " + data.action);
                   if (data.action === "pause") {
                     api.pauseVideo();
                   } else if (data.action === "play") {
@@ -17419,6 +17434,7 @@
               }
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
+              ytcenter.classManagement.applyClasses();
             }
           }
         };
@@ -17470,8 +17486,9 @@
             });
           }
         });
-        ytcenter.player.listeners.addEventListener("onStateChange", function(state, b){
+        ytcenter.player.listeners.addEventListener("onStateChange", function(state){
           if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
+            con.log("Intercom Emit :: player -> pause");
             var intercom = ytcenter.Intercom.getInstance();
             intercom.emit("player", {
               action: "pause",
