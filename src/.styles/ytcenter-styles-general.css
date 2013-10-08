@@ -739,3 +739,8 @@ body > #page {
 .watched .watched-badge {
   display: block;
 }
+
+/* Front Page Feed - Not signed in */
+.flex-width-enabled .lohp-large-shelf-container {
+  width: 371px!important;
+}
