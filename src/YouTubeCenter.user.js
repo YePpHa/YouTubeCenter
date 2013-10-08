@@ -13672,14 +13672,14 @@
             "textContent", // module
             null, // label
             {
-              "textlocale": "SETTINGS_DONATE_PAYPAL_TEXT",
+              "textlocale": "SETTINGS_DONATE_PAYPAL_TEXT2",
               "replace": {
                 "{paypal-link}": function(){
                   var a = document.createElement("a");
                   a.setAttribute("target", "_blank");
-                  a.setAttribute("href", "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=WBCAMLGT5T9J6&lc=DK&item_name=YouTube%20Center&item_number=ytcenter&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted");
-                  a.textContent = ytcenter.language.getLocale("SETTINGS_DONATE_PAYPAL_LINK");
-                  ytcenter.language.addLocaleElement(a, "SETTINGS_DONATE_PAYPAL_LINK", "@textContent");
+                  a.setAttribute("href", "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/support/PayPal.html");
+                  a.textContent = ytcenter.language.getLocale("SETTINGS_DONATE_PAYPAL_LINK2");
+                  ytcenter.language.addLocaleElement(a, "SETTINGS_DONATE_PAYPAL_LINK2", "@textContent");
                   return a;
                 }
               }
@@ -16368,7 +16368,13 @@
         return;
       }
       var api = ytcenter.player.getAPI();
+      if (api.getPlayerType() === type) {
+        con.log("[Player setPlayerType] Type is already " + type + "!");
+        return;
+      }
       con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to " + type);
+      api.pauseVideo();
+      api.stopVideo();
       api.writePlayer(type);
     };
     ytcenter.player.updateFlashvars = function(player, config){
