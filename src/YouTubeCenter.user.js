@@ -8589,6 +8589,13 @@
       }
     };
     ytcenter.storageType = ytcenter.utils.getStorageType();
+    ytcenter.utils.transformToArray = function(domArray){
+      var a = [], i;
+      for (i = 0; i < domArray.length; i++) {
+        a.push(domArray[i]);
+      }
+      return a;
+    };
     ytcenter.utils.decodeHTML = function(a){
       return a.replace(/&([^;]+);/g, function(a, c){
         switch (c) {
@@ -17953,7 +17960,8 @@
       });
       ytcenter.spf.__doUpdateConfig = false;
       ytcenter.unsafe.spf.processed = function(data){
-        var url = ytcenter.utils.getURL(ytcenter.unsafe.spf.url || loc.href) || loc;
+        var url = ytcenter.utils.getURL(ytcenter.unsafe.spf.url || loc.href) || loc,
+            a, i;
         data = data || ytcenter.unsafe.spf.data;
         ytcenter.classManagement.applyClasses(ytcenter.unsafe.spf.url);
         
@@ -18023,6 +18031,15 @@
           
           ytcenter.comments.setup();
         }
+        /* Removing leftover tooltips */
+        a = ytcenter.utils.transformToArray(document.getElementsByClassName("yt-uix-tooltip-tip"));
+        for (i = 0; i < a.length; i++) {
+          if (a[i] && a[i].parentNode === document.body) {
+            con.log("[Tooltip Cleanup] Removed tooltip with id #" + a[i].id.replace("yt-uix-tooltip", ""));
+            document.body.removeChild(a[i]);
+          }
+        }
+        
         return [data];
       };
       ytcenter.spf.addEventListener("processed", ytcenter.unsafe.spf.processed);
