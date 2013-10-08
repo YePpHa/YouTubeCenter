@@ -6713,7 +6713,21 @@
       return {
         element: wrapper,
         bind: function(callback){
-          bCallback = callback;
+          var a = null,
+              b = false,
+              c = null;
+          bCallback = function(value){
+            c = value;
+            if (b) {
+              return;
+            }
+            b = true;
+            uw.clearTimeout(a);
+            a = uw.setTimeout(function(){
+              callback(c);
+              b = false;
+            }, 500);
+          };
         },
         update: function(value){
           range.update(value);
@@ -7820,10 +7834,10 @@
     };
     ytcenter.modules.textContent = function(option){
       var elm = document.createElement("div");
-      if (option && option.args && option.args.style) {
-        for (var key in option.args.style) {
-          if (option.args.style.hasOwnProperty(key)) {
-            elm.style[key] = option.args.style[key];
+      if (option && option.args && option.args.styles) {
+        for (var key in option.args.styles) {
+          if (option.args.styles.hasOwnProperty(key)) {
+            elm.style[key] = option.args.styles[key];
           }
         }
       }
@@ -10769,6 +10783,7 @@
             return id;
           },
           setVisibility: function(visible){
+            if (cat.visible === visible) return;
             cat.visible = visible;
             if (cat._visible) cat._visible(visible);
           },
@@ -10791,6 +10806,7 @@
             return id;
           },
           setVisibility: function(visible){
+            if (subcat.visible === visible) return;
             subcat.visible = visible;
             if (subcat._visible) subcat._visible(visible);
           },
@@ -10829,6 +10845,7 @@
             return option.help;
           },
           setVisibility: function(visible){
+            if (option.visible === visible) return;
             option.visible = visible;
             if (option._visible) option._visible(visible);
           },
@@ -12908,6 +12925,9 @@
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#click-through"
           );
+          option.addEventListener("update", function(){
+            ytcenter.tmp.lightoffwarning();
+          });
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "lightbulbBackgroundColor", // defaultSetting
@@ -12925,6 +12945,37 @@
             }
           );
           subcat.addOption(option);
+          
+          (function(opt){
+            option = ytcenter.settingsPanel.createOption(
+              null, // defaultSetting
+              "textContent", // module
+              null,
+              {
+                "textlocale": "SETTINGS_LIGHTBULB_WARNING",
+                "styles": {
+                  "color": "#ff0000"
+                }
+              }
+            );
+            if (ytcenter.settings.lightbulbBackgroundOpaque > 90 && ytcenter.settings.lightbulbClickThrough) {
+              option.setVisibility(true);
+            } else {
+              option.setVisibility(false);
+            }
+            opt.addEventListener("update", (function(o){
+              ytcenter.tmp = ytcenter.tmp || {};
+              ytcenter.tmp.lightoffwarning = function(){
+                if (ytcenter.settings.lightbulbBackgroundOpaque > 90 && ytcenter.settings.lightbulbClickThrough) {
+                  o.setVisibility(true);
+                } else {
+                  o.setVisibility(false);
+                }
+              };
+              return ytcenter.tmp.lightoffwarning;
+            })(option), false);
+            subcat.addOption(option);
+          })(option);
         
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_VIDEO_THUMBNAIL"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
