@@ -4488,6 +4488,10 @@
               };
             })(events[i])
           });
+          if (!ytspf) ytspf = {};
+          if (!ytspf.config) ytspf.config = {};
+          if (!uw.ytspf) uw.ytspf = {};
+          if (!uw.ytspf.config) uw.ytspf.config = {};
           ytspf.config[obj_name] = masterCallbacks[obj_name];
           uw.ytspf.config[obj_name] = masterCallbacks[obj_name];
         }
@@ -8585,6 +8589,56 @@
       }
     };
     ytcenter.storageType = ytcenter.utils.getStorageType();
+    ytcenter.utils.decodeHTML = function(a){
+      return a.replace(/&([^;]+);/g, function(a, c){
+        switch (c) {
+          case "amp":
+            return "&";
+          case "lt":
+            return "<";
+          case "gt":
+            return ">";
+          case "quot":
+            return '"';
+          default:
+            if ("#" == c.charAt(0)) {
+              var d = Number("0" + c.substr(1));
+              if (!isNaN(d)) return String.fromCharCode(d)
+            }
+            return a
+        }
+      })
+    };
+    ytcenter.utils.decode = function(a){
+      var b = {
+        "&amp;": "&",
+        "&lt;": "<",
+        "&gt;": ">",
+        "&quot;": '"'
+      }, c = window.document.createElement("div");
+      return a.replace(/&([^;\s<&]+);?/g, function(a, e){
+        var g = b[a];
+        if (g) return g;
+        if ("#" == e.charAt(0)) {
+          var h = Number("0" + e.substr(1));
+          (0, window.isNaN)(h) || (g = String.fromCharCode(h))
+        }
+        g || (c.innerHTML = a + " ", g = c.firstChild.nodeValue.slice(0, -1));
+        return b[a] = g
+      })
+    };
+    ytcenter.utils.encodeRawTag = function(text){
+      var a = document.createElement("a"),
+          b = document.createElement("div");
+      a.setAttribute("class", text);
+      b.appendChild(a);
+      return b.innerHTML.substring("<a class=\"".length, b.innerHTML.length - "\"></a>".length);
+    };
+    ytcenter.utils.decodeRawTag = function(text){
+      var a = document.createElement("div");
+      a.innerHTML = "<a class=\"" + text + "\"></a>";
+      return a.firstChild.getAttribute("class");
+    };
     ytcenter.utils.setterGetterClassCompatible = function(){
       try {
         var a_getter = false, a_setter = false, a_instance, a_confirm = "WORKS";
@@ -14112,6 +14166,7 @@
       });
     };
     ytcenter.player = {};
+    ytcenter.player.config = {};
     ytcenter.player.cpn = ytcenter.utils.crypt();
     ytcenter.player.getVideoDataRequest = function(){
       if (!ytcenter.player.config || !ytcenter.player.config.args)
@@ -14375,6 +14430,7 @@
       }
     });*/
     ytcenter.player.updateConfig = function(page, config){
+      con.log("[Config Update]", config);
       if (!config || !config.args) return;
       var api = ytcenter.player.getAPI();
       con.log("[Config Update] Updating as page " + page);
@@ -17391,9 +17447,10 @@
             ytcenter.player.listeners.setup();
             
             if (ytcenter.getPage() === "channel") {
-              if (ytcenter.player.config.args) {
+              if (ytcenter.player.config && ytcenter.player.config.args) {
                 ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
               } else {
+                if (ytcenter.player.config === null) ytcenter.player.config = {};
                 ytcenter.player.config.updateConfig = true;
               }
             } else {
@@ -17859,6 +17916,33 @@
           a[0] += (wmode !== "" ? " wmode=\\\"" + wmode + "\\\" " : "");
           data.html.player = a.join("type=\\\"application\\\/x-shockwave-flash\\\"");
         }
+        if (data.html && data.html.content && data.html.content.indexOf("data-swf-config=\"") !== -1) {
+          var a = data.html.content.split("data-swf-config=\""),
+              swfcfg, i1, i2;
+          if (a && a.length > 1) {
+            a = a[1];
+            if (a.indexOf("\">") !== -1) {
+              a = a.split("\">");
+              if (a && a.length > 1) {
+                a = a[0];
+              } else {
+                a = null;
+              }
+            } else {
+              a = null;
+            }
+          } else {
+            a = null;
+          }
+          if (a !== null) {
+            con.log(ytcenter.utils.decodeRawTag(a));
+            swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(url), JSON.parse(ytcenter.utils.decodeRawTag(a).replace(/&amp;/g, "&").replace(/&quot;/g, "\"")));
+            i1 = data.html.content.split("data-swf-config=\"")[0].indexOf("\">");
+            i2 = data.html.content.split("data-swf-config=\"")[0].indexOf("\">") + data.html.content.indexOf("data-swf-config=\"") + "data-swf-config=\"".length;
+            data._config = swfcfg;
+            data.html.content = data.html.content.substring(i1) + ytcenter.utils.encodeRawTag(JSON.stringify(swfcfg).replace(/&/g, "&amp;").replace(/"/g, "&quot;")) + data.html.content.substring(i2);
+          }
+        }
         if (data.js) {
           data.js += "<script>ytcenter.spf.processed();</script>";
         }
@@ -17872,6 +17956,8 @@
         var url = ytcenter.utils.getURL(ytcenter.unsafe.spf.url || loc.href) || loc;
         data = data || ytcenter.unsafe.spf.data;
         ytcenter.classManagement.applyClasses(ytcenter.unsafe.spf.url);
+        
+        if (data._config) ytcenter.player.config = data._config;
         
         if (data.swfcfg) {
           try {
