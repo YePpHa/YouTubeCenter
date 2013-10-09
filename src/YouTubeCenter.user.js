@@ -8554,6 +8554,21 @@
     };
     
     // @utils
+    ytcenter.utils.hasScrollbars = function(a){
+      var b = ytcenter.utils.getComputedStyles(a);
+      if (b.overflow !== "auto" && b.overflow !== "scroll" && b.overflowX !== "auto" && b.overflowX !== "scroll" && b.overflowY !== "auto" && b.overflowY !== "scroll")
+        return false;
+      if (a.scrollWidth === a.clientWidth && a.scrollHeigth === a.clientHeight)
+        return false;
+      return true;
+    };
+    ytcenter.utils.getComputedStyles = function(a){
+      if (!a) return {};
+      return a.currentStyle || document.defaultView.getComputedStyle(a, null);
+    };
+    ytcenter.utils.getComputedStyle = function(a, b) {
+      return ytcenter.utils.getComputedStyles(a)[b];
+    };
     ytcenter.utils.getBoundingClientRect = function(a) {
       var b;
       if (!a) return null;
@@ -8578,7 +8593,7 @@
       if (!elm) return { width: 0, height: 0 };
       return { width: elm.offsetWidth, height: elm.offsetHeight };
     };
-    ytcenter.utils.isElementPartlyInView = function(elm){
+    ytcenter.utils.isElementPartlyInView = function(elm){ // TODO Implement scrollable elements support.
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 },
           dim = ytcenter.utils.getDimension(elm);
       return (box.top >= 0 - dim.height
@@ -8586,7 +8601,7 @@
            && box.bottom <= (window.innerHeight || document.documentElement.clientHeight) + dim.height
            && box.right <= (window.innerWidth || document.documentElement.clientWidth) + dim.width);
     };
-    ytcenter.utils.isElementInView = function(elm){
+    ytcenter.utils.isElementInView = function(elm){ // TODO Implement scrollable elements support.
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 };
       return (box.top >= 0
            && box.left >= 0
