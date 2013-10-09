@@ -3868,7 +3868,16 @@
       }
       function processItemHeavyLoad(item) {
         if (!ytcenter.settings.videoThumbnailQualityBar && !ytcenter.settings.videoThumbnailAnimationEnabled) return;
-        if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail") {
+        if (ytcenter.settings.videoThumbnailQualityDownloadAt === "scroll_into_view") {
+          ytcenter.domEvents.addEvent(item.wrapper, "enterview", function(){
+            loadVideoConfig(item, function(stream, storyboard, errorMessage){
+              if (ytcenter.settings.videoThumbnailQualityBar)
+                appendQuality(item, stream, errorMessage);
+              if (ytcenter.settings.videoThumbnailAnimationEnabled)
+                appendAnimatedThumbnail(item, storyboard, errorMessage);
+            });
+          }, true);
+        } else if (ytcenter.settings.videoThumbnailQualityDownloadAt === "hover_thumbnail") {
           ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
             var added = false;
             return function(){
@@ -3918,7 +3927,7 @@
             };
           })(), false);
         } else {
-          if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "page_start" && ytcenter.settings.videoThumbnailRatingsCountDownloadAt !== "page_start") {
+          if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "page_start" || ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "page_start") {
             loadVideoData(item, function(likes, dislikes){
               if (ytcenter.settings.videoThumbnailRatingsCount) {
                 appendRatingCount(item, likes, dislikes);
@@ -3928,7 +3937,13 @@
               }
             });
           } else {
-            if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsBar) {
+            if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "scroll_into_view" && ytcenter.settings.videoThumbnailRatingsBar) {
+              ytcenter.domEvents.addEvent(item.wrapper, "enterview", function(){
+                loadVideoData(item, function(likes, dislikes){
+                  appendRatingBar(item, likes, dislikes);
+                });
+              }, true);
+            } else if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsBar) {
               ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
                 var added = false;
                 return function(){
@@ -3944,7 +3959,13 @@
                 appendRatingBar(item, likes, dislikes);
               });
             }
-            if (ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsCount) {
+            if (ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "scroll_into_view" && ytcenter.settings.videoThumbnailRatingsCount) {
+              ytcenter.domEvents.addEvent(item.wrapper, "enterview", function(){
+                loadVideoData(item, function(likes, dislikes){
+                  appendRatingCount(item, likes, dislikes);
+                });
+              }, true);
+            } else if (ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsCount) {
               ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
                 var added = false;
                 return function(){
@@ -4508,6 +4529,105 @@
       
       return _obj;
     })();
+    
+    ytcenter.domEvents = (function(){
+      function onViewUpdateBuffer() {
+        if (!_buffer) {
+          uw.setTimeout(function(){
+            onViewUpdate();
+            _buffer = null;
+          }, 200);
+        }
+      }
+      function onViewUpdate() {
+        onEnterViewUpdate();
+        onExitViewUpdate();
+      }
+      function onEnterViewUpdate() {
+        if (!db["enterview"]) return;
+        var trash = [], i = 0, a;
+        while (i < db["enterview"].length) {
+          if (processEnterViewUpdate(db["enterview"][i])) {
+            if (db["enterview"][i].once) {
+              db["enterview"].splice(i, 1);
+              i -= 1;
+            }
+          }
+          i += 1;
+        }
+      }
+      function onExitViewUpdate() {
+        if (!db["exitview"]) return;
+        var trash = [], i = 0, a;
+        while (i < db["exitview"].length) {
+          if (processExitViewUpdate(db["exitview"][i])) {
+            if (db["exitview"][i].once) {
+              db["exitview"].splice(i, 1);
+              i -= 1;
+            }
+          }
+          i += 1;
+        }
+      }
+      function processEnterViewUpdate(item) {
+        var inView = ytcenter.utils.isElementPartlyInView(item.element);
+        if (!inView) {
+          item.inview = false;
+          return false;
+        }
+        if (!("inview" in item)) item.inview = false;
+        if (item.inview) return false;
+        item.inview = true;
+        item.callback.apply(item.element, []);
+        return true;
+      }
+      function processExitViewUpdate(item) {
+        var inView = ytcenter.utils.isElementPartlyInView(item.element);
+        if (inView) {
+          item.inview = true;
+          return false;
+        }
+        if (!("inview" in item)) {
+          item.inview = inView;
+          return false;
+        }
+        if (item.inview && !inView) {
+          item.callback.apply(item.element, []);
+        }
+        item.inview = inView;
+        return true;
+      }
+      var __r = {}, db = {}, _buffer = null;
+      
+      __r.update = function(){
+        onViewUpdate();
+      };
+      __r.addEvent = function(elm, event, callback, once){
+        if (!elm) return;
+        if (!db[event]) db[event] = [];
+        db[event].push({
+          element: elm,
+          callback: callback,
+          once: once || false
+        });
+      };
+      
+      __r.setup = function(){
+        if (window.attachEvent) {
+          window.attachEvent("onscroll", onViewUpdateBuffer);
+          window.attachEvent("onresize", onViewUpdateBuffer);
+        } else {
+          window.addEventListener("scroll", onViewUpdateBuffer, false);
+          window.addEventListener("resize", onViewUpdateBuffer, false);
+        }
+        ytcenter.events.addEvent("ui-refresh", onViewUpdateBuffer);
+        uw.setInterval(onViewUpdateBuffer, 1000); // Todo attach this to an event instead.
+        onViewUpdate();
+      };
+      
+      return __r;
+    })();
+    
     ytcenter.events = (function(){
       var db = {},
           __r = {};
@@ -8432,6 +8552,47 @@
     ytcenter.experiments.isFixedTopbar = function(){
       return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
     };
+    
+    // @utils
+    ytcenter.utils.getBoundingClientRect = function(a) {
+      var b;
+      if (!a) return null;
+      try {
+        b = a.getBoundingClientRect();
+      } catch (c) {
+        return {
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 0
+        }
+      }
+      if (a.ownerDocument.body) {
+        a = a.ownerDocument;
+        b.left -= a.documentElement.clientLeft + a.body.clientLeft;
+        b.top -= a.documentElement.clientTop + a.body.clientTop;
+      }
+      return b;
+    };
+    ytcenter.utils.getDimension = function(elm){
+      if (!elm) return { width: 0, height: 0 };
+      return { width: elm.offsetWidth, height: elm.offsetHeight };
+    };
+    ytcenter.utils.isElementPartlyInView = function(elm){
+      var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 },
+          dim = ytcenter.utils.getDimension(elm);
+      return (box.top >= 0 - dim.height
+           && box.left >= 0 - dim.width
+           && box.bottom <= (window.innerHeight || document.documentElement.clientHeight) + dim.height
+           && box.right <= (window.innerWidth || document.documentElement.clientWidth) + dim.width);
+    };
+    ytcenter.utils.isElementInView = function(elm){
+      var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 };
+      return (box.top >= 0
+           && box.left >= 0
+           && box.bottom <= (window.innerHeight || document.documentElement.clientHeight)
+           && box.right <= (window.innerWidth || document.documentElement.clientWidth));
+    };
     ytcenter.utils.getVideoIdFromLink = function(url){
       var videoIdRegex = /v=([a-zA-Z0-9-_]+)/,
           indexRegex = /index=([0-9]+)/,
@@ -10012,15 +10173,15 @@
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
       videoThumbnailQualityPosition: "topleft",
-      videoThumbnailQualityDownloadAt: "hover_thumbnail",
+      videoThumbnailQualityDownloadAt: "scroll_into_view",
       videoThumbnailQualityVisible: "always",
       videoThumbnailRatingsBar: true,
       videoThumbnailRatingsBarPosition: "bottom",
-      videoThumbnailRatingsBarDownloadAt: "page_start",
+      videoThumbnailRatingsBarDownloadAt: "scroll_into_view",
       videoThumbnailRatingsBarVisible: "always",
       videoThumbnailRatingsCount: true,
       videoThumbnailRatingsCountPosition: "bottomleft",
-      videoThumbnailRatingsCountDownloadAt: "page_start",
+      videoThumbnailRatingsCountDownloadAt: "scroll_into_view",
       videoThumbnailRatingsCountVisible: "show_hover",
       videoThumbnailWatchLaterPosition: "bottomright",
       videoThumbnailWatchLaterVisible: "show_hover",
@@ -13107,6 +13268,9 @@
                   "value": "page_start",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
                 }, {
+                  "value": "scroll_into_view",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_INVIEW"
+                }, {
                   "value": "hover_thumbnail",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
                 }
@@ -13215,6 +13379,9 @@
                   "value": "page_start",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
                 }, {
+                  "value": "scroll_into_view",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_INVIEW"
+                }, {
                   "value": "hover_thumbnail",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
                 }
@@ -13322,6 +13489,9 @@
                 {
                   "value": "page_start",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONSTART"
+                }, {
+                  "value": "scroll_into_view",
+                  "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_INVIEW"
                 }, {
                   "value": "hover_thumbnail",
                   "label": "SETTINGS_THUMBVIDEO_DOWNLOAD_ONHOVER"
@@ -17651,6 +17821,7 @@
         try {
           ytcenter.thumbnail.setup();
           ytcenter.comments.setup();
+          ytcenter.domEvents.setup();
         } catch (e) {
           con.error(e);
         }
