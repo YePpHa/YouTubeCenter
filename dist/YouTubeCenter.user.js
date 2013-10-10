@@ -8554,6 +8554,40 @@
     };
     
     // @utils
+    ytcenter.utils.isContainerOverflowed = function(a){ // Possible going to use this one
+      // AKA Is the container bigger on the inside than the outside?
+      return {
+        x: a.scrollWidth > a.clientWidth,
+        y: a.scrollHeight > a.clientHeight
+      };
+    };
+    ytcenter.utils.isScrollable = function(a){
+      var b = ytcenter.utils.getOverflow(a);
+      if (!b.x && !b.y) return false;
+      return {
+        x: b.x && a.scrollWidth > a.clientWidth,
+        y: b.y && a.scrollHeight > a.clientHeight
+      };
+    };
+    ytcenter.utils.getOverflow = function(a){
+      var b = ytcenter.utils.getComputedStyles(a),
+          c = {
+            auto: true,
+            scroll: true,
+            visible: false,
+            hidden: false
+          };
+      return { x: c[b.overflowX.toLowerCase()], y: c[b.overflowY.toLowerCase()] };
+    };
+    ytcenter.utils.getComputedStyles = function(a){
+      if (!a) return {};
+      if (document && document.defaultView && document.defaultView.getComputedStyle)
+        return document.defaultView.getComputedStyle(a, null);
+      return a.currentStyle;
+    };
+    ytcenter.utils.getComputedStyle = function(a, b) {
+      return ytcenter.utils.getComputedStyles(a)[b];
+    };
     ytcenter.utils.getBoundingClientRect = function(a) {
       var b;
       if (!a) return null;
@@ -8578,15 +8612,30 @@
       if (!elm) return { width: 0, height: 0 };
       return { width: elm.offsetWidth, height: elm.offsetHeight };
     };
-    ytcenter.utils.isElementPartlyInView = function(elm){
+    ytcenter.utils.isElementPartlyInView = function(elm){ // TODO Implement scrollable elements support.
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 },
-          dim = ytcenter.utils.getDimension(elm);
+          dim = ytcenter.utils.getDimension(elm), a = elm, b, c;
+      while (!!(a = a.parentNode) && a !== document.body) {
+        if (ytcenter.utils.getComputedStyle(a, "display").toLowerCase() === "none")
+          return false;
+        b = ytcenter.utils.isContainerOverflowed(a);
+        if (b.x && b.y) {
+          c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
+          c.top -= box.top;
+          c.left -= box.left;
+          c.bottom -= box.bottom;
+          c.right -= box.right;
+          if (!(c.top >= 0 - dim.height && c.left >= 0 - dim.width && c.bottom <= a.clientHeight + dim.height && c.right <= a.clientWidth + dim.width))
+            return false;
+          return ytcenter.utils.isElementPartlyInView(a);
+        }
+      }
       return (box.top >= 0 - dim.height
            && box.left >= 0 - dim.width
            && box.bottom <= (window.innerHeight || document.documentElement.clientHeight) + dim.height
            && box.right <= (window.innerWidth || document.documentElement.clientWidth) + dim.width);
     };
-    ytcenter.utils.isElementInView = function(elm){
+    ytcenter.utils.isElementInView = function(elm){ // TODO Implement scrollable elements support.
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 };
       return (box.top >= 0
            && box.left >= 0
