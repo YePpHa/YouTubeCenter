@@ -8623,10 +8623,10 @@
         b = ytcenter.utils.isContainerOverflowed(a);
         if (b.x && b.y) {
           c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
-          c.top -= box.top;
-          c.left -= box.left;
-          c.bottom -= box.bottom;
-          c.right -= box.right;
+          c.top = c.top - box.top + a.scrollTop;
+          c.left = c.left - box.left + a.scrollLeft;
+          c.bottom = c.bottom - box.bottom + a.scrollTop;
+          c.right = c.right - box.right + a.scrollLeft;
           if (!(c.top >= 0 - dim.height && c.left >= 0 - dim.width && c.bottom <= a.clientHeight + dim.height && c.right <= a.clientWidth + dim.width))
             return false;
           // We now know that the element is visible in the parent and therefore we can just check if the parent is visible ~magic.
@@ -8648,10 +8648,10 @@
         b = ytcenter.utils.isContainerOverflowed(a);
         if (b.x && b.y) {
           c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
-          c.top -= box.top;
-          c.left -= box.left;
-          c.bottom -= box.bottom;
-          c.right -= box.right;
+          c.top = c.top - box.top + a.scrollTop;
+          c.left = c.left - box.left + a.scrollLeft;
+          c.bottom = c.bottom - box.bottom + a.scrollTop;
+          c.right = c.right - box.right + a.scrollLeft;
           if (!(c.top >= 0 && c.left >= 0 && c.bottom <= a.clientHeight && c.right <= a.clientWidth))
             return false;
           // We now know that the element is visible in the parent and therefore we can just check if the parent is visible ~magic.
