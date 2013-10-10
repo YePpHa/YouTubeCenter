@@ -8627,6 +8627,7 @@
           c.right -= box.right;
           if (!(c.top >= 0 - dim.height && c.left >= 0 - dim.width && c.bottom <= a.clientHeight + dim.height && c.right <= a.clientWidth + dim.width))
             return false;
+          // We now know that the element is visible in the parent and therefore we can just check if the parent is visible ~magic.
           return ytcenter.utils.isElementPartlyInView(a);
         }
       }
@@ -8636,7 +8637,23 @@
            && box.right <= (window.innerWidth || document.documentElement.clientWidth) + dim.width);
     };
     ytcenter.utils.isElementInView = function(elm){ // TODO Implement scrollable elements support.
-      var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 };
+      var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 }, a = elm, b, c;
+      while (!!(a = a.parentNode) && a !== document.body) {
+        if (ytcenter.utils.getComputedStyle(a, "display").toLowerCase() === "none")
+          return false;
+        b = ytcenter.utils.isContainerOverflowed(a);
+        if (b.x && b.y) {
+          c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
+          c.top -= box.top;
+          c.left -= box.left;
+          c.bottom -= box.bottom;
+          c.right -= box.right;
+          if (!(c.top >= 0 && c.left >= 0 && c.bottom <= a.clientHeight && c.right <= a.clientWidth))
+            return false;
+          // We now know that the element is visible in the parent and therefore we can just check if the parent is visible ~magic.
+          return ytcenter.utils.isElementInView(a);
+        }
+      };
       return (box.top >= 0
            && box.left >= 0
            && box.bottom <= (window.innerHeight || document.documentElement.clientHeight)
