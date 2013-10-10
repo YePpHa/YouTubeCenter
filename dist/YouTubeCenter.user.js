@@ -8613,6 +8613,8 @@
       return { width: elm.offsetWidth, height: elm.offsetHeight };
     };
     ytcenter.utils.isElementPartlyInView = function(elm){ // TODO Implement scrollable elements support.
+      if (ytcenter.utils.getComputedStyle(elm, "display").toLowerCase() === "none")
+        return false;
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 },
           dim = ytcenter.utils.getDimension(elm), a = elm, b, c;
       while (!!(a = a.parentNode) && a !== document.body) {
@@ -8637,6 +8639,8 @@
            && box.right <= (window.innerWidth || document.documentElement.clientWidth) + dim.width);
     };
     ytcenter.utils.isElementInView = function(elm){ // TODO Implement scrollable elements support.
+      if (ytcenter.utils.getComputedStyle(elm, "display").toLowerCase() === "none")
+        return false;
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 }, a = elm, b, c;
       while (!!(a = a.parentNode) && a !== document.body) {
         if (ytcenter.utils.getComputedStyle(a, "display").toLowerCase() === "none")
