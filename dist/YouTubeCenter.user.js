@@ -8616,17 +8616,29 @@
       if (ytcenter.utils.getComputedStyle(elm, "display").toLowerCase() === "none")
         return false;
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 },
-          dim = ytcenter.utils.getDimension(elm), a = elm, b, c;
+          dim = ytcenter.utils.getDimension(elm), a = elm, b, c, d;
       while (!!(a = a.parentNode) && a !== document.body) {
         if (ytcenter.utils.getComputedStyle(a, "display").toLowerCase() === "none")
           return false;
         b = ytcenter.utils.isContainerOverflowed(a);
-        if (b.x && b.y) {
+        if (b.x /*||*/&& b.y) { // TODO FIX
           c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
-          c.top = c.top - box.top + a.scrollTop;
-          c.left = c.left - box.left + a.scrollLeft;
-          c.bottom = c.bottom - box.bottom + a.scrollTop;
-          c.right = c.right - box.right + a.scrollLeft;
+          c.top = c.top - box.top;
+          c.left = c.left - box.left;
+          c.bottom = c.bottom - box.bottom;
+          c.right = c.right - box.right;
+          
+          d = {
+            top: c.top - a.scrollTop,
+            bottom: c.bottom - a.scrollTop,
+            left: c.left - a.scrollLeft,
+            right: c.right - a.scrollRight
+          };
+          /*if (   (d.top > a.clientHeight || d.bottom > a.clientHeight - dim.height)
+              && (d.bottom < 0 || d.top < 0 - dim.height)
+              && (d.left > a.clientWidth || d.right > a.clientWidth - dim.width)
+              && (d.right < 0 || d.left < 0 - dim.width))
+            return false;*/
           if (!(c.top >= 0 - dim.height && c.left >= 0 - dim.width && c.bottom <= a.clientHeight + dim.height && c.right <= a.clientWidth + dim.width))
             return false;
           // We now know that the element is visible in the parent and therefore we can just check if the parent is visible ~magic.
@@ -8646,7 +8658,7 @@
         if (ytcenter.utils.getComputedStyle(a, "display").toLowerCase() === "none")
           return false;
         b = ytcenter.utils.isContainerOverflowed(a);
-        if (b.x && b.y) {
+        if (b.x || b.y) {
           c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
           c.top = c.top - box.top + a.scrollTop;
           c.left = c.left - box.left + a.scrollLeft;
@@ -14026,7 +14038,7 @@
             {
               "textlocale": "SETTINGS_DONATE_PAYPAL_TEXT2",
               "replace": {
-                "{paypal-link}": function(){
+                "{page-link}": function(){
                   var a = document.createElement("a");
                   a.setAttribute("target", "_blank");
                   a.setAttribute("href", "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/support/PayPal.html");
