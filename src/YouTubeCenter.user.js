@@ -52,14 +52,14 @@
   function injected_saveSettings(id, key, data) {
     var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
     chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "setLocalStorage", "key": key, "data": data }), function(response) {
-      if (typeof response === "string") response = (JSON && JSON.parse ? JSON.parse(response) : eval("(" + response + ")"));
+      if (typeof response === "string") response = JSON.parse(response);
       inject("window.ytcenter.storage.onsaved(" + id + ")");
     });
   }
   function injected_loadSettings(id, key) {
     var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
     chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "getLocalStorage", "key": key }), function(response) {
-      if (typeof response === "string") response = (JSON && JSON.parse ? JSON.parse(response) : eval("(" + response + ")"));
+      if (typeof response === "string") response = JSON.parse(response);
       inject("window.ytcenter.storage.onloaded(" + id + ", " + (response ? (response.data ? (typeof response.data === "string" ? response.data : JSON.stringify(response.data)) : "{}") : {}) + ")");
     });
   }
@@ -2010,6 +2010,10 @@
     }
     con.log("In Scope");
     
+    ytcenter.mutation = (function(){
+      
+    })();
+    
     
     con.log("Initializing Functions");
     try {
@@ -3034,7 +3038,7 @@
         url: "https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json",
         method: "GET",
         onload: function(r){
-          callback((JSON && JSON.parse ? JSON.parse(r.responseText) : eval("(" + r.reponseText + ")")));
+          callback(JSON.parse(r.responseText));
         }
       });
     };
@@ -3280,48 +3284,28 @@
                 var cfg, errorType = "unknown";
                 try {
                   if (spflink) {
-                    try {
-                      cfg = JSON.parse(r.responseText);
-                    } catch (e) {
-                      cfg = eval("(" + r.responseText + ")");
-                    }
+                    cfg = JSON.parse(r.responseText);
                     if (cfg.swfcfg) {
                       cfg = cfg.swfcfg;
                     } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
                       throw "unavailable";
                     } else {
-                      try {
-                        cfg = JSON.parse(r.responseText);
-                      } catch (e) {
-                        cfg = eval("(" + r.responseText + ")");
-                      }
+                      cfg = JSON.parse(r.responseText);
                       if (cfg && cfg.html && cfg.html.content && cfg.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
                         cfg = cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
                         cfg = cfg.split(";</script>")[0];
-                        try {
-                          cfg = JSON.parse(cfg);
-                        } catch (e) {
-                          cfg = eval("(" + cfg + ")");
-                        }
+                        cfg = JSON.parse(cfg);
                       } else if (cfg && cfg.html && cfg.html.player && cfg.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
                         cfg = cfg.html.player.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
                         cfg = cfg.split(";</script>")[0];
-                        try {
-                          cfg = JSON.parse(cfg);
-                        } catch (e) {
-                          cfg = eval("(" + cfg + ")");
-                        }
+                        cfg = JSON.parse(cfg);
                       } else {
                         throw "unknown";
                       }
                     }
                   } else {
                     cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
-                    try {
-                      cfg = JSON.parse(cfg);
-                    } catch (e) {
-                      cfg = eval("(" + cfg + ")");
-                    }
+                    cfg = JSON.parse(cfg);
                   }
                 } catch (e) {
                   if (r.responseText.indexOf("flashvars=\"") !== -1) {
@@ -3335,11 +3319,7 @@
                   } else if (r.responseText.indexOf("new yt.player.Application('p', {") !== -1) {
                     cfg = {};
                     cfg.args = r.responseText.split("new yt.player.Application('p', ")[1].split(");var fbetatoken")[0];
-                    try {
-                      cfg.args = JSON.parse(cfg.args);
-                    } catch (e) {
-                      cfg.args = eval("(" + cfg.args + ")");
-                    }
+                    cfg.args = JSON.parse(cfg.args);
                   }
                 }
                 item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
@@ -3383,11 +3363,7 @@
                     try {
                       con.error(JSON.parse(r.responseText));
                     } catch (e) {
-                      try {
-                        con.error(eval("(" + r.responseText + ")"));
-                      } catch (e) {
-                        con.error(r.responseText);
-                      }
+                      con.error(r.responseText);
                     }
                   }
                 }
@@ -3441,11 +3417,7 @@
                     try {
                       con.error(JSON.parse(r.responseText));
                     } catch (e) {
-                      try {
-                        con.error(eval("(" + r.responseText + ")"));
-                      } catch (e) {
-                        con.error(r.responseText);
-                      }
+                      con.error(r.responseText);
                     }
                   }
                 }
@@ -4192,8 +4164,7 @@
     })();
     
     ytcenter.getDebug = function(){
-      var debugText = "{}";
-      var dbg = {};
+      var debugText = "{}", dbg = {}, a;
       try {
         dbg.htmlelements = {};
         if (document.body)
@@ -4221,7 +4192,20 @@
           vendorSub: uw.navigator.vendorSub,
           platform: uw.navigator.platform
         };
-        dbg._settings = ytcenter._settings;
+        //dbg._settings = ytcenter._settings;
+        dbg.settings = {};
+        for (a in ytcenter.settings) {
+          if (ytcenter.settings.hasOwnProperty(a)) {
+            if (ytcenter.settings.debug_settings_playersize && a === "resize-playersizes") continue;
+            if (ytcenter.settings.debug_settings_buttonPlacement && (a === "buttonPlacement" || a === "buttonPlacementWatch7")) continue;
+            if (ytcenter.settings.debug_settings_videoThumbnailData && a === "videoThumbnailData") continue;
+            if (ytcenter.settings.debug_settings_commentCountryData && a === "commentCountryData") continue;
+            if (ytcenter.settings.debug_settings_watchedVideos && a === "watchedVideos") continue;
+            if (ytcenter.settings.debug_settings_notwatchedVideos && a === "notwatchedVideos") continue;
+            dbg.settings[a] = ytcenter.settings[a];
+          }
+        }
+        
         dbg.settings = ytcenter.settings;
         dbg.ytcenter = {};
         dbg.ytcenter.video = ytcenter.video;
@@ -4478,7 +4462,7 @@
               
               var r,j;
               con.log("[SPF] _spf_state => " + event);
-              con.log(args);
+              if (ytcenter.settings.debug_spf_args) con.log(args);
               try {
                 for (j = 0; j < listeners[event + "-before"].length; j++) {
                   args = listeners[event + "-before"][j].apply(null, args) || args;
@@ -10216,6 +10200,15 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      debug_settings_playersize: false,
+      debug_settings_buttonPlacement: false,
+      debug_settings_videoThumbnailData: false,
+      debug_settings_commentCountryData: false,
+      debug_settings_watchedVideos: false,
+      debug_settings_notwatchedVideos: false,
+      debug_playervars: false,
+      debug_spf_args: false,
+      
       signatureDecipher: [],
       embed_defaultAutoplay: true,
       hideTicker: true,
@@ -10658,7 +10651,6 @@
         } else if (identifier === 6) {
           con.log("Loading storage_getValue");
           var data = storage_getValue(ytcenter.storageName) || "{}";
-          con.log("storage_getValue returned: " + data);
           if (data && data !== null) {
             try {
               var loaded = JSON.parse(data);
@@ -14569,11 +14561,7 @@
           a = a.split(";</script>");
           if (!a || !a[0]) return null;
           a = a[0];
-          if (JSON.parse) {
-            a = JSON.parse(a);
-          } else {
-            a = eval("(" + a + ")");
-          }
+          a = JSON.parse(a);
           return a;
         } catch (e) {
           con.error(e);
@@ -14589,11 +14577,7 @@
           a = a.split(");");
           if (!a || !a[0]) return null;
           a = a[0];
-          if (JSON.parse) {
-            a = JSON.parse(a);
-          } else {
-            a = eval("(" + a + ")");
-          }
+          a = JSON.parse(a);
           return a;
         } catch (e) {
           con.error(e);
@@ -18172,11 +18156,7 @@
           try {
             a = data.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
             a = a.split(";</script>")[0];
-            try {
-              swfcfg = JSON.parse(a);
-            } catch (e) {
-              swfcfg = eval("(" + a + ")");
-            }
+            swfcfg = JSON.parse(a);
             swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
             content = data.html.content;
             i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
@@ -18193,11 +18173,7 @@
             if (a && a[1]) {
               a = a[1];
               a = a.split(";</script>")[0];
-              try {
-                swfcfg = JSON.parse(a);
-              } catch (e) {
-                swfcfg = eval("(" + a + ")");
-              }
+              swfcfg = JSON.parse(a);
               swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
               content = data.html.player;
               i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");

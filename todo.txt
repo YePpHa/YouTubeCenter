@@ -5,6 +5,10 @@
  - Flashblock + embed videos not working (need verification as a lot of changes have been made to embed videos).
 
  ---
+ - Merge adaptive_fmts and url_encoded_fmt_stream_map for unavailable qualites.
+ - Have the guide beside the player when the player is not aligned.
+ - Select quality based on video category.
+ - When going to a channel go to the video tab by default.
  - Use full country names for country flags in comments.
  - Grid Layout for Subscription Collection.
  - Auto-play after a percentage of the video has loaded.
