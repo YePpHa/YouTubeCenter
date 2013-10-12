@@ -3097,10 +3097,6 @@
               called: false,
               callbacks: []
             }, {
-              event: "stopInterval",
-              called: false,
-              callbacks: []
-            }, {
               event: "bodyInteractive", test: function(){
                 if (document.readyState === "interactive" || document.readyState === "complete")
                   return true;
@@ -3114,6 +3110,10 @@
                   return true;
                 return false;
               },
+              called: false,
+              callbacks: []
+            }, {
+              event: "stopInterval",
               called: false,
               callbacks: []
             }
@@ -3176,6 +3176,7 @@
       };
       __r.setup = function(){
         ytcenter.utils.addEventListener(document, "readystatechange", __r.update, false);
+        ytcenter.utils.addEventListener(document, "DOMContentLoaded", __r.update, false);
         preTester = uw.setInterval(function(){
           __r.update();
         }, preTesterInterval);
