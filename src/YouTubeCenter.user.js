@@ -10248,7 +10248,7 @@
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
       videoThumbnailQualityPosition: "topleft",
-      videoThumbnailQualityDownloadAt: "scroll_into_view",
+      videoThumbnailQualityDownloadAt: "hover_thumbnail",
       videoThumbnailQualityVisible: "always",
       videoThumbnailRatingsBar: true,
       videoThumbnailRatingsBarPosition: "bottom",
