@@ -1,7 +1,6 @@
 component  {dc8e2fcd-e5a7-4ff2-aac6-9949399bc54c} components/ytcenter.js
 contract   @ytcenter/ytcenter-service;1 {dc8e2fcd-e5a7-4ff2-aac6-9949399bc54c}
 category   profile-after-change @ytcenter/ytcenter-service;1 @ytcenter/ytcenter-service;1
-category   content-policy @ytcenter/ytcenter-service;1 @ytcenter/ytcenter-service;1
 
 content    ytcenter data/
 resource   ytcenter modules/
