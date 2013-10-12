@@ -9346,30 +9346,39 @@
     ytcenter.utils.crypt_p = !1;
     ytcenter.utils.crypt_Ej = ytcenter.utils.crypt_h;
     ytcenter.utils.crypt = function(){
-      var a;
-      if (ytcenter.utils.crypt_Ej == ytcenter.utils.crypt_h && (ytcenter.utils.crypt_Ej = ytcenter.utils.crypt_p, window.crypto && window.crypto.wx))
-          try {
-              a = new Uint8Array(1), window.crypto.wx(a), ytcenter.utils.crypt_Ej = ytcenter.utils.crypt_l
-          } catch (b) {
+      try {
+        var a;
+        try {
+          if (ytcenter.utils.crypt_Ej == ytcenter.utils.crypt_h && (ytcenter.utils.crypt_Ej = ytcenter.utils.crypt_p, window.crypto && window.crypto.wx)) {
+            try {
+                a = new Uint8Array(1), window.crypto.wx(a), ytcenter.utils.crypt_Ej = ytcenter.utils.crypt_l
+            } catch (b) {
+            }
           }
-      if (ytcenter.utils.crypt_Ej) {
-          a = Array(16);
-          var c = new Uint8Array(16);
-          window.crypto.getRandomValues(c);
-          for (var d = 0; d < a.length; d++)
-              a[d] = c[d]
-      } else {
-          a = Array(16);
-          for (c = 0; 16 > c; c++) {
-              for (var d = ytcenter.utils.now(), f = 0; f < d % 23; f++)
-                  a[c] = Math.random();
-              a[c] = Math.floor(64 * Math.random())
-          }
+        } catch (e) {
+          con.error(e);
+        }
+        if (ytcenter.utils.crypt_Ej) {
+            a = Array(16);
+            var c = new Uint8Array(16);
+            window.crypto.getRandomValues(c);
+            for (var d = 0; d < a.length; d++)
+                a[d] = c[d]
+        } else {
+            a = Array(16);
+            for (c = 0; 16 > c; c++) {
+                for (var d = ytcenter.utils.now(), f = 0; f < d % 23; f++)
+                    a[c] = Math.random();
+                a[c] = Math.floor(64 * Math.random())
+            }
+        }
+        c = [];
+        for (d = 0; d < a.length; d++)
+            c.push("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[a[d] & 63]);
+        return c.join("");
+      } catch (e) {
+        con.error(e);
       }
-      c = [];
-      for (d = 0; d < a.length; d++)
-          c.push("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[a[d] & 63]);
-      return c.join("")
     };
     ytcenter.utils.calculateDimensions = function(width, height, player_ratio){
       player_ratio = player_ratio || 16/9;
