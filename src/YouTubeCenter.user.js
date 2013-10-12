@@ -7933,6 +7933,10 @@
         update: function(){},
         setText: function(txt){
           elm.textContent = txt;
+        },
+        selectAll: function(){
+          elm.focus();
+          elm.select();
         }
       };
     };
@@ -13917,9 +13921,6 @@
                 "height": "130px",
                 "background-color": "#fff",
                 "border": "1px solid #ccc"
-              },
-              "attributes": {
-                "disabled": "true"
               }
             }
           );
@@ -13930,6 +13931,7 @@
             a.getLiveModule().setText(ytcenter.language.getLocale("SETTINGS_DEBUG_LOADING"));
             uw.setTimeout(function(){
               a.getLiveModule().setText(ytcenter.getDebug());
+              a.getLiveModule().selectAll();
             }, 100); // async
           }.bind(option));
           
