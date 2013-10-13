@@ -1,6 +1,0 @@
-{
-	"id": "private-browsing-mode-test@jetpack",
-	"permissions": {
-		"private-browsing": true
-	}
-}
