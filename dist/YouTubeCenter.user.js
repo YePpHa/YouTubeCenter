@@ -2258,29 +2258,51 @@
       ytcenter._writeEmbedCallback = null;
       ytcenter._writeEmbedChecker = null;
       ytcenter._calledWriteEmbed = false;
-      ytcenter.writeEmbed = function(c1, c2){
-        function update() {
-          try {
-            var api = ytcenter.player.getAPI();
-            if (api && api.destroy) {
-              con.log("[Embed] Destroying existing player!");
-              ytcenter.player.getAPI().destroy();
-            }
-          } catch (e) {
-            con.error(e);
+      ytcenter._writeEmbedUpdate = function(c1, c2){
+        /*try {
+          var api = ytcenter.player.getAPI();
+          if (api && api.destroy) {
+            con.log("[Embed] Destroying existing player!");
+            ytcenter.player.getAPI().destroy();
+          } else if (uw.yt && uw.yt.player && uw.yt.player.destroy) {
+            uw.yt.player.destroy("player");
           }
-          
-          con.log("[Embed] Writing Player...");
+        } catch (e) {
+          con.error(e);
+        }*/
+        
+        con.log("[Embed] Writing Player...");
+        if (typeof ytcenter._writeEmbed === "function") {
           if (c1) c1();
+          uw.yt.config_.PLAYER_CONFIG = ytcenter.player.getConfig();
           ytcenter._writeEmbed();
           if (c2) c2();
+        } else {
+          if (document.getElementById("cued-embed")) document.getElementById("cued-embed").click();
+        }
+      };
+      ytcenter.writeEmbed = function(c1, c2){
+        function update() {
+          ytcenter._writeEmbedUpdate(c1, c2);
         }
         if (ytcenter._calledWriteEmbed) {
+          update();
+        } else if (!ytcenter.settings.embed_defaultAutoplay && !ytcenter.settings.embed_preventAutoBuffer) {
+          uw.yt.config_.PLAYER_CONFIG = ytcenter.player.getConfig();
+          ytcenter._writeEmbedCallback = function(){
+            update();
+          };
+          update();
+        } else if (ytcenter.settings.embed_defaultAutoplay && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "ytcenter-autoplay=1")) {
+          uw.yt.config_.PLAYER_CONFIG = ytcenter.player.getConfig();
+          ytcenter._writeEmbedCallback = function(){
+            update();
+          };
           update();
         } else if (uw.writeCuedEmbed && uw.yt && uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG) {
           con.log("[Embed] Using Cued Embed");
           uw.yt.config_.PLAYER_CONFIG = ytcenter.player.getConfig();
-          uw.writeCuedEmbed();
+          //uw.writeCuedEmbed();
           ytcenter._writeEmbedCallback = function(){
             update();
           };
@@ -2290,19 +2312,6 @@
             uw.clearInterval(ytcenter._writeEmbedChecker);
             update();
           };
-          /*ytcenter._writeEmbedChecker = uw.setInterval(function(){
-            try {
-              var api = ytcenter.player.getAPI();
-              if (api && api.destroy) {
-                con.log("[Embed] Player has already been initialized...");
-                ytcenter._writeEmbedCallback();
-              } else {
-                con.log("[Embed] Waiting for api...");
-              }
-            } catch (e) {
-              con.error(e);
-            }
-          }, 500);*/
         }
       };
       ytcenter._writeEmbed = uw.writeEmbed;
@@ -2316,6 +2325,11 @@
           if (typeof ytcenter._writeEmbedCallback === "function") {
             con.log("[writeEmbed] YouTube Center is ready. Granting YouTube access to writeEmbed()");
             ytcenter._writeEmbedCallback();
+          }
+          if (ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
+            ytcenter._tmp_embed.callback = function(){
+              update();
+            };
           }
         };
       });
@@ -14697,6 +14711,22 @@
       });
     };
     ytcenter.player = {};
+    ytcenter.player.setPlaybackQuality = function(preferredQuality){
+      function recall(vq){
+        if (vq === 1) {
+          ytcenter.player.listeners.removeEventListener("onStateChange", recall);
+          ytcenter.player.setPlaybackQuality(preferredQuality);
+        }
+      }
+      var api = ytcenter.player.getAPI();
+      if (!api) {
+        ytcenter.player.listeners.addEventListener("onStateChange", recall);
+      } else {
+        if (api.getPlaybackQuality() === preferredQuality && preferredQuality !== "small") api.setPlaybackQuality("small");
+        else if (api.getPlaybackQuality() === preferredQuality && preferredQuality !== "medium") api.setPlaybackQuality("medium");
+        api.setPlaybackQuality(preferredQuality);
+      }
+    };
     ytcenter.player.config = {};
     ytcenter.player.cpn = ytcenter.utils.crypt();
     ytcenter.player.getVideoDataRequest = function(){
@@ -15131,7 +15161,6 @@
         }
         if (!ytcenter.settings.embed_defaultAutoplay) {
           if (ytcenter.settings.embed_preventAutoBuffer) {
-            api.stopVideo();
             var played = false;
             ytcenter.player.listeners.addEventListener("onStateChange", function(s){
               if (s !== 1 || played) return;
@@ -15141,7 +15170,7 @@
                   config.args.vq = ytcenter.settings.embed_autoVideoQuality;
                 }
                 con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-                api.setPlaybackQuality(config.args.vq);
+                ytcenter.player.setPlaybackQuality(config.args.vq);
               }
             });
           } else if (ytcenter.settings.embed_preventAutoPlay) {
@@ -15153,7 +15182,7 @@
                   config.args.vq = ytcenter.settings.embed_autoVideoQuality;
                 }
                 con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-                api.setPlaybackQuality(config.args.vq);
+                ytcenter.player.setPlaybackQuality(config.args.vq);
               }
             }, 600);
           } else {
@@ -15165,7 +15194,7 @@
                   config.args.vq = ytcenter.settings.embed_autoVideoQuality;
                 }
                 con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-                api.setPlaybackQuality(config.args.vq);
+                ytcenter.player.setPlaybackQuality(config.args.vq);
               }
             });
             api.playVideo();
@@ -15177,7 +15206,7 @@
             config.args.vq = ytcenter.settings.embed_autoVideoQuality;
           }
           con.log("Setting playback quality from " + api.getPlaybackQuality() + " to " + ytcenter.settings.embed_autoVideoQuality);
-          api.setPlaybackQuality(config.args.vq);
+          ytcenter.player.setPlaybackQuality(config.args.vq);
         }
       }
     };
@@ -16852,7 +16881,7 @@
       con.log("Setting Video Quality to " + pc.args.vq);
       if (typeof ytcenter.player.getReference() !== "undefined" && ytcenter.player.getReference().onReadyCalled && ytcenter.player.getReference().api && ytcenter.player.getReference().api.setPlaybackQuality) {
         con.log("Setting PlaybackQuality to " + pc.args.vq);
-        ytcenter.player.getReference().api.setPlaybackQuality(pc.args.vq);
+        ytcenter.player.setPlaybackQuality(pc.args.vq);
       }
       if (ytcenter.html5 && pc.args.vq === "auto") {
         //return false;
@@ -17738,6 +17767,9 @@
           ytcenter.writeEmbed();
           return;
         }
+        if (ytcenter.getPage() === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
+          loc.search = loc.search.replace("autoplay=1", "ytcenter-autoplay=1");
+        }
         con.log("Settings loaded.");
         ytcenter.language.update();
         
@@ -18109,7 +18141,8 @@
           ytcenter._tmp_embed._callback = function(){
             ytcenter.writeEmbed(function(){
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config));
-              uw.yt.config_.PLAYERCONFIG = ytcenter.player.config;
+              uw.yt.config_.PLAYER_CONFIG = ytcenter.player.config;
+              uw.yt.setConfig({ "PLAYER_CONFIG": ytcenter.player.config});
             }, function(){
               ytcenter.player.update(ytcenter.player.config);
             });
