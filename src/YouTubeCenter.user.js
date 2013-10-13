@@ -1230,6 +1230,27 @@
     }
     
     function $SlideRange(elm, handle, min, max, defaultValue) {
+      function mousemove(e){
+        if (range.mouse.down) {
+          var pos = e.clientX - $AbsoluteOffset(range.elm)[0] - range.handle.offsetWidth/2;
+          var max = range.elm.clientWidth - range.handle.offsetWidth;
+          if (pos > max) {
+            pos = max;
+          } else if (pos < 0) {
+            pos = 0;
+          }
+          range.handle.style.left = pos + "px";
+          
+          for (var i = 0; i < range.listeners.length; i++) {
+            if (range.listeners[i].e === 'valuechange') {
+              var max = range.elm.clientWidth - range.handle.offsetWidth;
+              var a = range.max - range.min;
+              range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
+            }
+          }
+          e.preventDefault();
+        }
+      }
       var range = {
         elm: elm,
         handle: handle,
@@ -1311,32 +1332,12 @@
         }
         e.preventDefault();
       }, false);
-      elm.addEventListener("mousedown", function(e){
+      ytcenter.utils.addEventListener(elm, "mousedown", function(e){
         range.mouse.down = true;
+        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
         e.preventDefault();
       }, false);
-      document.addEventListener("mousemove", function(e){
-        if (range.mouse.down) {
-          var pos = e.clientX - $AbsoluteOffset(range.elm)[0] - range.handle.offsetWidth/2;
-          var max = range.elm.clientWidth - range.handle.offsetWidth;
-          if (pos > max) {
-            pos = max;
-          } else if (pos < 0) {
-            pos = 0;
-          }
-          range.handle.style.left = pos + "px";
-          
-          for (var i = 0; i < range.listeners.length; i++) {
-            if (range.listeners[i].e === 'valuechange') {
-              var max = range.elm.clientWidth - range.handle.offsetWidth;
-              var a = range.max - range.min;
-              range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
-            }
-          }
-          e.preventDefault();
-        }
-      }, false);
-      document.addEventListener("mouseup", function(e){
+      ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (range.mouse.down) {
           range.mouse.down = false;
           e.stopPropagation();
@@ -1347,6 +1348,7 @@
               range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
             }
           }
+          ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
           e.preventDefault();
         }
       }, false);
@@ -1355,6 +1357,64 @@
     }
     
     function $DragList(elements, ignore) {
+      function mousemove(e) {
+        if (!dragging || disabled) return;
+        e.preventDefault();
+        
+        var newX = e.pageX;
+        var newY = e.pageY;
+        var scrollOffset = ytcenter.utils.getScrollOffset();
+        holderElement.style.top = (e.pageY - scrollOffset.top - curRelative[1]) + "px";
+        holderElement.style.left = (e.pageX - scrollOffset.left - curRelative[0]) + "px";
+        
+        var p = lastLegalRegion;
+        for (var i = 0; i < allowedRegions.length; i++) {
+          var off = $AbsoluteOffset(allowedRegions[i]);
+          if (newX >= off[0] && newX <= off[0] + allowedRegions[i].offsetWidth && (newY >= off[1] && newY <= off[1] + allowedRegions[i].offsetHeight)) {
+            p = allowedRegions[i];
+            break;
+          }
+        }
+        
+        var c = p.children;
+        var item = null;
+        for (var i = 0; i < c.length; i++) {
+          if (c[i] == et || c[i] == holderElement || doIgnore(c[i])) continue;
+          if (newX <= c[i].offsetWidth/2+$AbsoluteOffset(c[i])[0]) {
+            item = c[i];
+            break;
+          }
+        }
+        
+        var hep = et.parentNode;
+        if (lastItem != item || p != lastLegalRegion) {
+          hep.removeChild(et);
+          if (item == null) {
+            p.appendChild(et);
+          } else {
+            p.insertBefore(et, item);
+          }
+          if (listeners['move']) {
+            for (var i = 0; i < listeners['move'].length; i++) {
+              listeners['move'][i](et, holderElement, lastLegalRegion);
+            }
+          }
+        }
+        lastItem = item;
+        lastLegalRegion = p;
+        if (listeners['mousemove']) {
+          for (var i = 0; i < listeners['mousemove'].length; i++) {
+            listeners['mousemove'][i](et, holderElement, lastLegalRegion);
+          }
+        }
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
       con.log("$DragList called...");
       var dragging = false;
       var holderElement;
@@ -1381,7 +1441,7 @@
         return false;
       };
       
-      document.addEventListener("mousedown", function(e){
+      ytcenter.utils.addEventListener(document, "mousedown", function(e){
         if (disabled || e.button != 0) return;
         var pass = false;
         var reg;
@@ -1450,8 +1510,16 @@
             listeners['drag'][i](et, holderElement, lastLegalRegion);
           }
         }
+        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
       }, false);
-      document.addEventListener("mouseup", function(e){
+      ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!dragging) return;
         e.preventDefault();
         dragging = false;
@@ -1472,57 +1540,14 @@
             listeners['drop'][i](et, lastLegalRegion);
           }
         }
-      }, false);
-      document.addEventListener("mousemove", function(e){
-        if (!dragging || disabled) return;
-        e.preventDefault();
+        ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
         
-        var newX = e.pageX;
-        var newY = e.pageY;
-        var scrollOffset = ytcenter.utils.getScrollOffset();
-        holderElement.style.top = (e.pageY - scrollOffset.top - curRelative[1]) + "px";
-        holderElement.style.left = (e.pageX - scrollOffset.left - curRelative[0]) + "px";
-        
-        var p = lastLegalRegion;
-        for (var i = 0; i < allowedRegions.length; i++) {
-          var off = $AbsoluteOffset(allowedRegions[i]);
-          if (newX >= off[0] && newX <= off[0] + allowedRegions[i].offsetWidth && (newY >= off[1] && newY <= off[1] + allowedRegions[i].offsetHeight)) {
-            p = allowedRegions[i];
-            break;
-          }
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
         }
-        
-        var c = p.children;
-        var item = null;
-        for (var i = 0; i < c.length; i++) {
-          if (c[i] == et || c[i] == holderElement || doIgnore(c[i])) continue;
-          if (newX <= c[i].offsetWidth/2+$AbsoluteOffset(c[i])[0]) {
-            item = c[i];
-            break;
-          }
-        }
-        
-        var hep = et.parentNode;
-        if (lastItem != item || p != lastLegalRegion) {
-          hep.removeChild(et);
-          if (item == null) {
-            p.appendChild(et);
-          } else {
-            p.insertBefore(et, item);
-          }
-          if (listeners['move']) {
-            for (var i = 0; i < listeners['move'].length; i++) {
-              listeners['move'][i](et, holderElement, lastLegalRegion);
-            }
-          }
-        }
-        lastItem = item;
-        lastLegalRegion = p;
-        if (listeners['mousemove']) {
-          for (var i = 0; i < listeners['mousemove'].length; i++) {
-            listeners['mousemove'][i](et, holderElement, lastLegalRegion);
-          }
-        }
+        return false;
       }, false);
       return {
         setEnable: function(enable){
@@ -5122,6 +5147,33 @@
       return a;
     })();
     ytcenter.dragdrop = function(list){
+      function mousemove(e) {
+        if (!dragging) return;
+        var t = ytcenter.utils.toParent(e.target, "ytcenter-dragdrop-item");
+        if (t === draggingElement || t === document.body || typeof t === "undefined") return;
+        
+        var offset = ytcenter.utils.getOffset(e.target, t);
+        var top = (typeof e.offsetY === "undefined" ? e.layerY : e.offsetY) + offset.top;
+        
+        if (top > t.clientHeight/2) {
+          if (t.nextSibling === draggingElement) return;
+          ytcenter.utils.insertAfter(draggingElement, t);
+        } else {
+          if (t.previousSibling === draggingElement) return;
+          t.parentNode.insertBefore(draggingElement, t);
+        }
+        
+        ytcenter.utils.each(listeners.onDragging, function(i, callback){
+          callback(getItemIndex(draggingElement) /* Current Index */, draggingIndex, draggingElement);
+        });
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
       function getItemIndex(item) {
         for (var i = 0; i < list.children.length; i++) {
           if (list.children[i] === item) return i;
@@ -5159,32 +5211,7 @@
           callback(draggingIndex, draggingElement);
         });
         
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      ytcenter.utils.addEventListener(document, "mousemove", function(e){
-        if (!dragging) return;
-        var t = ytcenter.utils.toParent(e.target, "ytcenter-dragdrop-item");
-        if (t === draggingElement || t === document.body || typeof t === "undefined") return;
-        
-        var offset = ytcenter.utils.getOffset(e.target, t);
-        var top = (typeof e.offsetY === "undefined" ? e.layerY : e.offsetY) + offset.top;
-        
-        if (top > t.clientHeight/2) {
-          if (t.nextSibling === draggingElement) return;
-          ytcenter.utils.insertAfter(draggingElement, t);
-        } else {
-          if (t.previousSibling === draggingElement) return;
-          t.parentNode.insertBefore(draggingElement, t);
-        }
-        
-        ytcenter.utils.each(listeners.onDragging, function(i, callback){
-          callback(getItemIndex(draggingElement) /* Current Index */, draggingIndex, draggingElement);
-        });
+        ytcenter.utils.addEventListener(document, "mousemove", mousemove);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -5205,6 +5232,8 @@
         ytcenter.utils.each(listeners.onDrop, function(i, callback){
           callback(getItemIndex(draggingElement) /* Drop Index */, draggingIndex, draggingElement);
         });
+        
+        ytcenter.utils.removeEventListener(document, "mousemove", mousemove);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -5846,6 +5875,7 @@
       ytcenter.utils.addEventListener(wrapper, "click", function(){
         dialog.setVisibility(true);
         ytcenter.events.performEvent("ui-refresh");
+        ytcenter.events.performEvent("settings-update");
         update();
       });
       
@@ -5893,6 +5923,19 @@
         sat = x/wrapper.clientWidth*100;
         val = 100 - y/wrapper.clientHeight*100;
       }
+      function mousemove(e) {
+        if (!mousedown) return;
+        eventToValue(e);
+        update();
+        if (bCallback) bCallback(sat, val);
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
       var bCallback,
           hue = (option && option.args && option.args.hue) || 0,
           sat = (option && option.args && option.args.sat) || 0,
@@ -5926,6 +5969,7 @@
         update();
         if (bCallback) bCallback(sat, val);
         
+        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
@@ -5936,6 +5980,7 @@
       ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!mousedown) return;
         mousedown = false;
+        ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
@@ -5943,19 +5988,7 @@
         }
         return false;
       });
-      ytcenter.utils.addEventListener(document, "mousemove", function(e){
-        if (!mousedown) return;
-        eventToValue(e);
-        update();
-        if (bCallback) bCallback(sat, val);
-        
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
+      ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
       ytcenter.events.addEvent("settings-update", function(){
         update();
         updateBackground();
@@ -6847,6 +6880,18 @@
         }
         update();
       }
+      function mousemove(e){
+        if (!mousedown) return;
+        eventToValue(e);
+        if (bCallback) bCallback(options.value);
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
       var options = ytcenter.utils.mergeObjects({
                       value: 0,
                       min: 0,
@@ -6896,6 +6941,8 @@
         eventToValue(e);
         if (bCallback) bCallback(options.value);
         
+        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
+        
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
@@ -6906,18 +6953,7 @@
       ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!mousedown) return;
         mousedown = false;
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      ytcenter.utils.addEventListener(document, "mousemove", function(e){
-        if (!mousedown) return;
-        eventToValue(e);
-        if (bCallback) bCallback(options.value);
-        
+        ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
