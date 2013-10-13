@@ -59,6 +59,7 @@
   <property name="styles.modules" value="ytcenter-styles-modules.css" />
   <property name="styles.settings" value="ytcenter-styles-settings.css" />
   <property name="styles.centering" value="ytcenter-styles-centering.css" />
+  <property name="styles.embed" value="ytcenter-styles-embed.css" />
   
   <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, safari, opera, clean" />
   <target name="preinit">
@@ -167,6 +168,11 @@
       <arg value="-o" />
       <arg value="${build}/${name.styles}/${styles.centering}" />
     </java>
+    <java jar="${sdk.yuicompressor}" fork="true">
+      <arg value="${src.styles}/${styles.embed}" />
+      <arg value="-o" />
+      <arg value="${build}/${name.styles}/${styles.embed}" />
+    </java>
   </target>
   <target name="apply-styles">
     <loadfile property="style.minified.general" srcFile="${build}/${name.styles}/${styles.general}" />
@@ -185,6 +191,7 @@
     <loadfile property="style.minified.modules" srcFile="${build}/${name.styles}/${styles.modules}" />
     <loadfile property="style.minified.settings" srcFile="${build}/${name.styles}/${styles.settings}" />
     <loadfile property="style.minified.centering" srcFile="${build}/${name.styles}/${styles.centering}" />
+    <loadfile property="style.minified.embed" srcFile="${build}/${name.styles}/${styles.embed}" />
     <replace dir="${buildDir}" value="${style.minified.general}" token="@styles-general@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.resize}" token="@styles-resize@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.topbar}" token="@styles-topbar@" encoding="${encoding}" />
@@ -201,6 +208,7 @@
     <replace dir="${buildDir}" value="${style.minified.modules}" token="@styles-modules@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.settings}" token="@styles-settings@" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${style.minified.centering}" token="@styles-centering@" encoding="${encoding}" />
+    <replace dir="${buildDir}" value="${style.minified.embed}" token="@styles-embed@" encoding="${encoding}" />
   </target>
   <target name="clean-styles">
     <delete dir="${build}/${name.styles}" />
