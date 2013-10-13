@@ -2011,7 +2011,219 @@
     con.log("In Scope");
     
     ytcenter.mutation = (function(){
+      var __r = {},
+          M = null, setup = false,
+          db = [],
+          disconnects = [];
+      __r.getObserver = function(callback){
+        var i;
+        for (i = 0; i < db.length; i++) {
+          if (db[i].callback === callback)
+            return db[i].observer;
+        }
+        return null;
+      };
+      __r.fallbackObserve = function(target, options, callback){
+        function MutationRecord(record) {
+          this.addedNodes = record.addedNodes || null;
+          this.attributeName = record.attributeName || null;
+          this.attributeNamespace = record.attributeNamespace || null;
+          this.nextSibling = record.nextSibling || null;
+          this.oldValue = record.oldValue || null;
+          this.previousSibling = record.previousSibling || null;
+          this.removedNodes = record.removedNodes || null;
+          this.target = record.target || null;
+          this.type = record.type || null;
+          this.event = record.event || null;
+        }
+        function c() {
+          if (!buffer) {
+            buffer = uw.setTimeout(function(){
+              if (insertedNodes.length > 0 || removedNodes.length > 0) {
+                mutationRecords.push(new MutationRecord({
+                  addedNodes: insertedNodes,
+                  removedNodes: removedNodes,
+                  type: "childList",
+                  target: target
+                }));
+              }
+              
+              if (attributes.length > 0) {
+                for (i = 0; i < attributes.length; i++) {
+                  mutationRecords.push(new MutationRecord({
+                    attributeName: attributes[i].attributeName,
+                    attributeNamespace: attributes[i].attributeNamespace,
+                    oldValue: attributes[i].oldValue,
+                    type: "attributes",
+                    target: target
+                  }));
+                }
+              }
+              
+              if (attributes.length > 0) {
+                for (i = 0; i < attributes.length; i++) {
+                  mutationRecords.push(new MutationRecord({
+                    attributeName: attributes[i].attributeName,
+                    attributeNamespace: attributes[i].attributeNamespace,
+                    oldValue: attributes[i].oldValue,
+                    type: "attributes",
+                    target: target
+                  }));
+                }
+              }
+              if (characterDataModified) {
+                mutationRecords.push(new MutationRecord({
+                  oldValue: characterDataModified.oldValue,
+                  type: "characterData",
+                  target: target
+                }));
+              }
+              if (characterDataModified) {
+                mutationRecords.push(new MutationRecord({
+                  oldValue: characterDataModified.oldValue,
+                  type: "characterData",
+                  target: target
+                }));
+              }
+              if (subtreeModified) {
+                mutationRecords.push(new MutationRecord({
+                  type: "subtree",
+                  target: target
+                }));
+              }
+              
+              callback(mutationRecords);
+              insertedNodes = [];
+              removedNodes = [];
+              mutationRecords = [];
+              attributes = [];
+              characterDataModified = null;
+              subtreeModified = false;
+              
+              buffer = null;
+            }, 200);
+          }
+        }
+        function DOMNodeInserted(e) {
+          insertedNodes.push(e.target);
+          c();
+        }
+        function DOMNodeRemoved(e) {
+          removedNodes.push(e.target);
+          c();
+        }
+        function DOMAttrModified(e) {
+          attributes.push({
+            attributeName: e.attrName,
+            attributeNamespace: e.attrName,
+            oldValue: e.prevValue
+          });
+          c();
+        }
+        function DOMCharacterDataModified(e) {
+          characterDataModified = {
+            newValue: e.newValue,
+            oldValue: e.prevValue
+          };
+          c();
+        }
+        function DOMSubtreeModified(e) {
+          subtreeModified = true;
+          c();
+        }
+        
+        var buffer = null, i,
+            insertedNodes = [],
+            removedNodes = [],
+            mutationRecords = [],
+            attributes = [],
+            characterDataModified = null,
+            subtreeModified = false;
+        
+        if (options.childList) {
+          ytcenter.utils.addEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
+          ytcenter.utils.addEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
+        }
+        
+        if (options.attributes) {
+          ytcenter.utils.addEventListener(target, "DOMAttrModified", DOMAttrModified, false);
+        }
+        
+        if (options.characterData) {
+          ytcenter.utils.addEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
+        }
+        
+        if (options.subtree) {
+          ytcenter.utils.addEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
+        }
+        return disconnects[disconnects.push({
+          DOMNodeInserted: DOMNodeInserted,
+          DOMNodeRemoved: DOMNodeRemoved,
+          DOMAttrModified: DOMAttrModified,
+          DOMCharacterDataModified: DOMCharacterDataModified,
+          DOMSubtreeModified: DOMSubtreeModified,
+          target: target,
+          options: options,
+          callback: callback,
+          disconnect: function(){
+            if (options.childList) {
+              ytcenter.utils.removeEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
+              ytcenter.utils.removeEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
+            }
+            
+            if (options.attributes) {
+              ytcenter.utils.removeEventListener(target, "DOMAttrModified", DOMAttrModified, false);
+            }
+            
+            if (options.characterData) {
+              ytcenter.utils.removeEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
+            }
+            
+            if (options.subtree) {
+              ytcenter.utils.removeEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
+            }
+          }
+        }) - 1];
+      };
+      __r.observe = function(target, options, callback){
+        if (!setup) __r.setup();
+        
+        if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
+        var observer = __r.getObserver(callback);
+        if (!observer) {
+          observer = new M(callback);
+          db.push({ callback: callback, observer: observer});
+        }
+        observer.observe(target, options);
+        return disconnects[disconnects.push({
+          target: target,
+          options: options,
+          callback: callback,
+          disconnect: function(){
+            if (observer) observer.disconnect();
+          }
+        }) - 1];
+      };
+      __r.disconnect = function(target, callback){
+        var i;
+        for (i = 0; i < disconnects.length; i++) {
+          if (target === disconnects[i].target && callback === disconnects[i].callback) {
+            disconnects[i].disconnect();
+          }
+        }
+      };
+      __r.setup = function(){
+        setup = true;
+        M = ytcenter.getMutationObserver();
+        ytcenter.unload(function(){
+          var i;
+          for (i = 0; i < disconnects.length; i++) {
+            if (disconnects[i] && disconnects[i].disconnect) disconnects[i].disconnect();
+          }
+        });
+      };
       
+      return __r;
     })();
     
     
@@ -2114,17 +2326,8 @@
         con.log("[Title Listener] Waiting for title head...");
         uw.setTimeout(ytcenter.title.init, 500);
       } else {
-        var MutObs = ytcenter.getMutationObserver(),
-            observer;
         ytcenter.title.originalTitle = a.textContent;
-        if (MutObs) {
-          con.log("[Title Listener] Using MutationObservers");
-          observer = new MutObs(ytcenter.title.modified);
-          observer.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true });
-        } else {
-          con.log("[Title Listener] Using DOMSubtreeModified");
-          document.head.addEventListener("DOMSubtreeModified", ytcenter.title.modified);
-        }
+        ytcenter.mutation.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true }, ytcenter.title.modified);
         ytcenter.title.update();
       }
     };
@@ -2949,46 +3152,20 @@
       };
       __r.setupObserver = function(){
         try {
-          var MutObs = ytcenter.getMutationObserver();
-          if (MutObs) {
-            if (observer) {
-              observer.disconnect();
-              observer = null;
-            }
-            if (observer2) {
-              observer2.disconnect();
-              observer2 = null;
-            }
-            if (observer3) {
-              observer3.disconnect();
-              observer3 = null;
-            }
-            observer = new MutObs(function(){
+          if (document.getElementById("watch-discussion")) {
+            observer = ytcenter.mutation.observe(document.getElementById("watch-discussion"), { childList: true }, function(){
               __r.update();
               if (document.getElementById("comments-view")) {
-                observer2.observe(document.getElementById("comments-view"), { childList: true, subtree: true });
+                observer2 = ytcenter.mutation.observe(document.getElementById("comments-view"), { childList: true, subtree: true }, function(){
+                  __r.update();
+                });
               }
             });
-            observer2 = new MutObs(__r.update);
-            observer3 = new MutObs(function(){
+          }
+          if (document.getElementById("channel-discussion")) {
+            observer3 = ytcenter.mutation.observe(document.getElementById("channel-discussion"), { childList: true }, function(){
               __r.update(true);
             });
-            if (document.getElementById("watch-discussion"))
-              observer.observe(document.getElementById("watch-discussion"), { childList: true });
-            if (document.getElementById("channel-discussion")) {
-              observer3.observe(document.getElementById("channel-discussion"), { childList: true });
-            }
-          } else {
-            if (document.getElementById("watch-discussion")) {
-              ytcenter.utils.addEventListener(document.getElementById("watch-discussion"), "DOMNodeInserted", function(){
-                __r.update();
-              }, false);
-            }
-            if (document.getElementById("channel-discussion")) {
-              ytcenter.utils.addEventListener(document.getElementById("channel-discussion"), "DOMNodeInserted", function(){
-                __r.update(true);
-              }, false);
-            }
           }
         } catch (e) {
           con.error(e);
@@ -3002,6 +3179,10 @@
         if (observer2) {
           observer2.disconnect();
           observer2 = null;
+        }
+        if (observer3) {
+          observer3.disconnect();
+          observer3 = null;
         }
       };
       __r.setup = function(){
@@ -4058,7 +4239,7 @@
         ytcenter.settings.videoThumbnailData = nData;
         ytcenter.saveSettings(false, true);
       }
-      var __r = {}, observer, observer2, videoThumbs;
+      var __r = {}, videoThumbs, observer = null, observer2 = null;
       __r.update = function(){
         ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
         
@@ -4091,41 +4272,26 @@
          ** #feed
          */
         
-        var MutObs = ytcenter.getMutationObserver();
-        if (MutObs) {
-          observer = new MutObs(function(mutations){
+        if (document.getElementById("content")) {
+          observer = ytcenter.mutation.observe(document.getElementById("content"), { childList: true, subtree: true }, function(){
             __r.update();
-            if (ytcenter.settings.commentCountryEnabled)
-              ytcenter.comments.update();
+            if (ytcenter.settings.commentCountryEnabled) ytcenter.comments.update();
           });
-          observer2 = new MutObs(function(mutations){
+        }
+        if (document.getElementById("guide")) {
+          observer2 = ytcenter.mutation.observe(document.getElementById("guide"), { childList: true, subtree: true }, function(){
             __r.update();
           });
-          if (!observer && !observer2) return;
-          var config = { childList: true, subtree: true };
-          if (document.getElementById("content"))
-            observer.observe(document.getElementById("content"), config);
-          if (document.getElementById("guide"))
-            observer2.observe(document.getElementById("guide"), config);
-        } else {
-          if (document.getElementById("content")) {
-            ytcenter.utils.addEventListener(document.getElementById("content"), "DOMNodeInserted", function(){
-              __r.update();
-              if (ytcenter.settings.commentCountryEnabled)
-                ytcenter.comments.update();
-            }, false);
-          }
-          if (document.getElementById("guide")) {
-            ytcenter.utils.addEventListener(document.getElementById("guide"), "DOMNodeInserted", function(){
-              __r.update();
-            }, false);
-          }
         }
       };
       __r.dispose = function(){
         if (observer) {
           observer.disconnect();
           observer = null;
+        }
+        if (observer2) {
+          observer2.disconnect();
+          observer2 = null;
         }
       };
       ytcenter.unload(__r.dispose);
@@ -8602,15 +8768,15 @@
       return { width: elm.offsetWidth, height: elm.offsetHeight };
     };
     ytcenter.utils.isElementPartlyInView = function(elm){ // TODO Implement scrollable elements support.
-      if (ytcenter.utils.getComputedStyle(elm, "display").toLowerCase() === "none")
-        return false;
+      /*if (ytcenter.utils.getComputedStyle(elm, "display").toLowerCase() === "none")
+        return false;*/
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 },
           dim = ytcenter.utils.getDimension(elm), a = elm, b, c, d;
-      while (!!(a = a.parentNode) && a !== document.body) {
+      /*while (!!(a = a.parentNode) && a !== document.body) {
         if (ytcenter.utils.getComputedStyle(a, "display").toLowerCase() === "none")
           return false;
         b = ytcenter.utils.isContainerOverflowed(a);
-        if (b.x /*||*/&& b.y) { // TODO FIX
+        if (b.x && b.y) { // TODO FIX
           c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
           c.top = c.top - box.top;
           c.left = c.left - box.left;
@@ -8623,17 +8789,12 @@
             left: c.left - a.scrollLeft,
             right: c.right - a.scrollRight
           };
-          /*if (   (d.top > a.clientHeight || d.bottom > a.clientHeight - dim.height)
-              && (d.bottom < 0 || d.top < 0 - dim.height)
-              && (d.left > a.clientWidth || d.right > a.clientWidth - dim.width)
-              && (d.right < 0 || d.left < 0 - dim.width))
-            return false;*/
           if (!(c.top >= 0 - dim.height && c.left >= 0 - dim.width && c.bottom <= a.clientHeight + dim.height && c.right <= a.clientWidth + dim.width))
             return false;
           // We now know that the element is visible in the parent and therefore we can just check if the parent is visible ~magic.
           return ytcenter.utils.isElementPartlyInView(a);
         }
-      }
+      }*/
       return (box.top >= 0 - dim.height
            && box.left >= 0 - dim.width
            && box.bottom <= (window.innerHeight || document.documentElement.clientHeight) + dim.height
@@ -9830,15 +9991,14 @@
         if (ytcenter.settings['experimentalFeatureTopGuide']) return;
         if (ytcenter.guide.element === null || ytcenter.guide.element.id !== "guide") {
           ytcenter.guide.element = document.getElementById("guide");
-          ytcenter.guide.observer = null;
           ytcenter.guide.update();
         }
-        if (!ytcenter.guide.observer) {
-          var MutObs = ytcenter.getMutationObserver();
-          ytcenter.guide.observer = new MutObs(ytcenter.guide.checkMutations);
+        if (ytcenter.guide.observer) {
+          ytcenter.guide.observer.disconnect();
+          ytcenter.guide.observer = null;
         }
-        if (ytcenter.guide && ytcenter.guide.observer && ytcenter.guide.observer.observe && ytcenter.guide.element) {
-          ytcenter.guide.observer.observe(ytcenter.guide.element, { childList: true });
+        if (ytcenter.guide.element) {
+          ytcenter.guide.observer = ytcenter.mutation.observe(ytcenter.guide.element, { childList: true }, ytcenter.guide.checkMutations);
         }
       }
     };
@@ -16789,14 +16949,11 @@
           player = clone;
           con.log("[Player Update] Player has been cloned and replaced!");
         } else {
-          var a = document.getElementById("player"),
-              b = function(){
-                a.removeEventListener("DOMNodeInserted", b, false);
-                ytcenter.player.update(config);
-              };
-          if (a) {
-            a.addEventListener("DOMNodeInserted", b, false);
-          }
+          var observer = ytcenter.mutation.observe(document.getElementById("player"), { childList: true }, function(){
+            observer.disconnect();
+            observer = null;
+            ytcenter.player.update(config);
+          });
         }
       } catch (e) {
         con.error(e);
@@ -17061,7 +17218,7 @@
       {element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
     ytcenter.intelligentFeed = (function(){
-      var __r = {}, observer, config = { attributes: true }, MutObs = ytcenter.getMutationObserver(), feed;
+      var __r = {}, observer, config = { attributes: true }, feed;
       ytcenter.unload(function(){
         if (observer) {
           observer.disconnect();
@@ -17121,28 +17278,23 @@
               showMoreButton.textContent = showMoreButton.textContent.replace(/( [0-9]+)|([0-9]+ )|([0-9]+)/, "");
             }
             
-            if (MutObs) {
-              observer = new MutObs(function(mutations){
-                mutations.forEach(function(mutation){
-                  if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                    if (ytcenter.utils.hasClass(mutation.target, "expanded")) {
-                      ytcenter.utils.removeClass(mutation.target.parentNode.parentNode, "ytcenter-intelligentfeed-minimized");
-                    } else if (ytcenter.utils.hasClass(mutation.target, "collapsed")) {
-                      ytcenter.utils.addClass(mutation.target.parentNode.parentNode, "ytcenter-intelligentfeed-minimized");
-                    }
+            observer = ytcenter.mutation.observe(feedCollapsedContainer[0], config, function(mutations){
+              mutations.forEach(function(mutation){
+                if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                  if (ytcenter.utils.hasClass(mutation.target, "expanded")) {
+                    ytcenter.utils.removeClass(mutation.target.parentNode.parentNode, "ytcenter-intelligentfeed-minimized");
+                  } else if (ytcenter.utils.hasClass(mutation.target, "collapsed")) {
+                    ytcenter.utils.addClass(mutation.target.parentNode.parentNode, "ytcenter-intelligentfeed-minimized");
                   }
-                });
+                }
               });
-              observer.observe(feedCollapsedContainer[0], config);
-            }
+            });
           }
         }
       };
       __r.dispose = function(){
-        if (MutObs) {
-          if (observer) observer.disconnect();
-          observer = null;
-        }
+        if (observer) observer.disconnect();
+        observer = null;
         if (feed) {
           var shelves, items, i, j, k, frag, _items, showMoreButton;
           for (i = 0; i < feed.length; i++) {
@@ -17193,7 +17345,7 @@
           document.getElementById("guide-main").children[1].style.height = "auto";
         }
       }
-      var timer, observer, observer2, clicked = false, main_guide, guide_container, guideToggle, MutObs = ytcenter.getMutationObserver(),
+      var timer, observer, observer2, clicked = false, main_guide, guide_container, guideToggle,
           config = { attributes: true, attributeOldValue: true },
           confi2 = { childList: true, subtree: true };
       ytcenter.unload(function(){
@@ -17220,62 +17372,79 @@
           guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
           if (guideToggle)
             ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
-          
-          if (MutObs) {
-            observer2 = new MutObs(function(mutations){
-              mutations.forEach(function(mutation){
-                if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
-                  con.log("[Guide] Main Guide has been removed");
-                  main_guide = document.getElementById("guide-main");
-                  guide_container = document.getElementById("guide-container");
-                  if (main_guide) {
-                    observer.disconnect();
-                    observer.observe(main_guide, config);
-                  }
-                  if (guideToggle)
-                    ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
-                  guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
-                  if (guideToggle)
-                    ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
-                  if (clicked) {
-                    clicked = false;
-                    return;
-                  }
-                  updateGuide();
-                } else {
-                  con.log("[Guide] Main Guide is still intact");
-                }
-              });
-            });
-            observer = new MutObs(function(mutations){
-              mutations.forEach(function(mutation){
-                if (mutation.type === "attributes" && mutation.attributeName === "class" && ((mutation.oldValue.indexOf("collapsed") !== -1) !== (mutation.target.className.indexOf("collapsed") !== -1))) {
-                  con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, mutation.target.className.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
-                  if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
-                  if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
-                  con.log("[Guide] Updating State!");
-                  
-                  uw.clearTimeout(timer);
-                  
-                  if (clicked) {
-                    clicked = false;
-                    return;
-                  }
-                  
-                  timer = uw.setTimeout(function(){
+          if (ytcenter.settings.guideMode !== "default") {
+            if (document.getElementById("guide")) {
+              observer2 = ytcenter.mutation.observe(document.getElementById("guide"), confi2, function(mutations){
+                mutations.forEach(function(mutation){
+                  if (ytcenter.utils.inArray(mutation.removedNodes, guide_container)) {
+                    con.log("[Guide] Main Guide has been removed");
+                    main_guide = document.getElementById("guide-main");
+                    guide_container = document.getElementById("guide-container");
+                    if (main_guide) {
+                      if (observer) observer.disconnect();
+                      observer = ytcenter.mutation.observe(main_guide, config, function(mutations){
+                        mutations.forEach(function(mutation){
+                          if (mutation.type === "attributes" && mutation.attributeName === "class" && ((mutation.oldValue.indexOf("collapsed") !== -1) !== (mutation.target.className.indexOf("collapsed") !== -1))) {
+                            con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, mutation.target.className.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
+                            if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
+                            if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
+                            con.log("[Guide] Updating State!");
+                            
+                            uw.clearTimeout(timer);
+                            
+                            if (clicked) {
+                              clicked = false;
+                              return;
+                            }
+                            
+                            timer = uw.setTimeout(function(){
+                              updateGuide();
+                            }, 500);
+                          }
+                        });
+                      });
+                    }
+                    if (guideToggle)
+                      ytcenter.utils.removeEventListener(guideToggle, "click", clickListener, false);
+                    guideToggle = document.getElementsByClassName("guide-module-toggle")[0];
+                    if (guideToggle)
+                      ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
+                    if (clicked) {
+                      clicked = false;
+                      return;
+                    }
                     updateGuide();
-                  }, 500);
-                }
+                  } else {
+                    con.log("[Guide] Main Guide is still intact");
+                  }
+                });
               });
-            });
-          }
-          if (observer && ytcenter.settings.guideMode !== "default") {
-            if (document.getElementById("guide"))
-              observer2.observe(document.getElementById("guide"), confi2);
+            }
             main_guide = document.getElementById("guide-main");
             guide_container = document.getElementById("guide-container");
-            if (main_guide)
-              observer.observe(main_guide, config);
+            if (main_guide) {
+              ytcenter.mutation.observe(main_guide, config, function(mutations){
+                mutations.forEach(function(mutation){
+                  if (mutation.type === "attributes" && mutation.attributeName === "class" && ((mutation.oldValue.indexOf("collapsed") !== -1) !== (mutation.target.className.indexOf("collapsed") !== -1))) {
+                    con.log("[Guide] Mutations...", mutation.oldValue.indexOf("collapsed") !== -1, mutation.target.className.indexOf("collapsed") !== -1, ytcenter.settings.guideMode);
+                    if (mutation.oldValue.indexOf("collapsed") === -1 && ytcenter.settings.guideMode === "always_closed") return;
+                    if (mutation.oldValue.indexOf("collapsed") !== -1 && ytcenter.settings.guideMode === "always_open") return;
+                    con.log("[Guide] Updating State!");
+                    
+                    uw.clearTimeout(timer);
+                    
+                    if (clicked) {
+                      clicked = false;
+                      return;
+                    }
+                    
+                    timer = uw.setTimeout(function(){
+                      updateGuide();
+                    }, 500);
+                  }
+                });
+              });
+            }
             if (guideToggle)
               ytcenter.utils.addEventListener(guideToggle, "click", clickListener, false);
           }
