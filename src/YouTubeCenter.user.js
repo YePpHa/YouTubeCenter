@@ -12705,6 +12705,10 @@
             "bool",
             "SETTINGS_PREVENTAUTOPLAY_LABEL"
           );
+          option.setVisibility(!ytcenter.settings.embed_defaultAutoplay);
+          ytcenter.events.addEvent("settings-update", (function(opt){
+            return function(){ opt.setVisibility(!ytcenter.settings.embed_defaultAutoplay); };
+          })(option));
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
@@ -12712,6 +12716,10 @@
             "bool",
             "SETTINGS_PREVENTAUTOBUFFERING_LABEL"
           );
+          option.setVisibility(!ytcenter.settings.embed_defaultAutoplay);
+          ytcenter.events.addEvent("settings-update", (function(opt){
+            return function(){ opt.setVisibility(!ytcenter.settings.embed_defaultAutoplay); };
+          })(option));
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
