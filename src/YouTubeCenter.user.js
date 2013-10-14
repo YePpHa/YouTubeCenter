@@ -2357,11 +2357,23 @@
     ytcenter.title.originalTitle = "";
     ytcenter.title.previousTitle = "";
     ytcenter.title.liveTitle = "";
+    ytcenter.title.processOriginalTitle = function(a){
+      if (ytcenter.player && ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.title) {
+        // Doesn't have a prefix or suffix.
+        a = ytcenter.player.config.args.title;
+      } else {
+        // Can have prefix and suffix.
+        a = a.replace(/^\u25b6 /, ""); // Removes the prefix.
+        // The suffix is handled in the update process.
+      }
+      return a;
+    };
     ytcenter.title.modified = function(){
       var a = document.getElementsByTagName("title")[0].textContent;
       if (a !== ytcenter.title.previousTitle) {
-        if (ytcenter.title.originalTitle === "")
-          ytcenter.title.originalTitle = a;
+        if (ytcenter.title.originalTitle === "") {
+          ytcenter.title.originalTitle = ytcenter.title.processOriginalTitle(a);
+        }
         con.log("[Title Listener] \"" + ytcenter.title.previousTitle + "\" => \"" + a + "\"");
         ytcenter.title.previousTitle = a;
         ytcenter.title.update();
@@ -2373,7 +2385,7 @@
         con.log("[Title Listener] Waiting for title head...");
         uw.setTimeout(ytcenter.title.init, 500);
       } else {
-        ytcenter.title.originalTitle = a.textContent;
+        ytcenter.title.originalTitle = ytcenter.title.processOriginalTitle(a.textContent);
         ytcenter.mutation.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true }, ytcenter.title.modified);
         ytcenter.title.update();
       }
@@ -2475,7 +2487,8 @@
       modules: "@styles-modules@",
       settings: "@styles-settings@",
       centering: "@styles-centering@",
-      embed: "@styles-embed@"
+      embed: "@styles-embed@",
+      player: "@styles-player@"
     };
     ytcenter.flags = {
       /* Country Code : CSS Class */
@@ -14711,6 +14724,15 @@
       });
     };
     ytcenter.player = {};
+    ytcenter.player.network = {};
+    ytcenter.player.network.pause = function(){
+      con.log("[Network] Player -> pause");
+      var intercom = ytcenter.Intercom.getInstance();
+      intercom.emit("player", {
+        action: "pause",
+        origin: intercom.origin
+      });
+    };
     ytcenter.player.setPlaybackQuality = function(preferredQuality){
       function recall(vq){
         if (vq === 1) {
@@ -17866,6 +17888,8 @@
           if (!ytcenter.settings['experimentalFeatureTopGuide'] && ytcenter.settings.enableResize) {
             $AddStyle(ytcenter.css.resize);
           }
+          
+          $AddStyle(ytcenter.css.player);
         } else {
           $AddStyle(ytcenter.css.embed);
         }
@@ -18113,23 +18137,14 @@
           if (api && api.getPlayerState) state = ytcenter.player.getAPI().getPlayerState();
           if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
             if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
-              var intercom = ytcenter.Intercom.getInstance();
-              intercom.emit("player", {
-                action: "pause",
-                origin: intercom.origin
-              });
+              ytcenter.player.network.pause();
             }
           }
         });
         ytcenter.player.listeners.addEventListener("onStateChange", function(state){
           if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
-            con.log("Intercom Emit :: player -> pause");
             if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
-              var intercom = ytcenter.Intercom.getInstance();
-              intercom.emit("player", {
-                action: "pause",
-                origin: intercom.origin
-              });
+              ytcenter.player.network.pause();
             }
           }
         });
