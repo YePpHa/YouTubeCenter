@@ -2562,12 +2562,6 @@
                 count = 0;
                 __r.stopTimer();
               }
-              if (e && e.preventDefault) {
-                e.preventDefault();
-              } else {
-                window.event.returnValue = false;
-              }
-              return false;
             }
           } else {
             if (scrollTop === 0) {
@@ -2587,12 +2581,6 @@
                 count = 0;
                 __r.stopTimer();
               }
-              if (e && e.preventDefault) {
-                e.preventDefault();
-              } else {
-                window.event.returnValue = false;
-              }
-              return false;
             } else if (scrollTop === 1 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
               __r.bumpCount();
               count++;
