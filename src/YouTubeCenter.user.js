@@ -2490,6 +2490,119 @@
       embed: "@styles-embed@",
       player: "@styles-player@"
     };
+    ytcenter.topScrollPlayer = (function(){
+      var __r = {},
+          count = 0,
+          activated,
+          enabled = true,
+          elm = null,
+          timer = null;
+      
+      __r.setEnabled = function(a){
+        enabled = !!a;
+        if (!enabled) {
+          if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
+        } else {
+          if (elm) {
+            if (!elm.parentNode) {
+              document.body.insertBefore(elm, document.body.children[0]);
+            }
+          } else {
+            elm = document.createElement("div");
+            elm.className = "ytcenter-scrolled-top-element";
+            document.body.insertBefore(elm, document.body.children[0]);
+          }
+        }
+      };
+      __r.bumpCount = function(){
+        uw.clearTimeout(timer);
+        uw.setTimeout(function(){
+          count = 0;
+        }, ytcenter.settings.topScrollPlayerBumpTimer);
+      };
+      __r.stopTimer = function(){
+        uw.clearTimeout(timer);
+      };
+      __r.setup = function(){
+        if (!ytcenter.settings.topScrollPlayerEnabled) return;
+        if (!elm || elm.parentNode !== document.body) {
+          if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
+          elm = document.createElement("div");
+          elm.className = "ytcenter-scrolled-top-element";
+          document.body.insertBefore(elm, document.body.children[0]);
+        }
+        activated = ytcenter.settings.topScrollPlayerActivated;
+        if (activated) {
+          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+          if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+          } else {
+            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+          }
+          window.scroll(0, 0);
+        } else {
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+          window.scroll(0, 1);
+        }
+        ytcenter.utils.addEventListener(window, "scroll", function(e){
+          if (!enabled) return;
+          var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+          if (activated) {
+            if (scrollTop > 0) {
+              if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
+                __r.bumpCount();
+                count++;
+                window.scroll(0, 0);
+              } else {
+                window.scroll(0, 1);
+                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+                activated = false;
+                count = 0;
+                __r.stopTimer();
+              }
+              if (e && e.preventDefault) {
+                e.preventDefault();
+              } else {
+                window.event.returnValue = false;
+              }
+              return false;
+            }
+          } else {
+            if (scrollTop === 0) {
+              if (ytcenter.settings.topScrollPlayerTimesToEnter > count) {
+                __r.bumpCount();
+                count++;
+                window.scroll(0, 1);
+              } else {
+                window.scroll(0, 0);
+                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+                if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+                  ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+                } else {
+                  ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+                }
+                activated = true;
+                count = 0;
+                __r.stopTimer();
+              }
+              if (e && e.preventDefault) {
+                e.preventDefault();
+              } else {
+                window.event.returnValue = false;
+              }
+              return false;
+            } else if (scrollTop === 1 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
+              __r.bumpCount();
+              count++;
+            }
+          }
+        }, false);
+      };
+      
+      return __r;
+    })();
     ytcenter.flags = {
       /* Country Code : CSS Class */
       "ad": "ytcenter-flag-ad",
@@ -10446,6 +10559,14 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      topScrollPlayerEnabled: true,
+      topScrollPlayerActivated: false,
+      topScrollPlayerTimesToEnter: 1,
+      topScrollPlayerTimesToExit: 0,
+      topScrollPlayerCountIncreaseBefore: true,
+      topScrollPlayerHideScrollbar: false,
+      topScrollPlayerBumpTimer: 2000,
+      
       debug_settings_playersize: false,
       debug_settings_buttonPlacement: false,
       debug_settings_videoThumbnailData: false,
@@ -17962,6 +18083,8 @@
         if (page !== "embed") {
           ytcenter.title.init();
           ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
+          ytcenter.topScrollPlayer.setup();
+          ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch");
           if (ytcenter.settings['experimentalFeatureTopGuide']) {
             if (!ytcenter.experiments.isTopGuide()) {
               ytcenter.settings['experimentalFeatureTopGuide'] = false;
@@ -18290,7 +18413,7 @@
             con.error(e);
           }
 
-          if (ytcenter.settings.scrollToPlayer && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
+          if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
             if (document.getElementById("watch-headline-container") || document.getElementById("page-container"))
               (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
           }
@@ -18602,6 +18725,7 @@
           ytcenter.videoHistory.addVideo(data.swfcfg.args.video_id);
         }
         ytcenter.placementsystem.clear();
+        ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch");
         if (url.pathname !== "/watch") {
           if (ytcenter.getPage(ytcenter.unsafe.spf.url) === "feed_what_to_watch") {
             ytcenter.intelligentFeed.setup();
@@ -18634,7 +18758,7 @@
           
           initPlacement();
           
-          if (ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
+          if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
             (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
           }
           ytcenter.playlist = false;
