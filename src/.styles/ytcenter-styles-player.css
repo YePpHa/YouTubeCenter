@@ -1,25 +1,19 @@
-/*
-  This works without any javascript, but it kind of creates an issue with the dropdown menues created by YouTube.
-  To make this issue dissapear it would be best to first make the scrolling stick to the header
-  and then after consisting scrolling up it will scroll the user all the way to the top.
-  The same applies if the user already is at the top of the page and want to scroll down they have to do it consistently and then it will scroll down to the header.
-  If the user isn't scrolled to the top it should display the player at its default location, which it currently doesn't do at the moment.
-  The user should not be able to be scrolled between the header and the top of the page.
-  It should only be able to either have it scrolled all the way to the top of the page or below the header (sticky player not visible).
-  An animation would probably be very efficient when switching from the different states (scrolled all the way to the top, below the header/player).
- */
-
-body.ytcenter-player-sticky #page {
+.ytcenter-scrolled-top #page {
   position: static !important;
 }
 
-body.ytcenter-player-sticky #player,
-body.ytcenter-player-sticky #player-legacy {
+.ytcenter-scrolled-top #player,
+.ytcenter-scrolled-top #player-legacy {
   overflow: visible !important;
 }
 
-body.ytcenter-player-sticky #player-api,
-body.ytcenter-player-sticky #player-api-legacy {
+.ytcenter-scrolled-top #player-api,
+.ytcenter-scrolled-top #player-api-legacy {
+  -moz-transition: height 0.5s;
+  -webkit-transition: height 0.5s;
+  -o-transition: height 0.5s;
+  transition: height 0.5s;
+  
   position: absolute !important;
   top: -100% !important;
   left: 0 !important;
@@ -27,8 +21,29 @@ body.ytcenter-player-sticky #player-api-legacy {
   height: 100% !important;
 }
 
-body.ytcenter-player-sticky {
+.ytcenter-scrolled-top {
   position: absolute !important;
   top: 100% !important;
   width: 100% !important;
+}
+
+.ytcenter-scrolled-top-element {
+  width: 100%;
+  height: 100%;
+  max-height: 1px;
+  
+  background: #000;
+  
+  -moz-transition: max-height 0.5s;
+  -webkit-transition: max-height 0.5s;
+  -o-transition: max-height 0.5s;
+  transition: max-height 0.5s;
+}
+
+.ytcenter-scrolled-top .ytcenter-scrolled-top-element {
+  max-height: 100%;
+}
+
+.ytcenter-scrolled-top-noscrollbar {
+  overflow: hidden !important;
 }
