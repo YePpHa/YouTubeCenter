@@ -1263,7 +1263,7 @@
         listeners: [],
         width: 240,
         height: 15
-      };
+      }, throttleFunc = null;
       range.elm.style.marginTop = "-4px";
       range.elm.style.width = range.width + "px";
       range.elm.style.height = range.height + "px";
@@ -1334,7 +1334,8 @@
       }, false);
       ytcenter.utils.addEventListener(elm, "mousedown", function(e){
         range.mouse.down = true;
-        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
         e.preventDefault();
       }, false);
       ytcenter.utils.addEventListener(document, "mouseup", function(e){
@@ -1348,7 +1349,7 @@
               range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
             }
           }
-          ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
+          if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
           e.preventDefault();
         }
       }, false);
@@ -1427,6 +1428,7 @@
       var allowedRegions = elements;
       var curRelative;
       var disabler;
+      var throttleFunc = null;
       
       var listeners = {};
       
@@ -1510,7 +1512,8 @@
             listeners['drag'][i](et, holderElement, lastLegalRegion);
           }
         }
-        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -1540,7 +1543,7 @@
             listeners['drop'][i](et, lastLegalRegion);
           }
         }
-        ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -2062,80 +2065,74 @@
           this.event = record.event || null;
         }
         function c() {
-          if (!buffer) {
-            buffer = uw.setTimeout(function(){
-              if (insertedNodes.length > 0 || removedNodes.length > 0) {
-                mutationRecords.push(new MutationRecord({
-                  addedNodes: insertedNodes,
-                  removedNodes: removedNodes,
-                  type: "childList",
-                  target: target
-                }));
-              }
-              
-              if (attributes.length > 0) {
-                for (i = 0; i < attributes.length; i++) {
-                  mutationRecords.push(new MutationRecord({
-                    attributeName: attributes[i].attributeName,
-                    attributeNamespace: attributes[i].attributeNamespace,
-                    oldValue: attributes[i].oldValue,
-                    type: "attributes",
-                    target: target
-                  }));
-                }
-              }
-              
-              if (attributes.length > 0) {
-                for (i = 0; i < attributes.length; i++) {
-                  mutationRecords.push(new MutationRecord({
-                    attributeName: attributes[i].attributeName,
-                    attributeNamespace: attributes[i].attributeNamespace,
-                    oldValue: attributes[i].oldValue,
-                    type: "attributes",
-                    target: target
-                  }));
-                }
-              }
-              if (characterDataModified) {
-                mutationRecords.push(new MutationRecord({
-                  oldValue: characterDataModified.oldValue,
-                  type: "characterData",
-                  target: target
-                }));
-              }
-              if (characterDataModified) {
-                mutationRecords.push(new MutationRecord({
-                  oldValue: characterDataModified.oldValue,
-                  type: "characterData",
-                  target: target
-                }));
-              }
-              if (subtreeModified) {
-                mutationRecords.push(new MutationRecord({
-                  type: "subtree",
-                  target: target
-                }));
-              }
-              
-              callback(mutationRecords);
-              insertedNodes = [];
-              removedNodes = [];
-              mutationRecords = [];
-              attributes = [];
-              characterDataModified = null;
-              subtreeModified = false;
-              
-              buffer = null;
-            }, 200);
+          if (insertedNodes.length > 0 || removedNodes.length > 0) {
+            mutationRecords.push(new MutationRecord({
+              addedNodes: insertedNodes,
+              removedNodes: removedNodes,
+              type: "childList",
+              target: target
+            }));
           }
+          
+          if (attributes.length > 0) {
+            for (i = 0; i < attributes.length; i++) {
+              mutationRecords.push(new MutationRecord({
+                attributeName: attributes[i].attributeName,
+                attributeNamespace: attributes[i].attributeNamespace,
+                oldValue: attributes[i].oldValue,
+                type: "attributes",
+                target: target
+              }));
+            }
+          }
+          
+          if (attributes.length > 0) {
+            for (i = 0; i < attributes.length; i++) {
+              mutationRecords.push(new MutationRecord({
+                attributeName: attributes[i].attributeName,
+                attributeNamespace: attributes[i].attributeNamespace,
+                oldValue: attributes[i].oldValue,
+                type: "attributes",
+                target: target
+              }));
+            }
+          }
+          if (characterDataModified) {
+            mutationRecords.push(new MutationRecord({
+              oldValue: characterDataModified.oldValue,
+              type: "characterData",
+              target: target
+            }));
+          }
+          if (characterDataModified) {
+            mutationRecords.push(new MutationRecord({
+              oldValue: characterDataModified.oldValue,
+              type: "characterData",
+              target: target
+            }));
+          }
+          if (subtreeModified) {
+            mutationRecords.push(new MutationRecord({
+              type: "subtree",
+              target: target
+            }));
+          }
+          
+          callback(mutationRecords);
+          insertedNodes = [];
+          removedNodes = [];
+          mutationRecords = [];
+          attributes = [];
+          characterDataModified = null;
+          subtreeModified = false;
         }
         function DOMNodeInserted(e) {
           insertedNodes.push(e.target);
-          c();
+          throttleFunc();
         }
         function DOMNodeRemoved(e) {
           removedNodes.push(e.target);
-          c();
+          throttleFunc();
         }
         function DOMAttrModified(e) {
           attributes.push({
@@ -2143,18 +2140,18 @@
             attributeNamespace: e.attrName,
             oldValue: e.prevValue
           });
-          c();
+          throttleFunc();
         }
         function DOMCharacterDataModified(e) {
           characterDataModified = {
             newValue: e.newValue,
             oldValue: e.prevValue
           };
-          c();
+          throttleFunc();
         }
         function DOMSubtreeModified(e) {
           subtreeModified = true;
-          c();
+          throttleFunc();
         }
         
         var buffer = null, i,
@@ -2163,7 +2160,8 @@
             mutationRecords = [],
             attributes = [],
             characterDataModified = null,
-            subtreeModified = false;
+            subtreeModified = false,
+            throttleFunc = ytcenter.utils.throttle(c, 500);
         
         if (options.childList) {
           ytcenter.utils.addEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
@@ -2491,18 +2489,66 @@
       player: "@styles-player@"
     };
     ytcenter.topScrollPlayer = (function(){
+      function scroll(e) {
+        if (!enabled) return;
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        if (activated) {
+          if (scrollTop > 0) {
+            if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
+              __r.bumpCount();
+              count++;
+              window.scroll(0, 0);
+            } else {
+              window.scroll(0, 1);
+              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+              activated = false;
+              count = 0;
+              __r.stopTimer();
+            }
+          }
+        } else {
+          if (scrollTop === 0) {
+            if (ytcenter.settings.topScrollPlayerTimesToEnter > count) {
+              __r.bumpCount();
+              count++;
+              window.scroll(0, 1);
+            } else {
+              window.scroll(0, 0);
+              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+              if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+              } else {
+                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+              }
+              activated = true;
+              count = 0;
+              __r.stopTimer();
+            }
+          } else if (scrollTop === 1 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
+            __r.bumpCount();
+            count++;
+          }
+        }
+      }
       var __r = {},
           count = 0,
           activated,
           enabled = true,
           elm = null,
-          timer = null;
+          timer = null,
+          buffer = null,
+          throttleTimer = 50,
+          throttleFunc = null;
       
       __r.setEnabled = function(a){
         enabled = !!a;
+        if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
         if (!enabled) {
           if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
         } else {
+          throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
+          ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
           if (elm) {
             if (!elm.parentNode) {
               document.body.insertBefore(elm, document.body.children[0]);
@@ -2545,48 +2591,10 @@
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
           window.scroll(0, 1);
         }
-        ytcenter.utils.addEventListener(window, "scroll", function(e){
-          if (!enabled) return;
-          var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-          if (activated) {
-            if (scrollTop > 0) {
-              if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
-                __r.bumpCount();
-                count++;
-                window.scroll(0, 0);
-              } else {
-                window.scroll(0, 1);
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-                activated = false;
-                count = 0;
-                __r.stopTimer();
-              }
-            }
-          } else {
-            if (scrollTop === 0) {
-              if (ytcenter.settings.topScrollPlayerTimesToEnter > count) {
-                __r.bumpCount();
-                count++;
-                window.scroll(0, 1);
-              } else {
-                window.scroll(0, 0);
-                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-                if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-                  ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-                } else {
-                  ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-                }
-                activated = true;
-                count = 0;
-                __r.stopTimer();
-              }
-            } else if (scrollTop === 1 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
-              __r.bumpCount();
-              count++;
-            }
-          }
-        }, false);
+        if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
+        
+        throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
+        if (enabled) ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
       };
       
       return __r;
@@ -4844,14 +4852,6 @@
     })();
     
     ytcenter.domEvents = (function(){
-      function onViewUpdateBuffer() {
-        if (!_buffer) {
-          uw.setTimeout(function(){
-            onViewUpdate();
-            _buffer = null;
-          }, 200);
-        }
-      }
       function onViewUpdate() {
         onEnterViewUpdate();
         onExitViewUpdate();
@@ -4910,7 +4910,7 @@
         item.inview = inView;
         return true;
       }
-      var __r = {}, db = {}, _buffer = null;
+      var __r = {}, db = {}, _buffer = null, onViewUpdateBuffer = null;
       
       __r.update = function(){
         onViewUpdate();
@@ -4926,13 +4926,14 @@
       };
       
       __r.setup = function(){
-        if (window.attachEvent) {
-          window.attachEvent("onscroll", onViewUpdateBuffer);
-          window.attachEvent("onresize", onViewUpdateBuffer);
-        } else {
-          window.addEventListener("scroll", onViewUpdateBuffer, false);
-          window.addEventListener("resize", onViewUpdateBuffer, false);
+        if (onViewUpdateBuffer) {
+          ytcenter.utils.removeEventListener(window, "scroll", onViewUpdateBuffer, false);
+          ytcenter.utils.removeEventListener(window, "resize", onViewUpdateBuffer, false);
         }
+        onViewUpdateBuffer = ytcenter.utils.throttle(onViewUpdate, 500);
+        
+        ytcenter.utils.addEventListener(window, "scroll", onViewUpdateBuffer, false);
+        ytcenter.utils.addEventListener(window, "resize", onViewUpdateBuffer, false);
         ytcenter.events.addEvent("ui-refresh", onViewUpdateBuffer);
         uw.setInterval(onViewUpdateBuffer, 2000); // Todo attach this to an event instead.
         onViewUpdate();
@@ -5326,6 +5327,7 @@
         onDragging: [],
         onDrop: []
       };
+      var throttleFunc = null;
       
       
       ytcenter.utils.addClass(list, "ytcenter-dragdrop-notdragging");
@@ -5347,8 +5349,8 @@
         ytcenter.utils.each(listeners.onDrag, function(i, callback){
           callback(draggingIndex, draggingElement);
         });
-        
-        ytcenter.utils.addEventListener(document, "mousemove", mousemove);
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -5370,7 +5372,7 @@
           callback(getItemIndex(draggingElement) /* Drop Index */, draggingIndex, draggingElement);
         });
         
-        ytcenter.utils.removeEventListener(document, "mousemove", mousemove);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -6081,7 +6083,7 @@
           _sat = document.createElement("div"),
           _value = document.createElement("div"),
           handler = document.createElement("div"),
-          mousedown
+          mousedown = false, throttleFunc = null;
       
       wrapper.style.background = ytcenter.utils.hsvToHex(hue, 100, 100);
       wrapper.style.position = "relative"; // CLASS!!
@@ -6106,7 +6108,8 @@
         update();
         if (bCallback) bCallback(sat, val);
         
-        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
@@ -6117,7 +6120,7 @@
       ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!mousedown) return;
         mousedown = false;
-        ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
@@ -6125,7 +6128,8 @@
         }
         return false;
       });
-      ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
+      /*throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+      ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);*/
       ytcenter.events.addEvent("settings-update", function(){
         update();
         updateBackground();
@@ -7041,7 +7045,8 @@
                       offset: 0
                     }, option.args),
           handle, mousedown = false, bCallback,
-          wrapper = document.createElement("span");
+          wrapper = document.createElement("span"),
+          throttleFunc = null;
       
       wrapper.className = "ytcenter-modules-range";
       if (options.method === "vertical") {
@@ -7078,7 +7083,8 @@
         eventToValue(e);
         if (bCallback) bCallback(options.value);
         
-        ytcenter.utils.addEventListener(document, "mousemove", mousemove, false);
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -7090,7 +7096,7 @@
       ytcenter.utils.addEventListener(document, "mouseup", function(e){
         if (!mousedown) return;
         mousedown = false;
-        ytcenter.utils.removeEventListener(document, "mousemove", mousemove, false);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
@@ -8882,6 +8888,34 @@
     };
     
     // @utils
+    ytcenter.utils.throttle = function(func, delay, options){
+      function timeout() {
+        previous = options.leading === false ? 0 : new Date;
+        timer = null;
+        result = func.apply(context, args);
+      }
+      var context, args, result, timer = null, previous = 0;
+      options = options || {};
+      return function(){
+        var now = new Date, dt;
+        
+        context = this;
+        args = arguments;
+        
+        if (!previous && options.leading === false) previous = now;
+        dt = delay - (now - previous);
+        
+        if (dt <= 0) {
+          uw.clearTimeout(timer);
+          timer = null;
+          previous = now;
+          result = func.apply(context, args);
+        } else if (!timer && options.trailing !== false) {
+          timer = uw.setTimeout(timeout, dt);
+        }
+        return result;
+      };
+    };
     ytcenter.utils.isContainerOverflowed = function(a){ // Possible going to use this one
       // AKA Is the container bigger on the inside than the outside?
       return {
