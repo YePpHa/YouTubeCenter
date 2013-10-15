@@ -47,3 +47,10 @@
 .ytcenter-scrolled-top-noscrollbar {
   overflow: hidden !important;
 }
+
+.ytcenter-scrolled-top #masthead-positioner {
+  position: static !important;
+}
+.ytcenter-scrolled-top #guide {
+  display: none !important;
+}
