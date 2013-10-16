@@ -2038,6 +2038,113 @@
     }
     con.log("In Scope");
     
+    ytcenter.actionPanel = (function(){
+      function getEventListener(options) {
+        if (!options || !uw.yt || !uw.yt.events || !uw.yt.events.listeners_) return null;
+        var key, item;
+        for (key in uw.yt.events.listeners_) {
+          item = uw.yt.events.listeners_[key];
+          if (options.element) if (options.element !== item[0]) continue;
+          if (options.event) if (options.event !== item[1]) continue;
+          return item;
+        }
+        
+        return null;
+      }
+      function initActionPanel() {
+        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
+        for (i = 0; i < secondaryActions.children.length; i++) {
+          secondaryActions.children[i].children[0].addEventListener("click", function(){
+            enableActionPanel();
+            uw.setTimeout(disableActionPanel, 0);
+          }, false);
+        }
+      }
+      function enableActionPanel() {
+        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
+        for (i = 0; i < secondaryActions.children.length; i++) {
+          ytcenter.utils.addClass(secondaryActions.children[i].children[0], "action-panel-trigger");
+        }
+      }
+      function disableActionPanel() {
+        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
+        for (i = 0; i < secondaryActions.children.length; i++) {
+          ytcenter.utils.removeClass(secondaryActions.children[i].children[0], "action-panel-trigger");
+        }
+      }
+      function listenerDisabler() {
+        var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
+        if (enabled && !h) {
+          switchToElm = document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0];
+          onceLock();
+        }
+        getEventListener({ event: "click", element: document.getElementById("watch-like") })[3]();
+        
+        if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
+          uw.setTimeout(function(){
+            __r.switchTo(ytcenter.settings.likeSwitchToTab);
+          }, 0);
+        }
+      }
+      function onceLock() {
+        if (observer) observer.disconnect();
+        observer = ytcenter.mutation.observe(switchToElm, { attributes: true }, function(mutations){
+          mutations.forEach(function(mutation){
+            if (mutation.type === "attributes" && mutation.attributeName === "class") {
+              ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
+              if (observer) observer.disconnect();
+              observer = null;
+            }
+          });
+        });
+      }
+      var __r = {},
+          enabled = true,
+          switchToElm = null,
+          observer = null;
+      
+      
+      __r.switchTo = function(tab){
+        if (tab === "none" || !tab) return;
+        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
+        for (i = 0; i < secondaryActions.children.length; i++) {
+          if (secondaryActions.children[i].children[0].getAttribute("data-trigger-for") === "action-panel-" + tab) {
+            secondaryActions.children[i].children[0].click();
+            switchToElm = secondaryActions.children[i].children[0];
+            uw.setTimeout(onceLock, 0);
+            return;
+          }
+        }
+      };
+      __r.setEnabled = function(a){
+        if (a) {
+          enabled = !!a;
+          disableActionPanel();
+        } else {
+          enabled = !!a;
+          enableActionPanel();
+        }
+      };
+      __r.setThreadEnabled = function(){
+        enableActionPanel();
+        uw.setTimeout(disableActionPanel, 0);
+      };
+      __r.setup = function(){
+        if (ytcenter.getPage() !== "watch") return;
+        var a = document.getElementById("watch-like"),
+            b = getEventListener({ event: "click", element: a });
+        if (!b || !b[3]) {
+          uw.setTimeout(__r.setup, 1000);
+          return;
+        }
+        a.removeEventListener("click", b[3], false);
+        a.addEventListener("click", listenerDisabler, false);
+        
+        initActionPanel();
+        disableActionPanel();
+      };
+      return __r;
+    })();
     ytcenter.mutation = (function(){
       var __r = {},
           M = null, setup = false,
@@ -2492,6 +2599,8 @@
       function scroll(e) {
         if (!enabled) return;
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        var pa = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
+            p = document.getElementById("player") || document.getElementById("player-api");
         if (activated) {
           if (scrollTop > 0) {
             if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
@@ -2500,8 +2609,14 @@
               window.scroll(0, 0);
             } else {
               window.scroll(0, 1);
+              pa.style.top = "";
+              p.style.height = "";
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
+              uw.setTimeout(function(){
+                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
+              }, 500);
               activated = false;
               count = 0;
               __r.stopTimer();
@@ -2515,12 +2630,17 @@
               window.scroll(0, 1);
             } else {
               window.scroll(0, 0);
-              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-              if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-              } else {
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-              }
+              p.style.height = pa.style.height;
+              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-player-pre");
+              uw.setTimeout(function(){
+                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+                if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+                  ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+                } else {
+                  ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+                }
+                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
+              }, 0);
               activated = true;
               count = 0;
               __r.stopTimer();
@@ -2539,7 +2659,8 @@
           timer = null,
           buffer = null,
           throttleTimer = 50,
-          throttleFunc = null;
+          throttleFunc = null,
+          prev = null;
       
       __r.setEnabled = function(a){
         enabled = !!a;
@@ -10581,6 +10702,10 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      likeSwitchToTab: "none", // none, details, share, addto, stats
+      endOfVideoAutoSwitchToTab: "none", // none, details, share, addto, stats
+      //enableYouTubeAutoSwitchToShareTab: false,
+      
       topScrollPlayerEnabled: true,
       topScrollPlayerActivated: false,
       topScrollPlayerTimesToEnter: 1,
@@ -10628,7 +10753,6 @@
       removeRelatedVideosEndscreen: false,
       enableResize: true,
       guideMode: "default", // [default, always_open, always_closed]
-      enableYouTubeAutoSwitchToShareTab: false,
       ytExperimentalLayotTopbarStatic: false,
       commentCountryData: [],
       commentCountryEnabled: false,
@@ -12211,7 +12335,7 @@
             "SETTINGS_ENDSCREEN_AUTOPLAY"
           );
           subcat.addOption(option);
-          option = ytcenter.settingsPanel.createOption(
+          /*option = ytcenter.settingsPanel.createOption(
             "enableYouTubeAutoSwitchToShareTab", // defaultSetting
             "bool", // module
             "SETTINGS_AUTO_SWITCH_TO_SHARE_TAB",
@@ -12227,7 +12351,7 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#switch-to-share-tab-at-end-of-video"
           );
-          subcat.addOption(option);
+          subcat.addOption(option);*/
           option = ytcenter.settingsPanel.createOption(
             "dashPlayback", // defaultSetting
             "bool", // module
@@ -18541,6 +18665,9 @@
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
             ytcenter.player.getAPI().playVideo();
           }
+          if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none") {
+            ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
+          }
         });
         ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
         ytcenter.player.listeners.addEventListener("SIZE_CLICKED", function(large){
@@ -18593,7 +18720,8 @@
         }*/
         
         if (page === "watch") {
-          ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
+          //ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab });
+          ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": false });
           if (uw.ytplayer && uw.ytplayer.config) {
             ytcenter.player.setConfig(uw.ytplayer.config);
             config = ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config);
@@ -18616,6 +18744,7 @@
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
         if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         ytcenter.guideMode.setup();
+        ytcenter.actionPanel.setup();
       });
       ytcenter.spf.addEventListener("requested-before", function(url){
         if (!ytcenter.settings.ytspf) {
@@ -18757,7 +18886,8 @@
           if (ytcenter.settings.lightbulbAutoOff)
             ytcenter.player.turnLightOff();
           ytcenter.guideMode.setup();
-          ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
+          //ytcenter.player.setYTConfig({"SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab});
+          ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": false });
           if (ytcenter.settings["resize-default-playersize"] === "default") {
             ytcenter.player.currentResizeId = (ytcenter.settings.player_wide ? ytcenter.settings["resize-large-button"] : ytcenter.settings["resize-small-button"]);
             ytcenter.player.updateResize();
@@ -18770,6 +18900,11 @@
             ytcenter.guide.setup();
           } catch (e) {
             con.error(e);
+          }
+          if (ytcenter.settings.autoActivateRepeat) {
+            ytcenter.doRepeat = true;
+          } else {
+            ytcenter.doRepeat = false;
           }
           
           $CreateDownloadButton();
@@ -18802,6 +18937,7 @@
           }
           
           ytcenter.comments.setup();
+          ytcenter.actionPanel.setup();
         }
         /* Removing leftover tooltips */
         a = ytcenter.utils.transformToArray(document.getElementsByClassName("yt-uix-tooltip-tip"));
