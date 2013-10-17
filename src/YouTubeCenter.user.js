@@ -2600,17 +2600,20 @@
         if (!enabled) return;
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         var pa = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
-            p = document.getElementById("player") || document.getElementById("player-api");
+            p = document.getElementById("player") || document.getElementById("player-api"),
+            api = ytcenter.player.getAPI(),
+            scrollUpExit = ytcenter.settings.topScrollPlayerScrollUpToExit;
         if (activated) {
-          if (scrollTop > 0) {
+          if ((scrollTop > 0 && !scrollUpExit) || (scrollTop === 0 && scrollUpExit)) {
             if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
               __r.bumpCount();
               count++;
-              window.scroll(0, 0);
+              window.scroll(0, (scrollUpExit ? 1 : 0));
             } else {
               window.scroll(0, 1);
               pa.style.top = "";
               p.style.height = "";
+              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
@@ -2622,6 +2625,8 @@
               count = 0;
               __r.stopTimer();
             }
+          } else if (scrollUpExit) {
+            window.scroll(0, 1);
           }
         } else {
           if (scrollTop === 0) {
@@ -2630,11 +2635,16 @@
               count++;
               window.scroll(0, 1);
             } else {
-              window.scroll(0, 0);
+              if (ytcenter.settings.topScrollPlayerEnabledOnlyVideoPlaying && (!api.getPlayerState || api.getPlayerState() !== 1)) {
+                window.scroll(0, 1);
+                return;
+              }
+              window.scroll(0, (scrollUpExit ? 1 : 0));
               p.style.height = pa.style.height;
               if (!ytcenter.settings.topScrollPlayerAnimation)
                 ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-player-pre");
+              if (scrollUpExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
               uw.setTimeout(function(){
                 ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
                 if (ytcenter.settings.topScrollPlayerHideScrollbar) {
@@ -2672,6 +2682,7 @@
         if (!enabled) {
           if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
@@ -2712,13 +2723,14 @@
           if (activated) {
             if (!ytcenter.settings.topScrollPlayerAnimation)
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
+            if (ytcenter.settings.topScrollPlayerScrollUpToExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
             ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
             if (ytcenter.settings.topScrollPlayerHideScrollbar) {
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
             } else {
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
             }
-            window.scroll(0, 0);
+            window.scroll(0, (ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0));
           } else {
             ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
             ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
@@ -10735,6 +10747,8 @@
       topScrollPlayerHideScrollbar: false,
       topScrollPlayerBumpTimer: 2000,
       topScrollPlayerAnimation: true,
+      topScrollPlayerEnabledOnlyVideoPlaying: true,
+      topScrollPlayerScrollUpToExit: false,
       
       debug_settings_playersize: false,
       debug_settings_buttonPlacement: false,
@@ -12826,6 +12840,24 @@
             "SETTINGS_TOPSCROLLPLAYER_ACTIVATED",
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#activated-by-default"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerEnabledOnlyVideoPlaying", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_ONLYVIDEOPLAYING",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#only-when-video-is-playing"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerScrollUpToExit", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_SCROLLUPEXIT",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-up-to-exit-mode"
           );
           subcat.addOption(option);
           
