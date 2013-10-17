@@ -2616,6 +2616,7 @@
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
               uw.setTimeout(function(){
                 ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
+                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
               }, 500);
               activated = false;
               count = 0;
@@ -2631,6 +2632,8 @@
             } else {
               window.scroll(0, 0);
               p.style.height = pa.style.height;
+              if (!ytcenter.settings.topScrollPlayerAnimation)
+                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-player-pre");
               uw.setTimeout(function(){
                 ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
@@ -2671,6 +2674,7 @@
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
         } else {
           throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
           ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
@@ -2706,6 +2710,8 @@
         if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
         if (ytcenter.settings.topScrollPlayerEnabled) {
           if (activated) {
+            if (!ytcenter.settings.topScrollPlayerAnimation)
+              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
             ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
             if (ytcenter.settings.topScrollPlayerHideScrollbar) {
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
@@ -2716,6 +2722,7 @@
           } else {
             ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
             ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
             window.scroll(0, 1);
           }
           throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
@@ -10727,6 +10734,7 @@
       topScrollPlayerCountIncreaseBefore: true,
       topScrollPlayerHideScrollbar: false,
       topScrollPlayerBumpTimer: 2000,
+      topScrollPlayerAnimation: true,
       
       debug_settings_playersize: false,
       debug_settings_buttonPlacement: false,
@@ -12799,6 +12807,88 @@
             "enableShortcuts", // defaultSetting
             "bool", // module
             "SETTINGS_ENABLESHORTCUTS_LABEL" // label
+          );
+          subcat.addOption(option);
+          
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_TOPSCROLLPLAYER"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_ENABLED",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-top-player"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerActivated", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_ACTIVATED",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#activated-by-default"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerAnimation", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_ANIMATION",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#enable-animations"
+          );
+          subcat.addOption(option);
+          
+          /*option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerHideScrollbar", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_HIDESCROLLBAR",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#hide-scrollbar"
+          );
+          subcat.addOption(option);*/
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerCountIncreaseBefore", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_COUNTINCREASEBEFORE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#increase-counter-by-scrolling-to-the-top-of-the-page"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerTimesToEnter", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_TOPSCROLLPLAYER_TIMESTOENTER", // label
+            {
+              "min": 0,
+              "max": 20
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#amount-to-enter"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerTimesToExit", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_TOPSCROLLPLAYER_TIMESTOEXIT", // label
+            {
+              "min": 0,
+              "max": 20
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#amount-to-exit"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerBumpTimer", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_TOPSCROLLPLAYER_BUMPTIMER", // label
+            {
+              "min": 0,
+              "max": 10000
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#counter-reset-after"
           );
           subcat.addOption(option);
 
