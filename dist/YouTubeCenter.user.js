@@ -9064,6 +9064,13 @@
     };
     
     // @utils
+    ytcenter.utils.isParent = function(parent, child){
+      var a = parent.getElementsByTagName(child.tagName), i;
+      for (i = 0; i < a.length; i++) {
+        if (a[i] === child) return;
+      }
+      return false;
+    };
     ytcenter.utils.throttle = function(func, delay, options){
       function timeout() {
         previous = options.leading === false ? 0 : new Date;
@@ -15288,8 +15295,9 @@
         }
       }
       function loadMethod2() {
+        var a;
         try {
-          var a = document.body.innerHTML;
+          a = document.body.innerHTML;
           a = a.split("'PLAYER_CONFIG': ");
           if (!a || !a[1]) return null;
           a = a[1];
@@ -15299,17 +15307,19 @@
           a = JSON.parse(a);
           return a;
         } catch (e) {
-          con.error(e);
+          con.error(e, a);
           return null;
         }
       }
       
       var _a = null;
-      if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1)
+      if (!_a && uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG)
+        _a = uw.yt.config_.PLAYER_CONFIG;
+      if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1)
         _a = loadMethod1();
-      if (document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1)
+      if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1)
         _a = loadMethod2();
-      if (_a !== null) return _a;
+      if (_a) return _a;
       
       return {};
     };
@@ -15347,6 +15357,8 @@
         e = e || window.event;
         if (ytcenter.settings.enableShortcuts && ytcenter.getPage() === "watch" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           if (document.activeElement.tagName.toLowerCase() === "input" || document.activeElement.tagName.toLowerCase() === "textarea" || document.activeElement.tagName.toLowerCase() === "object" || document.activeElement.tagName.toLowerCase() === "embed" || document.activeElement.tagName.toLowerCase() === "button") return;
+          if (document.activeElement.id === "movie_player" && ytcenter.utils.hasClass(document.activeElement, "html5-video-player")) return;
+          if (ytcenter.utils.isParent(document.getElementById("movie_player"), document.activeElement)) return;
           var player = ytcenter.player.getAPI();
           switch (e.keyCode) {
             case 32: // Space
@@ -15357,10 +15369,10 @@
               }
               break;
             case 37: // Left Arrow
-              player.seekTo(player.getCurrentTime()-10, true);
+              player.seekTo(player.getCurrentTime()-5, true);
               break;
             case 39: // Right Arrow
-              player.seekTo(player.getCurrentTime()+10, true);
+              player.seekTo(player.getCurrentTime()+5, true);
               break;
             case 35: // End
               player.seekTo(player.getDuration(), true);
