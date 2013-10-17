@@ -2741,7 +2741,7 @@
         }
         activated = ytcenter.settings.topScrollPlayerActivated;
         if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
-        if (ytcenter.settings.topScrollPlayerEnabled) {
+        if (ytcenter.settings.topScrollPlayerEnabled && ytcenter.getPage() === "watch") {
           if (activated) {
             if (!ytcenter.settings.topScrollPlayerAnimation)
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");

@@ -443,8 +443,11 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 .ytcenter-remove-ads-page #premium-yva,
 .ytcenter-remove-ads-page #ad_creative_1,
 .ytcenter-remove-ads-page #watch-channel-brand-div,
-.ytcenter-remove-ads-page.ytcenter-site-search .branded-page-v2-secondary-col{
+.ytcenter-remove-ads-page.ytcenter-site-search .branded-page-v2-secondary-col {
   display: none!important;
+}
+.ytcenter-remove-ads-page #content .branded-page-v2-has-top-row.branded-page-v2-container .branded-page-v2-top-row {
+  display: block!important;
 }
 .ytcenter-remove-ads-page .branded-page-v2-masthead-ad-header.masthead-ad-expanded .branded-page-v2-primary-col {
   border-top: 0!important;
