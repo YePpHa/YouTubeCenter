@@ -66,3 +66,12 @@
 .ytcenter-scrolled-top-static #guide {
   display: none !important;
 }
+
+.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,
+.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,
+.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy {
+  -moz-transition: none !important;
+  -webkit-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
