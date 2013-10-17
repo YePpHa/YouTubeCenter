@@ -2663,10 +2663,14 @@
           prev = null;
       
       __r.setEnabled = function(a){
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         enabled = !!a;
         if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
         if (!enabled) {
           if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
         } else {
           throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
           ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
@@ -2679,6 +2683,7 @@
             elm.className = "ytcenter-scrolled-top-element";
             document.body.insertBefore(elm, document.body.children[0]);
           }
+          if (scrollTop === 0) window.scroll(0, 1);
         }
       };
       __r.bumpCount = function(){
@@ -2691,31 +2696,34 @@
         uw.clearTimeout(timer);
       };
       __r.setup = function(){
-        if (!ytcenter.settings.topScrollPlayerEnabled) return;
         if (!elm || elm.parentNode !== document.body) {
           if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
           elm = document.createElement("div");
           elm.className = "ytcenter-scrolled-top-element";
-          document.body.insertBefore(elm, document.body.children[0]);
+          if (ytcenter.settings.topScrollPlayerEnabled) document.body.insertBefore(elm, document.body.children[0]);
         }
         activated = ytcenter.settings.topScrollPlayerActivated;
-        if (activated) {
-          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-          if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-          } else {
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-          }
-          window.scroll(0, 0);
-        } else {
-          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
-          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-          window.scroll(0, 1);
-        }
         if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
-        
-        throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
-        if (enabled) ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
+        if (ytcenter.settings.topScrollPlayerEnabled) {
+          if (activated) {
+            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+            if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+            } else {
+              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+            }
+            window.scroll(0, 0);
+          } else {
+            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+            window.scroll(0, 1);
+          }
+          throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
+          if (enabled) ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
+        }
+        ytcenter.events.addEvent("settings-update", function(){
+          __r.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
+        });
       };
       
       return __r;
@@ -11285,7 +11293,7 @@
           if (async) {
             uw.postMessage("YouTubeCenter" + JSON.stringify({
               type: "saveSettings"
-            }), "http://www.youtube.com");
+            }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
           } else {
             if (!$SaveData(ytcenter.storageName, JSON.stringify(ytcenter.settings))) {
               con.error("[Settings] Couldn't save settings.");
@@ -18063,7 +18071,7 @@
         ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
-          if (e.origin !== "http://www.youtube.com")
+          if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
             return;
           if (e.data.indexOf("YouTubeCenter") !== 0)
             return;
@@ -18093,13 +18101,14 @@
         ytcenter.unsafe.updateSignatureDecipher = ytcenter.utils.bind(function(){
           uw.postMessage("YouTubeCenter" + JSON.stringify({
             type: "updateSignatureDecipher"
-          }), "http://www.youtube.com");
+          }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
         }, ytcenter.unsafe);
         ytcenter.unsafe.settings.setOption = ytcenter.utils.bind(function(key, value){
           ytcenter.settings[key] = value;
+          ytcenter.events.performEvent("settings-update");
           uw.postMessage("YouTubeCenter" + JSON.stringify({
             type: "saveSettings"
-          }), "http://www.youtube.com");
+          }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
         }, ytcenter.unsafe.settings);
         ytcenter.unsafe.settings.getOption = ytcenter.utils.bind(function(key){
           return ytcenter.settings[key];
@@ -18109,9 +18118,10 @@
         }, ytcenter.unsafe.settings);
         ytcenter.unsafe.settings.removeOption = ytcenter.utils.bind(function(key){
           delete ytcenter.settings[key];
+          ytcenter.events.performEvent("settings-update");
           uw.postMessage("YouTubeCenter" + JSON.stringify({
             type: "saveSettings"
-          }), "http://www.youtube.com");
+          }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
         }, ytcenter.unsafe.settings);
         ytcenter.unsafe.settings.listOptions = ytcenter.utils.bind(function(){
           var keys = [];
@@ -18123,7 +18133,7 @@
         ytcenter.unsafe.settings.reload = ytcenter.utils.bind(function(){
           uw.postMessage("YouTubeCenter" + JSON.stringify({
             type: "loadSettings"
-          }), "http://www.youtube.com");
+          }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
         }, ytcenter.unsafe.settings);
         try {
           var links = document.head.getElementsByTagName("link");
