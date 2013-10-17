@@ -4191,12 +4191,18 @@
               "1080": "hd1080"
             };*/
             convertSizeToQuality = {
-              "256": "tiny",
-              "426": "small",
-              "640": "medium",
-              "854": "large",
-              "1280": "hd720",
-              "1920": "hd1080"
+              "192": "tiny", // 4:3
+              "256": "tiny", // 16:9
+              "320": "small", // 4:3
+              "426": "small", // 16:9
+              "480": "medium", // 4:3
+              "640": "medium", // 16:9
+              "720": "large", // 4:3
+              "854": "large", // 16:9
+              "960": "hd720", // 4:3
+              "1280": "hd720", // 16:9
+              "1440": "hd1080", // 4:3
+              "1920": "hd1080" // 16:9
             }
         if (stream === "error") {
           text = tableQuality[stream];
@@ -4219,6 +4225,7 @@
           text = stream.size.split("x")[1] + "p";
           background = tableBackground[stream.quality];
           color = tableColor[stream.quality];
+          con.log("[Thumbnail Dash]", text, background, color, stream);
         }
             
         wrapper.className = (ytcenter.settings.videoThumbnailQualityVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
