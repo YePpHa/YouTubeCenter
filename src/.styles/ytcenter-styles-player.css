@@ -33,11 +33,6 @@
   height: 100% !important;
 }
 
-.ytcenter-scrolled-top.ytcenter-scrolled-inverse #player-api,
-.ytcenter-scrolled-top.ytcenter-scrolled-inverse #player-api-legacy {
-  top: 1px !important;
-}
-
 .ytcenter-scrolled-top-element {
   width: 100%;
   height: 100%;
@@ -53,6 +48,11 @@
 
 .ytcenter-scrolled-top .ytcenter-scrolled-top-element {
   max-height: 100%;
+}
+
+.ytcenter-scrolled-inverse #player-api,
+.ytcenter-scrolled-inverse #player-api-legacy {
+  margin-top: 1px !important;
 }
 
 .ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element {
