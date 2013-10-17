@@ -12830,7 +12830,7 @@
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_ENABLED",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-top-player"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#fullscreen-top-player"
           );
           subcat.addOption(option);
           
