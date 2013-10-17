@@ -4225,7 +4225,6 @@
           text = stream.size.split("x")[1] + "p";
           background = tableBackground[stream.quality];
           color = tableColor[stream.quality];
-          con.log("[Thumbnail Dash]", text, background, color, stream);
         }
             
         wrapper.className = (ytcenter.settings.videoThumbnailQualityVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
@@ -8631,7 +8630,7 @@
         };
       } else {
         try {
-          var localStorage = uw.localStorage;
+          localStorage = uw.localStorage;
           if (typeof localStorage === 'undefined') {
             localStorage = {
               getItem    : function() {},
@@ -18877,8 +18876,7 @@
       });
       ytcenter.spf.__doUpdateConfig = false;
       ytcenter.unsafe.spf.processed = function(data){
-        var url = ytcenter.utils.getURL(ytcenter.unsafe.spf.url || loc.href) || loc,
-            a, i;
+        var url = ytcenter.utils.getURL(ytcenter.unsafe.spf.url || loc.href) || loc, a, i;
         data = data || ytcenter.unsafe.spf.data;
         ytcenter.classManagement.applyClasses(ytcenter.unsafe.spf.url);
         
@@ -18995,17 +18993,15 @@
       })();
       if (__uw === window) {
         window.addEventListener("message", function(e){
-          //try {
-            var d = JSON.parse(e.data);
-            if (d.method === "CrossOriginXHR") {
-              injected_xhr(d.id, d.arguments[0]); // id, details
-            } else if (d.method === "saveSettings") {
-              injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
-            } else if (d.method === "loadSettings") {
-              injected_loadSettings(d.id, d.arguments[0]); // id, key
-            }
-          /*} catch (e) {
-          }*/
+          if (!e.data || e.data.indexOf("{") !== 0) return;
+          var d = JSON.parse(e.data);
+          if (d.method === "CrossOriginXHR") {
+            injected_xhr(d.id, d.arguments[0]); // id, details
+          } else if (d.method === "saveSettings") {
+            injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
+          } else if (d.method === "loadSettings") {
+            injected_loadSettings(d.id, d.arguments[0]); // id, key
+          }
         }, false);
         
         inject(main_function);
@@ -19017,16 +19013,14 @@
       }
     } catch (e) {
       window.addEventListener("message", function(e){
-        //try {
-          var d = JSON.parse(e.data);
-          if (d.method === "CrossOriginXHR") {
-            injected_xhr(d.id, d.arguments[0]); // id, details
-          } else if (d.method === "saveSettings") {
-            injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
-          } else if (d.method === "loadSettings") {
-            injected_loadSettings(d.id, d.arguments[0]); // id, key
-          }
-        //} catch (e) {}
+        var d = JSON.parse(e.data);
+        if (d.method === "CrossOriginXHR") {
+          injected_xhr(d.id, d.arguments[0]); // id, details
+        } else if (d.method === "saveSettings") {
+          injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
+        } else if (d.method === "loadSettings") {
+          injected_loadSettings(d.id, d.arguments[0]); // id, key
+        }
       }, false);
       
       inject(main_function);
