@@ -10820,7 +10820,7 @@
       embed_forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
-      ytspf: true,
+      ytspf: false,
       videoThumbnailCacheSize: 500,
       commentCacheSize: 150,
       watchedVideosIndicator: true,
