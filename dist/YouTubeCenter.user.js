@@ -1870,6 +1870,7 @@
       var a;
       try {
         a = unsafeWindow === window ? false : unsafeWindow;
+      } catch (e) {
       } finally {
         return a || (function(){
           try {
@@ -2508,18 +2509,22 @@
     };
     ytcenter.title.init = function(){
       var a = document.getElementsByTagName("title")[0];
-      if (!a || !a.textContent || a.textContent === "") {
-        con.log("[Title Listener] Waiting for title head...");
-        uw.setTimeout(ytcenter.title.init, 500);
-      } else {
-        ytcenter.title.originalTitle = ytcenter.title.processOriginalTitle(a.textContent);
+      if ((a && a.textContent && a.textContent !== "") || (document && document.title && document.title !== "")) {
+        if (a && a.textContent && a.textContent !== "") {
+          ytcenter.title.originalTitle = ytcenter.title.processOriginalTitle(a.textContent);
+        } else {
+          ytcenter.title.originalTitle = ytcenter.title.processOriginalTitle(document.title);
+        }
         ytcenter.mutation.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true }, ytcenter.title.modified);
         ytcenter.title.update();
+      } else {
+        con.log("[Title Listener] Waiting for title head...");
+        uw.setTimeout(ytcenter.title.init, 500);
       }
     };
     ytcenter.title.update = function(){
       if (ytcenter.title.originalTitle === "") return;
-      var a = document.getElementsByTagName("title")[0];
+      //var a = document.getElementsByTagName("title")[0];
       if (ytcenter.settings.playerPlayingTitleIndicator && ytcenter.getPage() === "watch") {
         if (ytcenter.player.getAPI && ytcenter.player.getAPI() && ytcenter.player.getAPI().getPlayerState && ytcenter.player.getAPI().getPlayerState() === 1) {
           ytcenter.title.addPlayIcon();
@@ -2534,7 +2539,12 @@
       } else {
         ytcenter.title.addSuffix();
       }
-      a.textContent = ytcenter.title.liveTitle;
+      try {
+        document.title = ytcenter.title.liveTitle;
+      } catch (e) {
+        con.error(e); // Opera 12 will throw an error because it seems to be read only.
+      }
+      //a.textContent = ytcenter.title.liveTitle;
     };
     ytcenter.title.hasSuffix = function(){
       return / - YouTube$/.test(ytcenter.title.liveTitle);
@@ -2657,7 +2667,7 @@
               count++;
               window.scroll(0, 1);
             } else {
-              if (ytcenter.settings.topScrollPlayerEnabledOnlyVideoPlaying && (!api.getPlayerState || api.getPlayerState() !== 1)) {
+              if (ytcenter.settings.topScrollPlayerEnabledOnlyVideoPlaying && (!api || !api.getPlayerState || api.getPlayerState() !== 1)) {
                 window.scroll(0, 1);
                 return;
               }
@@ -3682,16 +3692,16 @@
               __r.update();
             }, preTesterInterval);
           } else {
-            try {
+            //try {
               con.log("[PageReadinessListener] At event => " + events[i].event);
               events[i].called = true;
               for (j = 0; j < events[i].callbacks.length; j++) {
                 events[i].callbacks[j]();
               }
-            } catch (e) {
+            /*} catch (e) {
               con.error("[PageReadinessListener] " + events[i].event);
               con.error(e);
-            }
+            }*/
           }
         }
       };
@@ -9138,6 +9148,12 @@
       if (!a) return null;
       try {
         b = a.getBoundingClientRect();
+        b = {
+          left: b.left,
+          top: b.top,
+          right: b.right,
+          bottom: b.bottom
+        };
       } catch (c) {
         return {
           left: 0,
