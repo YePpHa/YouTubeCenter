@@ -4867,7 +4867,7 @@
         "process": []
       },
       loadListeners = [],
-      events = ["error", "processed", "received", "requested", /*"script-loading",*/ "begin-response"],
+      events = ["error", "processed", "received", "requested", "script-loading", "begin-response"],
       eventsSPF = ["dispose", "init", "load", "navigate", "prefetch", "process"],
       injected = false,
       originalCallbacks = {},
