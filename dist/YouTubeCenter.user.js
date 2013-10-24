@@ -2635,6 +2635,9 @@
             p = document.getElementById("player") || document.getElementById("player-api"),
             api = ytcenter.player.getAPI(),
             scrollUpExit = ytcenter.settings.topScrollPlayerScrollUpToExit;
+        if (document.getElementById("player")) {
+          document.getElementById("player").style.position = "";
+        }
         if (activated) {
           if ((scrollTop > 0 && !scrollUpExit) || (scrollTop === 0 && scrollUpExit)) {
             if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
@@ -2772,8 +2775,25 @@
           throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
           if (enabled) ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
         }
+        if (enabled) {
+          if (document.getElementById("player")) {
+            document.getElementById("player").style.position = "";
+          }
+        }
         ytcenter.events.addEvent("settings-update", function(){
           __r.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
+          if (enabled) {
+            if (document.getElementById("player")) {
+              document.getElementById("player").style.position = "";
+            }
+          }
+        });
+        ytcenter.events.addEvent("resize-update", function(){
+          if (enabled) {
+            if (document.getElementById("player")) {
+              document.getElementById("player").style.position = "";
+            }
+          }
         });
       };
       
@@ -10820,7 +10840,7 @@
       embed_forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
-      ytspf: true,
+      ytspf: false,
       videoThumbnailCacheSize: 500,
       commentCacheSize: 150,
       watchedVideosIndicator: true,
