@@ -5,6 +5,7 @@
  - Flashblock + embed videos not working (need verification as a lot of changes have been made to embed videos).
 
  ---
+ - Add http://www.music-clips.net and http://convert2mp3.net/en as MP3 Services.
  - Look into the Auto Hide Bar (both HTML5 and Flash - in Firefox and Chrome).
  - Merge adaptive_fmts and url_encoded_fmt_stream_map for unavailable qualites.
  - Have the guide beside the player when the player is not aligned.
