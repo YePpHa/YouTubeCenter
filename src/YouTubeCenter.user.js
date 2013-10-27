@@ -19072,12 +19072,11 @@
             a = null;
           }
           if (a !== null) {
-            con.log(ytcenter.utils.decodeRawTag(a));
             swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(url), JSON.parse(ytcenter.utils.decodeRawTag(a).replace(/&amp;/g, "&").replace(/&quot;/g, "\"")));
-            i1 = data.html.content.split("data-swf-config=\"")[0].indexOf("\">");
-            i2 = data.html.content.split("data-swf-config=\"")[0].indexOf("\">") + data.html.content.indexOf("data-swf-config=\"") + "data-swf-config=\"".length;
+            i1 = data.html.content.indexOf("data-swf-config=\"") + "data-swf-config=\"".length;
+            i2 = data.html.content.indexOf("data-swf-config=\"") + data.html.content.split("data-swf-config=\"")[1].indexOf("\">") + "data-swf-config=\"".length;
             data._config = swfcfg;
-            data.html.content = data.html.content.substring(i1) + ytcenter.utils.encodeRawTag(JSON.stringify(swfcfg).replace(/&/g, "&amp;").replace(/"/g, "&quot;")) + data.html.content.substring(i2);
+            data.html.content = data.html.content.substring(0, i1) + ytcenter.utils.encodeRawTag(JSON.stringify(swfcfg).replace(/&/g, "&amp;").replace(/"/g, "&quot;")) + data.html.content.substring(i2);
           }
         }
         if (data.js) {
