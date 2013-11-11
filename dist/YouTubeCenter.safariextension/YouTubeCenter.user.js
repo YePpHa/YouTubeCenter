@@ -3244,13 +3244,25 @@
     ytcenter.commentsPlus = (function(){
       function getComments() {
         var a = document.getElementsByClassName("Mpa"),
+            b = document.getElementsByClassName("fR"),
             data = [], i, cacheData, d, sort = {}, tmp = [];
         for (i = 0; i < a.length; i++) {
           if (!a[i].firstChild.getAttribute("oid")) continue;
           d = {
             element: a[i].parentNode,
             userId: a[i].firstChild.getAttribute("oid"),
-            plus: a[i].firstChild.getAttribute("href").indexOf("youtube.com/profile_redirector/") !== -1
+            plus: a[i].firstChild.getAttribute("href").indexOf("youtube.com/profile_redirector/") !== -1,
+            top: true,
+          };
+          data.push(d);
+        }
+        for (i = 0; i < b.length; i++) {
+          if (!b[i].firstChild.getAttribute("oid")) continue;
+          d = {
+            element: b[i],
+            userId: b[i].firstChild.getAttribute("oid"),
+            plus: b[i].firstChild.getAttribute("href").indexOf("youtube.com/profile_redirector/") !== -1,
+            top: false
           };
           data.push(d);
         }
@@ -3262,6 +3274,7 @@
           }
           sort[data[i].userId].elements.push(data[i].element);
           sort[data[i].userId].plus = data[i].plus;
+          sort[data[i].userId].top = data[i].top;
           if (!sort[data[i].userId].country) {
             cacheData = getDataCacheById(data[i].userId);
             if (cacheData) {
@@ -3303,14 +3316,26 @@
             countryMetadata.style.marginRight = "10px";
             metadata.insertBefore(countryMetadata, metadata.children[0]);
           } else if (ytcenter.settings.commentCountryPosition === "after_username") {
-            countryMetadata.style.marginLeft = "10px";
+            if (comment.top) {
+              countryMetadata.style.marginLeft = "10px";
+            } else {
+              countryMetadata.style.marginRight = "8px";
+            }
             metadata.insertBefore(countryMetadata, metadata.children[1]);
           } else if (ytcenter.settings.commentCountryPosition === "last") {
             countryMetadata.style.marginLeft = "10px";
-            if (metadata.children.length > 2) {
-              metadata.insertBefore(countryMetadata, metadata.children[2]);
+            if (comment.top) {
+              if (metadata.children.length > 2) {
+                metadata.insertBefore(countryMetadata, metadata.children[2]);
+              } else {
+                metadata.appendChild(countryMetadata);
+              }
             } else {
-              metadata.appendChild(countryMetadata);
+              if (metadata.children.length > 3) {
+                metadata.insertBefore(countryMetadata, metadata.children[3]);
+              } else {
+                metadata.appendChild(countryMetadata);
+              }
             }
           }
         }
@@ -10535,6 +10560,18 @@
         }
       }
     };
+    ytcenter.utils.mergeArrays = function(){
+      if (arguments.length <= 0) return [];
+      if (arguments.length === 1) return arguments[0];
+      var arr = [], i, j;
+      for (i = 0; i < arguments.length; i++) {
+        if (typeof arguments[i] === "undefined") continue;
+        for (j = 0; j < arguments[i].length; j++) {
+          arr.push(arguments[i][j]);
+        }
+      }
+      return arr;
+    }
     ytcenter.utils.mergeObjects = function(){
       if (arguments.length <= 0) return {};
       if (arguments.length === 1) return arguments[0];
