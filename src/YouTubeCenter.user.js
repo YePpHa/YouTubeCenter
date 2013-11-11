@@ -18928,7 +18928,7 @@
           }
           ytcenter.title.update();
           
-          if (ytcenter.settings.tempFixRepeat && state === 1 && tmpFixRepeatAtEnd) {
+          if (ytcenter.settings.tempFixRepeat && (state === 1 || state === 2) && tmpFixRepeatAtEnd) {
             var seekTime = ytcenter.player.getAPI().getCurrentTime();
             ytcenter.player.getAPI().stopVideo();
             ytcenter.player.getAPI().playVideo();
