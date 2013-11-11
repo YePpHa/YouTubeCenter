@@ -10833,6 +10833,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      tempFixRepeat: true, /* Fixing the bug with the player where you can't repeat a video : It refreshes the stream */
       likeSwitchToTab: "none", // none, details, share, addto, stats
       endOfVideoAutoSwitchToTab: "none", // none, details, share, addto, stats
       //enableYouTubeAutoSwitchToShareTab: false,
@@ -18917,6 +18918,8 @@
           }
           ytcenter.title.update();
         });
+        
+        var tmpFixRepeatAtEnd = false;
         ytcenter.player.listeners.addEventListener("onStateChange", function(state, b){
           if (state === 1) {
             ytcenter.title.addPlayIcon();
@@ -18924,7 +18927,23 @@
             ytcenter.title.removePlayIcon();
           }
           ytcenter.title.update();
+          
+          if (ytcenter.settings.tempFixRepeat && state === 1 && tmpFixRepeatAtEnd) {
+            var seekTime = ytcenter.player.getAPI().getCurrentTime();
+            ytcenter.player.getAPI().stopVideo();
+            ytcenter.player.getAPI().playVideo();
+            if (seekTime > 0) {
+              ytcenter.player.getAPI().seekTo(seekTime);
+            }
+            tmpFixRepeatAtEnd = false;
+          } else if (ytcenter.settings.tempFixRepeat && state === 0) {
+            tmpFixRepeatAtEnd = true;
+          }
+          
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
+            if (ytcenter.settings.tempFixRepeat) {
+              ytcenter.player.getAPI().stopVideo();
+            }
             ytcenter.player.getAPI().playVideo();
           }
           if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none") {
