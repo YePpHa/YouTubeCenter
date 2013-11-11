@@ -32,6 +32,7 @@
 // @domain          youtube.com
 // @domain          www.youtube.com
 // @domain          gdata.youtube.com
+// @domain          apis.google.com
 // @match           http://*.youtube.com/*
 // @match           https://*.youtube.com/*
 // @match           http://userscripts.org/scripts/source/114002.meta.js
@@ -2059,7 +2060,9 @@
       };
     }
     
-    if (!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*)|(dl\.dropbox\.com\/u/13162258/YouTube%20Center/(.*))|(userscripts\.org/scripts/source/114002\.meta\.js))$", "")).test(loc.href) || (new RegExp("http(s)?://apiblog\.youtube.com/.*", "")).test(loc.href)) {
+    if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*)|(dl\.dropbox\.com\/u/13162258/YouTube%20Center/(.*))|(userscripts\.org/scripts/source/114002\.meta\.js))$", "")).test(loc.href)
+      && !(new RegExp("http(s)?://apis\.google.com/.*", "")).test(loc.href))
+      || (new RegExp("http(s)?://apiblog\.youtube.com/.*", "")).test(loc.href)) {
       con.log(loc.href + " doesn't match!");
       return;
     }
@@ -3238,31 +3241,18 @@
       
       return a;
     })();
-    ytcenter.comments = (function(){
-      function getComments(channel) {
-        if (typeof channel !== "boolean") channel = false;
-        
-        var a = document.getElementsByClassName("comment"),
+    ytcenter.commentsPlus = (function(){
+      function getComments() {
+        var a = document.getElementsByClassName("Mpa"),
             data = [], i, cacheData, d, sort = {}, tmp = [];
-        if (channel) {
-          a = document.getElementsByClassName("comment-moderation-container");
-          for (i = 0; i < a.length; i++) {
-            if (!a[i].getElementsByClassName("feed-author-bubble")[0].href) continue;
-            d = {
-              element: a[i],
-              userId: a[i].getElementsByClassName("feed-author-bubble")[0].href.split("/")[a[i].getElementsByClassName("feed-author-bubble")[0].href.split("/").length-1]
-            };
-            data.push(d);
-          }
-        } else {
-          for (i = 0; i < a.length; i++) {
-            if (!a[i].getAttribute("data-author-id")) continue;
-            d = {
-              element: a[i],
-              userId: a[i].getAttribute("data-author-id")
-            };
-            data.push(d);
-          }
+        for (i = 0; i < a.length; i++) {
+          if (!a[i].firstChild.getAttribute("oid")) continue;
+          d = {
+            element: a[i].parentNode,
+            userId: a[i].firstChild.getAttribute("oid"),
+            plus: a[i].firstChild.getAttribute("href").indexOf("youtube.com/profile_redirector/") !== -1
+          };
+          data.push(d);
         }
         d = null;
         for (i = 0; i < data.length; i++) {
@@ -3271,8 +3261,9 @@
             tmp.push(data[i].userId);
           }
           sort[data[i].userId].elements.push(data[i].element);
+          sort[data[i].userId].plus = data[i].plus;
           if (!sort[data[i].userId].country) {
-            cacheData = getDataCacheById(a[i].getAttribute("data-author-id"));
+            cacheData = getDataCacheById(data[i].userId);
             if (cacheData) {
               if (cacheData.country) sort[data[i].userId].country = cacheData.country;
             }
@@ -3287,8 +3278,7 @@
         
         return data;
       }
-      function addMetadata(comment, channel) {
-        if (typeof channel !== "boolean") channel = false;
+      function addMetadata(comment) {
         var i, metadata, countryMetadata;
         if (isInCache(comment)) {
           updateItemInCache(comment);
@@ -3296,52 +3286,39 @@
           addNewDataToCache(comment);
         }
         for (i = 0; i < comment.elements.length; i++) {
-          if (channel) {
-            metadata = comment.elements[i].getElementsByClassName("feed-item-actions-line")[0];
-            countryMetadata = document.createElement("span");
-            countryMetadata.className = "country";
-            countryMetadata.style.marginLeft = "4px";
-            if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[comment.country.toLowerCase()]) {
-              var img = document.createElement("img");
-              img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
-              img.className = ytcenter.flags[comment.country.toLowerCase()];
-              img.setAttribute("alt", comment.country);
-              img.setAttribute("title", comment.country);
-              countryMetadata.appendChild(img);
-            } else {
-              countryMetadata.style.color = "#999";
-              countryMetadata.textContent = comment.country;
-            }
+          metadata = comment.elements[i];
+          countryMetadata = document.createElement("span");
+          countryMetadata.className = "country";
+          if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[comment.country.toLowerCase()]) {
+            var img = document.createElement("img");
+            img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+            img.className = ytcenter.flags[comment.country.toLowerCase()];
+            img.setAttribute("alt", comment.country);
+            img.setAttribute("title", comment.country);
+            countryMetadata.appendChild(img);
           } else {
-            metadata = comment.elements[i].getElementsByClassName("metadata")[0];
-            countryMetadata = document.createElement("span");
-            countryMetadata.className = "country";
-            countryMetadata.style.marginRight = "3px";
-            if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[comment.country.toLowerCase()]) {
-              var img = document.createElement("img");
-              img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
-              img.className = ytcenter.flags[comment.country.toLowerCase()];
-              img.setAttribute("alt", comment.country);
-              img.setAttribute("title", comment.country);
-              countryMetadata.appendChild(img);
-            } else {
-              countryMetadata.textContent = comment.country;
-            }
+            countryMetadata.textContent = comment.country;
           }
           if (ytcenter.settings.commentCountryPosition === "before_username") {
+            countryMetadata.style.marginRight = "10px";
             metadata.insertBefore(countryMetadata, metadata.children[0]);
           } else if (ytcenter.settings.commentCountryPosition === "after_username") {
+            countryMetadata.style.marginLeft = "10px";
             metadata.insertBefore(countryMetadata, metadata.children[1]);
           } else if (ytcenter.settings.commentCountryPosition === "last") {
-            metadata.appendChild(countryMetadata);
+            countryMetadata.style.marginLeft = "10px";
+            if (metadata.children.length > 2) {
+              metadata.insertBefore(countryMetadata, metadata.children[2]);
+            } else {
+              metadata.appendChild(countryMetadata);
+            }
           }
         }
       }
-      function processItem(comment, channel) {
-        if (typeof channel !== "boolean") channel = false;
+      function processItem(comment) {
         var i;
         if (comment.country) {
-          addMetadata(comment, channel);
+          addMetadata(comment);
         } else {
           var country;
           for (i = 0; i < comments.length; i++) {
@@ -3351,16 +3328,27 @@
             }
           }
           if (comment.country) {
-            addMetadata(comment, channel);
+            addMetadata(comment);
           } else {
-            ytcenter.getUserData(comment.id, function(data){
-              if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                comment.country = data.entry.yt$location.$t;
-                addMetadata(comment, channel);
-              } else {
-                con.error("[Comment Country] Unknown Location", data);
-              }
-            });
+            if (comment.plus) {
+              ytcenter.getGooglePlusUserData(comment.id, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                  addMetadata(comment);
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+              });
+            } else {
+              ytcenter.getUserData(comment.id, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                  addMetadata(comment);
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+              });
+            }
           }
         }
       }
@@ -3473,6 +3461,351 @@
         var nData = {};
         while (ytcenter.settings.commentCountryData.length >= ytcenter.settings.commentCacheSize) removeOldestFromCache();
         nData.id = data.id;
+        nData.plus = typeof data.plus === "boolean" ? data.plus : true;
+        nData.reused = 0;
+        nData.date = ytcenter.utils.now();
+        if (data.country) nData.country = data.country;
+        
+        ytcenter.settings.commentCountryData.push(nData);
+        
+        ytcenter.saveSettings(false, true);
+      }
+      function calculateCacheLife(data) {
+        return 1000*60*60*24*7 + (1000*60*60*24*2)*(data.reused ? data.reused : 0);
+      }
+      function removeOldestFromCache() {
+        if (ytcenter.settings.commentCountryData.length === 0) return;
+        var i, now = ytcenter.utils.now(), life, lifeRemaining, oldest = ytcenter.settings.commentCountryData[0], j = 0;
+        for (i = 1; i < ytcenter.settings.commentCountryData.length; i++) {
+          life = calculateCacheLife(ytcenter.settings.commentCountryData[i]);
+          lifeRemaining = (ytcenter.settings.commentCountryData[i].date + life) - now;
+          if (lifeRemaining < (oldest.date + calculateCacheLife(oldest)) - now) {
+            oldest = ytcenter.settings.commentCountryData[i];
+            j = i;
+          }
+        }
+        ytcenter.settings.commentCountryData.splice(j, 1);
+      }
+      function cacheChecker() {
+        if (ytcenter.settings.commentCountryData.length === 0) return;
+        var i, now = ytcenter.utils.now(), life, nData = [];
+        
+        for (i = 0; i < ytcenter.settings.commentCountryData.length; i++) {
+          life = calculateCacheLife(ytcenter.settings.commentCountryData[i]);
+          if (now < ytcenter.settings.commentCountryData[i].date + life) {
+            if (ytcenter.settings.commentCountryData[i].reused < 10) ytcenter.settings.commentCountryData[i].reused++;
+            nData.push(ytcenter.settings.commentCountryData[i]);
+          }
+        }
+        ytcenter.settings.commentCountryData = nData;
+        ytcenter.saveSettings(false, true);
+      }
+      
+      var __r = {}, comments = [], observer = null;
+      
+      ytcenter.unload(function(){
+        if (observer) {
+          observer.disconnect();
+        }
+      });
+      __r.update = function(){
+        var c = compareDifference(getComments(), comments), i;
+        for (i = 0; i < c.length; i++) {
+          mergeCommentData(c[i]);
+          updateReuse(c[i]);
+          processItem(c[i]);
+        }
+      };
+      __r.setupObserver = function(){
+        try {
+          observer = ytcenter.mutation.observe(document.body, { childList: true, subtree: true }, function(){
+            __r.update();
+          });
+        } catch (e) {
+          con.error(e);
+        }
+      };
+      __r.dispose = function(){
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      };
+      __r.setup = function(){
+        document.body.className += " ytcenter-comments-plus";
+        if (ytcenter.settings.commentCountryEnabled) {
+          try {
+            var i;
+            
+            cacheChecker();
+            comments = getComments();
+            
+            for (i = 0; i < comments.length; i++) {
+              updateReuse(comments[i]);
+              processItem(comments[i]);
+            }
+            ytcenter.events.addEvent("resize-update", function(){
+              __r.update();
+            });
+            __r.setupObserver();
+          } catch (e) {
+            con.error(e);
+          }
+        } else {
+          cacheChecker();
+        }
+      };
+      
+      return __r;
+    })();
+    ytcenter.comments = (function(){
+      function getComments(channel) {
+        if (typeof channel !== "boolean") channel = false;
+        
+        var a = document.getElementsByClassName("comment"),
+            data = [], i, cacheData, d, sort = {}, tmp = [];
+        if (channel) {
+          a = document.getElementsByClassName("comment-moderation-container");
+          for (i = 0; i < a.length; i++) {
+            if (!a[i].getElementsByClassName("feed-author-bubble")[0].href) continue;
+            d = {
+              element: a[i],
+              userId: a[i].getElementsByClassName("feed-author-bubble")[0].href.split("/")[a[i].getElementsByClassName("feed-author-bubble")[0].href.split("/").length-1]
+            };
+            data.push(d);
+          }
+        } else {
+          for (i = 0; i < a.length; i++) {
+            if (!a[i].getAttribute("data-author-id")) continue;
+            d = {
+              element: a[i],
+              userId: a[i].getAttribute("data-author-id")
+            };
+            data.push(d);
+          }
+        }
+        d = null;
+        for (i = 0; i < data.length; i++) {
+          if (!sort[data[i].userId]) {
+            sort[data[i].userId] = {elements: []};
+            tmp.push(data[i].userId);
+          }
+          sort[data[i].userId].elements.push(data[i].element);
+          if (!sort[data[i].userId].country) {
+            cacheData = getDataCacheById(data[i].userId);
+            if (cacheData) {
+              if (cacheData.country) sort[data[i].userId].country = cacheData.country;
+            }
+          }
+        }
+        data = [];
+        for (i = 0; i < tmp.length; i++) {
+          d = sort[tmp[i]];
+          d.id = tmp[i];
+          d.plus = false;
+          data.push(d);
+        }
+        
+        return data;
+      }
+      function addMetadata(comment, channel) {
+        if (typeof channel !== "boolean") channel = false;
+        var i, metadata, countryMetadata;
+        if (isInCache(comment)) {
+          updateItemInCache(comment);
+        } else {
+          addNewDataToCache(comment);
+        }
+        for (i = 0; i < comment.elements.length; i++) {
+          if (channel) {
+            metadata = comment.elements[i].getElementsByClassName("feed-item-actions-line")[0];
+            countryMetadata = document.createElement("span");
+            countryMetadata.className = "country";
+            countryMetadata.style.marginLeft = "4px";
+            if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[comment.country.toLowerCase()]) {
+              var img = document.createElement("img");
+              img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+              img.className = ytcenter.flags[comment.country.toLowerCase()];
+              img.setAttribute("alt", comment.country);
+              img.setAttribute("title", comment.country);
+              countryMetadata.appendChild(img);
+            } else {
+              countryMetadata.style.color = "#999";
+              countryMetadata.textContent = comment.country;
+            }
+          } else {
+            metadata = comment.elements[i].getElementsByClassName("metadata")[0];
+            countryMetadata = document.createElement("span");
+            countryMetadata.className = "country";
+            countryMetadata.style.marginRight = "3px";
+            if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[comment.country.toLowerCase()]) {
+              var img = document.createElement("img");
+              img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+              img.className = ytcenter.flags[comment.country.toLowerCase()];
+              img.setAttribute("alt", comment.country);
+              img.setAttribute("title", comment.country);
+              countryMetadata.appendChild(img);
+            } else {
+              countryMetadata.textContent = comment.country;
+            }
+          }
+          if (ytcenter.settings.commentCountryPosition === "before_username") {
+            metadata.insertBefore(countryMetadata, metadata.children[0]);
+          } else if (ytcenter.settings.commentCountryPosition === "after_username") {
+            metadata.insertBefore(countryMetadata, metadata.children[1]);
+          } else if (ytcenter.settings.commentCountryPosition === "last") {
+            metadata.appendChild(countryMetadata);
+          }
+        }
+      }
+      function processItem(comment, channel) {
+        if (typeof channel !== "boolean") channel = false;
+        var i;
+        if (comment.country) {
+          addMetadata(comment, channel);
+        } else {
+          var country;
+          for (i = 0; i < comments.length; i++) {
+            if (comments[i].id === comment.id && comments[i].country) {
+              comment.country = comments[i].country;
+              break;
+            }
+          }
+          if (comment.country) {
+            addMetadata(comment, channel);
+          } else {
+            if (comment.plus) {
+              ytcenter.getGooglePlusUserData(comment.id, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                  addMetadata(comment, channel);
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+              });
+            } else {
+              ytcenter.getUserData(comment.id, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                  addMetadata(comment, channel);
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+              });
+            }
+          }
+        }
+      }
+      function compareDifference(newData, oldData) {
+        var i, j, k, found, f, data = [], e, country;
+        for (i = 0; i < newData.length; i++) {
+          found = false;
+          for (j = 0; j < oldData.length; j++) {
+            if (newData[i].id === oldData[j].id) {
+              found = oldData[j].elements;
+              country = oldData[j].country;
+              break;
+            }
+          }
+          if (found) {
+            e = [];
+            for (j = 0; j < newData[i].elements.length; j++) {
+              f = false;
+              for (k = 0; k < found.length; k++) {
+                if (found[k] === newData[i].elements[j]) {
+                  f = true;
+                  break;
+                }
+              }
+              if (!f) {
+                e.push(newData[i].elements[j]);
+              }
+            }
+            if (e.length > 0) {
+              newData[i].elements = e;
+              if (country)
+                newData[i].country = country;
+              data.push(newData[i]);
+            }
+          } else {
+            data.push(newData[i]);
+          }
+        }
+        e = [];
+        for (i = 0; i < data.length; i++) {
+          e = [];
+          for (j = 0; j < data[i].elements.length; j++) {
+            if (!elementInUse(data[i].elements[j])) {
+              e.push(data[i].elements[j]);
+            }
+          }
+          data.elements = e;
+        }
+        
+        return data;
+      }
+      function elementInUse(element) {
+        var i, j;
+        for (i = 0; i < comments.length; i++) {
+          for (j = 0; j < comments[i].elements.length; j++) {
+            if (comments[i].elements[j] === element)
+              return true;
+          }
+        }
+        return false;
+      }
+      function mergeCommentData(data) {
+        var i, j;
+        for (i = 0; i < comments.length; i++) {
+          if (data.id === comments[i].id) {
+            for (j = 0; j < data.elements.length; j++) {
+              if (!elementInUse(data.elements[j]))
+                comments[i].elements.push(data.elements[j]);
+            }
+            if (!comments[i].country && data.country) comments[i].country = data.country;
+            return;
+          }
+        }
+        comments.push(data);
+      }
+      function updateItemInCache(data) {
+        var index = getDataCacheIndex(data);
+        if (data.country && !ytcenter.settings.commentCountryData[index].country) {
+          ytcenter.settings.commentCountryData[index].country = data.country;
+        }
+        ytcenter.saveSettings(false, true);
+      }
+      function updateReuse(data) {
+        var index = getDataCacheIndex(data);
+        if (index === -1) return;
+        ytcenter.settings.commentCountryData[index].reused++;
+        if (ytcenter.settings.commentCountryData[index].reused > 10)
+          ytcenter.settings.commentCountryData[index].reused = 10;
+        ytcenter.saveSettings(false, true);
+      }
+      function getDataCacheById(id) {
+        var i;
+        for (i = 0; i < ytcenter.settings.commentCountryData.length; i++) {
+          if (id === ytcenter.settings.commentCountryData[i].id) return ytcenter.settings.commentCountryData[i];
+        }
+        return null;
+      }
+      function getDataCacheIndex(data) {
+        var i;
+        for (i = 0; i < ytcenter.settings.commentCountryData.length; i++) {
+          if (data.id === ytcenter.settings.commentCountryData[i].id) return i;
+        }
+        return -1;
+      }
+      function isInCache(data) {
+        return getDataCacheIndex(data) !== -1;
+      }
+      function addNewDataToCache(data) {
+        if (isInCache(data)) return;
+        var nData = {};
+        while (ytcenter.settings.commentCountryData.length >= ytcenter.settings.commentCacheSize) removeOldestFromCache();
+        nData.id = data.id;
+        nData.plus = data.plus || false;
         nData.reused = 0;
         nData.date = ytcenter.utils.now();
         if (data.country) nData.country = data.country;
@@ -3607,12 +3940,35 @@
         }
       });
     };
+    ytcenter.getGooglePlusUserData = function(oId, callback){
+      var userId = null;
+      $XMLHTTPRequest({
+        url: "http://www.youtube.com/profile_redirector/" + oId,
+        method: "GET",
+        onload: function(r){
+          if (r.finalUrl.indexOf("youtube.com/channel/") !== -1) {
+            userId = r.finalUrl.split("youtube.com/channel/");
+            if (userId && userId[1])
+              ytcenter.getUserData(userId[1], callback);
+          } else if (r.finalUrl.indexOf("youtube.com/user/") !== -1) {
+            userId = r.finalUrl.split("youtube.com/user/");
+            if (userId && userId[1])
+              ytcenter.getUserData(userId[1], callback);
+          } else {
+            con.error("[Comments getGooglePlusUserData] Final URL: " + r.finalUrl);
+          }
+        }
+      });
+    };
     ytcenter.getPage = function(url){
       url = url || loc.href;
       var pathname = (url && url.split("youtube.com")[1]) || loc.pathname;
       if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/watch\?/)) {
         ytcenter.page = "watch";
         return "watch";
+      } else if (!!url.match(/^http(s)?:\/\/apis\.google\.com\/u\/0\/wm\/4\/_\/widget\/render\/comments/)) {
+        ytcenter.page = "comments";
+        return "comments";
       } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\//) && (loc.pathname === "/" || loc.pathname === "/feed/what_to_watch")) {
         ytcenter.page = "feed_what_to_watch";
         return "feed_what_to_watch";
@@ -18313,11 +18669,18 @@
       };
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
-        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) {
+        var page = ytcenter.getPage();
+        
+        /* We don't want to add everything. So only the neccessary stuff is added. */
+        if (page === "comments") {
+          $AddStyle(ytcenter.css.flags);
+          return;
+        }
+        if (page === "embed" && !ytcenter.settings.embed_enabled) {
           ytcenter.writeEmbed();
           return;
         }
-        if (ytcenter.getPage() === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
+        if (page === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
           loc.search = loc.search.replace("autoplay=1", "ytcenter-autoplay=1");
         }
         con.log("Settings loaded.");
@@ -18461,7 +18824,9 @@
         /*****END OF SAVEAS AND BLOB IMPLEMENTATION*****/
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
-        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
+        var page = ytcenter.getPage();
+        if (page === "comments") return; // We don't need to do anything here.
+        if (page === "embed" && !ytcenter.settings.embed_enabled) return;
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         if (loc.href.indexOf(".youtube.com/embed/") === -1) {
@@ -18484,8 +18849,13 @@
         }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
-        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
         var page = ytcenter.getPage();
+        if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+        /* Only need to handle the Google+ comments */
+        if (page === "comments") {
+          ytcenter.commentsPlus.setup();
+          return;
+        }
         
         // Checking if the correct settings were applied and if not correct them and forcing a refresh of the page.
         ytcenter.unsafe.subtitles = ytcenter.subtitles;

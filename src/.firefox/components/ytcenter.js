@@ -63,6 +63,8 @@ function startup(s) {
 function isRunnable(url) {
   if (/^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/.test(url + "/"))
     return true;
+  if (/^http(s)?:\/\/apis.google\.com\//.test(url + "/"))
+    return true;
   return false;
 }
 
