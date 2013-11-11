@@ -42,6 +42,8 @@
 			<string>http://userscripts.org/scripts/source/114002.meta.js</string>
 			<string>http://s.ytimg.com/yts/jsbin/*</string>
 			<string>https://s.ytimg.com/yts/jsbin/*</string>
+			<string>http://apis.google.com/u/0/wm/4/_/widget/render/comments?*</string>
+			<string>https://apis.google.com/u/0/wm/4/_/widget/render/comments?*</string>
 		</array>
 	</dict>
 	<key>Description</key>

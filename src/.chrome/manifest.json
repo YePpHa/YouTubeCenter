@@ -11,7 +11,9 @@
         "https://*.youtube.com/*",
         "http://userscripts.org/scripts/source/114002.meta.js",
         "http://s.ytimg.com/yts/jsbin/*",
-        "https://s.ytimg.com/yts/jsbin/*"
+        "https://s.ytimg.com/yts/jsbin/*",
+        "http://apis.google.com/u/0/wm/4/_/widget/render/comments?*",
+        "https://apis.google.com/u/0/wm/4/_/widget/render/comments?*"
       ],
       "exclude_matches": [
         "http://apiblog.youtube.com/*",
@@ -29,7 +31,9 @@
     "storage",
     "unlimited_storage",
     "http://*.youtube.com/*",
-    "https://*.youtube.com/*"
+    "https://*.youtube.com/*",
+    "http://apis.google.com/u/0/wm/4/_/widget/render/comments?*",
+    "https://apis.google.com/u/0/wm/4/_/widget/render/comments?*"
   ],
   "icons": {"16": "assets/icon16.png",
             "48": "assets/icon48.png",
