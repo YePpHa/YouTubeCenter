@@ -626,7 +626,7 @@ body > #page {
 .watched.ytcenter-thumbnail-timecode-pos-topleft .video-time,
 .watched.ytcenter-thumbnail-quality-pos-topleft .ytcenter-thumbnail-quality,
 .watched.ytcenter-thumbnail-ratingcount-pos-topleft .ytcenter-thumbnail-ratingcount {
-  top: 18px!important;
+  top: 20px!important;
   left: 2px!important;
 }
 

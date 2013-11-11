@@ -8,13 +8,37 @@
   display: none!important;
 }
 
+.ytcenter-grid-subscriptions ul.feed-list {
+  margin: 0 auto;
+}
+
+.ytcenter-grid-subscriptions.cardified-page .feed-item-dismissable   {
+  padding: 3px;
+}
+.ytcenter-grid-subscriptions.cardified-page .yt-lockup-thumbnail,
+.ytcenter-grid-subscriptions.cardified-page .feed-item-action-menu {
+  margin-left: -3px;
+  margin-top: -3px;
+}
+
+/*.ytcenter-grid-subscriptions ul.feed-list:before,
+.ytcenter-grid-subscriptions ul.feed-list:after {
+  content: '.';
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+.ytcenter-grid-subscriptions ul.feed-list:after {
+  clear: both;
+}*/
+
 /* Removes padding from the list items */
 .ytcenter-grid-subscriptions .feed-item-container {
   padding: 0!important;
   width: 185px!important;
   height: 210px!important;
   float: left;
-  margin: -2px 0px 30px 10px!important;
+  margin: 0 0 30px 10px!important;
   border: 0!important;
 }
 

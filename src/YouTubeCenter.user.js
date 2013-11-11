@@ -37,8 +37,12 @@
 // @match           http://userscripts.org/scripts/source/114002.meta.js
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
+// @match           http://apis.google.com/u/0/wm/4/_/widget/render/comments?*
+// @match           https://apis.google.com/u/0/wm/4/_/widget/render/comments?*
 // @include         http://*.youtube.com/*
 // @include         https://*.youtube.com/*
+// @include         http://apis.google.com/u/0/wm/4/_/widget/render/comments?*
+// @include         https://apis.google.com/u/0/wm/4/_/widget/render/comments?*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
 // @grant           GM_getValue
@@ -1136,7 +1140,7 @@
       if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
         liSettings.setAttribute("id", "ytcenter-settings-toggler");
         liSettings.setAttribute("role", "menuitem");
-        //liSettings.className = "yt-uix-button-menu-new-section-separator";
+        liSettings.className = "yt-uix-button-menu-new-section-separator";
         
         spanText.className = "yt-uix-button-menu-item upload-menu-item";
         ytcenter.utils.addEventListener(spanText, "click", function(){
@@ -2643,9 +2647,11 @@
             if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
               __r.bumpCount();
               count++;
-              window.scroll(0, (scrollUpExit ? 1 : 0));
+              ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
+              //window.scroll(0, (scrollUpExit ? 1 : 0));
             } else {
-              window.scroll(0, 1);
+              ytcenter.utils.scrollTop(1);
+              //window.scroll(0, 1);
               pa.style.top = "";
               p.style.height = "";
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
@@ -2661,20 +2667,24 @@
               __r.stopTimer();
             }
           } else if (scrollUpExit) {
-            window.scroll(0, 1);
+            ytcenter.utils.scrollTop(1);
+            //window.scroll(0, 1);
           }
         } else {
           if (scrollTop === 0) {
             if (ytcenter.settings.topScrollPlayerTimesToEnter > count) {
               __r.bumpCount();
               count++;
-              window.scroll(0, 1);
+              ytcenter.utils.scrollTop(1)
+              //window.scroll(0, 1);
             } else {
               if (ytcenter.settings.topScrollPlayerEnabledOnlyVideoPlaying && (!api || !api.getPlayerState || api.getPlayerState() !== 1)) {
-                window.scroll(0, 1);
+                ytcenter.utils.scrollTop(1);
+                //window.scroll(0, 1);
                 return;
               }
-              window.scroll(0, (scrollUpExit ? 1 : 0));
+              ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
+              //window.scroll(0, (scrollUpExit ? 1 : 0));
               p.style.height = pa.style.height;
               if (!ytcenter.settings.topScrollPlayerAnimation)
                 ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
@@ -2734,12 +2744,13 @@
             elm.className = "ytcenter-scrolled-top-element";
             document.body.insertBefore(elm, document.body.children[0]);
           }
-          if (scrollTop === 0) window.scroll(0, 1);
+          if (scrollTop === 0) ytcenter.utils.scrollTop(1);
+          //if (scrollTop === 0) window.scroll(0, 1);
         }
       };
       __r.bumpCount = function(){
         uw.clearTimeout(timer);
-        uw.setTimeout(function(){
+        timer = uw.setTimeout(function(){
           count = 0;
         }, ytcenter.settings.topScrollPlayerBumpTimer);
       };
@@ -2766,12 +2777,14 @@
             } else {
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
             }
-            window.scroll(0, (ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0));
+            ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
+            //window.scroll(0, (ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0));
           } else {
             ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
             ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
             ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-            window.scroll(0, 1);
+            ytcenter.utils.scrollTop(1);
+            //window.scroll(0, 1);
           }
           throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
           if (enabled) ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
@@ -9095,6 +9108,21 @@
     };
     
     // @utils
+    ytcenter.utils.scrollTop = function(scrollTop){
+      if (!document) return null;
+      if (typeof scrollTop === "number") {
+        if (document.body && typeof document.body.scrollTop === "number") {
+          document.body.scrollTop = scrollTop;
+        } else {
+          document.documentElement.scrollTop = scrollTop;
+        }
+      }
+      if (document.body && typeof document.body.scrollTop === "number") {
+        return document.body.scrollTop;
+      } else {
+        return document.documentElement.scrollTop;
+      }
+    };
     ytcenter.utils.isParent = function(parent, child){
       var a = parent.getElementsByTagName(child.tagName), i;
       for (i = 0; i < a.length; i++) {
@@ -10269,14 +10297,18 @@
       }
     };
     ytcenter.utils.addCSS = function(styles){
-      if(typeof GM_addStyle !== "undefined") {
+      if (typeof GM_addStyle !== "undefined") {
         GM_addStyle(styles);
       } else {
         var oStyle = document.createElement("style");
         oStyle.setAttribute("type", "text\/css");
         oStyle.appendChild(document.createTextNode(styles));
-        if (document && document.getElementsByTagName("head")[0]) {
-          document.getElementsByTagName("head")[0].appendChild(oStyle);
+        if (document && document.head) {
+          document.head.appendChild(oStyle);
+        } else if (document) {
+          document.appendChild(oStyle);
+        } else {
+          con.error("[Add Style] Couldn't find document!");
         }
       }
     };
@@ -14668,7 +14700,7 @@
             uw.setTimeout(function(){
               a.getLiveModule().setText(ytcenter.getDebug());
               a.getLiveModule().selectAll();
-            }, 100); // async
+            }, 100);
           }.bind(option));
           
           option = ytcenter.settingsPanel.createOption(
