@@ -5109,6 +5109,8 @@
           dbg.htmlelements.body = {className: document.body.className};
         dbg.injected = injected;
         dbg.identifier = @identifier@;
+        dbg.devbuild = devbuild; // variable is true if this a developer build
+        dbg.devnumber = devnumber; // developer build number. Only really needed for the developer build.
         dbg.storageType = ytcenter.storageType;
         dbg.feather = ytcenter.feather;
         dbg.cookies = {};
