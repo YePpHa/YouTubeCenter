@@ -143,7 +143,7 @@
     }
   }
   
-  var main_function = function(injected, identifier){
+  var main_function = function(injected, identifier, devbuild, devnumber){
     "use strict";
     //console.log("Script was " + (injected ? "injected" : " not injected") + ".");
     /** Injected
@@ -12281,7 +12281,11 @@
         rightPanel.className = "ytcenter-settings-panel-right clearfix";
         
         productVersion.className = "ytcenter-settings-version";
-        productVersion.textContent = "YouTube Center v" + ytcenter.version;
+        if (devbuild) {
+          productVersion.textContent = "Developer Version - Build #" + devnumber;
+        } else {
+          productVersion.textContent = "YouTube Center v" + ytcenter.version;
+        }
         
         categoryList.className = "ytcenter-settings-category-list";
         categories.forEach(function(category){
@@ -19678,7 +19682,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0);
+          main_function(false, 0, true, 8);
         /*} catch (e) {
         }*/
       }
@@ -19698,7 +19702,7 @@
     }
   } else {
     //try {
-      main_function(false, 0);
+      main_function(false, 0, true, 8);
     //} catch (e) {
       //console.error(e);
     //}

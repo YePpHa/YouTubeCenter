@@ -249,7 +249,6 @@
       <arg value="${cert.chrome}" />
       <arg value="${dist}/${name}.crx" />
     </exec>
-    <!--<delete file="${build}/chrome.zip" />-->
   </target>
   
   <target name="chrome-keycheck">
@@ -298,6 +297,11 @@
     <antcall target="clean" />
 	</target>
   
+  <target name="buildnumber">
+    <buildnumber file="devbuild.number" />
+    <replace dir="${buildDir}" token="@devnumber@" value="${build.number}" encoding="${encoding}" />
+  </target>
+  
   <target name="copy">
     <copy todir="${buildDir}">
       <fileset dir="${src}">
@@ -310,6 +314,7 @@
   <target name="copy-userscript">
     <antcall target="copy" />
     <antcall target="tokenreplace" />
+    <antcall target="buildnumber" />
     <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.userscript}" token="@identifier@" encoding="${encoding}" />
   </target>
@@ -396,7 +401,7 @@
     <replace dir="${buildDir}" value="${indentifier.opera}" token="@identifier@" encoding="${encoding}" />
   </target>
   
-  <target name="tokenreplace">
+  <target name="tokenreplace" depends="buildnumber">
     <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${language.db.content}" token="@ant-database-language@" encoding="${encoding}" />
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />
