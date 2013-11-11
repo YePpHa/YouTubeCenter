@@ -3,11 +3,14 @@
  - Look into this http://userscripts.org/topics/131958
  - Entire video reloads 1 second if YouTube's default is HTML5 and YouTube Center forces it to be Flash.
  - Flashblock + embed videos not working (need verification as a lot of changes have been made to embed videos).
-
+ - Fix layout issue with latest Firefox on Subscription Grid. First video is offset.
+ - The player size "scroll to player" causes every page to scroll down.
+ - If the HTML5 player is loaded by YouTube by default. The prevent Auto-Play doesn't work.
  ---
+ - Popup as in https://addons.mozilla.org/en-US/firefox/addon/popvideo/?src=search
+ - Add last.fm scrobbler
  - Add http://www.music-clips.net and http://convert2mp3.net/en as MP3 Services.
  - Look into the Auto Hide Bar (both HTML5 and Flash - in Firefox and Chrome).
- - Merge adaptive_fmts and url_encoded_fmt_stream_map for unavailable qualites.
  - Have the guide beside the player when the player is not aligned.
  - Select quality based on video category.
  - When going to a channel go to the video tab by default.
