@@ -5109,6 +5109,8 @@
           dbg.htmlelements.body = {className: document.body.className};
         dbg.injected = injected;
         dbg.identifier = 0;
+        dbg.devbuild = devbuild; // variable is true if this a developer build
+        dbg.devnumber = devnumber; // developer build number. Only really needed for the developer build.
         dbg.storageType = ytcenter.storageType;
         dbg.feather = ytcenter.feather;
         dbg.cookies = {};
@@ -19682,7 +19684,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 8);
+          main_function(false, 0, true, 12);
         /*} catch (e) {
         }*/
       }
@@ -19702,7 +19704,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 8);
+      main_function(false, 0, true, 12);
     //} catch (e) {
       //console.error(e);
     //}

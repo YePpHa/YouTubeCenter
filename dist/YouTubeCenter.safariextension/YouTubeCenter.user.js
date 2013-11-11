@@ -143,7 +143,7 @@
     }
   }
   
-  var main_function = function(injected, identifier){
+  var main_function = function(injected, identifier, devbuild, devnumber){
     "use strict";
     //console.log("Script was " + (injected ? "injected" : " not injected") + ".");
     /** Injected
@@ -5109,6 +5109,8 @@
           dbg.htmlelements.body = {className: document.body.className};
         dbg.injected = injected;
         dbg.identifier = 4;
+        dbg.devbuild = devbuild; // variable is true if this a developer build
+        dbg.devnumber = devnumber; // developer build number. Only really needed for the developer build.
         dbg.storageType = ytcenter.storageType;
         dbg.feather = ytcenter.feather;
         dbg.cookies = {};
@@ -12281,7 +12283,11 @@
         rightPanel.className = "ytcenter-settings-panel-right clearfix";
         
         productVersion.className = "ytcenter-settings-version";
-        productVersion.textContent = "YouTube Center v" + ytcenter.version;
+        if (devbuild) {
+          productVersion.textContent = "Developer Version - Build #" + devnumber;
+        } else {
+          productVersion.textContent = "YouTube Center v" + ytcenter.version;
+        }
         
         categoryList.className = "ytcenter-settings-category-list";
         categories.forEach(function(category){
@@ -19678,7 +19684,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4);
+          main_function(false, 4, true, 17);
         /*} catch (e) {
         }*/
       }
@@ -19698,7 +19704,7 @@
     }
   } else {
     //try {
-      main_function(false, 4);
+      main_function(false, 4, true, 17);
     //} catch (e) {
       //console.error(e);
     //}
