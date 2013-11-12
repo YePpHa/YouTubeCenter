@@ -9513,6 +9513,13 @@
       }
       return false;
     };
+    
+    /* The util function "throttle" has been taken from Underscore.
+     * **************************
+     * http://underscorejs.org
+     * (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+     * Underscore may be freely distributed under the MIT license.
+     */
     ytcenter.utils.throttle = function(func, delay, options){
       function timeout() {
         previous = options.leading === false ? 0 : new Date;
@@ -11228,6 +11235,10 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      commentsPlusLinkRedirectConfirm: true,
+      commentsPlusScrollToCommentAtCollapse: true,
+      
+      
       tempFixRepeat: true, /* Fixing the bug with the player where you can't repeat a video : It refreshes the stream */
       likeSwitchToTab: "none", // none, details, share, addto, stats
       endOfVideoAutoSwitchToTab: "none", // none, details, share, addto, stats
@@ -16232,6 +16243,36 @@
       config.args.enablejsapi = 1;
       config.args.jsapicallback = "ytcenter.player.onReady";
       
+      
+      if (ytcenter.getPage() === "watch") {
+        if (ytcenter.settings.forcePlayerType === "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+          config.html5 = false;
+          config.disable = { html5: 1 };
+          ytcenter.player.setPlayerType("flash");
+        } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+          config.html5 = true;
+          delete config.args.ad3_module;
+          config.args.allow_html5_ads = 1;
+          config.args.html5_sdk_version = "3.1";
+          config.disable = { flash: 1 };
+          ytcenter.player.setPlayerType("html5");
+        }
+      } else if (ytcenter.getPage() === "embed") {
+        if (ytcenter.settings.embed_forcePlayerType === "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+          config.html5 = false;
+          config.args.html5_sdk_version = "0";
+          config.disable = { html5: 1 };
+          ytcenter.player.setPlayerType("flash");
+        } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+          config.html5 = true;
+          delete config.args.ad3_module;
+          config.args.allow_html5_ads = 1;
+          config.args.html5_sdk_version = "3.1";
+          config.disable = { flash: 1 };
+          ytcenter.player.setPlayerType("html5");
+        }
+      }
+      
       if (config.html5) ytcenter.html5 = true;
       else ytcenter.html5 = false;
       con.log("[Player Type] " + (ytcenter.html5 ? "HTML5" : "Flash"));
@@ -16241,9 +16282,6 @@
       
       if (ytcenter.settings.enableResize)
         config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
-      
-      config.args.allow_html5_ads = 1;
-      config.args.html5_sdk_version = "3.1";
       
       if (page === "watch") {
         var ___callback = function(response){
@@ -17925,14 +17963,32 @@
         return;
       }
       var api = ytcenter.player.getAPI();
-      if (api.getPlayerType() === type) {
-        con.log("[Player setPlayerType] Type is already " + type + "!");
-        return;
+      if (api) {
+        if (api.getPlayerType() === type) {
+          con.log("[Player setPlayerType] Type is already " + type + "!");
+          return;
+        }
+        con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
+        
+        api.writePlayer(type);
+      } else {
+        var called = false;
+        var cb = function(api){
+          if (!api || called) return;
+          called = true;
+          ytcenter.utils.removeClass(document.body, "ytcenter-disable-html5");
+          if (api.getPlayerType() === type) {
+            con.log("[Player setPlayerType] Type is already " + type + "!");
+            return;
+          }
+          con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
+          
+          api.writePlayer(type);
+        };
+        con.log("[Player setPlayerType] API isn't ready!");
+        ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
+        ytcenter.player.listeners.addEventListener("onReady", cb);
       }
-      con.log("[Player Type] Setting player type from " + api.getPlayerType() + " to " + type);
-      api.pauseVideo();
-      api.stopVideo();
-      api.writePlayer(type);
     };
     ytcenter.player.updateFlashvars = function(player, config){
       if (!config || !config.args) return;
@@ -18990,13 +19046,13 @@
               }
             } else {
               if (ytcenter.getPage() === "watch") {
-                if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+                /*if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("flash");
                   return;
                 } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("html5");
                   return;
-                }
+                }*/
                 ytcenter.placementsystem.clear();
                 
                 $CreateDownloadButton();
@@ -19007,13 +19063,13 @@
                 
                 initPlacement();
               } else if (ytcenter.getPage() === "embed") {
-                if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+                /*if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("flash");
                   return;
                 } else if (ytcenter.settings.embed_forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("html5");
                   return;
-                }
+                }*/
               }
               if (!ytcenter._intercomOnPlayer) {
                 ytcenter._intercomOnPlayer = true;
