@@ -12049,7 +12049,7 @@
                   
                   var cnme = document.createElement("div");
                   cnme.className = "yt-alert-message";
-                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
+                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATER_DEV_NEWBUILD"));
                   ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
                   var f2 = document.createElement("br");
                   var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
