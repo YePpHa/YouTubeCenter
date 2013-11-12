@@ -11922,8 +11922,8 @@
                   
                   var cnme = document.createElement("div");
                   cnme.className = "yt-alert-message";
-                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
-                  ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
+                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATER_DEV_NEWBUILD"));
+                  ytcenter.language.addLocaleElement(f1, "UPDATER_DEV_NEWBUILD", "@textContent", {});
                   var f2 = document.createElement("br");
                   var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
                   ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
@@ -11932,24 +11932,11 @@
                   f5.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Developer-Version";
                   f5.setAttribute("target", "_blank");
                   f5.textContent = "Developer Version - Build #" + buildnumber;
-                  var f6 = document.createTextNode(" ");
-                  var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
-                  ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
-                  var f8 = document.createTextNode(" ");
-                  var f9 = document.createElement("a");
-                  f9.setAttribute("target", "_blank");
-                  f9.href = "https://github.com/YePpHa/YouTubeCenter/";
-                  f9.textContent = "Github.com/YouTubeCenter/";
-                  
                   cnme.appendChild(f1);
                   cnme.appendChild(f2);
                   cnme.appendChild(f3);
                   cnme.appendChild(f4);
                   cnme.appendChild(f5);
-                  cnme.appendChild(f6);
-                  cnme.appendChild(f7);
-                  cnme.appendChild(f8);
-                  cnme.appendChild(f9);
                   
                   cn.appendChild(cnt);
                   cn.appendChild(cnme);
@@ -12049,7 +12036,7 @@
                   
                   var cnme = document.createElement("div");
                   cnme.className = "yt-alert-message";
-                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATER_DEV_NEWBUILD"));
+                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATE_NOTICE"));
                   ytcenter.language.addLocaleElement(f1, "UPDATE_NOTICE", "@textContent", {});
                   var f2 = document.createElement("br");
                   var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
