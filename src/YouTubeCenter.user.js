@@ -1867,7 +1867,7 @@
       }
     }
     
-    var console_debug = true; // Disable this to stop YouTube Center from writing in the console log.
+    var console_debug = devbuild; // Disable this to stop YouTube Center from writing in the console log.
     var _console = [];
     
     var uw, loc, con, ytcenter = {}, yt = {};
