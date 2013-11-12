@@ -11931,7 +11931,7 @@
                   var f5 = document.createElement("a");
                   f5.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Developer-Version";
                   f5.setAttribute("target", "_blank");
-                  f5.textContent = "YouTube Center v" + ver;
+                  f5.textContent = "Developer Version - Build #" + buildnumber;
                   var f6 = document.createTextNode(" ");
                   var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
                   ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
@@ -19913,7 +19913,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 83);
+          main_function(false, 0, true, 84);
         /*} catch (e) {
         }*/
       }
@@ -19933,7 +19933,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 83);
+      main_function(false, 0, true, 84);
     //} catch (e) {
       //console.error(e);
     //}
