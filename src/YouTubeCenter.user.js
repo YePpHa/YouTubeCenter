@@ -11243,7 +11243,6 @@
       likeSwitchToTab: "none", // none, details, share, addto, stats
       endOfVideoAutoSwitchToTab: "none", // none, details, share, addto, stats
       //enableYouTubeAutoSwitchToShareTab: false,
-      
       topScrollPlayerEnabled: true,
       topScrollPlayerActivated: false,
       topScrollPlayerTimesToEnter: 1,
@@ -11421,6 +11420,7 @@
       "resize-default-playersize": 'default',
       "resize-small-button": "default_fit_to_content",
       "resize-large-button": "default_720",
+      playerSizeAspect: "default", // default, 4:3, 16:9, 16:10, 24:10
       "resize-playersizes": [
         {
           id: "default_small",
@@ -13283,6 +13283,41 @@
               "bind": "resize-playersizes"
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#large-resize-button"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "playerSizeAspect", // defaultSetting
+            "list", // module
+            "SETTINGS_RESIZE_ASPECT_LABEL",
+            {
+              "list": [
+                {
+                  "value": "default",
+                  "label": "SETTINGS_RESIZE_ASPECT_DEFAULT"
+                }, {
+                  "value": "4:3",
+                  "label": "SETTINGS_RESIZE_ASPECT_4:3"
+                }, {
+                  "value": "16:9",
+                  "label": "SETTINGS_RESIZE_ASPECT_16:9"
+                }, {
+                  "value": "16:10",
+                  "label": "SETTINGS_RESIZE_ASPECT_16:10"
+                }, {
+                  "value": "24:10",
+                  "label": "SETTINGS_RESIZE_ASPECT_24:10"
+                }
+              ],
+              "listeners": [
+                {
+                  "event": "update",
+                  "callback": function(){
+                    ytcenter.player.setRatio(ytcenter.player.calculateRatio(ytcenter.player.getConfig().args.dash === "1" && ytcenter.player.getConfig().args.adaptive_fmts));
+                  }
+                }
+              ]
+            },
+            null
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16181,10 +16216,20 @@
     };
     ytcenter.player.calculateRatio = function(dash, predefinedAspect){
       var i, a;
-      predefinedAspect = predefinedAspect || ytcenter.settings['aspectValue'];
+      /*predefinedAspect = predefinedAspect || ytcenter.settings['aspectValue'];
       // Checking if the ratio is predefined
       if (predefinedAspect && predefinedAspect.indexOf("=") !== -1) {
         a = predefinedAspect.split("=")[1];
+        if (a.indexOf(":") !== -1) {
+          a = a.split(":");
+          a = parseInt(a[0])/parseInt(a[1]);
+          if (!isNaN(a)) return a;
+        }
+      }*/
+      predefinedAspect = predefinedAspect || ytcenter.settings['playerSizeAspect'];
+      // Checking if the ratio is predefined
+      if (predefinedAspect && predefinedAspect !== "default") {
+        a = predefinedAspect;
         if (a.indexOf(":") !== -1) {
           a = a.split(":");
           a = parseInt(a[0])/parseInt(a[1]);
