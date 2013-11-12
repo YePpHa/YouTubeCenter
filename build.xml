@@ -4,6 +4,7 @@
   </description>
   
   <property name="build.prop" value="${basedir}/build.properties" />
+  <property name="devbuild.number" value="${basedir}/devbuild.number" />
   <property name="language.db" value="${basedir}/language.json" />
   <property name="language.jar" value="${basedir}/LanguageDatabaseUpdater.jar" />
   <property name="language.key" value="0AhHfBBHelFnAdF9fWHlVaHlGdUYteFNUUFVpeTIta2c" />
@@ -297,8 +298,12 @@
     <antcall target="clean" />
 	</target>
   
+  <target name="devnumber">
+    <buildnumber file="${devbuild.number}" />
+  </target>
+  
   <target name="buildnumber">
-    <buildnumber file="devbuild.number" />
+    <property file="${devbuild.number}" />
     <replace dir="${buildDir}" token="@devnumber@" value="${build.number}" encoding="${encoding}" />
   </target>
   
