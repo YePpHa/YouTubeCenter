@@ -11873,7 +11873,8 @@
                 con.log("Got Update Response");
                 var buildnumber = -1;
                 if (response && response.responseText) {
-                  buildnumber =  parseInt(/build\.number=([0-9]+)/m.exec(response.responseText)[1], 10);
+                  buildnumber = parseInt(/build\.number=([0-9]+)/m.exec(response.responseText)[1], 10);
+                  con.log("[Update] Current dev build #" + buildnumber + ". Your build number #" + devnumber);
                 } else {
                   con.log("Couldn't parse the build number");
                 }
