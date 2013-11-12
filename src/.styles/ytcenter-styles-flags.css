@@ -1241,5 +1241,5 @@
 .ytcenter-comments-blocked *:first-child {
   display: block;
   font-weight: bold;
-  cursor: pointer;
+  color: #ccc;
 }

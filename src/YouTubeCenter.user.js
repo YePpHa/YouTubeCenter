@@ -2716,7 +2716,7 @@
       var __r = {},
           count = 0,
           activated,
-          enabled = true,
+          enabled = null,
           elm = null,
           timer = null,
           buffer = null,
@@ -2726,9 +2726,10 @@
       
       __r.setEnabled = function(a){
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-        enabled = !!a;
+        enabled = a;
         if (enabled && ytcenter.getPage() !== "watch") enabled = false;
         if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
+        throttleFunc = null;
         if (!enabled) {
           if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
@@ -2768,36 +2769,38 @@
           elm.className = "ytcenter-scrolled-top-element";
           if (ytcenter.settings.topScrollPlayerEnabled) document.body.insertBefore(elm, document.body.children[0]);
         }
+        enabled = ytcenter.settings.topScrollPlayerEnabled;
         activated = ytcenter.settings.topScrollPlayerActivated;
         if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
-        if (ytcenter.settings.topScrollPlayerEnabled && ytcenter.getPage() === "watch") {
-          if (activated) {
-            if (!ytcenter.settings.topScrollPlayerAnimation)
-              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
-            if (ytcenter.settings.topScrollPlayerScrollUpToExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
-            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-            if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-            } else {
-              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-            }
-            ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
-            //window.scroll(0, (ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0));
-          } else {
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-            ytcenter.utils.scrollTop(1);
-            //window.scroll(0, 1);
-          }
-          throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
-          if (enabled) ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
-        }
         if (enabled) {
+          if (ytcenter.settings.topScrollPlayerEnabled && ytcenter.getPage() === "watch") {
+            if (activated) {
+              if (!ytcenter.settings.topScrollPlayerAnimation)
+                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
+              if (ytcenter.settings.topScrollPlayerScrollUpToExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
+              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+              if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+              } else {
+                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+              }
+              ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
+              //window.scroll(0, (ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0));
+            } else {
+              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+              ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
+              ytcenter.utils.scrollTop(1);
+              //window.scroll(0, 1);
+            }
+            throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
+            ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
+          }
           if (document.getElementById("player")) {
             document.getElementById("player").style.position = "";
           }
         }
+        __r.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
         ytcenter.events.addEvent("settings-update", function(){
           __r.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
           if (enabled) {
@@ -2807,6 +2810,7 @@
           }
         });
         ytcenter.events.addEvent("resize-update", function(){
+          __r.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
           if (enabled) {
             if (document.getElementById("player")) {
               document.getElementById("player").style.position = "";
@@ -3694,14 +3698,14 @@
             blockedElement = document.createElement("div");
             
             blockedElement.textContent = "Comment Blocked by YouTube Center!"; // This is only temporary
-            blockedElement.addEventListener("click", (function(obj, blockedElement, wrap){
+            /*blockedElement.addEventListener("click", (function(obj, blockedElement, wrap){
               function blockedElementListener(){
                 ytcenter.utils.removeClass(wrap, "ytcenter-comments-blocked");
                 blockedElement.parentNode.removeChild(blockedElement);
-                blockedElement.addEventListener("click", blockedElementListener, false);
+                blockedElement.removeEventListener("click", blockedElementListener, false);
               }
               return blockedElementListener;
-            })(obj, blockedElement, obj.contentElement.parentNode.parentNode), false);
+            })(obj, blockedElement, obj.contentElement.parentNode.parentNode), false);*/
             obj.contentElement.parentNode.parentNode.className += " ytcenter-comments-blocked";
             obj.contentElement.parentNode.parentNode.insertBefore(blockedElement, obj.contentElement.parentNode);
             if (obj.wrapper) {
@@ -4862,14 +4866,14 @@
               "highres": "#fff"
             },
             text, background, color, wrapper = document.createElement("span"),
-            /*convertSizeToQuality = {
+            convertSizeToQuality2 = {
               "144": "tiny",
               "240": "small",
               "360": "medium",
               "480": "large",
               "720": "hd720",
               "1080": "hd1080"
-            };*/
+            },
             convertSizeToQuality = {
               "192": "tiny", // 4:3
               "256": "tiny", // 16:9
@@ -4883,7 +4887,7 @@
               "1280": "hd720", // 16:9
               "1440": "hd1080", // 4:3
               "1920": "hd1080" // 16:9
-            }
+            };
         if (stream === "error") {
           text = tableQuality[stream];
           background = tableBackground[stream];
@@ -4901,6 +4905,13 @@
             stream.quality = "highres";
           } else {
             stream.quality = convertSizeToQuality[stream.size.split("x")[0]];
+          }
+          if (!stream.quality) {
+            if (parseInt(stream.size.split("x")[1]) > 1080) {
+              stream.quality = "highres";
+            } else {
+              stream.quality = convertSizeToQuality2[stream.size.split("x")[1]];
+            }
           }
           text = stream.size.split("x")[1] + "p";
           background = tableBackground[stream.quality];
@@ -19379,7 +19390,7 @@
           ytcenter.title.init();
           ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
           ytcenter.topScrollPlayer.setup();
-          ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch");
+          ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch" && ytcenter.settings.topScrollPlayerEnabled);
           if (ytcenter.settings['experimentalFeatureTopGuide']) {
             if (!ytcenter.experiments.isTopGuide()) {
               ytcenter.settings['experimentalFeatureTopGuide'] = false;
@@ -20029,7 +20040,7 @@
           ytcenter.videoHistory.addVideo(data.swfcfg.args.video_id);
         }
         ytcenter.placementsystem.clear();
-        ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch");
+        ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch" && ytcenter.settings.topScrollPlayerEnabled);
         if (url.pathname !== "/watch") {
           if (ytcenter.getPage(ytcenter.unsafe.spf.url) === "feed_what_to_watch") {
             ytcenter.intelligentFeed.setup();
