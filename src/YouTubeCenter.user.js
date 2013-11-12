@@ -3534,7 +3534,56 @@
           observer.disconnect();
         }
       });
+      __r.filters = {};
+      __r.filters.text = function(regexString, contentElement){
+        var regex = new RegExp(regexString);
+        con.log(regex, contentElement.textContent);
+        return regex.test(contentElement.textContent);
+      };
+      __r.filters.links = function(regexString, contentElement){
+        var regex = new RegExp(regexString),
+            links = contentElement.getElementsByTagName("a"), i;
+        for (i = 0; i < links.length; i++) {
+          if (regex.test(links[i].href))
+            return true;
+        }
+        return false;
+      };
+      __r.filters.username = function(regexString, contentElement){
+        var regex = new RegExp(regexString),
+            parent = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode,
+            img = parent.getElementsByTagName("img")[0];
+        if (regex.test(img.getAttribute("title")))
+          return true;
+        return false;
+      };
+      __r.testFilters = function(list, contentElement){
+        var i;
+        
+        for (i = 0; i < list.length; i++) {
+          if (list[i].type in __r.filters) {
+            if (__r.filters[list[i].type](list[i].regex, contentElement))
+              return true;
+          }
+        }
+        return false;
+      };
+      __r.filter = function(){
+        var a = document.getElementsByClassName("Ct"), i;
+        for (i = 0; i < a.length; i++) {
+          /* Whitelist */
+          if (__r.testFilters(ytcenter.settings.commentsPlusWhitelist, a[i]))
+            continue;
+          
+          /* Blacklist */
+          if (__r.testFilters(ytcenter.settings.commentsPlusBlacklist, a[i])) {
+            a[i].textContent = "Comment Blocked by YouTube Center!";
+          }
+        }
+      };
       __r.update = function(){
+        __r.filter();
+        
         var c = compareDifference(getComments(), comments), i;
         for (i = 0; i < c.length; i++) {
           mergeCommentData(c[i]);
@@ -3558,6 +3607,8 @@
         }
       };
       __r.setup = function(){
+        __r.filter();
+        
         document.body.className += " ytcenter-comments-plus";
         if (ytcenter.settings.commentCountryEnabled) {
           try {
@@ -11238,9 +11289,11 @@
     ytcenter._settings = {
       commentsPlusLinkRedirectConfirm: true,
       commentsPlusScrollToCommentAtCollapse: true,
-      
-      
-      tempFixRepeat: true, /* Fixing the bug with the player where you can't repeat a video : It refreshes the stream */
+      commentsPlusRemoveLinks: false,
+      commentsPlusBlacklist: [
+        { type: "text", regex: "/#fixyoutube/" }
+      ],
+      commentsPlusWhitelist: [],
       likeSwitchToTab: "none", // none, details, share, addto, stats
       endOfVideoAutoSwitchToTab: "none", // none, details, share, addto, stats
       //enableYouTubeAutoSwitchToShareTab: false,
@@ -11922,21 +11975,35 @@
                   
                   var cnme = document.createElement("div");
                   cnme.className = "yt-alert-message";
-                  var f1 = document.createTextNode(ytcenter.language.getLocale("UPDATER_DEV_NEWBUILD"));
-                  ytcenter.language.addLocaleElement(f1, "UPDATER_DEV_NEWBUILD", "@textContent", {});
-                  var f2 = document.createElement("br");
-                  var f3 = document.createTextNode(ytcenter.language.getLocale("UPDATE_INSTALL"));
-                  ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
-                  var f4 = document.createTextNode(" ");
-                  var f5 = document.createElement("a");
-                  f5.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Developer-Version";
-                  f5.setAttribute("target", "_blank");
-                  f5.textContent = "Developer Version - Build #" + buildnumber;
+                  var f1 = ytcenter.utils.replaceText(ytcenter.language.getLocale("UPDATER_DEV_NEWBUILD"),
+                    {
+                      "{lb}": function(){ return document.createElement("br"); },
+                      "{url}": function(){
+                        var a = document.createElement("a");
+                        a.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Developer-Version";
+                        a.setAttribute("target", "_blank");
+                        a.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("DEV_BUILD"), { "{n}": document.createTextNode(buildnumber) }));
+                        return a;
+                      }
+                    }
+                  );
+                  ytcenter.events.addEvent("language-refresh", function(){
+                    f1 = ytcenter.utils.replaceText(ytcenter.language.getLocale("UPDATER_DEV_NEWBUILD"),
+                      {
+                        "{lb}": function(){ return document.createElement("br"); },
+                        "{url}": function(){
+                          var a = document.createElement("a");
+                          a.href = "https://github.com/YePpHa/YouTubeCenter/wiki/Developer-Version";
+                          a.setAttribute("target", "_blank");
+                          a.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("DEV_BUILD"), { "{n}": document.createTextNode(buildnumber) }));
+                          return a;
+                        }
+                      }
+                    );
+                    cnme.innerHTML = "";
+                    cnme.appendChild(f1);
+                  });
                   cnme.appendChild(f1);
-                  cnme.appendChild(f2);
-                  cnme.appendChild(f3);
-                  cnme.appendChild(f4);
-                  cnme.appendChild(f5);
                   
                   cn.appendChild(cnt);
                   cn.appendChild(cnme);
@@ -12408,7 +12475,11 @@
         
         productVersion.className = "ytcenter-settings-version";
         if (devbuild) {
-          productVersion.textContent = "Developer Version - Build #" + devnumber;
+          ytcenter.events.addEvent("language-refresh", function(){
+            productVersion.innerHTML = "";
+            productVersion.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("DEV_BUILD"), { "{n}": document.createTextNode(devnumber) }));
+          });
+          productVersion.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("DEV_BUILD"), { "{n}": document.createTextNode(devnumber) }));
         } else {
           productVersion.textContent = "YouTube Center v" + ytcenter.version;
         }
@@ -19556,18 +19627,6 @@
             ytcenter.title.removePlayIcon();
           }
           ytcenter.title.update();
-          
-          if (ytcenter.settings.tempFixRepeat && (state === 1 || state === 2) && tmpFixRepeatAtEnd) {
-            var seekTime = ytcenter.player.getAPI().getCurrentTime();
-            ytcenter.player.getAPI().stopVideo();
-            ytcenter.player.getAPI().playVideo();
-            if (seekTime > 0) {
-              ytcenter.player.getAPI().seekTo(seekTime);
-            }
-            tmpFixRepeatAtEnd = false;
-          } else if (ytcenter.settings.tempFixRepeat && state === 0) {
-            tmpFixRepeatAtEnd = true;
-          }
           
           if (ytcenter.doRepeat && ytcenter.settings.enableRepeat && state === 0) {
             if (ytcenter.settings.tempFixRepeat) {
