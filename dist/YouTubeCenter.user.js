@@ -3535,65 +3535,216 @@
         }
       });
       __r.filters = {};
-      __r.filters.text = function(regexString, contentElement){
-        var regex = new RegExp(regexString);
-        con.log(regex, contentElement.textContent);
-        return regex.test(contentElement.textContent);
+      __r.filters.compareLength = function(condition, obj){
+        var len = obj.contentElement.textContent.length;
+        if (len === parseInt(condition.length, 10))
+          return true;
+        return false;
       };
-      __r.filters.links = function(regexString, contentElement){
-        var regex = new RegExp(regexString),
-            links = contentElement.getElementsByTagName("a"), i;
+      __r.filters.text = function(condition, obj){
+        var regex = new RegExp(ytcenter.utils.replaceTextToText(condition.regex, {
+          "${username}": ytcenter.utils.escapeRegExp(obj.username),
+          "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
+          "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
+        }));
+        return regex.test(obj.contentElement.textContent);
+      };
+      __r.filters.links = function(condition, obj){
+        var regex, regexString = ytcenter.utils.replaceTextToText(condition.regex, {
+              "${username}": ytcenter.utils.escapeRegExp(obj.username),
+              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
+              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
+            }), attr = condition.attr || "href", links = obj.contentElement.getElementsByTagName("a"), i;
         for (i = 0; i < links.length; i++) {
-          if (regex.test(links[i].href))
+          regex = new RegExp(ytcenter.utils.replaceTextToText(regexString, { "${linkContent}": links[i].textContent }));
+          if (ytcenter.utils.hasClass(links[i], "ot-anchor") && regex.test(links[i][attr]))
             return true;
         }
         return false;
       };
-      __r.filters.username = function(regexString, contentElement){
-        var regex = new RegExp(regexString),
-            parent = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode,
-            img = parent.getElementsByTagName("img")[0];
+      __r.filters.profilelinks = function(condition, obj){
+        var regex, regexString = ytcenter.utils.replaceTextToText(condition.regex, {
+              "${username}": ytcenter.utils.escapeRegExp(obj.username),
+              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
+              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
+            }), attr = condition.attr || "href",
+            links = obj.contentElement.getElementsByTagName("a"), i;
+        for (i = 0; i < links.length; i++) {
+          regex = new RegExp(ytcenter.utils.replaceTextToText(regexString, { "${linkContent}": links[i].textContent }));
+          if (ytcenter.utils.hasClass(links[i], "proflink") && regex.test(links[i][attr]))
+            return true;
+        }
+        return false;
+      };
+      __r.filters.hashlinks = function(condition, obj){
+        var regex, regexString = ytcenter.utils.replaceTextToText(condition.regex, {
+              "${username}": ytcenter.utils.escapeRegExp(obj.username),
+              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
+              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
+            }), attr = condition.attr || "href",
+            links = obj.contentElement.getElementsByTagName("a"), i;
+        for (i = 0; i < links.length; i++) {
+          regex = new RegExp(ytcenter.utils.replaceTextToText(regexString, { "${linkContent}": links[i].textContent }));
+          if (ytcenter.utils.hasClass(links[i], "ot-hashtag") && regex.test(links[i][attr]))
+            return true;
+        }
+        return false;
+      };
+      __r.filters.username = function(condition, obj){
+        var regex = new RegExp(ytcenter.utils.replaceTextToText(condition.regex, {
+              "${username}": ytcenter.utils.escapeRegExp(obj.username),
+              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
+              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
+            })), img = obj.wrapper.getElementsByTagName("img")[0];
         if (regex.test(img.getAttribute("title")))
           return true;
         return false;
       };
-      __r.testFilters = function(list, contentElement){
+      
+      __r.testFilters = function(list, obj){
         var i;
-        
         for (i = 0; i < list.length; i++) {
           if (list[i].type in __r.filters) {
-            if (__r.filters[list[i].type](list[i].regex, contentElement))
+            if (__r.filters[list[i].type](list[i], obj))
               return true;
           }
         }
         return false;
       };
-      __r.filter = function(){
+      __r.__commentInfoIdNext = 0;
+      __r.getCommentObject = function(contentElement){
+        var commentInfo = {}, tmp;
+        commentInfo.id = __r.__commentInfoIdNext;
+        __r.__commentInfoIdNext += 1;
+        
+        commentInfo.inDOM = true;
+        commentInfo.contentElement = contentElement;
+        commentInfo.textContent = contentElement.textContent;
+        commentInfo.shared = commentInfo.textContent === "";
+        commentInfo.children = ytcenter.utils.toArray(contentElement.children); // We don't want the array to change
+        
+        commentInfo.isReply = contentElement.parentNode.className.indexOf("Pm") === -1;
+        
+        if (commentInfo.isReply) {
+          commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode;
+          commentInfo.wrapper.setAttribute("data-ytc-comment-id", commentInfo.id);
+          commentInfo.parentId = parseInt(commentInfo.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.firstChild.getAttribute("data-ytc-comment-id"), 10);
+        } else {
+          commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode;
+          commentInfo.wrapper.setAttribute("data-ytc-comment-id", commentInfo.id);
+          commentInfo.parentId = -1;
+        }
+        
+        commentInfo.username = commentInfo.wrapper.getElementsByTagName("img")[0].getAttribute("title");
+        tmp = commentInfo.wrapper.getElementsByClassName("Mpa");
+        if (tmp && tmp.length > 0 && tmp[0]) {
+          commentInfo.viaGooglePlus = tmp[0].children.length === 1 ? false : true;
+        } else {
+          tmp = commentInfo.wrapper.getElementsByClassName("fR")[0];
+          commentInfo.viaGooglePlus = tmp.children.length === 3 ? false : true;
+        }
+        
+        return commentInfo;
+      };
+      __r.comments = [];
+      __r.commentLoaded = function(contentElement){
+        var i;
+        for (i = 0; i < __r.comments.length; i++) {
+          if (__r.comments[i].contentElement === contentElement)
+            return true;
+        }
+        return false;
+      };
+      __r.loadComments = function(){
         var a = document.getElementsByClassName("Ct"), i;
         for (i = 0; i < a.length; i++) {
-          /* Whitelist */
-          if (__r.testFilters(ytcenter.settings.commentsPlusWhitelist, a[i]))
+          if (ytcenter.utils.hasClass(a[i], "ytcenter-comments-loaded") || __r.commentLoaded(a[i])) continue;
+          __r.comments.push(__r.getCommentObject(a[i]));
+        }
+      };
+      __r.filter = function(){
+        var i, obj;
+        for (i = 0; i < __r.comments.length; i++) {
+          if (ytcenter.utils.hasClass(__r.comments[i].contentElement, "ytcenter-comments-loaded")) continue;
+          __r.comments[i].contentElement.className += " ytcenter-comments-loaded";
+          obj = __r.comments[i];
+          
+          if (__r.testFilters(ytcenter.settings.commentsPlusWhitelist, obj))
             continue;
           
           /* Blacklist */
-          if (__r.testFilters(ytcenter.settings.commentsPlusBlacklist, a[i])) {
-            a[i].textContent = "Comment Blocked by YouTube Center!";
+          if (__r.testFilters(ytcenter.settings.commentsPlusBlacklist, obj)) {
+            obj.contentElement.textContent = "Comment Blocked by YouTube Center!"; // This is only temporary
+            obj.contentElement.addEventListener("click", (function(obj){
+              return function(){
+                var j;
+                if (obj.children.length === 0) {
+                  obj.contentElement.textContent = obj.textContent;
+                } else {
+                  obj.contentElement.innerHTML = "";
+                  for (j = 0; j < obj.children.length; j++) {
+                    obj.contentElement.appendChild(obj.children[j]);
+                  }
+                }
+                obj.contentElement.style.fontWeight = "";
+                obj.contentElement.style.cursor = "";
+                if (obj.wrapper) {
+                  obj.wrapper.lastChild.style.display = "";
+                }
+              };
+            })(obj), false);
+            obj.contentElement.style.fontWeight = "bold";
+            obj.contentElement.style.cursor = "pointer";
+            if (obj.wrapper) {
+              obj.wrapper.lastChild.style.display = "none";
+            }
+          }
+        }
+      };
+      __r.commentDuplicates = function(){
+        var i, j, duplicates, msg;
+        for (i = 0; i < __r.comments.length; i++) {
+          if (typeof __r.comments[i].duplicateId === "number" || !__r.comments[i].inDOM) continue;
+          if (!ytcenter.utils.contains(document, __r.comments[i].wrapper)) {
+            __r.comments[i].inDOM = false;
+            continue;
+          }
+          duplicates = 0;
+          for (j = 0; j < __r.comments.length; j++) {
+            if (i === j || __r.comments[j].duplicateId === "number" || __r.comments[j].duplicates || !__r.comments[j].inDOM) continue;
+            if (!ytcenter.utils.contains(document, __r.comments[j].wrapper)) {
+              __r.comments[j].inDOM = false;
+              continue;
+            }
+            if (__r.comments[i].username === __r.comments[j].username
+             && __r.comments[i].textContent === __r.comments[j].textContent) {
+              duplicates += 1;
+              __r.comments[j].duplicateId = i;
+              __r.comments[j].wrapper.style.display = "none";
+            }
+          }
+          if (duplicates > 0) {
+            __r.comments[i].duplicates = duplicates;
           }
         }
       };
       __r.update = function(){
+        __r.loadComments();
         __r.filter();
-        
-        var c = compareDifference(getComments(), comments), i;
-        for (i = 0; i < c.length; i++) {
-          mergeCommentData(c[i]);
-          updateReuse(c[i]);
-          processItem(c[i]);
+        __r.commentDuplicates();
+        if (ytcenter.settings.commentCountryEnabled) {
+          var c = compareDifference(getComments(), comments), i;
+          for (i = 0; i < c.length; i++) {
+            mergeCommentData(c[i]);
+            updateReuse(c[i]);
+            processItem(c[i]);
+          }
         }
       };
       __r.setupObserver = function(){
         try {
           observer = ytcenter.mutation.observe(document.body, { childList: true, subtree: true }, function(){
+            con.log("[Comment Observer] In action!");
             __r.update();
           });
         } catch (e) {
@@ -3607,7 +3758,11 @@
         }
       };
       __r.setup = function(){
+        __r.loadComments();
         __r.filter();
+        __r.commentDuplicates();
+        
+        uw.comments = __r;
         
         document.body.className += " ytcenter-comments-plus";
         if (ytcenter.settings.commentCountryEnabled) {
@@ -3621,16 +3776,16 @@
               updateReuse(comments[i]);
               processItem(comments[i]);
             }
-            ytcenter.events.addEvent("resize-update", function(){
-              __r.update();
-            });
-            __r.setupObserver();
           } catch (e) {
             con.error(e);
           }
         } else {
           cacheChecker();
         }
+        ytcenter.events.addEvent("resize-update", function(){
+          __r.update();
+        });
+        __r.setupObserver();
       };
       
       return __r;
@@ -9543,6 +9698,27 @@
     };
     
     // @utils
+    
+    /* Code taken from https://code.google.com/p/doctype-mirror/wiki/ArticleNodeContains */
+    ytcenter.utils.contains = function(parent, descendant){
+      // W3C DOM Level 3
+      if (typeof parent.compareDocumentPosition != 'undefined') {
+        return parent == descendant || Boolean(parent.compareDocumentPosition(descendant) & 16);
+      }
+
+      // W3C DOM Level 1
+      while (descendant && parent != descendant) {
+        descendant = descendant.parentNode;
+      }
+      return descendant == parent;
+    };
+    ytcenter.utils.toArray = function(list){
+      var arr = [], i, len = list.length;
+      for (i = 0; i < len; i++) {
+        arr.push(list[i]);
+      }
+      return arr;
+    };
     ytcenter.utils.scrollTop = function(scrollTop){
       if (!document) return null;
       if (typeof scrollTop === "number") {
