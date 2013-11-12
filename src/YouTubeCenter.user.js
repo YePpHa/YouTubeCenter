@@ -3248,7 +3248,8 @@
             b = document.getElementsByClassName("fR"),
             data = [], i, cacheData, d, sort = {}, tmp = [];
         for (i = 0; i < a.length; i++) {
-          if (!a[i].firstChild.getAttribute("oid")) continue;
+          if (!a[i].firstChild.getAttribute("oid") || ytcenter.utils.hasClass(a[i], "ytcenter-flags-registered")) continue;
+          a[i].className += " ytcenter-flags-registered";
           d = {
             element: a[i].parentNode,
             userId: a[i].firstChild.getAttribute("oid"),
@@ -3258,7 +3259,8 @@
           data.push(d);
         }
         for (i = 0; i < b.length; i++) {
-          if (!b[i].firstChild.getAttribute("oid")) continue;
+          if (!b[i].firstChild.getAttribute("oid") || ytcenter.utils.hasClass(a[i], "ytcenter-flags-registered")) continue;
+          a[i].className += " ytcenter-flags-registered";
           d = {
             element: b[i],
             userId: b[i].firstChild.getAttribute("oid"),
@@ -3535,7 +3537,22 @@
         }
       });
       __r.filters = {};
-      __r.filters.compareLength = function(condition, obj){
+      __r.filters.repeat = function(condition, obj){
+        return (new RegExp("(.)\\1{" + parseInt(condition.amount, 10) + ",}")).test(obj.contentElement.textContent);
+      };
+      __r.filters.biggerThan = function(condition, obj){
+        var len = obj.contentElement.textContent.length;
+        if (len < parseInt(condition.length, 10))
+          return true;
+        return false;
+      };
+      __r.filters.smallerThan = function(condition, obj){
+        var len = obj.contentElement.textContent.length;
+        if (len > parseInt(condition.length, 10))
+          return true;
+        return false;
+      };
+      __r.filters.equals = function(condition, obj){
         var len = obj.contentElement.textContent.length;
         if (len === parseInt(condition.length, 10))
           return true;
@@ -3621,7 +3638,7 @@
         commentInfo.contentElement = contentElement;
         commentInfo.textContent = contentElement.textContent;
         commentInfo.shared = commentInfo.textContent === "";
-        commentInfo.children = ytcenter.utils.toArray(contentElement.children); // We don't want the array to change
+        commentInfo.children = ytcenter.utils.toArray(contentElement.childNodes); // We don't want the array to change
         
         commentInfo.isReply = contentElement.parentNode.className.indexOf("Pm") === -1;
         
@@ -3663,7 +3680,7 @@
         }
       };
       __r.filter = function(){
-        var i, obj;
+        var i, obj, blockedElement;
         for (i = 0; i < __r.comments.length; i++) {
           if (ytcenter.utils.hasClass(__r.comments[i].contentElement, "ytcenter-comments-loaded")) continue;
           __r.comments[i].contentElement.className += " ytcenter-comments-loaded";
@@ -3674,27 +3691,19 @@
           
           /* Blacklist */
           if (__r.testFilters(ytcenter.settings.commentsPlusBlacklist, obj)) {
-            obj.contentElement.textContent = "Comment Blocked by YouTube Center!"; // This is only temporary
-            obj.contentElement.addEventListener("click", (function(obj){
-              return function(){
-                var j;
-                if (obj.children.length === 0) {
-                  obj.contentElement.textContent = obj.textContent;
-                } else {
-                  obj.contentElement.innerHTML = "";
-                  for (j = 0; j < obj.children.length; j++) {
-                    obj.contentElement.appendChild(obj.children[j]);
-                  }
-                }
-                obj.contentElement.style.fontWeight = "";
-                obj.contentElement.style.cursor = "";
-                if (obj.wrapper) {
-                  obj.wrapper.lastChild.style.display = "";
-                }
-              };
-            })(obj), false);
-            obj.contentElement.style.fontWeight = "bold";
-            obj.contentElement.style.cursor = "pointer";
+            blockedElement = document.createElement("div");
+            
+            blockedElement.textContent = "Comment Blocked by YouTube Center!"; // This is only temporary
+            blockedElement.addEventListener("click", (function(obj, blockedElement, wrap){
+              function blockedElementListener(){
+                ytcenter.utils.removeClass(wrap, "ytcenter-comments-blocked");
+                blockedElement.parentNode.removeChild(blockedElement);
+                blockedElement.addEventListener("click", blockedElementListener, false);
+              }
+              return blockedElementListener;
+            })(obj, blockedElement, obj.contentElement.parentNode.parentNode), false);
+            obj.contentElement.parentNode.parentNode.className += " ytcenter-comments-blocked";
+            obj.contentElement.parentNode.parentNode.insertBefore(blockedElement, obj.contentElement.parentNode);
             if (obj.wrapper) {
               obj.wrapper.lastChild.style.display = "none";
             }
@@ -3761,8 +3770,6 @@
         __r.loadComments();
         __r.filter();
         __r.commentDuplicates();
-        
-        uw.comments = __r;
         
         document.body.className += " ytcenter-comments-plus";
         if (ytcenter.settings.commentCountryEnabled) {
@@ -11467,7 +11474,10 @@
       commentsPlusScrollToCommentAtCollapse: true,
       commentsPlusRemoveLinks: false,
       commentsPlusBlacklist: [
-        { type: "text", regex: "/#fixyoutube/" }
+        { type: "equals", length: 1 },
+        { type: "repeat", amount: 9 },
+        { type: "profilelinks", regex: "${username}", attr: "textContent" },
+        { type: "hashlinks", regex: "fixyoutube", attr: "textContent" }
       ],
       commentsPlusWhitelist: [],
       likeSwitchToTab: "none", // none, details, share, addto, stats
