@@ -3270,7 +3270,7 @@
         }
         for (i = 0; i < b.length; i++) {
           if (!b[i].firstChild.getAttribute("oid") || ytcenter.utils.hasClass(a[i], "ytcenter-flags-registered")) continue;
-          a[i].className += " ytcenter-flags-registered";
+          b[i].className += " ytcenter-flags-registered";
           d = {
             element: b[i],
             userId: b[i].firstChild.getAttribute("oid"),
@@ -3663,12 +3663,19 @@
         }
         
         commentInfo.username = commentInfo.wrapper.getElementsByTagName("img")[0].getAttribute("title");
-        tmp = commentInfo.wrapper.getElementsByClassName("Mpa");
-        if (tmp && tmp.length > 0 && tmp[0]) {
-          commentInfo.viaGooglePlus = tmp[0].children.length === 1 ? false : true;
+        commentInfo.profileRedirectURL = commentInfo.wrapper.getElementsByTagName("img")[0].parentNode.href;
+        commentInfo.profileRedirectId = commentInfo.profileRedirectURL.split("youtube.com/profile_redirector/")[1];
+        
+        if (commentInfo.isReply) {
+          commentInfo.headerElement = commentInfo.wrapper.getElementsByClassName("fR")[0];
         } else {
-          tmp = commentInfo.wrapper.getElementsByClassName("fR")[0];
-          commentInfo.viaGooglePlus = tmp.children.length === 3 ? false : true;
+          commentInfo.headerElement = commentInfo.wrapper.getElementsByClassName("Mpa")[0];
+        }
+        
+        if (commentInfo.isReply) {
+          commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 3 ? false : true;
+        } else {
+          commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 1 ? false : true;
         }
         
         return commentInfo;
@@ -3747,18 +3754,28 @@
           }
         }
       };
+      __r.addFlags = function(){
+        if (!ytcenter.settings.commentCountryEnabled) return;
+        var i;
+        for (i = 0; i < __r.comments.length; i++) {
+          
+        }
+      };
+      
       __r.update = function(){
         __r.loadComments();
         __r.filter();
         __r.commentDuplicates();
-        if (ytcenter.settings.commentCountryEnabled) {
+        __r.addFlags();
+        
+        /*if (ytcenter.settings.commentCountryEnabled) {
           var c = compareDifference(getComments(), comments), i;
           for (i = 0; i < c.length; i++) {
             mergeCommentData(c[i]);
             updateReuse(c[i]);
             processItem(c[i]);
           }
-        }
+        }*/
       };
       __r.setupObserver = function(){
         try {
@@ -3780,9 +3797,10 @@
         __r.loadComments();
         __r.filter();
         __r.commentDuplicates();
+        __r.addFlags();
         
         document.body.className += " ytcenter-comments-plus";
-        if (ytcenter.settings.commentCountryEnabled) {
+        /*if (ytcenter.settings.commentCountryEnabled) {
           try {
             var i;
             
@@ -3798,11 +3816,119 @@
           }
         } else {
           cacheChecker();
-        }
+        }*/
         ytcenter.events.addEvent("resize-update", function(){
           __r.update();
         });
         __r.setupObserver();
+      };
+      
+      return __r;
+    })();
+    ytcenter.jobs = (function(){
+      var __r = {}, workers = {};
+      
+      __r.createWorker = function(id, action, complete){
+        if (id in workers) {
+          if (workers[id].completed) {
+            workers[id].complete(workers[id].data);
+          } else {
+            workers[id].completeActions.push(complete);
+          }
+        } else {
+          workers[id] = { completeActions: [ complete ], action: action, arg: {
+            complete: function(data){
+              workers[id].completed = true;
+              workers[id].data = data;
+              var i;
+              for (i = 0; i < workers[id].completeActions.length; i++) {
+                workers[id].completeActions[i](data);
+              }
+            },
+            remove: ytcenter.utils.once(function(){ delete workers[id]; })
+          }, completed: false};
+          action(a);
+        }
+      };
+      
+      return __r;
+    })();
+    ytcenter.cache = (function(){
+      var __r = {};
+      
+      __r.putCategory = function(id, size){
+        if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
+        var items = [];
+        if (ytcenter.settings.cache[id].i) items = ytcenter.settings.cache[id].i;
+        
+        ytcenter.settings.cache[id] = { s: size, i: items };
+        
+        ytcenter.saveSettings();
+      };
+      
+      __r.getCategory = function(id){
+        if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
+        var cat = ytcenter.settings.cache[id];
+        if (!cat) return null;
+        return { id: id, size: cat.s, items: cat.i };
+      };
+      
+      __r.getItem = function(catId, id){
+        if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
+        __r.checkCache();
+        
+        var cat = __r.getCategory(catId), i;
+        if (!cat) false;
+        for (i = 0; i < cat.items.length; i++) {
+          if (cat.items[i].id === id)
+            return { id: cat.items[i].i, categoryId: catId, data: cat.items[i].d, expires: cat.items[i].e, lastUpdated: cat.items[i].l, index: i };
+        }
+        return null;
+      };
+      
+      /**
+       * catId : the unique id of the category the item is in.
+       * id : the unique id of the item.
+       * data : the data of the item.
+       * expires : the milliseconds after the last update date. If the sum of expires and the lastUpdate is less than the date the item will be removed.
+       */
+      __r.putItem = function(catId, id, data, expires){
+        if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
+        __r.checkCache();
+        
+        var cat = __r.getCategory(catId), item;
+        if (!cat) throw "[Cache] Category " + catId + " doesn't exist!";
+        item = getItem(catId, id);
+        if (item) {
+          cat.items[item.index].d = data;
+          cat.items[item.index].e = expires;
+          cat.items[item.index].l = +new Date;
+        } else {
+          item = { i: id, d: data, e: expires, l: +new Date };
+          if (cat.items.length >= cat.size) cat.items.shift();
+          cat.items.push(item);
+        }
+        
+        ytcenter.saveSettings();
+      };
+      
+      /* Finds expired items and removes them. */
+      __r.checkCache = function(){
+        if (!ytcenter.settings.cache) return;
+        var key, i, now = +new Date, save = false;
+        
+        for (key in ytcenter.settings.cache) {
+          if (ytcenter.settings.cache.hasOwnProperty(key)) {
+            for (i = 0; i < ytcenter.settings.cache[key].i.length; i++) {
+              if (ytcenter.settings.cache[key].l + ytcenter.settings.cache[key].e < now) {
+                save = true;
+                ytcenter.settings.cache[key].i.splice(i, 1);
+                i--;
+              }
+            }
+          }
+        }
+        ytcenter.saveSettings();
       };
       
       return __r;
@@ -9766,7 +9892,7 @@
       return false;
     };
     
-    /* The util function "throttle" has been taken from Underscore.
+    /* The util function "throttle" and "once" has been taken from Underscore.
      * **************************
      * http://underscorejs.org
      * (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -9800,6 +9926,17 @@
         return result;
       };
     };
+    ytcenter.utils.once = function(func) {
+      var ran = false, memo;
+      return function() {
+        if (ran) return memo;
+        ran = true;
+        memo = func.apply(this, arguments);
+        func = null;
+        return memo;
+      };
+    };
+    
     ytcenter.utils.isContainerOverflowed = function(a){ // Possible going to use this one
       // AKA Is the container bigger on the inside than the outside?
       return {
