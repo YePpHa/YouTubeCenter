@@ -1793,8 +1793,14 @@
         var oStyle = document.createElement("style");
         oStyle.setAttribute("type", "text\/css");
         oStyle.appendChild(document.createTextNode(styles));
-        if (document && document.getElementsByTagName("head")[0]) {
-          document.getElementsByTagName("head")[0].appendChild(oStyle);
+        if (document && document.head) {
+          document.head.appendChild(oStyle);
+        } else if (document && document.body) {
+          document.body.appendChild(oStyle);
+        } else if (document && document.documentElement) {
+          document.documentElement.appendChild(oStyle);
+        } else if (document) {
+          document.appendChild(oStyle);
         } else {
           con.error("Failed to add style!");
         }
@@ -1862,8 +1868,8 @@
       });
       for (i = 0; i < spf.length; i++) {
         defineLockedProperty(this, spf[i].key,
-                            (function(a){return function(value){return a.update(value);};})(spf[i]),
-                            (function(a){return function(){return a.callback;};})(spf[i]));
+                            (function(a){ return function(value){ return a.update(value); }; })(spf[i]),
+                            (function(a){ return function(){ return a.callback; }; })(spf[i]));
       }
     }
     
@@ -19718,10 +19724,12 @@
           } catch (e) {
             con.error(e);
           }
-
-          if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
-            if (document.getElementById("watch-headline-container") || document.getElementById("page-container"))
-              (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+          
+          if (ytcenter.page === "watch") {
+            if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
+              if (document.getElementById("watch-headline-container") || document.getElementById("page-container"))
+                (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+            }
           }
         } else if (page === "channel") {
           ytcenter.page = "channel";
@@ -20079,8 +20087,10 @@
           
           initPlacement();
           
-          if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
-            (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+          if (ytcenter.page === "watch") {
+            if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
+              (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+            }
           }
           ytcenter.playlist = false;
           try {
