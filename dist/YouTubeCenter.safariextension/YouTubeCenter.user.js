@@ -17734,7 +17734,7 @@
         if (!ytcenter.settings.enableResize) return;
         var _s = getSizeById(ytcenter.player.currentResizeId);
         ytcenter.player.resize(_s);
-        if (_s.config.scrollToPlayer && ytcenter.getPage() === "watch") {
+        if (_s.config.scrollToPlayer && ytcenter.getPage() === "watch" && ((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled)) {
           if ((ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
             var posY = 0,
                 scrollElm = (document.getElementById("player-api-legacy") || document.getElementById("player-api")),
@@ -19621,6 +19621,15 @@
         
         yt = uw.yt;
         ytcenter.player.onYouTubePlayerReady = function(api){
+          /* Running other onYouTubePlayerReady callbacks */
+          if (ytcenter.onYouTubePlayerReady) {
+            var i;
+            for (i = 0; i < ytcenter.onYouTubePlayerReady.length; i++) {
+              ytcenter.onYouTubePlayerReady[i].apply(uw, arguments);
+            }
+            ytcenter.onYouTubePlayerReady = [];
+          }
+          
           ytcenter.classManagement.applyClassesForElement();
           con.log("[onYouTubePlayerReady]", arguments);
           if (typeof api !== "string") {
@@ -19721,7 +19730,19 @@
           elm.appendChild(pic);
           ytcenter.dialog(null, elm).setVisibility(true);
         };
-        uw.onYouTubePlayerReady = ytcenter.player.onYouTubePlayerReady;
+        if (typeof uw.onYouTubePlayerReady === "function") {
+          if (!ytcenter.onYouTubePlayerReady) ytcenter.onYouTubePlayerReady = [];
+          ytcenter.onYouTubePlayerReady.push(uw.onYouTubePlayerReady);
+        }
+        defineLockedProperty(uw, "onYouTubePlayerReady", function(func){
+          con.log("[onYouTubePlayerReady] Something is trying to set onYouTubePlayerReady to something else.");
+          if (typeof func !== "function") return;
+          if (!ytcenter.onYouTubePlayerReady) ytcenter.onYouTubePlayerReady = [];
+          ytcenter.onYouTubePlayerReady.push(func);
+        }, function(){
+          return ytcenter.player.onYouTubePlayerReady;
+        });
+        //uw.onYouTubePlayerReady = ytcenter.player.onYouTubePlayerReady;
         
         /* bodyInteractive should only be used for the UI, use the other listeners for player configuration */
         ytcenter.player.listeners.addEventListener("onReady", function(){
@@ -20259,7 +20280,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 93);
+          main_function(false, 4, true, 94);
         /*} catch (e) {
         }*/
       }
@@ -20279,7 +20300,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 93);
+      main_function(false, 4, true, 94);
     //} catch (e) {
       //console.error(e);
     //}
