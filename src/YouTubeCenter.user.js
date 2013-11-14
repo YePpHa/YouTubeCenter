@@ -17734,7 +17734,7 @@
         if (!ytcenter.settings.enableResize) return;
         var _s = getSizeById(ytcenter.player.currentResizeId);
         ytcenter.player.resize(_s);
-        if (_s.config.scrollToPlayer) {
+        if (_s.config.scrollToPlayer && ytcenter.getPage() === "watch") {
           if ((ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
             var posY = 0,
                 scrollElm = (document.getElementById("player-api-legacy") || document.getElementById("player-api")),
