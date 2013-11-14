@@ -12,5 +12,14 @@ Recommend Videos list (Bigger Thumbnails):
   VISITOR_INFO1_LIVE=8P_pMfGDZsE;
 Endscreen auto play:
   VISITOR_INFO1_LIVE=Tzf-Mol6aU8;
-Cardbased UI + Fixed Topbar:
+[Not Working] Cardbased UI + Fixed Topbar:
   VISITOR_INFO1_LIVE=obVG_HIVX28;
+---
+Fixed Topbar:
+  VISITOR_INFO1_LIVE=Yh4Erzi5vcM;
+Fixed Topbar + Google header:
+  VISITOR_INFO1_LIVE=T4GTB5NvJf0;
+Big topbar:
+  VISITOR_INFO1_LIVE=kzBKlpTZmZo;
+Fixed Topbar 2:
+  VISITOR_INFO1_LIVE=TCAOe6JIe1s;
