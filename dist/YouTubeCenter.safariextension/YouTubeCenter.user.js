@@ -2407,8 +2407,8 @@
         return function(){
           con.log("[Embed] YouTube has called writeEmbed.");
           ytcenter.embed.isYouTubeReady = true;
-          if (ytcenter.embed.writeEmbed)
-            ytcenter.embed.writeEmbed();
+          if (ytcenter.embed.writePlayer)
+            ytcenter.embed.writePlayer();
         };
       });
       
@@ -2462,6 +2462,7 @@
                   if (object.url_encoded_fmt_stream_map || object.adaptive_fmts) {
                     ytcenter.video.streams = ytcenter.parseStreams(object);
                   }
+                  ytcenter.player.setConfig(ytcenter.player.modifyConfig("embed", ytcenter.player.config));
                 }
                 
                 ytcenter.embed.isYouTubeCenterReady = true;
@@ -19664,6 +19665,13 @@
                 
                 initPlacement();
               } else if (ytcenter.getPage() === "embed") {
+                var lis = function(state){
+                  if (state === -1) return;
+                  ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
+                  if (state === 1 || state === 2 || state === 3) ytcenter.player.listeners.removeEventListener("onStateChange", lis);
+                };
+                ytcenter.player.listeners.addEventListener("onStateChange", lis);
+                ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
                 /*if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
                   ytcenter.player.setPlayerType("flash");
                   return;
@@ -20280,7 +20288,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 94);
+          main_function(false, 4, true, 95);
         /*} catch (e) {
         }*/
       }
@@ -20300,7 +20308,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 94);
+      main_function(false, 4, true, 95);
     //} catch (e) {
       //console.error(e);
     //}
