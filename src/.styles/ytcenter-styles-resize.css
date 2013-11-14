@@ -23,6 +23,7 @@
 #playlist,
 #playlist-legacy {
   margin-right: 0px!important;
+  margin-left: 0px!important;
 }
 
 /*.watch7-playlist-bar {
@@ -38,15 +39,22 @@
 .ytcenter-site-watch.ytcenter-site-center #guide-container {
   left: 10px!important;
 }
+.rtl.ytcenter-site-watch.ytcenter-site-center #guide-container {
+  right: 10px!important;
+}
 
 .ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed.ytcenter-resize-disaligned #page {
   width: 100%!important;
 }
 
-.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-video,
-.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-main {
+.ltr.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-video,
+.ltr.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-main {
   left: 0!important;
   width: 808px!important;
+}
+.rtl.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-video,
+.rtl.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-main {
+  right: 0!important;
 }
 
 .ytcenter-site-watch.ytcenter-site-center.sidebar-expanded #watch7-sidebar {
@@ -71,6 +79,7 @@
 
 .ytcenter-site-watch.ytcenter-site-center .watch7-playlist {
   padding-left: 0px;
+  padding-right: 0px;
 }
 
 .ytcenter-site-center.ytcenter-resize-main.ytcenter-player-center #watch7-creator-bar {
@@ -84,10 +93,12 @@
 
 .ytcenter-resize-disaligned.ytcenter-site-center .watch7-playlist-bar {
   margin-left: 0!important;
+  margin-right: 0!important;
 }
 
 .ytcenter-resize-disaligned.ytcenter-site-center .watch7-playlist-data {
   padding-left: 0!important;
+  padding-right: 0!important;
   margin: 0 auto!important;
 }
 
@@ -95,6 +106,7 @@
 .ytcenter-resize-disaligned #player-legacy,
 .ytcenter-site-center.ytcenter-resize-disaligned #watch7-playlist-data {
   padding-left: 0!important;
+  padding-right: 0!important;
 }
 
 .ytcenter-site-center.ytcenter-resize-disaligned #watch7-player {
@@ -102,8 +114,11 @@
   margin-right: auto!important;
 }
 
-.video-list .video-list-item .yt-uix-button-subscription-container {
+.ltr.video-list .video-list-item .yt-uix-button-subscription-container {
   left: 73px!important;
+}
+.rtl.video-list .video-list-item .yt-uix-button-subscription-container {
+  right: 73px!important;
 }
 
 .video-list .video-list-item a.related-channel {
@@ -141,6 +156,7 @@
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page #content #player,
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page #content #player-legacy {
   padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 .ytcenter-site-watch.ytcenter-site-center.site-left-aligned #page.watch #guide + #content {
   margin: 0 auto!important;
@@ -188,8 +204,11 @@
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page-container {
     margin: 0 auto!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
     margin-left: -180px !important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
+    margin-right: -180px !important;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player,
@@ -198,6 +217,7 @@
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player-legacy,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
     padding-left: 0 !important;
+    padding-right: 0 !important;
     padding-top: 0 !important;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch #player + #content,
@@ -217,24 +237,30 @@
   }
 }
 @media screen and (max-width:1381px) {
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #watch7-main-container #watch7-main,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #content {
+  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
+  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #watch7-main-container #watch7-main,
+  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #content,
+  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy,
+  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #content,
+  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #content  {
     padding-left: 190px;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #watch7-main-container #watch7-main,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #content  {
+    padding-right: 190px;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy {
-    padding-left: 190px;
-  }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #content #player,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #content #player-legacy  {
     margin: auto!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #content,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #content {
-    padding-left: 190px;
-  }
+  
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch > #player,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch > #player,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch > #player-legacy,
@@ -260,19 +286,24 @@
 }
 
 @media screen and (min-width:1166px) {
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
     left: 10!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
+    right: 10!important;
   }
 }
 
 @media screen and (max-width:1165px) {
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.guide-collapsed #guide-container {
     margin-left: 0px !important;
+    margin-right: 0px !important;
   }
   
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-main,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main {
     padding-left: 0!important;
+    padding-right: 0!important;
   }
   .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.sidebar-expanded #page {
     width: 100%!important;
@@ -286,31 +317,49 @@
     margin: 0 !important;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
     margin-left: 58px!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
     margin-left: 190px!important;
   }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+    margin-right: 58px!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+    margin-right: 190px!important;
+  }
   
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #content,
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
-  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy {
     padding-left: 58px!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy {
+    padding-right: 58px!important;
   }
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player,
   .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player-legacy {
     padding-left: 0!important;
+    padding-right: 0!important;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #content #player,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #content #player-legacy {
     margin-left: 0!important;
+    margin-right: 0!important;
   }
   
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #content,
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
-  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy  {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy  {
     padding-left: 190px!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy  {
+    padding-right: 190px!important;
   }
   
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container {
@@ -325,6 +374,7 @@
 }
 .ytcenter-site-center #page {
   padding-left: 0!important;
+  padding-right: 0!important;
 }
 
 .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player,
