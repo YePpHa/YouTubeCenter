@@ -237,13 +237,13 @@
   }
 }
 @media screen and (max-width:1381px) {
-  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
-  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #watch7-main-container #watch7-main,
-  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #content,
-  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
-  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy,
-  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #content,
-  .lrt.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #content  {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #watch7-main-container #watch7-main,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #content  {
     padding-left: 190px;
   }
   .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
@@ -345,11 +345,6 @@
     padding-left: 0!important;
     padding-right: 0!important;
   }
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #content #player,
-  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #content #player-legacy {
-    margin-left: 0!important;
-    margin-right: 0!important;
-  }
   
   .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #content,
   .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
@@ -364,6 +359,17 @@
   
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container {
     z-index: 2!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #content {
+    padding-left: 0!important;
+    padding-right: 0!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #player-legacy {
+    margin-left: 0!important;
+    margin-right: 0!important;
   }
 }
 
