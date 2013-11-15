@@ -4762,6 +4762,7 @@
             barLength = "100%";
           }
           sparkBarLikes.className = "video-extras-sparkbar-likes";
+          sparkBarLikes.style.background = ytcenter.settings.videoThumbnailRatingsBarLikesColor;
           sparkBarDislikes.className = "video-extras-sparkbar-dislikes";
           if (likes === "error") {
             sparkBarDislikes.style.background = "#BF3EFF";
@@ -4769,7 +4770,7 @@
             likes = 0;
             dislikes = 1;
           } else if (total > 0) {
-            sparkBarDislikes.style.background = "#f00";
+            sparkBarDislikes.style.background = ytcenter.settings.videoThumbnailRatingsBarDislikesColor;
           } else {
             dislikes = 1;
             total = 1;
@@ -6942,13 +6943,45 @@
       hWrapper.appendChild(htmlColorLabel);
       hWrapper.appendChild(htmlColor.element);
       
-      
       rgbWrapper.className += " ytcenter-modules-rgbwrapper";
       rgbWrapper.appendChild(rWrapper);
       rgbWrapper.appendChild(gWrapper);
       rgbWrapper.appendChild(bWrapper);
       
       rgbWrapper.appendChild(hWrapper);
+      
+      if (option && option.args && option.args.presetColors && option.args.presetColors.length > 0) {
+        var presets = document.createElement("div"),
+            presetsLabel = ytcenter.utils.wrapModule(ytcenter.modules.label({label: "COLORPICKER_PRESETS"})),
+            i, color;
+        presets.className = "ytcenter-colorpicker-presets clearfix";
+        presetsLabel.className = "ytcenter-colorpicker-presets-label";
+        
+        presets.appendChild(presetsLabel);
+        
+        for (i = 0; i < option.args.presetColors.length; i++) {
+          color = document.createElement("div");
+          color.className = "ytcenter-colorpicker-presets-color";
+          color.style.background = option.args.presetColors[i];
+          ytcenter.utils.addEventListener(color, "click", (function(bgcolor){
+            return function(){
+              rgb = ytcenter.utils.hexToColor(bgcolor);
+              red = rgb.red;
+              green = rgb.green;
+              blue = rgb.blue;
+              
+              hsv = ytcenter.utils.getHSV(red, green, blue);
+              
+              update();
+              updateHueRange();
+              updateColorField();
+            };
+          })(option.args.presetColors[i]), false);
+          presets.appendChild(color);
+        }
+        
+        rgbWrapper.appendChild(presets);
+      }
       
       hueWrapper.appendChild(hueRangeField.element);
       hueWrapper.appendChild(hueRange.element);
@@ -8104,8 +8137,7 @@
       var _text = document.createElement("input");
       _text.setAttribute("type", "text");
       _text.value = Math.round(range.getValue());
-      _text.style.width = "45px";
-      _text.style.marginLeft = "4px";
+      _text.className = "ytcenter-modules-rangetext";
       wrapper.appendChild(_text);
       
       range.bind(function(value){
@@ -11638,6 +11670,8 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      sparkbarLikesColor: "#590",
+      sparkbarDislikesColor: "#ccc",
       commentsPlusLinkRedirectConfirm: true,
       commentsPlusScrollToCommentAtCollapse: true,
       commentsPlusRemoveLinks: false,
@@ -11715,6 +11749,8 @@
       videoThumbnailRatingsBarPosition: "bottom",
       videoThumbnailRatingsBarDownloadAt: "scroll_into_view",
       videoThumbnailRatingsBarVisible: "always",
+      videoThumbnailRatingsBarLikesColor: "#590",
+      videoThumbnailRatingsBarDislikesColor: "#f00",
       videoThumbnailRatingsCount: true,
       videoThumbnailRatingsCountPosition: "bottomleft",
       videoThumbnailRatingsCountDownloadAt: "scroll_into_view",
@@ -12764,7 +12800,11 @@
             if (!ytcenter.modules[option.module])
               throw new Error("[Settings createOptionsForLayout] Option (" + option.id + ", " + option.label + ", " + option.module + ") are using an non existing module!");
 
-            moduleContainer = document.createElement("span");
+            moduleContainer = document.createElement("div");
+            moduleContainer.className = "ytcenter-module-container";
+            if (!option.label || option.label === "") {
+              moduleContainer.style.width = "100%";
+            }
             option.parent = a.getSubCategory(subcat.id);
             module = ytcenter.modules[option.module](option);
             option.liveModule = module;
@@ -14762,6 +14802,39 @@
             }
           );
           subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "sparkbarLikesColor", // defaultSetting
+            "colorpicker", // module
+            "SETTINGS_SPARKBAR_LIKES_COLOR",
+            {
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+            }
+          );
+          option.addEventListener("update", function(){
+            var wvi = document.getElementById("watch7-views-info"),
+                sl = document.getElementsByClassName("video-extras-sparkbar-likes");
+            if (sl && sl.length > 0 && sl[0]) {
+              sl[0].style.background = ytcenter.settings.sparkbarLikesColor;
+            }
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "sparkbarDislikesColor", // defaultSetting
+            "colorpicker", // module
+            "SETTINGS_SPARKBAR_DISLIKES_COLOR",
+            {
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+            }
+          );
+          option.addEventListener("update", function(){
+            var wvi = document.getElementById("watch7-views-info"),
+                sd = document.getElementsByClassName("video-extras-sparkbar-dislikes");
+            if (sd && sd.length > 0 && sd[0]) {
+              sd[0].style.background = ytcenter.settings.sparkbarDislikesColor;
+            }
+          });
+          subcat.addOption(option);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PLACEMENT"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
             "enableDownload",
@@ -14923,7 +14996,10 @@
           option = ytcenter.settingsPanel.createOption(
             "lightbulbBackgroundColor", // defaultSetting
             "colorpicker", // module
-            "SETTINGS_LIGHTBULB_COLOR"
+            "SETTINGS_LIGHTBULB_COLOR",
+            {
+              "presetColors": ["#000", "#fff", "#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+            }
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -14969,6 +15045,7 @@
           })(option);
         
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_VIDEO_THUMBNAIL"); cat.addSubCategory(subcat);
+          // Animation
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
@@ -15036,7 +15113,7 @@
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
           
-          
+          // Quality
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
@@ -15148,6 +15225,7 @@
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
 
+          // Rating bar
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
@@ -15258,7 +15336,30 @@
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBarLikesColor", // defaultSetting
+            "colorpicker", // module
+            "SETTINGS_THUMBNAIL_SPARKBAR_LIKES_COLOR",
+            {
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBarDislikesColor", // defaultSetting
+            "colorpicker", // module
+            "SETTINGS_THUMBNAIL_SPARKBAR_DISLIKES_COLOR",
+            {
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
 
+          // Rating count
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
@@ -15370,6 +15471,7 @@
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
 
+          // Watch later button
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
@@ -15443,6 +15545,7 @@
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
 
+          // Time code
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
@@ -19825,6 +19928,14 @@
             con.error(e);
           }
           
+          var wvi = document.getElementById("watch7-views-info"),
+              sl = document.getElementsByClassName("video-extras-sparkbar-likes"),
+              sd = document.getElementsByClassName("video-extras-sparkbar-dislikes");
+          if (sl && sd && sl.length > 0 && sd.length > 0 && sl[0] && sd[0]) {
+            sl[0].style.background = ytcenter.settings.sparkbarLikesColor;
+            sd[0].style.background = ytcenter.settings.sparkbarDislikesColor;
+          }
+          
           ytcenter.playlist = false;
           try {
             if (document.getElementById("watch7-playlist-data") || loc.search.indexOf("list=") !== -1) {
@@ -20208,6 +20319,14 @@
           $CreateResizeButton();
           
           initPlacement();
+          
+          var wvi = document.getElementById("watch7-views-info"),
+              sl = document.getElementsByClassName("video-extras-sparkbar-likes"),
+              sd = document.getElementsByClassName("video-extras-sparkbar-dislikes");
+          if (sl && sd && sl.length > 0 && sd.length > 0 && sl[0] && sd[0]) {
+            sl[0].style.background = ytcenter.settings.sparkbarLikesColor;
+            sd[0].style.background = ytcenter.settings.sparkbarDislikesColor;
+          }
           
           if (ytcenter.page === "watch") {
             if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
