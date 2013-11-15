@@ -106,6 +106,7 @@
   display: inline-block;
   width: 260px;
   color: #555;
+  vertical-align: middle;
 }
 .ytcenter-settings-option-label.ytcenter-disabled {
   color: #B9B9B9

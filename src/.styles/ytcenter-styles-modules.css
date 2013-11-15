@@ -1,3 +1,33 @@
+.ytcenter-module-container {
+  display: inline-block;
+  line-height: 0;
+  font-size: 0;
+  vertical-align: middle;
+}
+
+.ytcenter-modules-rangetext {
+  width: 45px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.ytcenter-colorpicker-presets {
+  margin-top: 10px;
+}
+
+.ytcenter-colorpicker-presets-color {
+  display: inline-block;
+  float: left;
+  width: 20px;
+  height: 29px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.ytcenter-colorpicker-presets-label {
+  display: block;
+}
+
 .ytcenter-modules-colorpicker-huewrapper {
   width: 250px;
   height: 225px;
@@ -95,6 +125,7 @@
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
   border-radius: 2px;
+  vertical-align: middle;
 }
 
 .ytcenter-modules-range .ytcenter-modules-range-handle {
@@ -483,7 +514,7 @@
 }
 
 .ytcenter-modules-htmlcolorlabel {
-  width: 127px;
+  display: block;
   vertical-align: middle;
 }
 
