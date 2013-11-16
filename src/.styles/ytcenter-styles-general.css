@@ -573,10 +573,10 @@ body > #page {
   width: auto!important;
 }
 
-.ytcenter-site-watch #player,
+/*.ytcenter-site-watch #player,
 .ytcenter-site-watch #player-legacy {
   overflow: hidden;
-}
+}*/
 
 .ytcenter-intelligentfeed .shelf-wrapper,
 .ytcenter-intelligentfeed .feed-item-collapsed-container .feed-item-collapsed-items {

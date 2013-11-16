@@ -4,9 +4,10 @@
  - Entire video reloads 1 second if YouTube's default is HTML5 and YouTube Center forces it to be Flash.
  - Flashblock + embed videos not working (need verification as a lot of changes have been made to embed videos).
  - Fix layout issue with latest Firefox on Subscription Grid. First video is offset.
- - The player size "scroll to player" causes every page to scroll down.
  - If the HTML5 player is loaded by YouTube by default. The prevent Auto-Play doesn't work.
  ---
+ - Volume always expanded with conditions (on mouse hover, always, when video plays).
+ - Hide volume 
  - Popup as in https://addons.mozilla.org/en-US/firefox/addon/popvideo/?src=search
  - Add last.fm scrobbler
  - Add http://www.music-clips.net and http://convert2mp3.net/en as MP3 Services.
@@ -17,20 +18,14 @@
  - Use full country names for country flags in comments.
  - Grid Layout for Subscription Collection.
  - Auto-play after a percentage of the video has loaded.
- - Replay button, which wont make the player rebuffer the whole video (might have to do some hacks to make this).
- - Fix http://www.youtube-mp3.org/
- - Auto fullscreen for the HTML5 player.
- - Warning when click-through is enabled.
  - Add Force HTTPS on YouTube.
  - Add option to hide the "Add Video To Watched Videos".
  - Remove unwanted videos from feeds.
  - Select which qualities should be shown on thumbnails. Like only 720p, 1080p and 1080p+.
  - Thumbnail - Show amount of subs the author of the video has.
  - Revamp the tags (download tags) and include two digits (05 instead of just 5).
- - [Embed] Inform users if a video isn't available by display an image/text and it's a requirement to link to the original video.
  - Thumbnail - Show progress bar of the thumbnail's position in the video.
  - Thumbnail - Show in some way when thumbnails have finished loading (to see a smooth preview).
- - Test the watch later button position when logged out of YouTube in Chrome.
  - It seems like restricted video in a playlist stops the whole autoplay + the width of the topbar of the playlist isn't correct.
  - Fetch download links for whole playlist.
  - Set the width of a video shelf to not cut off videos.
