@@ -16633,7 +16633,7 @@
         ytcenter.player.updateResize();
         
         if (ytcenter.settings.enableAutoVideoQuality) {
-          if (api.getPlaybackQuality() !== config.args.vq || config.args.vq === "auto") {
+          if (api.getPlaybackQuality && api.getPlaybackQuality() !== config.args.vq || config.args.vq === "auto") {
             con.log("getPlaybackQuality = " + config.args.vq);
             if (config.args.vq === "auto") {
               config.args.vq = ytcenter.settings.autoVideoQuality;
