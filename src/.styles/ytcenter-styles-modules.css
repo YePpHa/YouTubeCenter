@@ -1,7 +1,7 @@
 .ytcenter-module-container {
   display: inline-block;
-  line-height: 0;
-  font-size: 0;
+  /*line-height: 0;
+  font-size: 0;*/
   vertical-align: middle;
 }
 
