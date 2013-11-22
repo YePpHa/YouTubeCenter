@@ -1,0 +1,80 @@
+/* Should only be for Chrome
+.html5-video-player .html5-scrubber-track {
+  z-index: auto!important;
+}*/
+
+.html5-video-player.autohide-off .html5-video-container {
+  bottom: 35px!important;
+}
+
+.html5-video-player.autohide-fade .html5-video-container {
+  bottom: 30px!important;
+}
+
+.html5-video-player.autohide-auto .html5-video-container {
+  bottom: 3px!important;
+}
+
+/*.html5-video-player.autohide-on .html5-video-container,
+body[data-player-size='fullscreen'] .playing-mode.autohide-fade .html5-video-container,
+body[data-player-size='fullscreen'] .playing-mode.autohide-auto .html5-video-container,
+body[data-player-size='fullscreen'] .hide-controls.autohide-fade.buffering-mode .html5-video-container,
+body[data-player-size='fullscreen'] .hide-controls.autohide-fade.playing-mode .html5-video-container,
+body[data-player-size='fullscreen'] .hide-controls.autohide-auto.buffering-mode .html5-video-container,
+body[data-player-size='fullscreen'] .hide-controls.autohide-auto.playing-mode .html5-video-container,
+body[data-player-size='fullscreen'] .hide-controls.autohide-embeds.buffering-mode .html5-video-container,
+body[data-player-size='fullscreen'] .hide-controls.autohide-embeds.playing-mode .html5-video-container {
+  bottom: 0!important;
+}*/
+
+body[data-player-size=fullscreen] .autohide-on.buffering-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-on.playing-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-auto.buffering-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-auto.playing-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-fade.buffering-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-fade.playing-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-embeds.buffering-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-embeds.playing-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-embeds.autohide-aspect.buffering-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-embeds.autohide-aspect.playing-mode .html5-video-container {
+  bottom: 0!important;
+}
+
+.hide-controls.autohide-auto.buffering-mode .html5-video-controls,
+.hide-controls.autohide-auto.playing-mode .html5-video-controls,
+.hide-controls.autohide-embeds.autohide-aspect.buffering-mode .html5-video-controls,
+.hide-controls.autohide-embeds.autohide-aspect.playing-mode .html5-video-controls {
+  -moz-transform: translatey(27px)!important;
+  -ms-transform: translatey(27px)!important;
+  -o-transform: translatey(27px)!important;
+  -webkit-transform: translatey(27px)!important;
+  transform: translatey(27px)!important;
+}
+
+.hide-controls.autohide-on.buffering-mode .html5-video-controls,
+.hide-controls.autohide-on.playing-mode .html5-video-controls,
+body[data-player-size=fullscreen] .hide-controls.autohide-fade.buffering-mode .html5-video-controls,
+body[data-player-size=fullscreen] .hide-controls.autohide-fade.playing-mode .html5-video-controls,
+body[data-player-size=fullscreen] .hide-controls.autohide-auto.buffering-mode .html5-video-controls,
+body[data-player-size=fullscreen] .hide-controls.autohide-auto.playing-mode .html5-video-controls,
+body[data-player-size=fullscreen] .hide-controls.autohide-embeds.buffering-mode .html5-video-controls,
+body[data-player-size=fullscreen] .hide-controls.autohide-embeds.playing-mode .html5-video-controls {
+  -moz-transform: translatey(35px)!important;
+  -ms-transform: translatey(35px)!important;
+  -o-transform: translatey(35px)!important;
+  -webkit-transform: translatey(35px)!important;
+  transform: translatey(35px)!important;
+}
+
+/* Theme Fix*/
+.white .html5-volume-slider-foreground:before, .white .html5-volume-slider-foreground:after {
+  background: #bbb!important;
+}
+.white .html5-volume-slider-foreground:after {
+  background: #777!important;
+}
+
+/* Chrome Scrubber Fix */
+.ytp-force-transform {
+  -webkit-transform: none!important;
+}
