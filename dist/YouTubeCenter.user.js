@@ -4499,6 +4499,7 @@
       function getPlaylistVideoThumbs() {
         var pt = document.getElementById("watch7-playlist-tray"),
             pt2 = document.getElementById("guide"),
+            pt3 = document.getElementById("watch-appbar-playlist"),
             a = [], b, i;
         if (pt) {
           b = pt.getElementsByClassName("video-thumb");
@@ -4508,6 +4509,12 @@
         }
         if (pt2) {
           b = pt2.getElementsByClassName("video-thumb");
+          for (i = 0; i < b.length; i++) {
+            a.push(b[i]);
+          }
+        }
+        if (pt3) {
+          b = pt3.getElementsByClassName("video-thumb");
           for (i = 0; i < b.length; i++) {
             a.push(b[i]);
           }

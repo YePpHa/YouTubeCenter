@@ -1,0 +1,413 @@
+.player-disable #player,
+.player-disable #player-legacy {
+  display: none!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #content,
+.site-left-aligned.ytcenter-site-center #page.watch #guide-container,
+.site-left-aligned.ytcenter-site-center .watch7-playlist,
+.site-left-aligned.ytcenter-site-center #player,
+.site-left-aligned.ytcenter-site-center #player-legacy,
+.site-left-aligned.ytcenter-site-center #watch7-main-container {
+  -moz-transition: margin-left 0s ease-in-out;
+  -ms-transition: margin-left 0s ease-in-out;
+  -o-transition: margin-left 0s ease-in-out;
+  -webkit-transition: margin-left 0s ease-in-out;
+  transition: margin-left 0s ease-in-out;
+}
+
+#watch7-playlist-tray {
+  overflow: auto!important;
+}
+
+#playlist,
+#playlist-legacy {
+  margin-right: 0px!important;
+  margin-left: 0px!important;
+}
+
+/*.watch7-playlist-bar {
+  width: 100%!important;
+}*/
+
+/* Centering */
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page-container {
+  margin: 0 auto!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #guide-container {
+  left: 10px!important;
+}
+.rtl.ytcenter-site-watch.ytcenter-site-center #guide-container {
+  right: 10px!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed.ytcenter-resize-disaligned #page {
+  width: 100%!important;
+}
+
+.ltr.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-video,
+.ltr.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-main {
+  left: 0!important;
+  width: 808px!important;
+}
+.rtl.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-video,
+.rtl.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-main {
+  right: 0!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.sidebar-expanded #watch7-sidebar {
+  padding: 0 0 10px 0px!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.sidebar-expanded .watch-wide #watch7-sidebar,
+.ytcenter-site-watch.ytcenter-site-center .watch-playlist #watch7-sidebar,
+.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed .watch-playlist #watch7-sidebar,
+.ytcenter-site-watch.ytcenter-site-center .watch-branded #watch7-sidebar {
+  padding-top: 15px!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed #watch7-sidebar {
+  padding: 0 0 10px 0!important;
+  width: 168px!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.sidebar-collapsed .watch-wide #watch7-sidebar {
+  padding-top: 15px!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center .watch7-playlist {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.ytcenter-site-center.ytcenter-resize-main.ytcenter-player-center #watch7-creator-bar {
+  margin: 0 auto;
+}
+
+.ytcenter-site-center.ytcenter-resize-disaligned #page,
+.ytcenter-site-center.ytcenter-resize-disaligned #watch7-video {
+  width: 100%!important;
+}
+
+.ytcenter-resize-disaligned.ytcenter-site-center .watch7-playlist-bar {
+  margin-left: 0!important;
+  margin-right: 0!important;
+}
+
+.ytcenter-resize-disaligned.ytcenter-site-center .watch7-playlist-data {
+  padding-left: 0!important;
+  padding-right: 0!important;
+  margin: 0 auto!important;
+}
+
+.ytcenter-resize-disaligned #player,
+.ytcenter-resize-disaligned #player-legacy,
+.ytcenter-site-center.ytcenter-resize-disaligned #watch7-playlist-data {
+  padding-left: 0!important;
+  padding-right: 0!important;
+}
+
+.ytcenter-site-center.ytcenter-resize-disaligned #watch7-player {
+  margin-left: auto!important;
+  margin-right: auto!important;
+}
+
+.ltr.video-list .video-list-item .yt-uix-button-subscription-container {
+  left: 73px!important;
+}
+.rtl.video-list .video-list-item .yt-uix-button-subscription-container {
+  right: 73px!important;
+}
+
+.video-list .video-list-item a.related-channel {
+  padding: 0!important;
+}
+
+.ytcenter-resize-main.ytcenter-site-center #page-container {
+  width: 100%!important;
+}
+
+.ytcenter-resize-main.ytcenter-site-center #watch7-main-container {
+  padding: 0!important;
+}
+
+.ytcenter-resize-disaligned.ytcenter-site-center #page-container {
+  width: 100%;
+}
+
+.ytcenter-resize-disaligned.ytcenter-site-center #player-api,
+.ytcenter-resize-disaligned.ytcenter-site-center #player-api-legacy {
+  margin: 0 auto;
+}
+/* New */
+.ytcenter-site-watch.ytcenter-site-center #watch7-main {
+  width: 985px;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player + #content #watch7-main-container,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player-legacy + #content #watch7-main-container {
+  width: 985px!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #watch7-main-container,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page #content #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page #content #player-legacy {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.ytcenter-site-watch.ytcenter-site-center.site-left-aligned #page.watch #guide + #content {
+  margin: 0 auto!important;
+}
+
+.ytcenter-site-center.ytcenter-site-watch.ytcenter-resize-aligned #player,
+.ytcenter-site-watch.ytcenter-resize-disaligned #player,
+.ytcenter-site-center.ytcenter-site-watch.ytcenter-resize-aligned #player-legacy,
+.ytcenter-site-watch.ytcenter-resize-disaligned #player-legacy {
+  margin: 0 auto;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container {
+  position: relative;
+  z-index: 0;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #guide-container {
+  z-index: 1;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #content {
+  width: auto!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #content #watch7-main-container .watch-sidebar .video-list-item a {
+  padding: 0!important;
+}
+
+.ytcenter-site-watch.ytcenter-non-resize .watch-wide #watch7-sidebar {
+  margin-top: 0px!important;
+}
+
+/*.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #watch7-main,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
+  max-width: 985px;
+}*/
+
+@media screen and (min-width:1382px) {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-main-container ,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container {
+    margin: 0 auto;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page-container {
+    margin: 0 auto!important;
+  }
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
+    margin-left: -180px !important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
+    margin-right: -180px !important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player-legacy,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player-legacy,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch #player + #content,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch #player + #content,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch #player-legacy + #content,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch #player-legacy + #content {
+    margin: 0 auto!important;
+  }
+
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page {
+    width: 1003px!important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #watch7-main,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
+    margin: 0 auto!important;
+  }
+}
+@media screen and (max-width:1381px) {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #watch7-main-container #watch7-main,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #content  {
+    padding-left: 190px;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #watch7-main-container #watch7-main,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #watch7-main-container #watch7-main,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player + #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #player-legacy + #content  {
+    padding-right: 190px;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #content #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #content #player-legacy  {
+    margin: auto!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page.watch > #player-legacy,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #page.watch > #player-legacy {
+    margin: 0 auto!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #watch7-container > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #watch7-container > #player-legacy {
+    margin: 0!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy {
+    width: auto!important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-guide-hidden #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-guide-hidden #player-legacy,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-guide-hidden #watch7-main-container {
+    padding: 0!important;
+    margin: 0 auto!important;
+  }
+}
+
+@media screen and (min-width:1166px) {
+  .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
+    left: 10!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
+    right: 10!important;
+  }
+}
+
+@media screen and (max-width:1165px) {
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.guide-collapsed #guide-container {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #watch7-main,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main {
+    padding-left: 0!important;
+    padding-right: 0!important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.guide-collapsed.sidebar-expanded #page {
+    width: 100%!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center  #watch7-main-container {
+    width: 985px !important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible  #watch7-main-container {
+    margin: 0 !important;
+  }
+  
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+    margin-left: 58px!important;
+  }
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+    margin-left: 190px!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+    margin-right: 58px!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-disaligned.ytcenter-guide-visible #watch7-main-container {
+    margin-right: 190px!important;
+  }
+  
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy {
+    padding-left: 58px!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-collapsed.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy {
+    padding-right: 58px!important;
+  }
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player,
+  .ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned #player-legacy {
+    padding-left: 0!important;
+    padding-right: 0!important;
+  }
+  
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .ltr.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy  {
+    padding-left: 190px!important;
+  }
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #content,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player,
+  .rtl.ytcenter-site-watch.ytcenter-site-center.guide-expanded.ytcenter-resize-aligned.ytcenter-guide-visible #page > #player-legacy  {
+    padding-right: 190px!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-main-container {
+    z-index: 2!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned.ytcenter-guide-visible #content {
+    padding-left: 0!important;
+    padding-right: 0!important;
+  }
+  
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #player,
+  .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned.ytcenter-guide-visible #player-legacy {
+    margin-left: 0!important;
+    margin-right: 0!important;
+  }
+}
+
+.ytcenter-site-watch.ytcenter-non-resize #player,
+.ytcenter-site-watch.ytcenter-non-resize #player-legacy {
+  position: relative;
+  z-index: 3;
+}
+.ytcenter-site-center #page {
+  padding-left: 0!important;
+  padding-right: 0!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #watch7-container > #player-legacy {
+  margin: 0 auto!important;
+  min-width: 0!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #guide-container {
+  position: absolute!important;
+}
+
+.ytcenter-site-watch.ytcenter-site-center #player,
+.ytcenter-site-watch.ytcenter-site-center #player-legacy,
+.ytcenter-site-watch.ytcenter-site-center #watch7-main-container {
+  width: 985px; /* Default fallback size when the resize feature fails. */
+}
+
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
+.ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player-legacy {
+  width: auto; /* Default fallback size when the resize feature fails. */
+}
+
+.ytcenter-resize-disaligned #player {
+  min-width: auto !important;
+}
+
+#player-unavailable {
+  width: 100%!important;
+}
