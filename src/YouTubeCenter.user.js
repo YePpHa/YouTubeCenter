@@ -18708,7 +18708,8 @@
     ytcenter.player.disableHTML5 = function(){
       var a = document.getElementsByClassName("video-stream");
       if (a.length > 0 && a[0])
-        a[0].src = "";
+        //a[0].pause(); // Slower aproach, but will not throw errors.
+        a[0].src = ""; // this can cause YouTube to throw errors.
       ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
       
       if (ytcenter.player.disableHTML5_timeout) {
