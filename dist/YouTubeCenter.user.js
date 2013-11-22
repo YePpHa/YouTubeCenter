@@ -18682,7 +18682,7 @@
         var cb = function(api){
           if (!api || called) return;
           called = true;
-          ytcenter.utils.removeClass(document.body, "ytcenter-disable-html5");
+          ytcenter.player.disableHTML5Tick();
           if (api.getPlayerType() === type) {
             con.log("[Player setPlayerType] Type is already " + type + "!");
             return;
@@ -18692,9 +18692,32 @@
           api.writePlayer(type);
         };
         con.log("[Player setPlayerType] API isn't ready!");
-        ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
+        ytcenter.player.disableHTML5();
+        //ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
         ytcenter.player.listeners.addEventListener("onReady", cb);
       }
+    };
+    ytcenter.player.disableHTML5Tick = function(){
+      if (ytcenter.player.disableHTML5_timeout) {
+        uw.clearTimeout(ytcenter.player.disableHTML5_timeout);
+        ytcenter.player.disableHTML5_timeout = null;
+      }
+      ytcenter.utils.removeClass(document.body, "ytcenter-disable-html5");
+    };
+    ytcenter.player.disableHTML5_timeout = null;
+    ytcenter.player.disableHTML5 = function(){
+      var a = document.getElementsByClassName("video-stream");
+      if (a.length > 0 && a[0])
+        a[0].src = "";
+      ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
+      
+      if (ytcenter.player.disableHTML5_timeout) {
+        uw.clearTimeout(ytcenter.player.disableHTML5_timeout);
+        ytcenter.player.disableHTML5_timeout = null;
+      }
+      ytcenter.player.disableHTML5_timeout = uw.setTimeout(function(){
+        ytcenter.utils.removeClass(document.body, "ytcenter-disable-html5");
+      }, 2000);
     };
     ytcenter.player.updateFlashvars = function(player, config){
       if (!config || !config.args) return;
