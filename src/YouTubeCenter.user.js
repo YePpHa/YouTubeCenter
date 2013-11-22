@@ -18682,7 +18682,7 @@
         var cb = function(api){
           if (!api || called) return;
           called = true;
-          ytcenter.player.disableHTML5Tick();
+          if (type === "flash") ytcenter.player.disableHTML5Tick();
           if (api.getPlayerType() === type) {
             con.log("[Player setPlayerType] Type is already " + type + "!");
             return;
@@ -18692,7 +18692,7 @@
           api.writePlayer(type);
         };
         con.log("[Player setPlayerType] API isn't ready!");
-        ytcenter.player.disableHTML5();
+        if (type === "flash") ytcenter.player.disableHTML5();
         //ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
         ytcenter.player.listeners.addEventListener("onReady", cb);
       }
