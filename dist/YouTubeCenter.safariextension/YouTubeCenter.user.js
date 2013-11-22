@@ -4596,6 +4596,16 @@
                 try {
                   if (spflink) {
                     cfg = JSON.parse(r.responseText);
+                    if (ytcenter.utils.isArray(cfg)) {
+                      if (cfg.length === 1 && cfg[0].swfcfg)
+                        cfg = cfg[0];
+                      else if (cfg.length === 2 && cfg[1].swfcfg)
+                        cfg = cfg[1];
+                      else if (cfg.length === 3 && cfg[2].swfcfg)
+                        cfg = cfg[2];
+                      else
+                        cfg = cfg[1];
+                    }
                     if (cfg.swfcfg) {
                       cfg = cfg.swfcfg;
                     } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
@@ -20407,7 +20417,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 98);
+          main_function(false, 4, true, 99);
         /*} catch (e) {
         }*/
       }
@@ -20427,7 +20437,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 98);
+      main_function(false, 4, true, 99);
     //} catch (e) {
       //console.error(e);
     //}
