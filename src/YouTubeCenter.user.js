@@ -18986,7 +18986,7 @@
         return false;
       }},
       {element: function(){return document.getElementById("page");}, className: "", condition: function(loc){
-        if (ytcenter.settings["watch7centerpage"]) {
+        if (ytcenter.settings["watch7centerpage"] && !ytcenter.settings.experimentalFeatureTopGuide) {
           document.getElementById("page").style.setProperty("padding-left", "0", "important");
         } else {
           document.getElementById("page").style.setProperty("padding-left", "");

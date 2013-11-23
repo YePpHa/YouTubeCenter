@@ -13,3 +13,10 @@
 .site-center-aligned #page {
   margin: 0 auto !important;
 }
+
+@media screen and (min-width: 1409px) {
+  .show-guide-if-wide.guide-pinned #page,
+  .show-guide.guide-pinned #page {
+    padding-left: 230px !important;
+  }
+}
