@@ -11585,7 +11585,7 @@
       likeSwitchToTab: "none", // none, details, share, addto, stats
       endOfVideoAutoSwitchToTab: "none", // none, details, share, addto, stats
       //enableYouTubeAutoSwitchToShareTab: false,
-      topScrollPlayerEnabled: true,
+      topScrollPlayerEnabled: false,
       topScrollPlayerActivated: false,
       topScrollPlayerTimesToEnter: 1,
       topScrollPlayerTimesToExit: 0,
