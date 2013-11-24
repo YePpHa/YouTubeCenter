@@ -1831,47 +1831,6 @@
         return configGetter();
       });
     }
-    function SPF(objects) {
-      defineLockedProperty(this, "enabled", function(value){ }, function(value){
-        return true;
-      });
-      for (key in objects) {
-        if (key === "enabled") continue;
-        if (objects.hasOwnProperty(key)) {
-          this[key] = objects[key];
-        }
-      }
-    }
-    function SPFConfigWrapper(current, config) {
-      var i, __self = this;
-      current.config = config;
-      
-      ytcenter.utils.each(config, function(key, value){
-        if (key !== "config")
-          __self[key] = value;
-      });
-      
-      this._config = config;
-      
-      defineLockedProperty(this, "config", function(cfg){
-        ytcenter.utils.each(cfg, function(key, value){
-          config[key] = value;
-        });
-      }, function(){
-        return this._config;
-      });
-    }
-    function SPFConfig(spf, config) {
-      var i, __self = this;
-      ytcenter.utils.each(config, function(key, value){
-        __self[key] = value;
-      });
-      for (i = 0; i < spf.length; i++) {
-        defineLockedProperty(this, spf[i].key,
-                            (function(a){ return function(value){ return a.update(value); }; })(spf[i]),
-                            (function(a){ return function(){ return a.callback; }; })(spf[i]));
-      }
-    }
     
     var console_debug = devbuild; // Disable this to stop YouTube Center from writing in the console log.
     var _console = [];
@@ -1902,7 +1861,121 @@
       return v > 4 ? v : !!document.documentMode;
     }());
     
-    uw.ytspf = new SPF(uw.ytspf);
+    ytcenter.spf = (function(){
+      function SPFEnabled(objects) {
+        defineLockedProperty(this, "enabled", function(value){ }, function(){
+          return enabled;
+        });
+        for (key in objects) {
+          if (key === "enabled") continue;
+          if (objects.hasOwnProperty(key)) {
+            this[key] = objects[key];
+          }
+        }
+      }
+      function SPFState() {
+        defineLockedProperty(this, "config", function(cfg){
+          var key;
+          for (key in cfg) {
+            if (cfg.hasOwnProperty(key)) {
+              config[key] = cfg[key];
+            }
+          }
+        }, function(){
+          return config;
+        });
+      }
+      function SPFConfig() {
+        var i;
+        for (i = 0; i < events.length; i++) {
+          configFunctions[events[i]] = (function(event){
+            return function(){
+              try {
+                var args = arguments;
+                con.log("[SPF] " + event, args);
+                args = callListenerCallbacks(event, "before", args) || args;
+                if (_ytconfig[event]) _ytconfig[event].apply(uw, args);
+                callListenerCallbacks(event, "after", args);
+              } catch (e) {
+                con.error(e);
+              }
+            };
+          })(events[i]);
+          
+          defineLockedProperty(this, events[i], (function(event){
+            return function(func) { _ytconfig[event] = func; };
+          })(events[i]), (function(func){
+            return function(){ return func; };
+          })(configFunctions[events[i]]));
+        }
+      }
+      function callListenerCallbacks(event, mode, args) {
+        if (!listeners[event]) return; // No attached listeners to the specific event.
+        var i;
+        
+        for (i = 0; i < listeners[event].length; i++) {
+          if (listeners[event][i].mode !== mode) continue; // Needs to be the exact same mode.
+          listeners[event][i].callback.apply(null, args);
+        }
+      }
+      function isConfigEvent(key) {
+        var i;
+        for (i = 0; i < events.length; i++) {
+          if (events[i] === key) return true;
+        }
+        return false;
+      }
+      var enabled = true, events = [
+        "navigate-error-callback",
+        "navigate-part-processed-callback",
+        "navigate-part-received-callback",
+        "navigate-processed-callback",
+        "navigate-received-callback",
+        "navigate-requested-callback"
+      ], configFunctions = {}, listeners = {}, _ytconfig = {}, config = new SPFConfig(), state = new SPFState();
+      
+      
+      // Locking "_spf_state".
+      defineLockedProperty(uw, "_spf_state", function(s){
+        var key;
+        for (key in s) {
+          if (s.hasOwnProperty(key)) {
+            state[key] = s[key];
+          }
+        }
+      }, function(){
+        return state;
+      });
+      
+      // Making sure that SPF is enabled.
+      uw.ytspf = new SPFEnabled(uw.ytspf);
+      
+      return {
+        addEventListener: function(event, mode, callback){
+          event = "navigate-" + event + "-callback";
+          if (mode !== "before" && mode !== "after") throw "Unknown mode: " + mode;
+          if (!listeners[event]) listeners[event] = [];
+          listeners[event].push({mode: mode, callback: callback});
+        },
+        removeEventListener: function(event, mode, callback){
+          event = "navigate-" + event + "-callback";
+          if (mode !== "before" && mode !== "after") throw "Unknown mode: " + mode;
+          if (!listeners[event]) return;
+          var i;
+          for (i = 0; i < listeners[event].length; i++) {
+            if (listeners[event][i].mode === mode && listeners[event][i].callback === callback) {
+              listeners[event].splice(i, 1);
+              return;
+            }
+          }
+        },
+        disable: function(){
+          enabled = false;
+          if (uw.spf && uw.spf.dispose) uw.spf.dispose();
+        },
+        isEnabled: function(){ return enabled; }
+      };
+    })();
     loc = (function(){
       try {
         if (typeof location !== "undefined") return location;
@@ -5651,197 +5724,6 @@
       
       return __r;
     };
-    ytcenter.spf = (function(){
-      var _obj = {},
-      listeners = {
-        "error": [],
-        "error-before": [],
-        "processed": [],
-        "processed-before": [],
-        "received": [],
-        "received-before": [],
-        "requested": [],
-        "requested-before": [],
-        "script-loading": [],
-        "script-loading-before": [],
-        "begin-response": [],
-        "dispose": [],
-        "init": [],
-        "load": [],
-        "navigate": [],
-        "prefetch": [],
-        "process": []
-      },
-      loadListeners = [],
-      events = ["error", "processed", "received", "requested", "script-loading", "begin-response"],
-      eventsSPF = ["dispose", "init", "load", "navigate", "prefetch", "process"],
-      injected = false,
-      originalCallbacks = {},
-      masterCallbacks = {};
-      
-      _obj.setEnabled = function(enabled){
-        if (ytcenter.getPage() === "embed") return;
-        if (!uw.spf || !uw.spf.dispose) return;
-        var objects;
-        if (enabled) {
-          //objects = uw.spf.init(uw.ytspf.config);
-        } else {
-          con.log("[SPF] Disposing of the SPF injections.");
-          if (uw.spf && uw.spf.dispose && typeof uw.spf.dispose === "function") {
-            objects = uw.spf.dispose();
-          }
-        }
-      };
-      _obj.addEventListener = function(event, callback){
-        if (ytcenter.getPage() === "embed") return;
-        if (!listeners.hasOwnProperty(event)) return;
-        listeners[event].push(callback);
-      };
-      _obj.isInjected = function(){
-        if (ytcenter.getPage() === "embed") return false;
-        return injected ? true : false;
-      };
-      _obj.isEnabled = function(){
-        if (ytcenter.getPage() === "embed") return false;
-        return uw && uw.ytspf && uw.ytspf.enabled ? true : false;
-      };
-      _obj.isReadyToInject = function(){
-        if (ytcenter.getPage() === "embed") return;
-        var obj_name, i;
-        con.log("[SPF] Checking if SPF is ready...");
-        if (typeof uw._spf_state !== "object") {
-          con.log("[SPF] Failed... _spf_state object is not initialized yet!");
-          return false;
-        }
-        if (typeof uw._spf_state.config !== "object") {
-          con.log("[SPF] Failed... _spf_state.config object is not initialized yet!");
-          return false;
-        }
-        for (i = 0; i < eventsSPF.length; i++) {
-          if (typeof uw.spf[eventsSPF[i]] !== "function") {
-            con.log("[SPF] Failed... " + eventsSPF[i] + " has not been created yet!");
-            return false;
-          }
-        }
-        con.log("[SPF] SPF is ready for manipulation!");
-        return true;
-      };
-      _obj._init = function(callbacks){
-        if (ytcenter.getPage() === "embed") return;
-        ytcenter.utils.each(callbacks, function(key, value){
-          var a = key.replace(/-callback$/, "");
-          if (key.indexOf("navigate-") === 0) {
-            a = a.replace(/navigate-$/, "");
-          }
-          originalCallbacks[a] = value;
-          callbacks[key] = masterCallbacks[key];
-        });
-        return callbacks;
-      };
-      _obj.inject = function(){ // Should only be called once every instance (page reload).
-        if (ytcenter.getPage() === "embed") return;
-        if (!_obj.isEnabled() || injected) return; // Should not inject when SPF is not enabled!
-        injected = true;
-        var ytspf = uw._spf_state,
-            spf = uw.spf,
-            obj_name,
-            func;
-        con.log("[SPF] Injecting ability to add event listeners to SPF.");
-        for (var i = 0; i < eventsSPF.length; i++) {
-          if (typeof originalCallbacks[eventsSPF[i]] !== "function") originalCallbacks[eventsSPF[i]] = spf[eventsSPF[i]];
-          masterCallbacks[eventsSPF[i]] = (function(event){
-            return function(){
-              var args = arguments;
-              
-              var r,j;
-              con.log("[SPF] spf => " + event);
-              con.log(args);
-              if (event === "init") {
-                args[0] = _obj._init(args[0]);
-              }
-              try {
-                for (j = 0; j < listeners[event].length; j++) {
-                  args = listeners[event][j].apply(null, args) || args;
-                }
-              } catch (e) {
-                con.error(e);
-              }
-              
-              if (typeof originalCallbacks[event] === "function") {
-                r = originalCallbacks[event].apply(null, args);
-              } else {
-                con.error("[SPF] Wasn't able to call the original callback!");
-              }
-              return r;
-            };
-          })(eventsSPF[i]);
-          spf[eventsSPF[i]] = masterCallbacks[eventsSPF[i]];
-        }
-        var _spf = [];
-        for (var i = 0; i < events.length; i++) {
-          if (events[i].indexOf("-") !== -1) {
-            obj_name = events[i] + "-callback";
-          } else {
-            obj_name = "navigate-" + events[i] + "-callback";
-          }
-          if (typeof originalCallbacks[events[i]] !== "function") originalCallbacks[events[i]] = ytspf.config[obj_name];
-          masterCallbacks[obj_name] = (function(event){
-            return function(){
-              var args = arguments;
-              
-              var r,j;
-              con.log("[SPF] _spf_state => " + event);
-              if (ytcenter.settings.debug_spf_args) con.log(args);
-              try {
-                for (j = 0; j < listeners[event + "-before"].length; j++) {
-                  args = listeners[event + "-before"][j].apply(null, args) || args;
-                }
-              } catch (e) {
-                con.error(e);
-                throw e;
-                return;
-              }
-              if (typeof originalCallbacks[event] === "function") {
-                r = originalCallbacks[event].apply(uw, args);
-              } else {
-                console.error("[SPF] Wasn't able to call the original callback!");
-              }
-              
-              for (j = 0; j < listeners[event].length; j++) {
-                listeners[event][j].apply(null, arguments);
-              }
-              return r;
-            };
-          })(events[i]);
-          _spf.push({
-            key: obj_name,
-            callback: masterCallbacks[obj_name],
-            update: (function(event){
-              return function(a){
-                originalCallbacks[event] = a;
-              };
-            })(events[i])
-          });
-          if (!ytspf) ytspf = {};
-          if (!ytspf.config) ytspf.config = {};
-          if (!uw.ytspf) uw.ytspf = {};
-          if (!uw.ytspf.config) uw.ytspf.config = {};
-          ytspf.config[obj_name] = masterCallbacks[obj_name];
-          uw.ytspf.config[obj_name] = masterCallbacks[obj_name];
-        }
-        
-        ytspf = new SPFConfigWrapper(ytspf, new SPFConfig(_spf, ytspf.config));
-        defineLockedProperty(uw, "_spf_state", function(s){
-          ytcenter.utils.each(s, function(key, value){
-            ytspf[key] = value;
-          });
-        }, function(){
-          return ytspf;
-        });
-      };
-      
-      return _obj;
-    })();
     
     ytcenter.domEvents = (function(){
       function onViewUpdate() {
@@ -9935,11 +9817,12 @@
     ytcenter.utils.scrollTop = function(scrollTop){
       if (!document) return null;
       if (typeof scrollTop === "number") {
-        if (document.body && typeof document.body.scrollTop === "number") {
+        window.scroll(0, scrollTop);
+        /*if (document.body && typeof document.body.scrollTop === "number") {
           document.body.scrollTop = scrollTop;
         } else {
           document.documentElement.scrollTop = scrollTop;
-        }
+        }*/
       }
       if (document.body && typeof document.body.scrollTop === "number") {
         return document.body.scrollTop;
@@ -12248,7 +12131,7 @@
         con.log("[Storage] Saving Settings");
         if (identifier === 1 && injected) {
           ytcenter.unsafe.storage.onsaved_db.push(function(){
-            console.log("Saved Settings!");
+            con.log("Saved Settings!");
             callback();
           });
           uw.postMessage(JSON.stringify({
@@ -19506,6 +19389,8 @@
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
         var page = ytcenter.getPage();
+        if (page === "embed" || !ytcenter.settings.ytspf) ytcenter.spf.disable();
+        
         
         /* We don't want to add everything. So only the neccessary stuff is added. */
         if (page === "comments") {
@@ -19697,7 +19582,6 @@
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         if (page !== "embed") {
           ytcenter.title.init();
-          ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
           ytcenter.topScrollPlayer.setup();
           ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch" && ytcenter.settings.topScrollPlayerEnabled);
           if (ytcenter.settings['experimentalFeatureTopGuide']) {
@@ -19934,18 +19818,6 @@
         } catch (e) {
           con.error(e);
         }
-        
-        // SPF Injector
-        var _spf_timer = function(){
-          if (ytcenter.spf.isEnabled()) {
-            if (ytcenter.spf.isReadyToInject() && !ytcenter.spf.isInjected()) {
-              ytcenter.spf.inject();
-            } else if (!ytcenter.spf.isReadyToInject() && !ytcenter.spf.isInjected() && document.readyState !== "complete") {
-              uw.setTimeout(_spf_timer, 1000);
-            }
-          }
-        };
-        _spf_timer();
         
         if (page === "feed_what_to_watch") {
           ytcenter.intelligentFeed.setup();
@@ -20194,17 +20066,44 @@
           ytcenter.actionPanel.setup();
         }
       });
-      ytcenter.spf.addEventListener("requested-before", function(url){
+      ytcenter.spf.addEventListener("requested", "before", function(url){
         if (!ytcenter.settings.ytspf) {
           loc.href = url;
           throw new Error("SPF is disabled!");
         }
       });
-      ytcenter.spf.addEventListener("received", function(url, data){
+      ytcenter.spf.addEventListener("received", "after", function(url, data){
+        if (data && data.type === "multipart") {
+          data = data.parts;
+          if (ytcenter.utils.isArray(data)) {
+            if (data.length > 0 && data[0] && data[0].swfcfg)
+              data = data[0];
+            else if (data.length > 1 && data[1] && data[1].swfcfg)
+              data = data[1];
+            else if (data.length > 2 && data[2] && data[2].swfcfg)
+              data = data[2];
+          }
+        }
         if (data.title) ytcenter.title.originalTitle = data.title;
         ytcenter.title.update();
       });
-      ytcenter.spf.addEventListener("received-before", function(url, data){
+      /*ytcenter.spf.addEventListener("part-received", "before", function(url, data){
+        if (data.swfcfg && data.swfcfg.args) {
+          data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
+        }
+      });*/
+      ytcenter.spf.addEventListener("received", "before", function(url, data){
+        if (data && data.type === "multipart") {
+          data = data.parts;
+          if (ytcenter.utils.isArray(data)) {
+            if (data.length > 0 && data[0] && data[0].swfcfg)
+              data = data[0];
+            else if (data.length > 1 && data[1] && data[1].swfcfg)
+              data = data[1];
+            else if (data.length > 2 && data[2] && data[2].swfcfg)
+              data = data[2];
+          }
+        }
         ytcenter.unsafe.spf.url = url;
         ytcenter.unsafe.spf.data = data;
         if (data.swfcfg && data.swfcfg.args) {
@@ -20305,8 +20204,18 @@
         }
         return [url, data];
       });
-      ytcenter.spf.__doUpdateConfig = false;
       ytcenter.unsafe.spf.processed = function(data){
+        if (data && data.type === "multipart") {
+          data = data.parts;
+          if (ytcenter.utils.isArray(data)) {
+            if (data.length > 0 && data[0] && data[0].swfcfg)
+              data = data[0];
+            else if (data.length > 1 && data[1] && data[1].swfcfg)
+              data = data[1];
+            else if (data.length > 2 && data[2] && data[2].swfcfg)
+              data = data[2];
+          }
+        }
         var url = ytcenter.utils.getURL(ytcenter.unsafe.spf.url || loc.href) || loc, a, i;
         data = data || ytcenter.unsafe.spf.data;
         ytcenter.classManagement.applyClasses(ytcenter.unsafe.spf.url);
@@ -20406,7 +20315,7 @@
         
         return [data];
       };
-      ytcenter.spf.addEventListener("processed", ytcenter.unsafe.spf.processed);
+      ytcenter.spf.addEventListener("processed", "after", ytcenter.unsafe.spf.processed);
       ytcenter.pageReadinessListener.setup();
       
       try {
@@ -20448,7 +20357,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 102);
+          main_function(false, 4, true, 103);
         /*} catch (e) {
         }*/
       }
@@ -20468,7 +20377,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 102);
+      main_function(false, 4, true, 103);
     //} catch (e) {
       //console.error(e);
     //}
