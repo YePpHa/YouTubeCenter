@@ -16174,7 +16174,8 @@
         "afv_ad_tag",
         "afv_instream_max",
         "afv_ad_tag_restricted_to_instream",
-        "afv_video_min_cpm"
+        "afv_video_min_cpm",
+        "dynamic_allocation_ad_tag"
       ];
       for (var i = 0; i < _ads.length; i++) {
         try {
@@ -20266,7 +20267,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 104);
+          main_function(false, 4, true, 105);
         /*} catch (e) {
         }*/
       }
@@ -20286,7 +20287,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 104);
+      main_function(false, 4, true, 105);
     //} catch (e) {
       //console.error(e);
     //}
