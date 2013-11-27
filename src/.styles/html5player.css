@@ -78,3 +78,11 @@ body[data-player-size=fullscreen] .hide-controls.autohide-embeds.playing-mode .h
 .ytp-force-transform {
   -webkit-transform: none!important;
 }
+
+/* Width and height fix */
+.html5-video-player .video-click-tracking,
+.html5-video-player .video-stream,
+.html5-video-player .html5-video-content {
+  width: 100% !important;
+  height: 100% !important;
+}
