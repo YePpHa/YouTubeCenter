@@ -85,4 +85,6 @@ body[data-player-size=fullscreen] .hide-controls.autohide-embeds.playing-mode .h
 .html5-video-player .html5-video-content {
   width: 100% !important;
   height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
 }
