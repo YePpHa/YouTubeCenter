@@ -213,7 +213,6 @@
   <target name="copy-userscript">
     <antcall target="copy" />
     <antcall target="tokenreplace" />
-    <antcall target="buildnumber" />
     <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.userscript}" token="@identifier@" encoding="${encoding}" />
   </target>

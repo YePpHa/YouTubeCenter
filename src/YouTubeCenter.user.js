@@ -16873,8 +16873,10 @@
       else ytcenter.html5 = false;
       con.log("[Player Type] " + (ytcenter.html5 ? "HTML5" : "Flash"));
       
-      if (ytcenter.settings.removeRelatedVideosEndscreen)
+      if (ytcenter.settings.removeRelatedVideosEndscreen) {
         delete config.args.endscreen_module;
+        delete config.args.rvs;
+      }
       
       if (ytcenter.settings.enableResize)
         config.args.player_wide = ytcenter.settings.player_wide ? "1" : "0";
