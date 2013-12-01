@@ -12,8 +12,8 @@
         "http://userscripts.org/scripts/source/114002.meta.js",
         "http://s.ytimg.com/yts/jsbin/*",
         "https://s.ytimg.com/yts/jsbin/*",
-        "http://apis.google.com/u/0/wm/4/_/widget/render/comments?*",
-        "https://apis.google.com/u/0/wm/4/_/widget/render/comments?*",
+        "http://apis.google.com/u/0/wm/*/_/widget/render/comments?*",
+        "https://apis.google.com/u/0/wm/*/_/widget/render/comments?*",
         "https://github.com/YePpHa/YouTubeCenter/blob/master/devbuild.number"
       ],
       "exclude_matches": [
