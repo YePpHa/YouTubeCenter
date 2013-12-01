@@ -3582,20 +3582,38 @@
       };
       __r.completeFlag = function(comment, country){
         var countryContainer = document.createElement("span"),
-            metadata = comment.headerUserDataElement;
-        
+            metadata = comment.headerUserDataElement,
+            countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
         countryContainer.className = "country";
-        
         if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
           var img = document.createElement("img");
           img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
           img.className = ytcenter.flags[country.toLowerCase()];
-          img.setAttribute("alt", country);
-          img.setAttribute("title", country);
+          if (ytcenter.settings.commentCountryUseNames) {
+            img.setAttribute("alt", countryName || country);
+            img.setAttribute("title", countryName || country);
+            ytcenter.events.addEvent("language-refresh", function(){
+              var _countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+              img.setAttribute("alt", _countryName || country);
+              img.setAttribute("title", _countryName || country);
+            });
+          } else {
+            img.setAttribute("alt", country);
+            img.setAttribute("title", country);
+          }
           countryContainer.appendChild(img);
         } else {
-          countryContainer.textContent = country;
+          if (ytcenter.settings.commentCountryUseNames) {
+            countryContainer.textContent = countryName || country;
+            ytcenter.events.addEvent("language-refresh", function(){
+              var _countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+              countryContainer.textContent = _countryName || country;
+            });
+          } else {
+            countryContainer.textContent = country;
+          }
         }
+        
         if (ytcenter.settings.commentCountryPosition === "before_username") {
           countryContainer.style.marginRight = "10px";
           metadata.insertBefore(countryContainer, metadata.children[0]);
@@ -11463,6 +11481,7 @@
       commentCountryData: [],
       commentCountryEnabled: false,
       commentCountryShowFlag: true,
+      commentCountryUseNames: true,
       commentCountryPosition: "after_username", // ["before_username", "after_username", "last"]
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
@@ -15358,6 +15377,13 @@
             "commentCountryShowFlag", // defaultSetting
             "bool", // module
             "SETTINGS_COMMENTS_COUNTRY_SHOW_FLAG" // label
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "commentCountryUseNames", // defaultSetting
+            "bool", // module
+            "SETTINGS_COMMENTS_COUNTRY_USE_NAME" // label
           );
           subcat.addOption(option);
 
@@ -19262,6 +19288,9 @@
           }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
         }, ytcenter.unsafe.settings);
         
+        con.log("Settings loaded.");
+        ytcenter.language.update();
+        
         /* We don't want to add everything. So only the neccessary stuff is added. */
         if (page === "comments") {
           $AddStyle(ytcenter.css.flags);
@@ -19274,8 +19303,6 @@
         if (page === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
           loc.search = loc.search.replace("autoplay=1", "ytcenter-autoplay=1");
         }
-        con.log("Settings loaded.");
-        ytcenter.language.update();
         
         uw.addEventListener("message", function(e){
           if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
