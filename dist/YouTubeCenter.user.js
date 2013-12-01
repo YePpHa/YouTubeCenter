@@ -39,12 +39,12 @@
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @match           https://github.com/YePpHa/YouTubeCenter/blob/master/devbuild.number
-// @match           http://apis.google.com/u/*/wm/4/_/widget/render/comments?*
-// @match           https://apis.google.com/u/*/wm/4/_/widget/render/comments?*
+// @match           http://apis.google.com/u/*/wm/*/_/widget/render/comments?*
+// @match           https://apis.google.com/u/*/wm/*/_/widget/render/comments?*
 // @include         http://*.youtube.com/*
 // @include         https://*.youtube.com/*
-// @include         http://apis.google.com/u/*/wm/4/_/widget/render/comments?*
-// @include         https://apis.google.com/u/*/wm/4/_/widget/render/comments?*
+// @include         http://apis.google.com/u/*/wm/*/_/widget/render/comments?*
+// @include         https://apis.google.com/u/*/wm/*/_/widget/render/comments?*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
 // @grant           GM_getValue
@@ -4269,7 +4269,7 @@
       if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/watch\?/)) {
         ytcenter.page = "watch";
         return "watch";
-      } else if (!!url.match(/^http(s)?:\/\/apis\.google\.com\/u\/([0-9a-zA-Z-_]+)\/wm\/4\/_\/widget\/render\/comments/)) {
+      } else if (!!url.match(/^http(s)?:\/\/apis\.google\.com\/u\/([0-9a-zA-Z-_\/]+)\/wm\/([0-9]+)\/_\/widget\/render\/comments/)) {
         ytcenter.page = "comments";
         return "comments";
       } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\//) && (loc.pathname === "/" || loc.pathname === "/feed/what_to_watch")) {
@@ -20229,7 +20229,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 113);
+          main_function(false, 0, true, 114);
         /*} catch (e) {
         }*/
       }
@@ -20249,7 +20249,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 113);
+      main_function(false, 0, true, 114);
     //} catch (e) {
       //console.error(e);
     //}

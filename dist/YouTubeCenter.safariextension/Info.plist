@@ -42,8 +42,8 @@
 			<string>http://userscripts.org/scripts/source/114002.meta.js</string>
 			<string>http://s.ytimg.com/yts/jsbin/*</string>
 			<string>https://s.ytimg.com/yts/jsbin/*</string>
-			<string>http://apis.google.com/u/*/wm/4/_/widget/render/comments?*</string>
-			<string>https://apis.google.com/u/*/wm/4/_/widget/render/comments?*</string>
+			<string>http://apis.google.com/u/*/wm/*/_/widget/render/comments?*</string>
+			<string>https://apis.google.com/u/*/wm/*/_/widget/render/comments?*</string>
       <string>https://github.com/YePpHa/YouTubeCenter/blob/master/devbuild.number</string>
 		</array>
 	</dict>
