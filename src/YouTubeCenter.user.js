@@ -3641,41 +3641,50 @@
           }
         }
       };
+      __r.handleFlagWorker = function(comment){
+        ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId, function(args){
+          if (comment.profileRedirectId) {
+            ytcenter.getGooglePlusUserData(comment.profileRedirectId, function(data){
+              if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                comment.country = data.entry.yt$location.$t;
+              } else {
+                con.error("[Comment Country] Unknown Location", data);
+              }
+              args.complete(comment.country || null);
+            });
+          } else if (comment.channelRedirectId) {
+            ytcenter.getUserData(comment.channelRedirectId, function(data){
+              if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                comment.country = data.entry.yt$location.$t;
+              } else {
+                con.error("[Comment Country] Unknown Location", data);
+              }
+              args.complete(comment.country || null);
+            });
+          }
+        }, function(data){
+          if (!data) return;
+          if (comment.profileRedirectId || comment.channelRedirectId) {
+            ytcenter.cache.putItem("profile_country", comment.profileRedirectId || comment.channelRedirectId, data, 2678400000 /* 31 days */);
+          }
+          
+          comment.country = data;
+          __r.completeFlag(comment, data);
+        });
+      };
       __r.handleFlag = function(comment){
         if (comment.flagAdded) return;
         comment.flagAdded = true;
         if (comment.country) {
           __r.completeFlag(comment, comment.country);
         } else {
-          ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId, function(args){
-            if (comment.profileRedirectId) {
-              ytcenter.getGooglePlusUserData(comment.profileRedirectId, function(data){
-                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                  comment.country = data.entry.yt$location.$t;
-                } else {
-                  con.error("[Comment Country] Unknown Location", data);
-                }
-                args.complete(comment.country || null);
-              });
-            } else if (comment.channelRedirectId) {
-              ytcenter.getUserData(comment.channelRedirectId, function(data){
-                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                  comment.country = data.entry.yt$location.$t;
-                } else {
-                  con.error("[Comment Country] Unknown Location", data);
-                }
-                args.complete(comment.country || null);
-              });
-            }
-          }, function(data){
-            if (!data) return;
-            if (comment.profileRedirectId || comment.channelRedirectId) {
-              ytcenter.cache.putItem("profile_country", comment.profileRedirectId || comment.channelRedirectId, data, 2678400000 /* 31 days */);
-            }
-            
-            comment.country = data;
-            __r.completeFlag(comment, data);
-          });
+          if (ytcenter.settings.commentCountryLazyLoad) {
+            ytcenter.domEvents.addEvent(comment.wrapper, "enterview", function(){
+              __r.handleFlagWorker(comment);
+            }, true);
+          } else {
+            __r.handleFlagWorker(comment);
+          }
         }
       };
       __r.addFlags = function(){
@@ -3710,33 +3719,17 @@
         }
       };
       __r.setup = function(){
-        __r.loadComments();
-        __r.filter();
-        __r.commentDuplicates();
-        __r.addFlags();
+        ytcenter.domEvents.setup();
+        
+        __r.update();
         
         document.body.className += " ytcenter-comments-plus";
-        /*if (ytcenter.settings.commentCountryEnabled) {
-          try {
-            var i;
-            
-            cacheChecker();
-            comments = getComments();
-            
-            for (i = 0; i < comments.length; i++) {
-              updateReuse(comments[i]);
-              processItem(comments[i]);
-            }
-          } catch (e) {
-            con.error(e);
-          }
-        } else {
-          cacheChecker();
-        }*/
+        
         ytcenter.events.addEvent("resize-update", function(){
           __r.update();
         });
         __r.setupObserver();
+        
       };
       
       return __r;
@@ -5565,11 +5558,53 @@
       
       return __r;
     };
-    
+    ytcenter.message = (function(){
+      var __r = {};
+      
+      __r.listen = function(win, origin, token, callback){
+        ytcenter.utils.addEventListener(win || uw, "message", function(e){
+          if (!e || !e.data || e.data.indexOf(token) !== 0) return; // Checking if the token is correct
+          
+          // Checking if the origin is correct.
+          if (origin) {
+            var i, pass = false;
+            for (i = 0; i < origin.length; i++) {
+              if (e.origin === origin[i]) {
+                pass = true;
+                break;
+              }
+            }
+            if (!pass) return;
+          }
+          var data = e.data.substring(token.length);
+          
+          callback(JSON.parse(data));
+        }, false);
+      };
+      
+      __r.broadcast = function(win, origin, token, data){
+        win.postMessage(token + JSON.stringify(data), origin);
+      };
+      return __r;
+    })();
     ytcenter.domEvents = (function(){
       function onViewUpdate() {
         onEnterViewUpdate();
         onExitViewUpdate();
+        
+        var i, elms = document.getElementsByTagName("iframe"), scrollOffset = null, elmOffset = null, data;
+        for (i = 0; i < elms.length; i++) {
+          if (elms[i] && elms[i].src && elms[i].src.indexOf("https://apis.google.com/") === 0) {
+            scrollOffset = ytcenter.utils.getBoundingClientRect(elms[i]);
+            data = { scrollOffset: scrollOffset, windowDim: windowDim || {width: window.innerWidth || document.documentElement.clientWidth, height: window.innerHeight || document.documentElement.clientHeight } };
+            ytcenter.message.broadcast(
+                elms[i].contentWindow,
+                elms[i].src,
+                "$_scroll",
+                data
+            );
+          }
+        }
       }
       function onEnterViewUpdate() {
         if (!db["enterview"]) return;
@@ -5598,7 +5633,7 @@
         }
       }
       function processEnterViewUpdate(item) {
-        var inView = ytcenter.utils.isElementPartlyInView(item.element);
+        var inView = ytcenter.utils.isElementPartlyInView(item.element, offset, windowDim);
         if (!inView) {
           item.inview = false;
           return false;
@@ -5610,7 +5645,7 @@
         return true;
       }
       function processExitViewUpdate(item) {
-        var inView = ytcenter.utils.isElementPartlyInView(item.element);
+        var inView = ytcenter.utils.isElementPartlyInView(item.element, offset, windowDim);
         if (inView) {
           item.inview = true;
           return false;
@@ -5625,7 +5660,7 @@
         item.inview = inView;
         return true;
       }
-      var __r = {}, db = {}, _buffer = null, onViewUpdateBuffer = null;
+      var __r = {}, db = {}, _buffer = null, onViewUpdateBuffer = null, offset = null, windowDim = null;
       
       __r.update = function(){
         onViewUpdate();
@@ -5644,6 +5679,11 @@
         if (onViewUpdateBuffer) {
           ytcenter.utils.removeEventListener(window, "scroll", onViewUpdateBuffer, false);
           ytcenter.utils.removeEventListener(window, "resize", onViewUpdateBuffer, false);
+        } else {
+          ytcenter.message.listen(uw, null, "$_scroll", function(data){
+            offset = data.scrollOffset;
+            windowDim = data.windowDim;
+          });
         }
         onViewUpdateBuffer = ytcenter.utils.throttle(onViewUpdate, 500);
         
@@ -9278,7 +9318,11 @@
           var now = (new Date()).getTime();
           if (now - last > delay) {
             last = now;
-            fn.apply(this, arguments);
+            try {
+              fn.apply(this, arguments);
+            } catch (e) {
+              con.error(e);
+            }
           }
         };
       };
@@ -9788,38 +9832,17 @@
       if (!elm) return { width: 0, height: 0 };
       return { width: elm.offsetWidth, height: elm.offsetHeight };
     };
-    ytcenter.utils.isElementPartlyInView = function(elm){ // TODO Implement scrollable elements support.
-      /*if (ytcenter.utils.getComputedStyle(elm, "display").toLowerCase() === "none")
-        return false;*/
+    ytcenter.utils.isElementPartlyInView = function(elm, offset, winDim){
       var box = ytcenter.utils.getBoundingClientRect(elm) || { left: 0, top: 0, right: 0, bottom: 0 },
           dim = ytcenter.utils.getDimension(elm), a = elm, b, c, d;
-      /*while (!!(a = a.parentNode) && a !== document.body) {
-        if (ytcenter.utils.getComputedStyle(a, "display").toLowerCase() === "none")
-          return false;
-        b = ytcenter.utils.isContainerOverflowed(a);
-        if (b.x && b.y) { // TODO FIX
-          c = ytcenter.utils.getBoundingClientRect(a) || { left: 0, top: 0, right: 0, bottom: 0 };
-          c.top = c.top - box.top;
-          c.left = c.left - box.left;
-          c.bottom = c.bottom - box.bottom;
-          c.right = c.right - box.right;
-          
-          d = {
-            top: c.top - a.scrollTop,
-            bottom: c.bottom - a.scrollTop,
-            left: c.left - a.scrollLeft,
-            right: c.right - a.scrollRight
-          };
-          if (!(c.top >= 0 - dim.height && c.left >= 0 - dim.width && c.bottom <= a.clientHeight + dim.height && c.right <= a.clientWidth + dim.width))
-            return false;
-          // We now know that the element is visible in the parent and therefore we can just check if the parent is visible ~magic.
-          return ytcenter.utils.isElementPartlyInView(a);
-        }
-      }*/
-      return (box.top >= 0 - dim.height
-           && box.left >= 0 - dim.width
-           && box.bottom <= (window.innerHeight || document.documentElement.clientHeight) + dim.height
-           && box.right <= (window.innerWidth || document.documentElement.clientWidth) + dim.width);
+      offset = offset || { top: 0, left: 0 };
+      
+      winDim = winDim || {width: window.innerWidth || document.documentElement.clientWidth, height: window.innerHeight || document.documentElement.clientHeight };
+      
+      return (box.top + offset.top >= 0 - dim.height
+           && box.left + offset.left >= 0 - dim.width
+           && box.bottom + offset.top <= winDim.height + dim.height
+           && box.right + offset.left <= winDim.width + dim.width);
     };
     ytcenter.utils.isElementInView = function(elm){ // TODO Implement scrollable elements support.
       if (ytcenter.utils.getComputedStyle(elm, "display").toLowerCase() === "none")
@@ -11481,6 +11504,7 @@
       commentCountryEnabled: false,
       commentCountryShowFlag: true,
       commentCountryUseNames: true,
+      commentCountryLazyLoad: true,
       commentCountryPosition: "after_username", // ["before_username", "after_username", "last"]
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
@@ -15385,6 +15409,15 @@
             "SETTINGS_COMMENTS_COUNTRY_USE_NAME" // label
           );
           subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "commentCountryLazyLoad", // defaultSetting
+            "bool", // module
+            "SETTINGS_COMMENTS_COUNTRY_LAZY_LOAD" // label
+          );
+          subcat.addOption(option);
+          
+          
 
           option = ytcenter.settingsPanel.createOption(
             "commentCountryPosition", // defaultSetting
