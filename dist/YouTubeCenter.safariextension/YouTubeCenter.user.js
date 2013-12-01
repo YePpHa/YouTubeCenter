@@ -3340,292 +3340,6 @@
       return a;
     })();
     ytcenter.commentsPlus = (function(){
-      function getComments() {
-        var a = document.getElementsByClassName("Mpa"),
-            b = document.getElementsByClassName("fR"),
-            data = [], i, cacheData, d, sort = {}, tmp = [];
-        for (i = 0; i < a.length; i++) {
-          if (!a[i].firstChild.getAttribute("oid") || ytcenter.utils.hasClass(a[i], "ytcenter-flags-registered")) continue;
-          a[i].className += " ytcenter-flags-registered";
-          d = {
-            element: a[i].parentNode,
-            userId: a[i].firstChild.getAttribute("oid"),
-            plus: a[i].firstChild.getAttribute("href").indexOf("youtube.com/profile_redirector/") !== -1,
-            top: true,
-          };
-          data.push(d);
-        }
-        for (i = 0; i < b.length; i++) {
-          if (!b[i].firstChild.getAttribute("oid") || ytcenter.utils.hasClass(a[i], "ytcenter-flags-registered")) continue;
-          b[i].className += " ytcenter-flags-registered";
-          d = {
-            element: b[i],
-            userId: b[i].firstChild.getAttribute("oid"),
-            plus: b[i].firstChild.getAttribute("href").indexOf("youtube.com/profile_redirector/") !== -1,
-            top: false
-          };
-          data.push(d);
-        }
-        d = null;
-        for (i = 0; i < data.length; i++) {
-          if (!sort[data[i].userId]) {
-            sort[data[i].userId] = {elements: []};
-            tmp.push(data[i].userId);
-          }
-          sort[data[i].userId].elements.push(data[i].element);
-          sort[data[i].userId].plus = data[i].plus;
-          sort[data[i].userId].top = data[i].top;
-          if (!sort[data[i].userId].country) {
-            cacheData = getDataCacheById(data[i].userId);
-            if (cacheData) {
-              if (cacheData.country) sort[data[i].userId].country = cacheData.country;
-            }
-          }
-        }
-        data = [];
-        for (i = 0; i < tmp.length; i++) {
-          d = sort[tmp[i]];
-          d.id = tmp[i];
-          data.push(d);
-        }
-        
-        return data;
-      }
-      function addMetadata(comment) {
-        var i, metadata, countryMetadata;
-        if (isInCache(comment)) {
-          updateItemInCache(comment);
-        } else {
-          addNewDataToCache(comment);
-        }
-        for (i = 0; i < comment.elements.length; i++) {
-          metadata = comment.elements[i];
-          countryMetadata = document.createElement("span");
-          countryMetadata.className = "country";
-          if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[comment.country.toLowerCase()]) {
-            var img = document.createElement("img");
-            img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
-            img.className = ytcenter.flags[comment.country.toLowerCase()];
-            img.setAttribute("alt", comment.country);
-            img.setAttribute("title", comment.country);
-            countryMetadata.appendChild(img);
-          } else {
-            countryMetadata.textContent = comment.country;
-          }
-          if (ytcenter.settings.commentCountryPosition === "before_username") {
-            countryMetadata.style.marginRight = "10px";
-            metadata.insertBefore(countryMetadata, metadata.children[0]);
-          } else if (ytcenter.settings.commentCountryPosition === "after_username") {
-            if (comment.top) {
-              countryMetadata.style.marginLeft = "10px";
-            } else {
-              countryMetadata.style.marginRight = "8px";
-            }
-            metadata.insertBefore(countryMetadata, metadata.children[1]);
-          } else if (ytcenter.settings.commentCountryPosition === "last") {
-            countryMetadata.style.marginLeft = "10px";
-            if (comment.top) {
-              if (metadata.children.length > 2) {
-                metadata.insertBefore(countryMetadata, metadata.children[2]);
-              } else {
-                metadata.appendChild(countryMetadata);
-              }
-            } else {
-              if (metadata.children.length > 3) {
-                metadata.insertBefore(countryMetadata, metadata.children[3]);
-              } else {
-                metadata.appendChild(countryMetadata);
-              }
-            }
-          }
-        }
-      }
-      function processItem(comment) {
-        var i;
-        if (comment.country) {
-          addMetadata(comment);
-        } else {
-          var country;
-          for (i = 0; i < comments.length; i++) {
-            if (comments[i].id === comment.id && comments[i].country) {
-              comment.country = comments[i].country;
-              break;
-            }
-          }
-          if (comment.country) {
-            addMetadata(comment);
-          } else {
-            if (comment.plus) {
-              ytcenter.getGooglePlusUserData(comment.id, function(data){
-                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                  comment.country = data.entry.yt$location.$t;
-                  addMetadata(comment);
-                } else {
-                  con.error("[Comment Country] Unknown Location", data);
-                }
-              });
-            } else {
-              ytcenter.getUserData(comment.id, function(data){
-                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                  comment.country = data.entry.yt$location.$t;
-                  addMetadata(comment);
-                } else {
-                  con.error("[Comment Country] Unknown Location", data);
-                }
-              });
-            }
-          }
-        }
-      }
-      function compareDifference(newData, oldData) {
-        var i, j, k, found, f, data = [], e, country;
-        for (i = 0; i < newData.length; i++) {
-          found = false;
-          for (j = 0; j < oldData.length; j++) {
-            if (newData[i].id === oldData[j].id) {
-              found = oldData[j].elements;
-              country = oldData[j].country;
-              break;
-            }
-          }
-          if (found) {
-            e = [];
-            for (j = 0; j < newData[i].elements.length; j++) {
-              f = false;
-              for (k = 0; k < found.length; k++) {
-                if (found[k] === newData[i].elements[j]) {
-                  f = true;
-                  break;
-                }
-              }
-              if (!f) {
-                e.push(newData[i].elements[j]);
-              }
-            }
-            if (e.length > 0) {
-              newData[i].elements = e;
-              if (country)
-                newData[i].country = country;
-              data.push(newData[i]);
-            }
-          } else {
-            data.push(newData[i]);
-          }
-        }
-        e = [];
-        for (i = 0; i < data.length; i++) {
-          e = [];
-          for (j = 0; j < data[i].elements.length; j++) {
-            if (!elementInUse(data[i].elements[j])) {
-              e.push(data[i].elements[j]);
-            }
-          }
-          data.elements = e;
-        }
-        
-        return data;
-      }
-      function elementInUse(element) {
-        var i, j;
-        for (i = 0; i < comments.length; i++) {
-          for (j = 0; j < comments[i].elements.length; j++) {
-            if (comments[i].elements[j] === element)
-              return true;
-          }
-        }
-        return false;
-      }
-      function mergeCommentData(data) {
-        var i, j;
-        for (i = 0; i < comments.length; i++) {
-          if (data.id === comments[i].id) {
-            for (j = 0; j < data.elements.length; j++) {
-              if (!elementInUse(data.elements[j]))
-                comments[i].elements.push(data.elements[j]);
-            }
-            if (!comments[i].country && data.country) comments[i].country = data.country;
-            return;
-          }
-        }
-        comments.push(data);
-      }
-      function updateItemInCache(data) {
-        var index = getDataCacheIndex(data);
-        if (data.country && !ytcenter.settings.commentCountryData[index].country) {
-          ytcenter.settings.commentCountryData[index].country = data.country;
-        }
-        ytcenter.saveSettings(false, true);
-      }
-      function updateReuse(data) {
-        var index = getDataCacheIndex(data);
-        if (index === -1) return;
-        ytcenter.settings.commentCountryData[index].reused++;
-        if (ytcenter.settings.commentCountryData[index].reused > 10)
-          ytcenter.settings.commentCountryData[index].reused = 10;
-        ytcenter.saveSettings(false, true);
-      }
-      function getDataCacheById(id) {
-        var i;
-        for (i = 0; i < ytcenter.settings.commentCountryData.length; i++) {
-          if (id === ytcenter.settings.commentCountryData[i].id) return ytcenter.settings.commentCountryData[i];
-        }
-        return null;
-      }
-      function getDataCacheIndex(data) {
-        var i;
-        for (i = 0; i < ytcenter.settings.commentCountryData.length; i++) {
-          if (data.id === ytcenter.settings.commentCountryData[i].id) return i;
-        }
-        return -1;
-      }
-      function isInCache(data) {
-        return getDataCacheIndex(data) !== -1;
-      }
-      function addNewDataToCache(data) {
-        if (isInCache(data)) return;
-        var nData = {};
-        while (ytcenter.settings.commentCountryData.length >= ytcenter.settings.commentCacheSize) removeOldestFromCache();
-        nData.id = data.id;
-        nData.plus = typeof data.plus === "boolean" ? data.plus : true;
-        nData.reused = 0;
-        nData.date = ytcenter.utils.now();
-        if (data.country) nData.country = data.country;
-        
-        ytcenter.settings.commentCountryData.push(nData);
-        
-        ytcenter.saveSettings(false, true);
-      }
-      function calculateCacheLife(data) {
-        return 1000*60*60*24*7 + (1000*60*60*24*2)*(data.reused ? data.reused : 0);
-      }
-      function removeOldestFromCache() {
-        if (ytcenter.settings.commentCountryData.length === 0) return;
-        var i, now = ytcenter.utils.now(), life, lifeRemaining, oldest = ytcenter.settings.commentCountryData[0], j = 0;
-        for (i = 1; i < ytcenter.settings.commentCountryData.length; i++) {
-          life = calculateCacheLife(ytcenter.settings.commentCountryData[i]);
-          lifeRemaining = (ytcenter.settings.commentCountryData[i].date + life) - now;
-          if (lifeRemaining < (oldest.date + calculateCacheLife(oldest)) - now) {
-            oldest = ytcenter.settings.commentCountryData[i];
-            j = i;
-          }
-        }
-        ytcenter.settings.commentCountryData.splice(j, 1);
-      }
-      function cacheChecker() {
-        if (ytcenter.settings.commentCountryData.length === 0) return;
-        var i, now = ytcenter.utils.now(), life, nData = [];
-        
-        for (i = 0; i < ytcenter.settings.commentCountryData.length; i++) {
-          life = calculateCacheLife(ytcenter.settings.commentCountryData[i]);
-          if (now < ytcenter.settings.commentCountryData[i].date + life) {
-            if (ytcenter.settings.commentCountryData[i].reused < 10) ytcenter.settings.commentCountryData[i].reused++;
-            nData.push(ytcenter.settings.commentCountryData[i]);
-          }
-        }
-        ytcenter.settings.commentCountryData = nData;
-        ytcenter.saveSettings(false, true);
-      }
-      
       var __r = {}, comments = [], observer = null;
       
       ytcenter.unload(function(){
@@ -3751,7 +3465,20 @@
         
         commentInfo.username = commentInfo.wrapper.getElementsByTagName("img")[0].getAttribute("title");
         commentInfo.profileRedirectURL = commentInfo.wrapper.getElementsByTagName("img")[0].parentNode.href;
-        commentInfo.profileRedirectId = commentInfo.profileRedirectURL.split("youtube.com/profile_redirector/")[1];
+        
+        if (commentInfo.profileRedirectURL.indexOf("youtube.com/profile_redirector/") !== -1) {
+          commentInfo.profileRedirectId = commentInfo.profileRedirectURL.split("youtube.com/profile_redirector/")[1];
+          commentInfo.channelRedirectId = null;
+        } else if (commentInfo.profileRedirectURL.indexOf("youtube.com/channel/") !== -1) {
+          commentInfo.channelRedirectId = commentInfo.profileRedirectURL.split("youtube.com/channel/")[1];
+          commentInfo.profileRedirectId = null;
+        } else if (commentInfo.profileRedirectURL.indexOf("youtube.com/user/") !== -1) {
+          commentInfo.channelRedirectId = commentInfo.profileRedirectURL.split("youtube.com/user/")[1];
+          commentInfo.profileRedirectId = null;
+        } else {
+          commentInfo.profileRedirectId = null;
+          commentInfo.channelRedirectId = null;
+        }
         
         if (commentInfo.isReply) {
           commentInfo.headerElement = commentInfo.wrapper.getElementsByClassName("fR")[0];
@@ -3760,10 +3487,21 @@
         }
         
         if (commentInfo.isReply) {
+          commentInfo.headerUserDataElement = commentInfo.wrapper.getElementsByClassName("fR")[0];
+        } else {
+          commentInfo.headerUserDataElement = commentInfo.wrapper.getElementsByClassName("Mpa")[0].parentNode;
+        }
+        
+        if (commentInfo.isReply) {
           commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 3 ? false : true;
         } else {
           commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 1 ? false : true;
         }
+        
+        commentInfo.country = ytcenter.cache.getItem("profile_country", commentInfo.profileRedirectId || commentInfo.channelRedirectId);
+        
+        if (commentInfo.country) commentInfo.country = commentInfo.country.data;
+        else commentInfo.country = null;
         
         return commentInfo;
       };
@@ -3841,11 +3579,92 @@
           }
         }
       };
+      __r.completeFlag = function(comment, country){
+        var countryContainer = document.createElement("span"),
+            metadata = comment.headerUserDataElement;
+        
+        countryContainer.className = "country";
+        
+        if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
+          var img = document.createElement("img");
+          img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+          img.className = ytcenter.flags[country.toLowerCase()];
+          img.setAttribute("alt", country);
+          img.setAttribute("title", country);
+          countryContainer.appendChild(img);
+        } else {
+          countryContainer.textContent = country;
+        }
+        if (ytcenter.settings.commentCountryPosition === "before_username") {
+          countryContainer.style.marginRight = "10px";
+          metadata.insertBefore(countryContainer, metadata.children[0]);
+        } else if (ytcenter.settings.commentCountryPosition === "after_username") {
+          if (!comment.isReply) {
+            countryContainer.style.marginLeft = "10px";
+          } else {
+            countryContainer.style.marginRight = "8px";
+          }
+          metadata.insertBefore(countryContainer, metadata.children[1]);
+        } else if (ytcenter.settings.commentCountryPosition === "last") {
+          countryContainer.style.marginLeft = "10px";
+          if (!comment.isReply) {
+            if (metadata.children.length > 2) {
+              metadata.insertBefore(countryContainer, metadata.children[2]);
+            } else {
+              metadata.appendChild(countryContainer);
+            }
+          } else {
+            if (metadata.children.length > 3) {
+              metadata.insertBefore(countryContainer, metadata.children[3]);
+            } else {
+              metadata.appendChild(countryContainer);
+            }
+          }
+        }
+      };
+      __r.handleFlag = function(comment){
+        if (comment.flagAdded) return;
+        comment.flagAdded = true;
+        if (comment.country) {
+          __r.completeFlag(comment, comment.country);
+        } else {
+          ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId, function(args){
+            if (comment.profileRedirectId) {
+              ytcenter.getGooglePlusUserData(comment.profileRedirectId, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+                args.complete(comment.country || null);
+              });
+            } else if (comment.channelRedirectId) {
+              ytcenter.getUserData(comment.channelRedirectId, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+                args.complete(comment.country || null);
+              });
+            }
+          }, function(data){
+            if (!data) return;
+            if (comment.profileRedirectId || comment.channelRedirectId) {
+              ytcenter.cache.putItem("profile_country", comment.profileRedirectId || comment.channelRedirectId, data, 2678400000 /* 31 days */);
+            }
+            
+            comment.country = data;
+            __r.completeFlag(comment, data);
+          });
+        }
+      };
       __r.addFlags = function(){
         if (!ytcenter.settings.commentCountryEnabled) return;
+        ytcenter.cache.putCategory("profile_country", ytcenter.settings.commentCacheSize);
         var i;
         for (i = 0; i < __r.comments.length; i++) {
-          
+          __r.handleFlag(__r.comments[i]);
         }
       };
       
@@ -3854,15 +3673,6 @@
         __r.filter();
         __r.commentDuplicates();
         __r.addFlags();
-        
-        /*if (ytcenter.settings.commentCountryEnabled) {
-          var c = compareDifference(getComments(), comments), i;
-          for (i = 0; i < c.length; i++) {
-            mergeCommentData(c[i]);
-            updateReuse(c[i]);
-            processItem(c[i]);
-          }
-        }*/
       };
       __r.setupObserver = function(){
         try {
@@ -3915,6 +3725,13 @@
     ytcenter.jobs = (function(){
       var __r = {}, workers = {};
       
+      /*  id        the id of the worker.
+          action    the action function, which will do the job.
+          complete  the function which will be called when the job is finished.
+        ***
+        This creates a new worker, which will execute a job.
+        If a worker with the same id is created it will just execute the complete function instead with the previous data.
+      */
       __r.createWorker = function(id, action, complete){
         if (id in workers) {
           if (workers[id].completed) {
@@ -3923,18 +3740,24 @@
             workers[id].completeActions.push(complete);
           }
         } else {
-          workers[id] = { completeActions: [ complete ], action: action, arg: {
-            complete: function(data){
-              workers[id].completed = true;
-              workers[id].data = data;
-              var i;
-              for (i = 0; i < workers[id].completeActions.length; i++) {
-                workers[id].completeActions[i](data);
-              }
+          workers[id] = {
+            completeActions: [ complete ],
+            run: function(){ action(workers[id].args); },
+            args: {
+              complete: function(data){
+                workers[id].completed = true;
+                workers[id].data = data;
+                var i;
+                for (i = 0; i < workers[id].completeActions.length; i++) {
+                  workers[id].completeActions[i](data);
+                }
+              },
+              remove: ytcenter.utils.once(function(){ delete workers[id]; })
             },
-            remove: ytcenter.utils.once(function(){ delete workers[id]; })
-          }, completed: false};
-          action(a);
+            completed: false
+          };
+          
+          workers[id].run();
         }
       };
       
@@ -3945,19 +3768,18 @@
       
       __r.putCategory = function(id, size){
         if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
-        var items = [];
-        if (ytcenter.settings.cache[id].i) items = ytcenter.settings.cache[id].i;
-        
-        ytcenter.settings.cache[id] = { s: size, i: items };
+        if (ytcenter.settings.cache[id]) {
+          ytcenter.settings.cache[id].size = size;
+        } else {
+          ytcenter.settings.cache[id] = { size: size, items: [] };
+        }
         
         ytcenter.saveSettings();
       };
       
       __r.getCategory = function(id){
         if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
-        var cat = ytcenter.settings.cache[id];
-        if (!cat) return null;
-        return { id: id, size: cat.s, items: cat.i };
+        return ytcenter.settings.cache[id] || null;
       };
       
       __r.getItem = function(catId, id){
@@ -3965,9 +3787,9 @@
         __r.checkCache();
         
         var cat = __r.getCategory(catId), i;
-        if (!cat) false;
+        if (!cat) return false;
         for (i = 0; i < cat.items.length; i++) {
-          if (cat.items[i].id === id)
+          if (cat.items[i].i === id)
             return { id: cat.items[i].i, categoryId: catId, data: cat.items[i].d, expires: cat.items[i].e, lastUpdated: cat.items[i].l, index: i };
         }
         return null;
@@ -3985,7 +3807,7 @@
         
         var cat = __r.getCategory(catId), item;
         if (!cat) throw "[Cache] Category " + catId + " doesn't exist!";
-        item = getItem(catId, id);
+        item = __r.getItem(catId, id);
         if (item) {
           cat.items[item.index].d = data;
           cat.items[item.index].e = expires;
@@ -3999,17 +3821,17 @@
         ytcenter.saveSettings();
       };
       
-      /* Finds expired items and removes them. */
+      /* Find expired items and removes them. */
       __r.checkCache = function(){
         if (!ytcenter.settings.cache) return;
         var key, i, now = +new Date, save = false;
         
         for (key in ytcenter.settings.cache) {
           if (ytcenter.settings.cache.hasOwnProperty(key)) {
-            for (i = 0; i < ytcenter.settings.cache[key].i.length; i++) {
-              if (ytcenter.settings.cache[key].l + ytcenter.settings.cache[key].e < now) {
+            for (i = 0; i < ytcenter.settings.cache[key].items.length; i++) {
+              if (ytcenter.settings.cache[key].items[i].l + ytcenter.settings.cache[key].items[i].e < now) {
                 save = true;
-                ytcenter.settings.cache[key].i.splice(i, 1);
+                ytcenter.settings.cache[key].items.splice(i, 1);
                 i--;
               }
             }
@@ -4664,7 +4486,7 @@
           callback(item.stream, item.storyboard);
         } else {
           //var spflink = Math.round(Math.random()) === 1 ? true : false;
-          var spflink = ytcenter.spf.isEnabled();
+          var spflink = /*ytcenter.spf.isEnabled()*/true;
           //var spflink = true;
           
           $XMLHTTPRequest({
@@ -4724,13 +4546,15 @@
                 }
                 item.stream = ytcenter.player.getHighestStreamQuality(ytcenter.parseStreams(cfg.args));
                 if (!item.stream) {
-                  if (cfg.args.ypc_module && cfg.args.ypc_vid) {
+                  if (cfg && cfg.args && cfg.args.ypc_module && cfg.args.ypc_vid) {
                     item.stream = {
                       quality: "ondemand"
                     };
                   }
                 }
-                item.storyboard = cfg.args.storyboard_spec || cfg.args.live_storyboard_spec;
+                if (cfg && cfg.args) {
+                  item.storyboard = cfg.args.storyboard_spec || cfg.args.live_storyboard_spec;
+                }
                 try {
                   delete item.stream.fallback_host;
                   delete item.stream.sig;
@@ -11622,7 +11446,7 @@
       ytExperimentFixedTopbar: false,
       ytspf: false,
       videoThumbnailCacheSize: 500,
-      commentCacheSize: 150,
+      commentCacheSize: 500,
       watchedVideosIndicator: true,
       hideWatchedVideos: false,
       watchedVideos: [],
@@ -19393,44 +19217,6 @@
         var page = ytcenter.getPage();
         if (page === "embed" || !ytcenter.settings.ytspf) ytcenter.spf.disable();
         
-        
-        /* We don't want to add everything. So only the neccessary stuff is added. */
-        if (page === "comments") {
-          $AddStyle(ytcenter.css.flags);
-          return;
-        }
-        if (page === "embed" && !ytcenter.settings.embed_enabled) {
-          ytcenter.writeEmbed();
-          return;
-        }
-        if (page === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
-          loc.search = loc.search.replace("autoplay=1", "ytcenter-autoplay=1");
-        }
-        con.log("Settings loaded.");
-        ytcenter.language.update();
-        
-        uw.addEventListener("message", function(e){
-          if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
-            return;
-          if (e.data.indexOf("YouTubeCenter") !== 0)
-            return;
-          var d = JSON.parse(e.data.substring(13));
-          if (d.type === "saveSettings") {
-            ytcenter.saveSettings();
-          } else if (d.type === "loadSettings") {
-            ytcenter.loadSettings();
-          } else if (d.type === "updateSignatureDecipher") {
-            ytcenter.utils.updateSignatureDecipher();
-          }
-          if (typeof d.callback === "function") {
-            var n = d.callback.split("."), a = uw, i;
-            for (i = 0; o < n.length; i++) {
-              a = a[n[i]];
-            }
-            a();
-          }
-        }, false);
-        
         // Settings made public
         ytcenter.unsafe.injected = injected;
         ytcenter.unsafe.settings = ytcenter.unsafe.settings || {};
@@ -19474,6 +19260,44 @@
             type: "loadSettings"
           }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
         }, ytcenter.unsafe.settings);
+        
+        /* We don't want to add everything. So only the neccessary stuff is added. */
+        if (page === "comments") {
+          $AddStyle(ytcenter.css.flags);
+          return;
+        }
+        if (page === "embed" && !ytcenter.settings.embed_enabled) {
+          ytcenter.writeEmbed();
+          return;
+        }
+        if (page === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
+          loc.search = loc.search.replace("autoplay=1", "ytcenter-autoplay=1");
+        }
+        con.log("Settings loaded.");
+        ytcenter.language.update();
+        
+        uw.addEventListener("message", function(e){
+          if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
+            return;
+          if (e.data.indexOf("YouTubeCenter") !== 0)
+            return;
+          var d = JSON.parse(e.data.substring(13));
+          if (d.type === "saveSettings") {
+            ytcenter.saveSettings();
+          } else if (d.type === "loadSettings") {
+            ytcenter.loadSettings();
+          } else if (d.type === "updateSignatureDecipher") {
+            ytcenter.utils.updateSignatureDecipher();
+          }
+          if (typeof d.callback === "function") {
+            var n = d.callback.split("."), a = uw, i;
+            for (i = 0; o < n.length; i++) {
+              a = a[n[i]];
+            }
+            a();
+          }
+        }, false);
+        
         try {
           var links = document.head.getElementsByTagName("link");
           if (links[0] && links[0].className === "www-feather")
@@ -20378,7 +20202,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 109);
+          main_function(false, 4, true, 110);
         /*} catch (e) {
         }*/
       }
@@ -20398,7 +20222,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 109);
+      main_function(false, 4, true, 110);
     //} catch (e) {
       //console.error(e);
     //}
