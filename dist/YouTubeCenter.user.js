@@ -4505,8 +4505,8 @@
             url: "http://www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : ""),
             method: "GET",
             onload: function(r){
+              var cfg, errorType = "unknown";
               try {
-                var cfg, errorType = "unknown";
                 try {
                   if (spflink) {
                     cfg = JSON.parse(r.responseText);
@@ -4519,6 +4519,7 @@
                         cfg = cfg[2];
                       else cfg = cfg[1];
                     }
+                    
                     if (cfg.swfcfg) {
                       cfg = cfg.swfcfg;
                     } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
@@ -4595,6 +4596,7 @@
                   } else {
                     msg = "Error!";
                     con.error(e);
+                    con.error(cfg);
                     try {
                       con.error(JSON.parse(r.responseText));
                     } catch (e) {
@@ -16148,11 +16150,12 @@
         ytcenter.player.config = uw.yt.config_.PLAYER_CONFIG;
       if (!ytcenter.player.config || !ytcenter.player.config.args)
         ytcenter.player.config = ytcenter.player.getRawPlayerConfig();
-      
+      var emvid = loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/);
+      if (emvid && emvid.length > 1 && emvid[1]) emvid = emvid[1];
       /* Creating URL */
       var a = {
         html5: (ytcenter.player.config && ytcenter.player.config.html5 ? "1" : "0"),
-        video_id: ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.video_id || loc.pathname.match(/\/embed\/([0-9a-zA-Z_-]+)/)[1],
+        video_id: ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.video_id || emvid,
         cpn: ytcenter.player.cpn,
         eurl: loc.href,
         ps: null,
@@ -20262,7 +20265,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 115);
+          main_function(false, 0, true, 116);
         /*} catch (e) {
         }*/
       }
@@ -20282,7 +20285,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 115);
+      main_function(false, 0, true, 116);
     //} catch (e) {
       //console.error(e);
     //}
