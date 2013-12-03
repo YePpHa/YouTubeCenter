@@ -2478,15 +2478,13 @@
         con.log("[Embed] writeEmbed has been leaked to YouTube Center.");
         ytcenter.embed._writeEmbed = func;
       }, function(){
+        if (ytcenter.embed.failsafe)
+          return ytcenter.embed._writeEmbed;
         return function(){
           con.log("[Embed] YouTube has called writeEmbed.");
-          if (ytcenter.embed.failsafe) {
-            ytcenter.embed._writeEmbed();
-          } else {
-            ytcenter.embed.isYouTubeReady = true;
-            if (ytcenter.embed.writePlayer)
-              ytcenter.embed.writePlayer();
-          }
+          ytcenter.embed.isYouTubeReady = true;
+          if (ytcenter.embed.writePlayer)
+            ytcenter.embed.writePlayer();
         };
       });
       
