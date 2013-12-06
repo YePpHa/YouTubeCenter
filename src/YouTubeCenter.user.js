@@ -4699,6 +4699,7 @@
           sparkBars.className = "video-extras-sparkbars"
                               + (ytcenter.settings.videoThumbnailRatingsBarVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
                               + (ytcenter.settings.videoThumbnailRatingsBarVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "");
+          sparkBars.style.height = ytcenter.settings.videoThumbnailRatingsBarHeight + "px";
           if (!ytcenter.utils.hasClass(item.videoThumb, "yt-thumb-fluid") && item.videoThumb.className.match(/yt-thumb-[0-9]+/)) {
             barLength = /yt-thumb-([0-9]+)/.exec(item.videoThumb.className)[1] + "px";
           } else if (item.videoThumb.style.width && parseInt(item.videoThumb.style.width) > 0) {
@@ -4708,7 +4709,10 @@
           }
           sparkBarLikes.className = "video-extras-sparkbar-likes";
           sparkBarLikes.style.background = ytcenter.settings.videoThumbnailRatingsBarLikesColor;
+          sparkBarLikes.style.height = ytcenter.settings.videoThumbnailRatingsBarHeight + "px";
+          
           sparkBarDislikes.className = "video-extras-sparkbar-dislikes";
+          sparkBarDislikes.style.height = ytcenter.settings.videoThumbnailRatingsBarHeight + "px";
           if (likes === "error") {
             sparkBarDislikes.style.background = "#BF3EFF";
             total = 1;
@@ -11455,6 +11459,8 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      videoThumbnailRatingsBarHeight: 2,
+      sparkbarHeight: 2,
       sparkbarLikesColor: "#590",
       sparkbarDislikesColor: "#ccc",
       commentsPlusLinkRedirectConfirm: true,
@@ -14589,6 +14595,8 @@
             }
           );
           subcat.addOption(option);
+          
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RATINGBAR"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
             "sparkbarLikesColor", // defaultSetting
             "colorpicker", // module
@@ -14605,7 +14613,7 @@
             }
           });
           subcat.addOption(option);
-          
+        
           option = ytcenter.settingsPanel.createOption(
             "sparkbarDislikesColor", // defaultSetting
             "colorpicker", // module
@@ -14622,6 +14630,29 @@
             }
           });
           subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "sparkbarHeight", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_SPARKBAR_HEIGHT", // label
+            {
+              "min": 1,
+              "max": 100
+            }
+          );
+          option.addEventListener("update", function(){
+            var wvi = document.getElementById("watch7-views-info"),
+                sl = document.getElementsByClassName("video-extras-sparkbar-likes"),
+                sd = document.getElementsByClassName("video-extras-sparkbar-dislikes");
+            if (sl && sd && sl.length > 0 && sd.length > 0 && sl[0] && sd[0]) {
+              sl[0].style.height = ytcenter.settings.sparkbarHeight + "px";
+              sd[0].style.height = ytcenter.settings.sparkbarHeight + "px";
+              sd[0].parentNode.style.height = ytcenter.settings.sparkbarHeight + "px";
+            }
+          });
+          subcat.addOption(option);
+          
+          
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PLACEMENT"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
             "enableDownload",
@@ -15144,6 +15175,19 @@
             }
           );
           option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBarHeight", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_SPARKBAR_HEIGHT", // label
+            {
+              "min": 1,
+              "max": 100
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          
           subcat.addOption(option);
 
           // Rating count
@@ -19754,7 +19798,11 @@
               sd = document.getElementsByClassName("video-extras-sparkbar-dislikes");
           if (sl && sd && sl.length > 0 && sd.length > 0 && sl[0] && sd[0]) {
             sl[0].style.background = ytcenter.settings.sparkbarLikesColor;
+            sl[0].style.height = ytcenter.settings.sparkbarHeight + "px";
             sd[0].style.background = ytcenter.settings.sparkbarDislikesColor;
+            sd[0].style.height = ytcenter.settings.sparkbarHeight + "px";
+            
+            sd[0].parentNode.style.height = ytcenter.settings.sparkbarHeight + "px";
           }
           
           ytcenter.playlist = false;
@@ -20202,7 +20250,11 @@
               sd = document.getElementsByClassName("video-extras-sparkbar-dislikes");
           if (sl && sd && sl.length > 0 && sd.length > 0 && sl[0] && sd[0]) {
             sl[0].style.background = ytcenter.settings.sparkbarLikesColor;
+            sl[0].style.height = ytcenter.settings.sparkbarHeight + "px";
             sd[0].style.background = ytcenter.settings.sparkbarDislikesColor;
+            sd[0].style.height = ytcenter.settings.sparkbarHeight + "px";
+            
+            sd[0].parentNode.style.height = ytcenter.settings.sparkbarHeight + "px";
           }
           
           if (ytcenter.page === "watch") {
