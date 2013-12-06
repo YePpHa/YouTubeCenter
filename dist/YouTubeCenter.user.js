@@ -4287,7 +4287,7 @@
       } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\//) && (loc.pathname === "/" || loc.pathname === "/feed/what_to_watch")) {
         ytcenter.page = "feed_what_to_watch";
         return "feed_what_to_watch";
-      } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/embed\//)) {
+      } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/embed\//) || !!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/watch_popup\?\//)) {
         ytcenter.page = "embed";
         return "embed";
       } else if ( document &&
@@ -20284,7 +20284,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 118);
+          main_function(false, 0, true, 119);
         /*} catch (e) {
         }*/
       }
@@ -20304,7 +20304,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 118);
+      main_function(false, 0, true, 119);
     //} catch (e) {
       //console.error(e);
     //}
