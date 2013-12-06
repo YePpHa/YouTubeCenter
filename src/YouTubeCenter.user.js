@@ -11459,6 +11459,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      useSecureProtocol: true,
       videoThumbnailRatingsBarHeight: 2,
       sparkbarHeight: 2,
       sparkbarLikesColor: "#590",
@@ -12920,6 +12921,15 @@
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#multiple-languages" // help
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "useSecureProtocol", // defaultSetting
+            "bool", // module
+            "SETTINGS_USESECUREPROTOCOL_LABEL", // label
+            null, // args
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#use-secure-protocol" // help
           );
           subcat.addOption(option);
 
@@ -19339,6 +19349,12 @@
       };
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
+        if (ytcenter.settings.useSecureProtocol) {
+          if (loc.href.indexOf("http://") === 0) {
+            loc.href = loc.href.replace(/^http/, "https");
+            return;
+          }
+        }
         var page = ytcenter.getPage();
         if (page === "embed" || !ytcenter.settings.ytspf) ytcenter.spf.disable();
         
