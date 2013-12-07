@@ -9764,6 +9764,17 @@
     
     // @utils
     
+    ytcenter.utils.prefixText = function(text, prefixChar, preferedLength){
+      var t = ("" + text);
+      if (t.length < preferedLength) {
+        var i;
+        for (i = 0; i < preferedLength - t.length; i++) {
+          t = prefixChar + t;
+        }
+      }
+      return t;
+    };
+    
     ytcenter.utils.replaceContent = function(content, start, end) {
       var a = content.indexOf(start)
           b = content.indexOf(end);
@@ -16087,21 +16098,21 @@
         quality: stream.quality,
         type: stream.type,
         dur: duration,
-        durmins: durmin,
-        dursecs: dursec,
+        durmins: ytcenter.utils.prefixText(durmin, "0", 2),
+        dursecs: ytcenter.utils.prefixText(dursec, "0", 2),
         nowtimestamp: nowtimestamp,
-        nowsecs: nowsecs,
-        nowmins: nowmins,
-        nowhours: nowhours,
-        nowdays: nowdays,
-        nowmonth: nowmonth,
+        nowsecs: ytcenter.utils.prefixText(nowsecs, "0", 2),
+        nowmins: ytcenter.utils.prefixText(nowmins, "0", 2),
+        nowhours: ytcenter.utils.prefixText(nowhours, "0", 2),
+        nowdays: ytcenter.utils.prefixText(nowdays, "0", 2),
+        nowmonth: ytcenter.utils.prefixText(nowmonth, "0", 2),
         nowyear: nowyear,
         pubtimestamp: pubtimestamp,
-        pubsecs: pubsecs,
-        pubmins: pubmins,
-        pubhours: pubhours,
-        pubdays: pubdays,
-        pubmonth: pubmonth,
+        pubsecs: ytcenter.utils.prefixText(pubsecs, "0", 2),
+        pubmins: ytcenter.utils.prefixText(pubmins, "0", 2),
+        pubhours: ytcenter.utils.prefixText(pubhours, "0", 2),
+        pubdays: ytcenter.utils.prefixText(pubdays, "0", 2),
+        pubmonth: ytcenter.utils.prefixText(pubmonth, "0", 2),
         pubyear: pubyear
       });
       // Removing illegal characters for filename for OS
