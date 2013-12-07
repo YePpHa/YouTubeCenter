@@ -18057,7 +18057,6 @@
         if (isNaN(calcWidth)) calcWidth = 0;
         if (isNaN(calcHeight)) calcHeight = 0;
         
-        
         // Player Dimension
         var player = document.getElementById("player-legacy") || document.getElementById("player"),
             playerAPI = document.getElementById("player-api-legacy") || document.getElementById("player-api"),
@@ -18067,6 +18066,11 @@
             playerWidth = Math.round(calcWidth),
             playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
+        
+        if (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
+          playerHeight = playerHeight + 80;
+        }
+        
         if (playlist_el) {
           playlist_el.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
         }
@@ -18087,7 +18091,6 @@
             player.style.setProperty("margin-bottom", "", "");
             player.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
           }
-          /*player.style.height = (playerHeight + (document.getElementById("watch7-playlist-data") ? 34 : 0)) + "px";*/
           
           if (playerAPI) {
             playerAPI.style.width = playerWidth + "px";
@@ -18237,7 +18240,7 @@
         if (wp) {
           if (width !== "" || height !== "") {
             wp.style.width = Math.round(calcWidth) + "px";
-            wp.style.height = Math.round(calcHeight + pbh) + "px";
+            wp.style.height = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
           } else {
             wp.style.width = "";
             wp.style.height = "";
