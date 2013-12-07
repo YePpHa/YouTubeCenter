@@ -1861,6 +1861,85 @@
       return v > 4 ? v : !!document.documentMode;
     }());
     
+    /* A wrapper function for the SPF data */
+    ytcenter.spfData = function(originalData){
+      function parsePlayerConfigType1(content) {
+        content = content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
+        content = content.split(";</script>")[0];
+        return JSON.parse(content);
+      }
+      function parsePlayerConfigType2(player) {
+        player = player.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
+        player = player.split(";</script>")[0];
+        return JSON.parse(player);
+      }
+      function injectPlayerConfig(content, config) {
+        return ytcenter.utils.replaceContent(JSON.stringify(config), "<script>var ytplayer = ytplayer || {};ytplayer.config = ", ";</script>");
+      }
+      function parseData(d) {
+        if (d.swfcfg) {
+          type = 0;
+          playerConfig = d.swfcfg;
+          return true;
+        } else if (d.html && d.html.content && d.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+          type = 1;
+          playerConfig = parsePlayerConfigType1(d.html.content);
+          return true;
+        } else if (d.html && d.html.player && d.html.player && d.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+          type = 2;
+          playerConfig = parsePlayerConfigType2(d.html.player);
+          return true;
+        }
+        return false;
+      }
+      function injectDataPlayerConfig(d, config) {
+        if (type === 0) {
+          d.swfcfg = config;
+        } else if (type === 1) {
+          d.html.content = injectPlayerConfig(d.html.content, config);
+        } else if (type === 2) {
+          d.html.player = injectPlayerConfig(d.html.player, config);
+        }
+      }
+      var data = ytcenter.utils.clone(originalData),
+          playerConfig = null, i, type = -1, dataIndex = -1, isArray = ytcenter.utils.isArray(data), hasPlayerConfig = false;
+      
+      if (isArray) {
+        for (i = 0; i < data.length; i++) {
+          if (parseData(data[i])) {
+            dataIndex = i;
+            hasPlayerConfig = true;
+            break;
+          }
+        }
+      } else {
+        if (parseData(data)) hasPlayerConfig = true;
+      }
+      
+      return {
+        setPlayerConfig: function(config){
+          playerConfig = config;
+          if (isArray) {
+            injectDataPlayerConfig(data[dataIndex], config);
+          } else {
+            injectDataPlayerConfig(data, config);
+          }
+        },
+        getPlayerConfig: function(){
+          return playerConfig;
+        },
+        getOriginalData: function(){
+          return originalData;
+        },
+        hasPlayerConfig: function(){
+          return hasPlayerConfig;
+        },
+        getData: function(){
+          return data;
+        }
+      };
+    };
+    
     ytcenter.spf = (function(){
       function SPFEnabled(objects) {
         defineLockedProperty(this, "enabled", function(value){ }, function(){
@@ -2628,9 +2707,11 @@
         ytcenter.title.update();
       }
     };
+    ytcenter.title._init_count = 0;
     ytcenter.title.init = function(){
       var a = document.getElementsByTagName("title")[0];
       if ((a && a.textContent && a.textContent !== "") || (document && document.title && document.title !== "")) {
+        ytcenter.title._init_count = 0;
         if (a && a.textContent && a.textContent !== "") {
           ytcenter.title.originalTitle = ytcenter.title.processOriginalTitle(a.textContent);
         } else {
@@ -2639,7 +2720,12 @@
         ytcenter.mutation.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true }, ytcenter.title.modified);
         ytcenter.title.update();
       } else {
+        if (ytcenter.title._init_count > 20) {
+          ytcenter.title._init_count = 0;
+          return;
+        }
         con.log("[Title Listener] Waiting for title head...");
+        ytcenter.title._init_count++;
         uw.setTimeout(ytcenter.title.init, 500);
       }
     };
@@ -4528,34 +4614,8 @@
               try {
                 try {
                   if (spflink) {
-                    cfg = JSON.parse(r.responseText);
-                    if (ytcenter.utils.isArray(cfg)) {
-                      if (cfg.length > 0 && cfg[0].swfcfg)
-                        cfg = cfg[0];
-                      else if (cfg.length > 1 && cfg[1].swfcfg)
-                        cfg = cfg[1];
-                      else if (cfg.length > 2 && cfg[2].swfcfg)
-                        cfg = cfg[2];
-                      else cfg = cfg[1];
-                    }
-                    
-                    if (cfg.swfcfg) {
-                      cfg = cfg.swfcfg;
-                    } else if (typeof cfg.html["player-unavailable"] === "string" && cfg.html["player-unavailable"] !== "" && cfg.html["player-unavailable"].indexOf("<div") !== -1) {
-                      throw "unavailable";
-                    } else {
-                      if (cfg && cfg.html && cfg.html.content && cfg.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-                        cfg = cfg.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
-                        cfg = cfg.split(";</script>")[0];
-                        cfg = JSON.parse(cfg);
-                      } else if (cfg && cfg.html && cfg.html.player && cfg.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-                        cfg = cfg.html.player.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
-                        cfg = cfg.split(";</script>")[0];
-                        cfg = JSON.parse(cfg);
-                      } else {
-                        throw "unknown";
-                      }
-                    }
+                    cfg = ytcenter.spfData(JSON.parse(r.responseText));
+                    cfg = cfg.getPlayerConfig();
                   } else {
                     cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
                     cfg = JSON.parse(cfg);
@@ -9704,6 +9764,12 @@
     
     // @utils
     
+    ytcenter.utils.replaceContent = function(content, start, end) {
+      var a = content.indexOf(start)
+          b = content.indexOf(end);
+      return content.substring(0, a + start.length) + JSON.stringify(swfcfg) + content.substring(b);
+    }
+    
     /* Code taken from https://code.google.com/p/doctype-mirror/wiki/ArticleNodeContains */
     ytcenter.utils.contains = function(parent, descendant){
       // W3C DOM Level 3
@@ -10970,7 +11036,7 @@
       }
       return false;
     };
-    ytcenter.clone = function(obj){
+    ytcenter.utils.clone = function(obj){
       if (null == obj || "object" != typeof obj) return obj;
 
       // Handle Date
@@ -10984,7 +11050,7 @@
       if (obj instanceof Array) {
         var copy = [];
         for (var i = 0, len = obj.length; i < len; i++) {
-          copy[i] = ytcenter.clone(obj[i]);
+          copy[i] = ytcenter.utils.clone(obj[i]);
         }
         return copy;
       }
@@ -10993,7 +11059,7 @@
       if (obj instanceof Object) {
         var copy = {};
         for (var attr in obj) {
-          if (obj.hasOwnProperty(attr)) copy[attr] = ytcenter.clone(obj[attr]);
+          if (obj.hasOwnProperty(attr)) copy[attr] = ytcenter.utils.clone(obj[attr]);
         }
         return copy;
       }
@@ -20064,8 +20130,11 @@
         ytcenter.unsafe.spf.data = data;
         
         // Player Part
-        if (data.swfcfg && data.swfcfg.args) {
-          data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
+        var d = ytcenter.spfData(data);
+        
+        if (d.hasPlayerConfig()) {
+          d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), d.getPlayerConfig()));
+          data = d.getData();
         }
         
         if (ytcenter.settings.experimentalFeatureTopGuide && data.attr) {
