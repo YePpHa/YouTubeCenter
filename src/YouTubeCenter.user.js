@@ -15916,7 +15916,8 @@
                   { name: "U Bless", url: "http://userscripts.org/users/ubless" }
                 ],
                 "nb-NO": [
-                  { name: "master3395" }
+                  { name: "master3395" },
+                  { name: "Mathias Solheim", url: "http://mathias.ocdevelopment.net/" }
                 ],
                 "nl": [
                   { name: "Marijn Roes" }
