@@ -9756,6 +9756,8 @@
     })();
     ytcenter.experiments = {};
     ytcenter.experiments.isTopGuide = function(){
+      if (ytcenter.utils.hasClass(document.body, "site-as-giant-card") || ytcenter.utils.hasClass(document.body, "site-center-aligned") || ytcenter.utils.hasClass(document.body, "guide-pinning-enabled"))
+        return true;
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.experiments.isFixedTopbar = function(){
@@ -20436,7 +20438,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 126);
+          main_function(false, 0, true, 127);
         /*} catch (e) {
         }*/
       }
@@ -20456,7 +20458,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 126);
+      main_function(false, 0, true, 127);
     //} catch (e) {
       //console.error(e);
     //}
