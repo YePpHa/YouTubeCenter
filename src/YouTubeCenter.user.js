@@ -9756,6 +9756,8 @@
     })();
     ytcenter.experiments = {};
     ytcenter.experiments.isTopGuide = function(){
+      if (ytcenter.utils.hasClass(document.body, "site-as-giant-card") || ytcenter.utils.hasClass(document.body, "site-center-aligned") || ytcenter.utils.hasClass(document.body, "guide-pinning-enabled"))
+        return true;
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
     ytcenter.experiments.isFixedTopbar = function(){
