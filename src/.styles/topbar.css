@@ -27,3 +27,10 @@
   max-width: 1425px !important;
   padding: 0 10px !important;
 }
+
+.ytcenter-player-darkside-bg #player {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  background-color: #1B1B1B;
+}

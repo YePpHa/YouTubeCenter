@@ -2831,7 +2831,8 @@
       settings: "@styles-settings@",
       centering: "@styles-centering@",
       embed: "@styles-embed@",
-      player: "@styles-player@"
+      player: "@styles-player@",
+      darkside: "@styles-darkside@"
     };
     ytcenter.topScrollPlayer = (function(){
       function scroll(e) {
@@ -9756,7 +9757,7 @@
     })();
     ytcenter.experiments = {};
     ytcenter.experiments.isTopGuide = function(){
-      if (ytcenter.utils.hasClass(document.body, "site-as-giant-card") || ytcenter.utils.hasClass(document.body, "site-center-aligned") || ytcenter.utils.hasClass(document.body, "guide-pinning-enabled"))
+      if (ytcenter.utils.hasClass(document.body, "site-as-giant-card") || ytcenter.utils.hasClass(document.body, "guide-pinning-enabled"))
         return true;
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
     };
@@ -11538,6 +11539,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      playerDarkSideBG: false,
       useSecureProtocol: true,
       videoThumbnailRatingsBarHeight: 2,
       sparkbarHeight: 2,
@@ -14678,6 +14680,22 @@
                   "event": "click",
                   "callback": function(){
                     ytcenter.player._updateResize();
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "playerDarkSideBG",
+            "bool",
+            "SETTINGS_PLAYER_DARK_SIDE",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.classManagement.applyClasses();
                   }
                 }
               ]
@@ -18109,6 +18127,13 @@
           if (playerAPI) {
             playerAPI.style.width = playerWidth + "px";
             playerAPI.style.height = playerHeight + "px";
+            if (document.getElementById("playlist-tray")) {
+              if (ytcenter.settings.playerDarkSideBG) {
+                document.getElementById("playlist-tray").style.top = "-" + playerHeight + "px";
+              } else {
+                document.getElementById("playlist-tray").style.top = "";
+              }
+            }
           }
           if (!ytcenter.settings['experimentalFeatureTopGuide'] && content) {
             content.style.width = maxInsidePlayerWidth + "px";
@@ -18255,9 +18280,17 @@
           if (width !== "" || height !== "") {
             wp.style.width = Math.round(calcWidth) + "px";
             wp.style.height = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
+            if (document.getElementById("playlist-tray")) {
+              if (ytcenter.settings.playerDarkSideBG) {
+                document.getElementById("playlist-tray").style.top = "-" + Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
+              } else {
+                document.getElementById("playlist-tray").style.top = "";
+              }
+            }
           } else {
             wp.style.width = "";
             wp.style.height = "";
+            document.getElementById("playlist-tray").style.top = "";
           }
           if (calcWidth > maxInsidePlayerWidth) {
             wp.style.margin = "";
@@ -18930,6 +18963,15 @@
         }
         return false;
       }},
+      {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg", condition: function(loc){
+        if (ytcenter.getPage() === "watch") {
+          ytcenter.events.performEvent("resize-update");
+          if (ytcenter.settings.playerDarkSideBG) {
+            return true;
+          }
+        }
+        return false;
+      }},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topleft";}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topright", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topright";}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-bottomleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "bottomleft";}},
@@ -19555,6 +19597,8 @@
           }
           
           $AddStyle(ytcenter.css.player);
+          
+          $AddStyle(ytcenter.css.darkside);
         } else {
           $AddStyle(ytcenter.css.embed);
         }

@@ -207,8 +207,14 @@
   .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
     margin-left: -180px !important;
   }
+  .ltr.ytcenter-player-darkside-bg.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
+    margin-left: 0 !important;
+  }
   .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
     margin-right: -180px !important;
+  }
+  .rtl.ytcenter-player-darkside-bg.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #guide-container {
+    margin-right: 0 !important;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #player,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-disaligned #player,
@@ -229,6 +235,9 @@
 
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page {
     width: 1003px!important;
+  }
+  .ytcenter-player-darkside-bg.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned #page {
+    width: auto!important;
   }
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #watch7-main,
   .ytcenter-site-watch.ytcenter-site-center.ytcenter-non-resize #player,
@@ -287,10 +296,10 @@
 
 @media screen and (min-width:1166px) {
   .ltr.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
-    left: 10!important;
+    left: 10px!important;
   }
   .rtl.ytcenter-site-watch.ytcenter-site-center.ytcenter-resize-aligned  #guide-container {
-    right: 10!important;
+    right: 10px!important;
   }
 }
 
