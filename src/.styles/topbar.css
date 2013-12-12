@@ -20,3 +20,10 @@
     padding-left: 230px !important;
   }
 }
+
+.site-center-aligned.flex-width-enabled .content-alignment {
+  width: auto !important;
+  min-width: 1003px !important;
+  max-width: 1425px !important;
+  padding: 0 10px !important;
+}
