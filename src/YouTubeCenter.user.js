@@ -11589,6 +11589,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      flexWidthOnChannelPage: true,
       playerDarkSideBGRetro: false,
       playerDarkSideBG: false,
       useSecureProtocol: true,
@@ -13299,6 +13300,23 @@
             "flexWidthOnPage", // defaultSetting
             "bool", // module
             "SETTINGS_FLEXWIDTHONPAGE_LABEL", // label
+            { // args
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flex-width-on-page" // help
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "flexWidthOnChannelPage", // defaultSetting
+            "bool", // module
+            "SETTINGS_FLEXWIDTHONCHANNELPAGE_LABEL", // label
             { // args
               "listeners": [
                 {
@@ -19053,7 +19071,7 @@
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
       {element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
-      {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){return ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch"}},
+      {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){var p = ytcenter.getPage();return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch" && p !== "channel") || (ytcenter.settings.flexWidthOnChannelPage && p === "channel")}},
       {element: function(){return document.body;}, className: "ytcenter-branding-remove-banner", condition: function(loc){return ytcenter.settings.removeBrandingBanner;}},
       {element: function(){return document.body;}, className: "ytcenter-branding-remove-background", condition: function(loc){return ytcenter.settings.removeBrandingBackground;}},
       {element: function(){return document.body;}, className: "ytcenter-site-center", condition: function(loc){return ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
