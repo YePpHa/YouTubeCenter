@@ -1137,7 +1137,7 @@
           spanText = document.createElement("span"),
           textIconContainer = document.createElement("span"),
           textIcon = document.createElement("img"),
-          text = document.createTextNode("YouTube Center Settings");
+          text = null;
       
       if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
         liSettings.setAttribute("id", "ytcenter-settings-toggler");
@@ -1155,6 +1155,9 @@
         textIcon.className = "upload-menu-account-settings-icon yt-valign-container";
         textIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
         textIconContainer.appendChild(textIcon);
+        
+        text = document.createTextNode(ytcenter.language.getLocale("BUTTON_SETTINGS_LABEL"));
+        ytcenter.language.addLocaleElement(text, "BUTTON_SETTINGS_LABEL", "textContent");
         
         spanText.appendChild(textIconContainer);
         spanText.appendChild(text);
@@ -2505,6 +2508,7 @@
         }) - 1];
       };
       __r.observe = function(target, options, callback){
+        if (!target || !options || !callback) return;
         if (!setup) __r.setup();
         
         if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
@@ -5857,7 +5861,7 @@
     })();
     ytcenter._dialogVisible = null;
     ytcenter.dialog = function(titleLabel, content, actions, alignment){
-      var __r = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer, eventListeners = {}, actionButtons = {};
+      var __r = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer, eventListeners = {}, actionButtons = {}, _visible = false;
       alignment = alignment || "center";
       
       bgOverlay = ytcenter.dialogOverlay();
@@ -6013,6 +6017,8 @@
         }
       };
       __r.setVisibility = function(visible){
+        if (_visible === visible) return;
+        _visible = visible;
         if (eventListeners["visibility"]) {
           for (var i = 0; i < eventListeners["visibility"].length; i++) {
             eventListeners["visibility"][i](visible);
@@ -18168,7 +18174,7 @@
             playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
         
-        if (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
+        if (player && player.className && player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
           playerHeight = playerHeight + 80;
         }
         
@@ -19669,6 +19675,19 @@
           $AddStyle(ytcenter.css.player);
           
           $AddStyle(ytcenter.css.darkside);
+          
+          try {
+            ytcenter.unsafe.openSettings = ytcenter.utils.bind(function(){
+              if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
+              ytcenter.settingsPanelDialog.setVisibility(true);
+            });
+            if (typeof GM_registerMenuCommand === "function") {
+              GM_registerMenuCommand(ytcenter.language.getLocale("BUTTON_SETTINGS_LABEL"), ytcenter.unsafe.openSettings);
+            }
+          } catch (e) {
+            con.error(e);
+          }
+          
         } else {
           $AddStyle(ytcenter.css.embed);
         }
@@ -20224,6 +20243,11 @@
           $CreateResizeButton();
           
           initPlacement();
+        }
+        
+        if (loc.hash === "#ytcenter.settings.open") {
+          loc.hash = "#!";
+          ytcenter.unsafe.openSettings();
         }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
