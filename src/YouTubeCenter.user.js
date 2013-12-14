@@ -11539,6 +11539,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      playerDarkSideBGRetro: false,
       playerDarkSideBG: false,
       useSecureProtocol: true,
       videoThumbnailRatingsBarHeight: 2,
@@ -18972,6 +18973,7 @@
         }
         return false;
       }},
+      {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg-retro", condition: function(loc){return (ytcenter.getPage() === "watch" && ytcenter.settings.playerDarkSideBG && ytcenter.settings.playerDarkSideBGRetro);}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topleft";}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topright", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topright";}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-bottomleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "bottomleft";}},
@@ -19001,7 +19003,7 @@
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
       {element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
-      {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch") || ytcenter.getPage() === "channel" || loc.pathname.indexOf("/user/") === 0;}},
+      {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){return ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch"}},
       {element: function(){return document.body;}, className: "ytcenter-branding-remove-banner", condition: function(loc){return ytcenter.settings.removeBrandingBanner;}},
       {element: function(){return document.body;}, className: "ytcenter-branding-remove-background", condition: function(loc){return ytcenter.settings.removeBrandingBackground;}},
       {element: function(){return document.body;}, className: "ytcenter-site-center", condition: function(loc){return ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
