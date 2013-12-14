@@ -34,3 +34,11 @@
   margin-right: 0 !important;
   background-color: #1B1B1B;
 }
+
+.site-as-giant-card .feed-item-main.legacy-style.ytcenter-intelligentfeed .feed-item-main-content {
+  width: auto !important;
+}
+.site-as-giant-card .feed-item-main.legacy-style .feed-item-main-content {
+  width: auto !important;
+  padding-right: 40px !important;
+}
