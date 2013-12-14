@@ -3749,25 +3749,30 @@
       };
       __r.handleFlagWorker = function(comment){
         ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId, function(args){
-          if (comment.profileRedirectId) {
-            ytcenter.getGooglePlusUserData(comment.profileRedirectId, function(data){
-              if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                comment.country = data.entry.yt$location.$t;
-              } else {
-                con.error("[Comment Country] Unknown Location", data);
-              }
-              args.complete(comment.country || null);
-            });
-          } else if (comment.channelRedirectId) {
-            ytcenter.getUserData(comment.channelRedirectId, function(data){
-              if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                comment.country = data.entry.yt$location.$t;
-              } else {
-                con.error("[Comment Country] Unknown Location", data);
-              }
-              args.complete(comment.country || null);
-            });
-          }
+          try {
+            if (comment.profileRedirectId) {
+              ytcenter.getGooglePlusUserData(comment.profileRedirectId, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+                args.complete(comment.country || null);
+              });
+            } else if (comment.channelRedirectId) {
+              ytcenter.getUserData(comment.channelRedirectId, function(data){
+                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                  comment.country = data.entry.yt$location.$t;
+                } else {
+                  con.error("[Comment Country] Unknown Location", data);
+                }
+                args.complete(comment.country || null);
+              });
+            }
+          } catch (e) {
+            con.error(e);
+            args.complete(null);
+          }          
         }, function(data){
           if (!data) return;
           if (comment.profileRedirectId || comment.channelRedirectId) {
@@ -3841,7 +3846,7 @@
       return __r;
     })();
     ytcenter.jobs = (function(){
-      var __r = {}, workers = {};
+      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = 10;
       
       /*  id        the id of the worker.
           action    the action function, which will do the job.
@@ -3863,18 +3868,40 @@
             run: function(){ action(workers[id].args); },
             args: {
               complete: function(data){
+                con.log("[Worker] Job completed (" + id + ")");
+                var i;
+                for (i = 0; i < workingWorkers.length; i++) {
+                  if (workingWorkers[i] === id) {
+                    completedWorkers.push(workingWorkers.splice(i, 1));
+                    break;
+                  }
+                }
+                
                 workers[id].completed = true;
                 workers[id].data = data;
                 var i;
                 for (i = 0; i < workers[id].completeActions.length; i++) {
                   workers[id].completeActions[i](data);
                 }
+                
+                __r.run();
               },
               remove: ytcenter.utils.once(function(){ delete workers[id]; })
             },
             completed: false
           };
+          pendingWorkers.push(id);
           
+          __r.run();
+        }
+      };
+      
+      __r.run = function(){
+        var id;
+        while (workingWorkers.length < _max_workers && pendingWorkers.length > 0) {
+          id = pendingWorkers.splice(0, 1);
+          workingWorkers.push(id);
+          con.log("[Worker] Executing new job (" + id + ")");
           workers[id].run();
         }
       };
@@ -4338,7 +4365,16 @@
         url: "https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json",
         method: "GET",
         onload: function(r){
-          callback(JSON.parse(r.responseText));
+          var data = null;
+          try {
+            data = JSON.parse(r.responseText);
+          } catch (e) {
+            con.error(e);
+          }
+          callback(data);
+        },
+        onerror: function(){
+          callback(null);
         }
       });
     };
@@ -4358,6 +4394,7 @@
               ytcenter.getUserData(userId[1], callback);
           } else {
             con.error("[Comments getGooglePlusUserData] Final URL: " + r.finalUrl);
+            callback(null);
           }
         }
       });
@@ -18966,7 +19003,7 @@
       }},
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg", condition: function(loc){
         if (ytcenter.getPage() === "watch") {
-          ytcenter.events.performEvent("resize-update");
+          if (ytcenter.player._updateResize) ytcenter.player._updateResize();
           if (ytcenter.settings.playerDarkSideBG) {
             return true;
           }
