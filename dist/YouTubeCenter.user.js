@@ -3846,7 +3846,7 @@
       return __r;
     })();
     ytcenter.jobs = (function(){
-      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = 10;
+      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = 5;
       
       /*  id        the id of the worker.
           action    the action function, which will do the job.
@@ -3872,7 +3872,7 @@
                 var i;
                 for (i = 0; i < workingWorkers.length; i++) {
                   if (workingWorkers[i] === id) {
-                    completedWorkers.push(workingWorkers.splice(i, 1));
+                    completedWorkers.push(workingWorkers.splice(i, 1)[0]);
                     break;
                   }
                 }
@@ -3899,12 +3899,25 @@
       __r.run = function(){
         var id;
         while (workingWorkers.length < _max_workers && pendingWorkers.length > 0) {
-          id = pendingWorkers.splice(0, 1);
+          id = pendingWorkers.splice(0, 1)[0];
           workingWorkers.push(id);
           con.log("[Worker] Executing new job (" + id + ")");
           workers[id].run();
         }
       };
+      
+      __r.getPendingWorkers = function(){
+        return pendingWorkers;
+      };
+      
+      __r.getWorkingWorkers = function(){
+        return workingWorkers;
+      };
+      __r.getCompletedWorkers = function(){
+        return completedWorkers;
+      };
+      
+      uw.workers = __r;
       
       return __r;
     })();
