@@ -1,14 +1,19 @@
 /* $Topbar Static */
-.ytcenter-lights-off #masthead-positioner,
 .ytcenter-exp-topbar-static #masthead-positioner {
-  position: static !important
+  position: relative !important;
+  top: 0 !important;
+}
+.ytcenter-lights-off #masthead-positioner {
+  position: static !important;
+  top: 0 !important;
 }
 .ytcenter-lights-off #masthead-positioner-height-offset,
 .ytcenter-exp-topbar-static #masthead-positioner-height-offset {
-  display: none !important
+  display: none !important;
 }
 .ytcenter-exp-topbar-static #appbar-guide-menu {
-  top: 90px!important;
+  top: 0px!important;
+  padding-top: 90px!important;
 }
 .site-center-aligned #page {
   margin: 0 auto !important;
