@@ -93,7 +93,9 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   min-width: 1003px!important;
 }
 
-.flex-width-enabled.exp-top-guide #yt-masthead {
+.flex-width-enabled.exp-top-guide #yt-masthead,
+.flex-width-enabled.site-center-aligned #yt-masthead,
+.flex-width-enabled.site-as-giant-card #yt-masthead {
   width: auto!important;
   max-width: none!important;
   min-width: none!important;
