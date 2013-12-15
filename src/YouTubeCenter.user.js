@@ -18325,7 +18325,7 @@
         }
         
         var creatorBar = document.getElementById("watch7-creator-bar");
-        if (creatorBar) {
+        if (creatorBar && !ytcenter.settings['experimentalFeatureTopGuide']) {
           creatorBar.style.width = Math.round(calcWidth - 40) + "px";
         }
         
