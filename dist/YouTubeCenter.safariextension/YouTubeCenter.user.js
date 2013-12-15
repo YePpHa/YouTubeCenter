@@ -18325,7 +18325,7 @@
         }
         
         var creatorBar = document.getElementById("watch7-creator-bar");
-        if (creatorBar) {
+        if (creatorBar && !ytcenter.settings['experimentalFeatureTopGuide']) {
           creatorBar.style.width = Math.round(calcWidth - 40) + "px";
         }
         
@@ -20621,7 +20621,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 135);
+          main_function(false, 4, true, 136);
         /*} catch (e) {
         }*/
       }
@@ -20641,7 +20641,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 135);
+      main_function(false, 4, true, 136);
     //} catch (e) {
       //console.error(e);
     //}
