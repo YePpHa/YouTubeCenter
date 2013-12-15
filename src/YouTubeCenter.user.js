@@ -52,6 +52,7 @@
 // @grant           GM_xmlhttpRequest
 // @grant           GM_addStyle
 // @grant           GM_log
+// @grant           GM_registerMenuCommand
 // @updateURL       http://userscripts.org/scripts/source/114002.meta.js
 // @downloadURL     http://userscripts.org/scripts/source/114002.user.js
 // @updateVersion   @ant-revision@
@@ -1157,7 +1158,7 @@
         textIconContainer.appendChild(textIcon);
         
         text = document.createTextNode(ytcenter.language.getLocale("BUTTON_SETTINGS_LABEL"));
-        ytcenter.language.addLocaleElement(text, "BUTTON_SETTINGS_LABEL", "textContent");
+        ytcenter.language.addLocaleElement(text, "BUTTON_SETTINGS_LABEL", "@textContent");
         
         spanText.appendChild(textIconContainer);
         spanText.appendChild(text);
@@ -1880,6 +1881,7 @@
         return ytcenter.utils.replaceContent(JSON.stringify(config), "<script>var ytplayer = ytplayer || {};ytplayer.config = ", ";</script>");
       }
       function parseData(d) {
+        if (!d) return false;
         if (d.swfcfg) {
           type = 0;
           playerConfig = d.swfcfg;
@@ -1904,6 +1906,7 @@
           d.html.player = injectPlayerConfig(d.html.player, config);
         }
       }
+      originalData = originalData || {}; // Making sure that if no argument is passed we will get an empty object.
       var data = ytcenter.utils.clone(originalData),
           playerConfig = null, i, type = -1, dataIndex = -1, isArray = ytcenter.utils.isArray(data), hasPlayerConfig = false;
       
@@ -1939,6 +1942,29 @@
         },
         getData: function(){
           return data;
+        },
+        getTitle: function(){
+          if (isArray) {
+            for (i = 0; i < data.length; i++) {
+              if (data[i].title) {
+                return data[i].title;
+              }
+            }
+          } else {
+            return data.title;
+          }
+        },
+        setTitle: function(title){
+          if (isArray) {
+            for (i = 0; i < data.length; i++) {
+              if (data[i].title) {
+                data[i].title = title;
+                return;
+              }
+            }
+          } else {
+            data.title = title;
+          }
         }
       };
     };
@@ -16305,7 +16331,13 @@
         "afv_instream_max",
         "afv_ad_tag_restricted_to_instream",
         "afv_video_min_cpm",
-        "dynamic_allocation_ad_tag"
+        "dynamic_allocation_ad_tag",
+        "pyv_ad_channels",
+        "max_dynamic_allocation_ad_tag_length",
+        "midroll_freqcap",
+        "invideo",
+        "instream",
+        "pyv_in_related_cafe_experiment_id"
       ];
       for (var i = 0; i < _ads.length; i++) {
         try {
@@ -18784,8 +18816,7 @@
       }*/
       if (config.html5) return;
       try {
-        var player = document.getElementById("movie_player") || document.getElementById("player1"),
-            clone;
+        var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
         con.log("[Player Update] Checking if player exist!");
         if (player && player.tagName.toLowerCase() === "embed") {
           ytcenter.player.updateFlashvars(player, config);
@@ -20266,19 +20297,19 @@
         }
       });
       ytcenter.spf.addEventListener("received", "after", function(url, data){
-        if (data && data.type === "multipart") {
-          data = data.parts;
-          if (ytcenter.utils.isArray(data)) {
-            if (data.length > 0 && data[0] && data[0].swfcfg)
-              data = data[0];
-            else if (data.length > 1 && data[1] && data[1].swfcfg)
-              data = data[1];
-            else if (data.length > 2 && data[2] && data[2].swfcfg)
-              data = data[2];
-          }
-        }
-        if (data.title) ytcenter.title.originalTitle = data.title;
+        var d = ytcenter.spfData(data);
+        
+        ytcenter.title.originalTitle = d.getTitle() || ytcenter.title.originalTitle;
         ytcenter.title.update();
+      });
+      ytcenter.spf.addEventListener("part-processed", "before", function(url, data){
+        var d = ytcenter.spfData(data);
+        if (d.hasPlayerConfig()) {
+          d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url), d.getPlayerConfig()));
+          ytcenter.player.config = d.getPlayerConfig();
+          data = d.getData();
+        }
+        return [url, data]
       });
       ytcenter.spf.addEventListener("part-received", "before", function(url, data){
         ytcenter.unsafe.spf.url = url;
@@ -20287,8 +20318,12 @@
         // Player Part
         var d = ytcenter.spfData(data);
         
+        ytcenter.title.originalTitle = d.getTitle() || ytcenter.title.originalTitle;
+        ytcenter.title.update();
+        
         if (d.hasPlayerConfig()) {
-          d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), d.getPlayerConfig()));
+          d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url), d.getPlayerConfig()));
+          ytcenter.player.config = d.getPlayerConfig();
           data = d.getData();
         }
         
@@ -20305,6 +20340,10 @@
           data.attr.body["class"] = ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + data.attr.body["class"];
         }
         
+        if (data.js) {
+          data.js += "<script>ytcenter.spf.processed();</script>";
+        }
+        
         return [url, data];
       });
       
@@ -20317,6 +20356,7 @@
         // Player Part
         if (data.swfcfg && data.swfcfg.args) {
           data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
+          ytcenter.player.config = data.swfcfg;
         }
         
         if (ytcenter.settings.experimentalFeatureTopGuide && data.attr) {
@@ -20336,6 +20376,7 @@
             a = a.split(";</script>")[0];
             swfcfg = JSON.parse(a);
             swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
+            ytcenter.player.config = swfcfg;
             content = data.html.content;
             i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
             i2 = content.indexOf(";</script>");
@@ -20353,6 +20394,7 @@
               a = a.split(";</script>")[0];
               swfcfg = JSON.parse(a);
               swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
+              ytcenter.player.config = swfcfg;
               content = data.html.player;
               i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
               i2 = content.indexOf(";</script>");
@@ -20401,9 +20443,9 @@
           }
           if (a !== null) {
             swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(url), JSON.parse(ytcenter.utils.decodeRawTag(a).replace(/&amp;/g, "&").replace(/&quot;/g, "\"")));
+            ytcenter.player.config = swfcfg;
             i1 = data.html.content.indexOf("data-swf-config=\"") + "data-swf-config=\"".length;
             i2 = data.html.content.indexOf("data-swf-config=\"") + data.html.content.split("data-swf-config=\"")[1].indexOf("\">") + "data-swf-config=\"".length;
-            data._config = swfcfg;
             data.html.content = data.html.content.substring(0, i1) + ytcenter.utils.encodeRawTag(JSON.stringify(swfcfg).replace(/&/g, "&amp;").replace(/"/g, "&quot;")) + data.html.content.substring(i2);
           }
         }
@@ -20418,37 +20460,31 @@
         return [url, data];
       });
       
-      ytcenter.unsafe.spf.processed = function(data){
-        if (data && data.type === "multipart") {
-          data = data.parts;
-          if (ytcenter.utils.isArray(data)) {
-            if (data.length > 0 && data[0] && data[0].swfcfg)
-              data = data[0];
-            else if (data.length > 1 && data[1] && data[1].swfcfg)
-              data = data[1];
-            else if (data.length > 2 && data[2] && data[2].swfcfg)
-              data = data[2];
-          }
+      ytcenter.unsafe.spf.processed = function(url, data){
+        var d = ytcenter.spfData(data),
+            config, a, i;
+        url = ytcenter.utils.getURL(url || ytcenter.unsafe.spf.url || loc.href) || loc;
+        if (d.hasPlayerConfig()) {
+          config = d.getPlayerConfig();
+          ytcenter.player.config = config;
+        } else {
+          config = ytcenter.player.config;
         }
         
-        var url = ytcenter.utils.getURL(ytcenter.unsafe.spf.url || loc.href) || loc, a, i;
-        data = data || ytcenter.unsafe.spf.data;
-        ytcenter.classManagement.applyClasses(ytcenter.unsafe.spf.url);
+        ytcenter.classManagement.applyClasses(url.href);
         
-        if (data._config) ytcenter.player.config = data._config;
-        
-        if (data.swfcfg) {
+        if (config) {
           try {
-            ytcenter.player.updateConfig(ytcenter.getPage(ytcenter.unsafe.spf.url), data.swfcfg);
+            ytcenter.player.updateConfig(url.href, ytcenter.player.modifyConfig(ytcenter.getPage(url.href), config));
+            ytcenter.videoHistory.addVideo(config.args.video_id);
           } catch (e) {
             con.error(e);
           }
-          ytcenter.videoHistory.addVideo(data.swfcfg.args.video_id);
         }
         ytcenter.placementsystem.clear();
         ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch" && ytcenter.settings.topScrollPlayerEnabled);
         if (url.pathname !== "/watch") {
-          if (ytcenter.getPage(ytcenter.unsafe.spf.url) === "feed_what_to_watch") {
+          if (ytcenter.getPage(url.href) === "feed_what_to_watch") {
             ytcenter.intelligentFeed.setup();
           }
           ytcenter.player.turnLightOn();
@@ -20534,7 +20570,16 @@
         
         return [data];
       };
+      ytcenter.spf.addEventListener("processed", "before", function(url, data){
+        var d = ytcenter.spfData(data), config;
+        url = ytcenter.utils.getURL(url || ytcenter.unsafe.spf.url || loc.href) || loc;
+        if (d.hasPlayerConfig()) {
+          d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url.href), d.getPlayerConfig()));
+        }
+        return [url, d.getData()];
+      });
       ytcenter.spf.addEventListener("processed", "after", ytcenter.unsafe.spf.processed);
+      
       ytcenter.pageReadinessListener.setup();
       
       try {
