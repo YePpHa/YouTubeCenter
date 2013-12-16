@@ -703,7 +703,7 @@
     }
     
     function $DownloadButtonStream() {
-      var priority = ['small', 'medium', 'large', 'hd720', 'hd1080', 'highres'];
+      var priority = ['small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'];
       var stream;
       var format = (function(){
         for (var i = 0; i < ytcenter.video.format.length; i++) {
@@ -771,6 +771,7 @@
       if (stream != null) {
         var stream_name = {
           highres: ytcenter.language.getLocale("HIGHRES"),
+          hd1440: ytcenter.language.getLocale("HD1440"),
           hd1080: ytcenter.language.getLocale("HD1080"),
           hd720: ytcenter.language.getLocale("HD720"),
           large: ytcenter.language.getLocale("LARGE"),
@@ -808,6 +809,7 @@
         if (stream != null) {
           var stream_name = {
             highres: ytcenter.language.getLocale("HIGHRES"),
+            hd1440: ytcenter.language.getLocale("HD1440"),
             hd1080: ytcenter.language.getLocale("HD1080"),
             hd720: ytcenter.language.getLocale("HD720"),
             large: ytcenter.language.getLocale("LARGE"),
@@ -978,6 +980,7 @@
             
             var stream_name = {
               highres: ytcenter.language.getLocale("HIGHRES"),
+              hd1440: ytcenter.language.getLocale("HD1440"),
               hd1080: ytcenter.language.getLocale("HD1080"),
               hd720: ytcenter.language.getLocale("HD720"),
               large: ytcenter.language.getLocale("LARGE"),
@@ -1008,6 +1011,7 @@
               return function(){
                 var stream_name = {
                   highres: ytcenter.language.getLocale("HIGHRES"),
+                  hd1440: ytcenter.language.getLocale("HD1440"),
                   hd1080: ytcenter.language.getLocale("HD1080"),
                   hd720: ytcenter.language.getLocale("HD720"),
                   large: ytcenter.language.getLocale("LARGE"),
@@ -5076,6 +5080,7 @@
               "large": "480p",
               "hd720": "720p",
               "hd1080": "1080p",
+              "hd1440": "1440p",
               "highres": "1080p+"
             },
             tableBackground = {
@@ -5088,6 +5093,7 @@
               "large": "#00f",
               "hd720": "#0a0",
               "hd1080": "#f00",
+              "hd1440": "#000",
               "highres": "#000"
             },
             tableColor = {
@@ -5100,6 +5106,7 @@
               "large": "#fff",
               "hd720": "#fff",
               "hd1080": "#fff",
+              "hd1440": "#fff",
               "highres": "#fff"
             },
             text, background, color, wrapper = document.createElement("span"),
@@ -5109,7 +5116,8 @@
               "360": "medium",
               "480": "large",
               "720": "hd720",
-              "1080": "hd1080"
+              "1080": "hd1080",
+              "1440": "hd1440"
             },
             convertSizeToQuality = {
               "192": "tiny", // 4:3
@@ -5123,7 +5131,8 @@
               "960": "hd720", // 4:3
               "1280": "hd720", // 16:9
               "1440": "hd1080", // 4:3
-              "1920": "hd1080" // 16:9
+              "1920": "hd1080", // 16:9
+              "2560": "hd1440" // 16:9
             };
         if (stream === "error") {
           text = tableQuality[stream];
@@ -13787,6 +13796,9 @@
                   "value": "highres",
                   "label": "SETTINGS_HIGHRES"
                 }, {
+                  "value": "hd1440",
+                  "label": "SETTINGS_HD1440"
+                }, {
                   "value": "hd1080",
                   "label": "SETTINGS_HD1080"
                 }, {
@@ -14214,6 +14226,9 @@
                   "value": "highres",
                   "label": "SETTINGS_HIGHRES"
                 }, {
+                  "value": "hd1440",
+                  "label": "SETTINGS_HD1440"
+                }, {
                   "value": "hd1080",
                   "label": "SETTINGS_HD1080"
                 }, {
@@ -14462,6 +14477,9 @@
                   "value": "highres",
                   "label": "SETTINGS_HIGHRES"
                 }, {
+                  "value": "hd1440",
+                  "label": "SETTINGS_HD1440"
+                }, {
                   "value": "hd1080",
                   "label": "SETTINGS_HD1080"
                 }, {
@@ -14548,6 +14566,9 @@
                 {
                   "value": "highres",
                   "label": "SETTINGS_HIGHRES"
+                }, {
+                  "value": "hd1440",
+                  "label": "SETTINGS_HD1440"
                 }, {
                   "value": "hd1080",
                   "label": "SETTINGS_HD1080"
@@ -16121,6 +16142,7 @@
       'large': '480p',
       'hd720': '720p',
       'hd1080': '1080p',
+      'hd1440': '1440p',
       'highres': 'Original'
     };
     ytcenter.video.id = "";
@@ -17617,6 +17639,7 @@
             api.addEventListener(event, events[event].masterListener);
           }
         }
+        ytcenter.unsafe.listeners = {};
         if (override) {
           api.addEventListener("onReady", function(){
             i = __r.getNewestPlayerId();
@@ -17626,6 +17649,15 @@
                 if (usEvent && usEvent !== events[event].masterWindowListener && usEvent !== events[event].masterListener) {
                   con.log("masterWindowListener", usEvent);
                   __r.replacedListeners["ytPlayer" + event + "player" + i] = usEvent;
+                  ytcenter.unsafe.listeners[event] = (function(fullEventName){
+                    return function(){
+                      try {
+                        return __r.replacedListeners[fullEventName].apply(null, arguments);
+                      } catch(e) {
+                        
+                      }
+                    };
+                  })("ytPlayer" + event + "player" + i);
                   __r.originalListeners[event] = uw["ytPlayer" + event + "player" + i];
                   uw["ytPlayer" + event + "player" + i] = events[event].masterWindowListener;
                 }
@@ -18045,6 +18077,14 @@
         ytcenter.player.updateResize_updateVisibility();
         ytcenter.player.updateResize_updatePosition();
       };
+      ytcenter.player.getCurrentPlayerSize = function(){
+        return {
+          width: _width,
+          height: _height,
+          large: _large,
+          align: _align
+        };
+      };
       ytcenter.events.addEvent("ui-refresh", function(){
         if (!ytcenter.settings.enableResize) return;
         ytcenter.player._resize(_width, _height, _large, _align);
@@ -18205,6 +18245,9 @@
             playerWidth = Math.round(calcWidth),
             playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
+        
+        ytcenter.player.fixAnnotations.setPreferredDimension(calcWidth, calcHeight);
+        ytcenter.player.fixAnnotations.forceUpdate();
         
         if (player && player.className && player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
           playerHeight = playerHeight + 80;
@@ -18490,6 +18533,177 @@
         }
       };
     })();
+    ytcenter.player.fixAnnotations = (function(){
+      function getOriginalVideoDimension() {
+        var videoContentElement, dim = [854, 480];
+        
+        videoContentElement = document.getElementsByClassName("html5-video-content");
+        if (!videoContentElement || !videoContentElement[0]) return dim;
+        
+        if (videoContentElement[0].style.width)
+          dim[0] = parseInt(videoContentElement[0].style.width, 10);
+        if (videoContentElement[0].style.height)
+          dim[1] = parseInt(videoContentElement[0].style.height, 10);
+        return dim;
+      }
+      function getCurrentVideoDimension() {
+        return [pWidth, pHeight];
+      }
+      function fixAnnotation(annotation, dim, cDim) {
+        var top = 0, left = 0, wid = 0, hei = 0, fs = 0;
+        if (ytcenter.utils.inArray(anns, annotation)) return;
+        
+        if (annotation.style.top)
+          top = parseFloat(annotation.style.top, 10);
+        if (annotation.style.left)
+          left = parseFloat(annotation.style.left, 10);
+        if (annotation.style.width)
+          wid = parseFloat(annotation.style.width, 10);
+        if (annotation.style.height)
+          hei = parseFloat(annotation.style.height, 10);
+        if (annotation.style.fontSize)
+          fs = parseFloat(annotation.style.fontSize, 10);
+        if (annotation.style.left)
+          annotation.style.left = ((left/dim[0])*cDim[0]) + "px";
+        if (annotation.style.top)
+          annotation.style.top = ((top/dim[1])*cDim[1]) + "px";
+        if (annotation.style.width)
+          annotation.style.width = ((wid/dim[0])*cDim[0]) + "px";
+        if (annotation.style.height)
+          annotation.style.height = ((hei/dim[1])*cDim[1]) + "px";
+        if (annotation.style.fontSize)
+          annotation.style.fontSize = ((fs/dim[1])*cDim[1]) + "px";
+          
+        anns.push(annotation);
+        
+        if (annotation.tagName.toLowerCase() === "svg" && annotation.style.width && annotation.style.height) {
+          annotation.setAttribute("viewBox", "0 0 " + wid + " " + hei);
+        }
+        
+        var mc = (function(ann, annLeft, annTop, annWidth, annHeight){
+          var _top, _left, _width, _height;
+          
+          _top = top;
+          _left = left;
+          _width = wid;
+          _height = hei;
+          
+          return function(force){
+            if (!ann) return;
+            
+            var currentDim = getCurrentVideoDimension(),
+                al = (annLeft*currentDim[0]) + "px",
+                at = (annTop*currentDim[1]) + "px",
+                aw = (annWidth*currentDim[0]) + "px",
+                ah = (annHeight*currentDim[1]) + "px";
+            
+            if (annotation.style.top && annotation.style.top !== at)
+              _top = parseFloat(annotation.style.top, 10);
+            if (annotation.style.left && annotation.style.left !== al)
+              _left = parseFloat(annotation.style.left, 10);
+            if (annotation.style.width && annotation.style.width !== aw)
+              _width = parseFloat(annotation.style.width, 10);
+            if (annotation.style.height && annotation.style.height !== ah)
+              _height = parseFloat(annotation.style.height, 10);
+            
+            if (left !== _left) {
+              annLeft = _left/dim[0];
+              left = _left;
+            }
+            if (top !== _top) {
+              annTop = _top/dim[1];
+              top = _top;
+            }
+            if (wid !== _width) {
+              annWidth = _width/dim[0];
+              wid = _width;
+            }
+            if (hei !== _height) {
+              annHeight = _height/dim[1];
+              hei = _height;
+            }
+            
+            al = (annLeft*currentDim[0]) + "px";
+            at = (annTop*currentDim[1]) + "px";
+            aw = (annWidth*currentDim[0]) + "px";
+            ah = (annHeight*currentDim[1]) + "px";
+            
+            if (annotation.style.left && (al !== ann.style.left || force))
+              ann.style.left = al;
+            if (annotation.style.top && (at !== ann.style.top || force))
+              ann.style.top = at;
+            if (annotation.style.width && (aw !== ann.style.width || force))
+              ann.style.width = aw;
+            if (annotation.style.height && (ah !== ann.style.height || force))
+              ann.style.height = ah;
+          };
+        })(annotation, (left/dim[0]), (top/dim[1]), (wid/dim[0]), (hei/dim[1]));
+        updaters.push(mc);
+        ytcenter.mutation.observe(annotation, { attributes: true }, (function(mcc){return function(){ mcc(false); }})(mc));
+      }
+      function fixAnnotations() {
+        var annotationContainer = document.getElementsByClassName("video-annotations"), i, j, k, annotations = null, annotation = null,
+            dim = getOriginalVideoDimension(), cDim = getCurrentVideoDimension();
+        for (i = 0; i < annotationContainer.length; i++) {
+          annotations = annotationContainer[i].children;
+          for (j = 0; j < annotations.length; j++) {
+            annotation = annotations[j];
+            
+            fixAnnotation(annotation, dim, cDim);
+            for (k = 0; k < annotation.children.length; k++) {
+              fixAnnotation(annotation.children[k], dim, cDim);
+            }
+          }
+        }
+      }
+      function setup() {
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        // Used to fix the added annotations.
+        observer = ytcenter.mutation.observe(document.getElementById("player"), { childList: true, subtree: true }, function(){
+          fixAnnotations();
+        });
+        fixAnnotations();
+      }
+      var observer = null, anns = [], pWidth = 854, pHeight = 480, updaters = [];
+      ytcenter.events.addEvent("ui-refresh", function(){
+        if (!ytcenter.html5) return;
+        
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        // Used to fix the added annotations.
+        observer = ytcenter.mutation.observe(document.getElementById("player"), { childList: true, subtree: true }, function(){
+          fixAnnotations();
+        });
+        
+        fixAnnotations();
+      });
+      
+      return {
+        setup: setup,
+        checkForNewAnnotations: fixAnnotations,
+        setPreferredDimension: function(width, height){
+          pWidth = width;
+          pHeight = height;
+        },
+        forceUpdate: function(){
+          var i;
+          for (i = 0; i < updaters.length; i++) {
+            updaters[i](true);
+          }
+        },
+        update: function(){
+          var i;
+          for (i = 0; i < updaters.length; i++) {
+            updaters[i](false);
+          }
+        }
+      };
+    })();
     ytcenter.player.getHighestStreamQuality = function(streams){
       var i, stream = streams[0], stream_dim, tmp_dim;
       if (!stream) return null;
@@ -18528,7 +18742,7 @@
       return stream;
     };
     ytcenter.player.getClosestQuality = function(vq, streams){
-      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'],
           /*convertSizeToQuality = {
             "144": "tiny",
             "240": "small",
@@ -18543,7 +18757,8 @@
             "640": "medium",
             "854": "large",
             "1280": "hd720",
-            "1920": "hd1080"
+            "1920": "hd1080",
+            "2560": "hd1440"
           },
           a = "auto";
       for (var i = 0; i < streams.length; i++) {
@@ -18567,7 +18782,7 @@
       return a;
     };
     ytcenter.player.getBestQuality = function(vq, aq){
-      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'],
           p = $ArrayIndexOf(priority, vq),
           i, j;
       con.log(vq, aq);
@@ -18590,7 +18805,7 @@
         }
       }
       
-      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'highres'],
+      var priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'],
           /*convertSizeToQuality = {
             "144": "tiny",
             "240": "small",
@@ -18605,7 +18820,8 @@
             "640": "medium",
             "854": "large",
             "1280": "hd720",
-            "1920": "hd1080"
+            "1920": "hd1080",
+            "2560": "hd1440"
           };
       if (ytcenter.html5) {
         var a = document.createElement("video");
@@ -19070,7 +19286,7 @@
         return false;
       }},
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg", condition: function(loc){
-        if (ytcenter.getPage() === "watch") {
+        if (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large) {
           if (ytcenter.player._updateResize) ytcenter.player._updateResize();
           if (ytcenter.settings.playerDarkSideBG) {
             return true;
@@ -19078,7 +19294,7 @@
         }
         return false;
       }},
-      {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg-retro", condition: function(loc){return (ytcenter.getPage() === "watch" && ytcenter.settings.playerDarkSideBG && ytcenter.settings.playerDarkSideBGRetro);}},
+      {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg-retro", condition: function(loc){return (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large && ytcenter.settings.playerDarkSideBG && ytcenter.settings.playerDarkSideBGRetro);}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topleft";}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topright", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topright";}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-bottomleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "bottomleft";}},
@@ -20027,6 +20243,7 @@
         $UpdateChecker();
         extensionCompatibilityChecker();
         try {
+          ytcenter.player.fixAnnotations.setup();
           ytcenter.thumbnail.setup();
           ytcenter.comments.setup();
           ytcenter.domEvents.setup();
