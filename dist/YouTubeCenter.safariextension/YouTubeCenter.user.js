@@ -12601,7 +12601,8 @@
           help: help,
           enabled: true,
           visible: true,
-          style: {},
+          styles: {},
+          moduleStyles: {},
           listeners: {}
         });
         return a.getOption(id);
@@ -12684,10 +12685,16 @@
             option.enabled = enabled;
           },
           setStyle: function(key, value){
-            option.style[key] = value;
+            option.styles[key] = value;
           },
           getStyle: function(key){
-            return option.style[key];
+            return option.styles[key];
+          },
+          setModuleStyle: function(key, value){
+            option.moduleStyles[key] = value;
+          },
+          getModuleStyle: function(key){
+            return option.moduleStyles[key];
           },
           addModuleEventListener: function(event, callback, bubble){
             if (!option.moduleListeners) option.moduleListeners = [];
@@ -12735,8 +12742,8 @@
             labelText = document.createTextNode(ytcenter.language.getLocale(option.label));
             ytcenter.language.addLocaleElement(labelText, option.label, "@textContent");
             
-            if (option.style) {
-              ytcenter.utils.each(option.style, function(key, value){
+            if (option.styles) {
+              ytcenter.utils.each(option.styles, function(key, value){
                 optionWrapper.style.setProperty(key, value);
               });
             }
@@ -12772,6 +12779,11 @@
             moduleContainer.className = "ytcenter-module-container";
             if (!option.label || option.label === "") {
               moduleContainer.style.width = "100%";
+            }
+            if (option.moduleStyles) {
+              ytcenter.utils.each(option.moduleStyles, function(key, value){
+                moduleContainer.style.setProperty(key, value);
+              });
             }
             option.parent = a.getSubCategory(subcat.id);
             module = ytcenter.modules[option.module](option);
@@ -14716,6 +14728,7 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#mp3-services"
           );
+          option.setModuleStyle("display", "block");
           subcat.addOption(option);
 
       /* Category:Repeat */
@@ -20838,7 +20851,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 137);
+          main_function(false, 4, true, 138);
         /*} catch (e) {
         }*/
       }
@@ -20858,7 +20871,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 137);
+      main_function(false, 4, true, 138);
     //} catch (e) {
       //console.error(e);
     //}
