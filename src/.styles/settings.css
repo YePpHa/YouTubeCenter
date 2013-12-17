@@ -99,7 +99,7 @@
 
 .ytcenter-settings-subcat-content-wrapper {
   position: relative;
-  padding: 8px 8px 30px;
+  padding: 8px 8px 31px;
 }
 
 .ytcenter-settings-subcat-statusbar-wrapper {
@@ -108,9 +108,8 @@
   right: 0;
   
   text-align: right;
-  padding: 10px 10px 5px;
+  padding: 9px;
   color: #999;
-  height: 15px;
   
   opacity: 0;
   filter: alpha(opacity=0);
