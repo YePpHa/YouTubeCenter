@@ -21,9 +21,9 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 // ==UserScript==
-// @name            YouTube Center
+// @name            @name@
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         @ant-version@
+// @version         @version@
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
