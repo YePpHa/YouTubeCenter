@@ -11630,6 +11630,8 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      saveErrorStatusTimeout: 5000,
+      saveStatusTimeout: 2000,
       flexWidthOnChannelPage: true,
       playerDarkSideBGRetro: false,
       playerDarkSideBG: false,
@@ -12182,6 +12184,7 @@
       var callback = function(){
         con.log("[SaveSettings] Ordering other tabs to load the new settings.");
         uw.clearTimeout(ytcenter.saveSettings_intercomTimeout);
+        ytcenter.events.performEvent("save-complete");
         ytcenter.saveSettings_intercomTimeout = uw.setTimeout(function(){
           if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
             var intercom = ytcenter.Intercom.getInstance();
@@ -12248,6 +12251,7 @@
         }
       };
       try {
+        ytcenter.events.performEvent("save");
         uw.clearTimeout(ytcenter.saveSettings_timeout_obj);
         if (timeout) {
           ytcenter.saveSettings_timeout_obj = uw.setTimeout(function(){
@@ -12258,6 +12262,7 @@
         }
       } catch (e) {
         con.error(e);
+        ytcenter.events.performEvent("save-error");
       }
     };
     con.log("Check for updates initializing");
@@ -13028,6 +13033,63 @@
         
         rightPanelContent.appendChild(subcatTop);
         rightPanelContent.appendChild(subcatContent);
+        
+        var statusbar = document.createElement("div");
+        statusbar.className = "ytcenter-settings-subcat-statusbar-wrapper";
+        statusbar.textContent = "";
+        (function(){
+          var savedTimeout = null,
+              mode = 0;
+          
+          ytcenter.events.addEvent("language-refresh", function(){
+            if (mode === 0) {
+              statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVING");
+            } else if (mode === 1) {
+              statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVED");
+            } else if (mode === -1) {
+              statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_ERROR");
+            }
+          });
+          
+          ytcenter.events.addEvent("save", function(){
+            if (savedTimeout) {
+              uw.clearTimeout(savedTimeout);
+              savedTimeout = null;
+            }
+            mode = 0;
+            statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVING");
+            ytcenter.utils.addClass(statusbar, "visible");
+          });
+          ytcenter.events.addEvent("save-complete", function(){
+            mode = 1;
+            statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVED");
+            
+            if (savedTimeout) {
+              uw.clearTimeout(savedTimeout);
+              savedTimeout = null;
+            }
+            savedTimeout = uw.setTimeout(function(){
+              ytcenter.utils.removeClass(statusbar, "visible");
+              savedTimeout = null;
+            }, ytcenter.settings.saveStatusTimeout);
+          });
+          ytcenter.events.addEvent("save-error", function(){
+            mode = -1;
+            statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_ERROR");
+            
+            if (savedTimeout) {
+              uw.clearTimeout(savedTimeout);
+              savedTimeout = null;
+            }
+            savedTimeout = uw.setTimeout(function(){
+              ytcenter.utils.removeClass(statusbar, "visible");
+              savedTimeout = null;
+            }, ytcenter.settings.saveErrorStatusTimeout);
+          });
+        })();
+        
+        rightPanelContent.appendChild(statusbar);
+        
         
         rightPanel.appendChild(rightPanelContent);
         
@@ -18133,6 +18195,19 @@
         _height = height;
         _large = large;
         _align = align;
+        
+        
+        if (large && ytcenter.settings.playerDarkSideBG) {
+          ytcenter.utils.addClass(document.body, "ytcenter-player-darkside-bg");
+          if (ytcenter.settings.playerDarkSideBGRetro) {
+            ytcenter.utils.addClass(document.body, "ytcenter-player-darkside-bg-retro");
+          } else {
+            ytcenter.utils.removeClass(document.body, "ytcenter-player-darkside-bg-retro");
+          }
+        } else {
+          ytcenter.utils.removeClass(document.body, "ytcenter-player-darkside-bg");
+          ytcenter.utils.removeClass(document.body, "ytcenter-player-darkside-bg-retro");
+        }
         
         // Class Assignment
         var wc = document.getElementById("watch7-container");
