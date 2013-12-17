@@ -2,11 +2,11 @@
   {
     "type": "extension",
     "frameworkVersion": "1.0.0",
-    "version": "@ant-version@",
+    "version": "@version@",
     "guid": "{7c967395-24b1-46b3-a83a-f28a8408c236}",
-    "name": "YouTube Center",
+    "name": "@name@",
     "title": {
-      "en": "YouTube Center"
+      "en": "@name@"
     },
     "permissions": {
       "httpRequest": [

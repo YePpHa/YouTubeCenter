@@ -21,9 +21,9 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 // ==UserScript==
-// @name            YouTube Center
+// @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         2.0.1
+// @version         142
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -20944,7 +20944,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 141);
+          main_function(false, 4, true, 142);
         /*} catch (e) {
         }*/
       }
@@ -20964,7 +20964,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 141);
+      main_function(false, 4, true, 142);
     //} catch (e) {
       //console.error(e);
     //}

@@ -7,13 +7,13 @@
 	<key>Builder Version</key>
 	<string>534.57.2</string>
 	<key>CFBundleDisplayName</key>
-	<string>YouTube Center</string>
+	<string>YouTube Center Developer Build</string>
 	<key>CFBundleIdentifier</key>
 	<string>dk.yeppha.ytcenter</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.1</string>
+	<string>142</string>
 	<key>CFBundleVersion</key>
 	<string>116</string>
 	<key>Chrome</key>

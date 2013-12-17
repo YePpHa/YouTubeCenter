@@ -302,7 +302,21 @@
   <target name="tokenreplace" depends="buildnumber">
     <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
     <replace dir="${buildDir}" value="${language.db.content}" token="@ant-database-language@" encoding="${encoding}" />
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <property file="${devbuild.number}" />
+        <replace dir="${buildDir}" value="${build.number}" token="@version@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@name-dev@}" token="@name@" encoding="${encoding}" />
+      </then>
+      <else>
+        <replace dir="${buildDir}" value="${@ant-version@}" token="@version@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@name-stable@}" token="@name@" encoding="${encoding}" />
+      </else>
+    </if>
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />
+    
   </target>
   
   <target name="clean">
