@@ -11634,6 +11634,7 @@
       saveStatusTimeout: 2000,
       flexWidthOnChannelPage: true,
       playerDarkSideBGRetro: false,
+      playerDarkSideBGColor: "#1b1b1b",
       playerDarkSideBG: false,
       useSecureProtocol: true,
       videoThumbnailRatingsBarHeight: 2,
@@ -14899,6 +14900,26 @@
             }
           );
           subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "playerDarkSideBGColor",
+            "colorpicker",
+            "SETTINGS_PLAYER_DARK_SIDE_COLOR",
+            {
+              "presetColors": ["#1b1b1b", "#444444"],
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            }
+          );
+          option.addEventListener("update", function(){
+            ytcenter.classManagement.applyClasses();
+          });
+          subcat.addOption(option);
           
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RATINGBAR"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
@@ -16488,6 +16509,26 @@
     };
     
     ytcenter.player = {};
+    ytcenter.player.darkside = function(){
+      if (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large) {
+        if (ytcenter.settings.playerDarkSideBG) {
+          if (document.getElementById("player") && !ytcenter.settings.playerDarkSideBGRetro) {
+            document.getElementById("player").style.backgroundColor = ytcenter.settings.playerDarkSideBGColor;
+          }
+          if (document.getElementById("playlist-tray")) {
+            document.getElementById("playlist-tray").style.top = "-" + ytcenter.player.getCurrentPlayerSize().playerHeight + "px";
+          }
+          return true;
+        }
+      }
+      if (document.getElementById("player")) {
+        document.getElementById("player").style.backgroundColor = "";
+      }
+      if (document.getElementById("playlist-tray")) {
+        document.getElementById("playlist-tray").style.top = "";
+      }
+      return false;
+    };
     ytcenter.player.network = {};
     ytcenter.player.network.pause = function(){
       con.log("[Network] Player -> pause");
@@ -18127,6 +18168,7 @@
       var _large = true;
       var _align = true;
       var _playlist_toggled = false;
+      var _playerHeight = 0;
       
       var player_ratio = 16/9;
       var playerBarHeight = 30;
@@ -18157,7 +18199,8 @@
           width: _width,
           height: _height,
           large: _large,
-          align: _align
+          align: _align,
+          playerHeight: _playerHeight
         };
       };
       ytcenter.events.addEvent("ui-refresh", function(){
@@ -18196,17 +18239,10 @@
         _large = large;
         _align = align;
         
-        
-        if (large && ytcenter.settings.playerDarkSideBG) {
+        if (ytcenter.player.darkside()) {
           ytcenter.utils.addClass(document.body, "ytcenter-player-darkside-bg");
-          if (ytcenter.settings.playerDarkSideBGRetro) {
-            ytcenter.utils.addClass(document.body, "ytcenter-player-darkside-bg-retro");
-          } else {
-            ytcenter.utils.removeClass(document.body, "ytcenter-player-darkside-bg-retro");
-          }
         } else {
           ytcenter.utils.removeClass(document.body, "ytcenter-player-darkside-bg");
-          ytcenter.utils.removeClass(document.body, "ytcenter-player-darkside-bg-retro");
         }
         
         // Class Assignment
@@ -18365,13 +18401,7 @@
           if (playerAPI) {
             playerAPI.style.width = playerWidth + "px";
             playerAPI.style.height = playerHeight + "px";
-            if (document.getElementById("playlist-tray")) {
-              if (ytcenter.settings.playerDarkSideBG) {
-                document.getElementById("playlist-tray").style.top = "-" + playerHeight + "px";
-              } else {
-                document.getElementById("playlist-tray").style.top = "";
-              }
-            }
+            _playerHeight = playerHeight;
           }
           if (!ytcenter.settings['experimentalFeatureTopGuide'] && content) {
             content.style.width = maxInsidePlayerWidth + "px";
@@ -18518,13 +18548,7 @@
           if (width !== "" || height !== "") {
             wp.style.width = Math.round(calcWidth) + "px";
             wp.style.height = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
-            if (document.getElementById("playlist-tray")) {
-              if (ytcenter.settings.playerDarkSideBG) {
-                document.getElementById("playlist-tray").style.top = "-" + Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
-              } else {
-                document.getElementById("playlist-tray").style.top = "";
-              }
-            }
+            _playerHeight = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0));
           } else {
             wp.style.width = "";
             wp.style.height = "";
@@ -19374,13 +19398,7 @@
         return false;
       }},
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg", condition: function(loc){
-        if (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large) {
-          if (ytcenter.player._updateResize) ytcenter.player._updateResize();
-          if (ytcenter.settings.playerDarkSideBG) {
-            return true;
-          }
-        }
-        return false;
+        return ytcenter.player.darkside();
       }},
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg-retro", condition: function(loc){return (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large && ytcenter.settings.playerDarkSideBG && ytcenter.settings.playerDarkSideBGRetro);}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topleft";}},
