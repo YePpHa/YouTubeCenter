@@ -99,7 +99,33 @@
 
 .ytcenter-settings-subcat-content-wrapper {
   position: relative;
-  padding: 8px 8px 20px;
+  padding: 8px 8px 30px;
+}
+
+.ytcenter-settings-subcat-statusbar-wrapper {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  
+  text-align: right;
+  padding: 10px 10px 5px;
+  color: #999;
+  height: 15px;
+  
+  opacity: 0;
+  filter: alpha(opacity=0);
+  
+  -moz-transition: opacity 1s;
+  -webkit-transition: opacity 1s;
+  transition: opacity 1s;
+}
+.ytcenter-settings-subcat-statusbar-wrapper.visible {
+  opacity: 1;
+  filter: alpha(opacity=100);
+  
+  -moz-transition: opacity .3s;
+  -webkit-transition: opacity .3s;
+  transition: opacity .3s;
 }
 
 .ytcenter-settings-option-label {

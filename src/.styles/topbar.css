@@ -47,3 +47,11 @@
   width: auto !important;
   padding-right: 40px !important;
 }
+
+.ytcenter-branding-remove-background.site-as-giant-card #watch7-sidebar {
+  background-color: #fff !important;
+}
+
+.ytcenter-branding-remove-background.site-as-giant-card .watch-wide #watch7-sidebar {
+  background-color: transparent!important;
+}
