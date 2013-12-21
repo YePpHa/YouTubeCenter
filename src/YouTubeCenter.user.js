@@ -11630,6 +11630,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      fixHTML5Annotations: false,
       saveErrorStatusTimeout: 5000,
       saveStatusTimeout: 2000,
       flexWidthOnChannelPage: true,
@@ -13769,6 +13770,19 @@
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "fixHTML5Annotations", // defaultSetting
+            "bool", // module
+            "SETTINGS_HTML_ANNOTATION_FIX"
           );
           subcat.addOption(option);
         
@@ -18769,6 +18783,8 @@
         }
       }
       function setup() {
+        if (!ytcenter.settings.fixHTML5Annotations) return;
+        
         if (observer) {
           observer.disconnect();
           observer = null;
@@ -19110,8 +19126,8 @@
     ytcenter.player.disableHTML5 = function(){
       var a = document.getElementsByClassName("video-stream");
       if (a.length > 0 && a[0])
-        //a[0].pause(); // Slower aproach, but will not throw errors.
-        a[0].src = ""; // this can cause YouTube to throw errors.
+        //a[0].pause(); // Slower aproach, but will not throw errors (we want the faster method).
+        a[0].src = ""; // this can cause YouTube to throw errors, but we're doing it anyway.
       ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
       
       if (ytcenter.player.disableHTML5_timeout) {

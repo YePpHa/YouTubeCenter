@@ -749,6 +749,7 @@ body > #page {
 }
 
 /* Player setPlayerType - Hide video container until finished */
-.ytcenter-disable-html5 #movie_player.html5-video-player {
+.ytcenter-disable-html5 #movie_player.html5-video-player,
+.ytcenter-disable-html5 #player-unavailable {
   display: none !important;
 }
