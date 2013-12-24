@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         144
+// @version         145
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -73,7 +73,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 144);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 145);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -10665,7 +10665,7 @@
       return a.join(",");
     };
     ytcenter.utils.updateSignatureDecipher = function(){
-      var js = ytcenter.player.config.assets.js,
+      var js = (loc.href.indexOf("https") === 0 ? "https:" : "http:") + ytcenter.player.config.assets.js,
           regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(.*?)return a\.join\(""\)}/g,
           regex2 = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(((a=([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a=a\.slice\([0-9]+\);)|(a=a\.reverse\(\);)|(var b=a\[0\];a\[0\]=a\[[0-9]+%a\.length\];a\[[0-9]+\]=b;)))*return a\.join\(""\)}/g;
         con.log("[updateSignatureDecipher] Contacting " + js);
@@ -10675,8 +10675,12 @@
           onload: function(response) {
             var a,i,b,v;
             
+            con.log("[updateSignatureDecipher] Retrieved response...");
+            con.log("[updateSignatureDecipher] Testing regex 1: " + !!response.responseText.match(regex));
+            con.log("[updateSignatureDecipher] Testing regex 2: " + !!response.responseText.match(regex2));
+            
             if (response.responseText.match(regex2)) {
-              con.log("[updateSignatureDecipher] First regex");
+              con.log("[updateSignatureDecipher] Using regex 1");
               a = regex2.exec(response.responseText)[0].split("{")[1].split("}")[0].split(";");
               ytcenter.settings['signatureDecipher'] = []; // Clearing signatureDecipher
               for (i = 1; i < a.length-1; i++) {
@@ -10702,11 +10706,13 @@
                   ytcenter.settings['signatureDecipher'].push({func: "swapHeadAndPosition", value: parseInt(v)});
                 }
               }
-            } else {
-              con.log("[updateSignatureDecipher] Second regex");
+            } else if (response.responseText.match(regex)) {
+              con.log("[updateSignatureDecipher] Using regex 2");
               a = regex.exec(response.responseText)[1];
               ytcenter.settings['signatureDecipher'] = []; // Clearing signatureDecoder
               ytcenter.settings['signatureDecipher'].push({func: "code", value: a});
+            } else {
+              con.error("[updateSignatureDecipher] Couldn't retrieve the signatureDecipher!");
             }
             ytcenter.events.performEvent("ui-refresh");
             ytcenter.saveSettings();
@@ -17139,7 +17145,7 @@
         var streams = ytcenter.parseStreams(config.args);
         ytcenter.video.streams = streams;
         try {
-          if (ytcenter.video.streams[0] && ytcenter.video.streams[0].s) {
+          if (ytcenter.video && ytcenter.video.streams && ytcenter.video.streams[0] && ytcenter.video.streams[0].s) {
             ytcenter.utils.updateSignatureDecipher(); // Only Updating the signature decoder when it's needed!
           }
         } catch (e) {
@@ -20960,7 +20966,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 144);
+          main_function(false, 4, true, 145);
         /*} catch (e) {
         }*/
       }
@@ -20980,7 +20986,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 144);
+      main_function(false, 4, true, 145);
     //} catch (e) {
       //console.error(e);
     //}
