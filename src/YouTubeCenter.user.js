@@ -2603,7 +2603,7 @@
       
       ytcenter.embed.writePlayer = function(){
         try {
-          if (!ytcenter.embed._writeEmbed) {
+          if (typeof ytcenter.embed._writeEmbed !== "function") {
             con.log("[Embed] writeEmbed is not yet ready!");
             return;
           }
@@ -2623,8 +2623,12 @@
           con.error(e);
           ytcenter.embed.failsafe = true;
           /* Trying to write the player when an error was thrown */
-          con.log("[Embed] Writing the embedded player.");
-          ytcenter.embed._writeEmbed();
+          try {
+            con.log("[Embed] Writing the embedded player.");
+            ytcenter.embed._writeEmbed();
+          } catch (e) {
+            con.error(e);
+          }
         }
       };
       
@@ -3581,6 +3585,13 @@
         return false;
       };
       __r.__commentInfoIdNext = 0;
+      __r.getCommentObjectByWrapper = function(wrapper){
+        var i;
+        for (i = 0; i < __r.comments.length; i++) {
+          if (__r.comments[i].wrapper === wrapper) return __r.comments[i];
+        }
+        return null;
+      };
       __r.getCommentObject = function(contentElement){
         var commentInfo = {}, tmp;
         commentInfo.id = __r.__commentInfoIdNext;
@@ -3596,11 +3607,9 @@
         
         if (commentInfo.isReply) {
           commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode;
-          commentInfo.wrapper.setAttribute("data-ytc-comment-id", commentInfo.id);
-          commentInfo.parentId = parseInt(commentInfo.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.firstChild.getAttribute("data-ytc-comment-id"), 10);
+          commentInfo.parentId = __r.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.firstChild).id;
         } else {
           commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode;
-          commentInfo.wrapper.setAttribute("data-ytc-comment-id", commentInfo.id);
           commentInfo.parentId = -1;
         }
         
@@ -3842,6 +3851,8 @@
       };
       
       __r.update = function(){
+        if (!ytcenter.settings.commentCountryEnabled) return;
+        
         __r.loadComments();
         /*__r.filter();
         __r.commentDuplicates();*/
@@ -3950,8 +3961,6 @@
       __r.getCompletedWorkers = function(){
         return completedWorkers;
       };
-      
-      uw.workers = __r;
       
       return __r;
     })();
@@ -5702,19 +5711,10 @@
       
       __r.listen = function(win, origin, token, callback){
         ytcenter.utils.addEventListener(win || uw, "message", function(e){
+          con.log("[Message]", e);
+          if (origin && e.origin !== origin) return;
           if (!e || !e.data || e.data.indexOf(token) !== 0) return; // Checking if the token is correct
           
-          // Checking if the origin is correct.
-          if (origin) {
-            var i, pass = false;
-            for (i = 0; i < origin.length; i++) {
-              if (e.origin === origin[i]) {
-                pass = true;
-                break;
-              }
-            }
-            if (!pass) return;
-          }
           var data = e.data.substring(token.length);
           
           callback(JSON.parse(data));
@@ -5733,7 +5733,7 @@
         
         var i, elms = document.getElementsByTagName("iframe"), scrollOffset = null, elmOffset = null, data;
         for (i = 0; i < elms.length; i++) {
-          if (elms[i] && elms[i].src && elms[i].src.indexOf("https://apis.google.com/") === 0) {
+          if (elms[i] && elms[i].src && elms[i].src.indexOf("https://apis.google.com/") === 0 && elms[i].src.indexOf("/widget/render/comments?") !== -1) {
             scrollOffset = ytcenter.utils.getBoundingClientRect(elms[i]);
             data = { scrollOffset: scrollOffset, windowDim: windowDim || {width: window.innerWidth || document.documentElement.clientWidth, height: window.innerHeight || document.documentElement.clientHeight } };
             ytcenter.message.broadcast(
@@ -5819,10 +5819,12 @@
           ytcenter.utils.removeEventListener(window, "scroll", onViewUpdateBuffer, false);
           ytcenter.utils.removeEventListener(window, "resize", onViewUpdateBuffer, false);
         } else {
-          ytcenter.message.listen(uw, null, "$_scroll", function(data){
-            offset = data.scrollOffset;
-            windowDim = data.windowDim;
-          });
+          if (loc.href.indexOf("apis.google.com/u/") !== -1 && loc.href.indexOf("/widget/render/comments?") !== -1) {
+            ytcenter.message.listen(uw, null, "$_scroll", function(data){
+              offset = data.scrollOffset;
+              windowDim = data.windowDim;
+            });
+          }
         }
         onViewUpdateBuffer = ytcenter.utils.throttle(onViewUpdate, 500);
         
@@ -13743,18 +13745,21 @@
           );
           subcat.addOption(option);
           
-          option = ytcenter.settingsPanel.createOption(
-            null, // defaultSetting
-            "line"
-          );
-          subcat.addOption(option);
-          
-          option = ytcenter.settingsPanel.createOption(
-            "fixHTML5Annotations", // defaultSetting
-            "bool", // module
-            "SETTINGS_HTML_ANNOTATION_FIX"
-          );
-          subcat.addOption(option);
+          // Will only be visible in the developer build.
+          if (@devbuild@) {
+            option = ytcenter.settingsPanel.createOption(
+              null, // defaultSetting
+              "line"
+            );
+            subcat.addOption(option);
+            
+            option = ytcenter.settingsPanel.createOption(
+              "fixHTML5Annotations", // defaultSetting
+              "bool", // module
+              "SETTINGS_HTML_ANNOTATION_FIX"
+            );
+            subcat.addOption(option);
+          }
         
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_AUTOPLAY"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
