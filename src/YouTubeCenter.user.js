@@ -2601,6 +2601,47 @@
         };
       });
       
+      ytcenter.embed.callWriteEmbed = function(){
+        var reload = false;
+        try {
+          if (ytcenter.settings.embedWriteEmbedMethod === "standard") { // Async
+            ytcenter.embed._writeEmbed();
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test1") { // Async
+            uw.yt.player.embed("player", ytcenter.player.getConfig());
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test2") { // Sync
+            var data = new uw.yt.player.Application("player", ytcenter.player.getConfig());
+            con.log("[callWriteEmbed]", data);
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test3") { // Sync
+            uw.yt.player.Application.create("player", ytcenter.player.getConfig());
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "standard+reload") { // Async
+            ytcenter.embed._writeEmbed();
+            reload = true;
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test1+reload") { // Async
+            uw.yt.player.embed("player", ytcenter.player.getConfig());
+            reload = true;
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test2+reload") { // Sync
+            var data = new uw.yt.player.Application("player", ytcenter.player.getConfig());
+            con.log("[callWriteEmbed]", data);
+            reload = true;
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test3+reload") { // Sync
+            uw.yt.player.Application.create("player", ytcenter.player.getConfig());
+            reload = true;
+          }
+        } catch (e) {
+          con.error(e);
+        }
+        if (reload) {
+          // Reload the embedded video if there is no children of the player element after 1.0 seconds.
+          uw.setTimeout(function(){
+            var p = document.getElementById("player");
+            if (!p) return;
+            if (p.children.length === 0) {
+              loc.reload();
+            }
+          }, ytcenter.settings.embedWriteEmbedMethodReloadDelay);
+        }
+      };
+      
       ytcenter.embed.writePlayer = function(){
         try {
           if (typeof ytcenter.embed._writeEmbed !== "function") {
@@ -2618,14 +2659,14 @@
           
           /* Writing the embedded player */
           con.log("[Embed] Writing the embedded player.");
-          ytcenter.embed._writeEmbed();
+          ytcenter.embed.callWriteEmbed();
         } catch (e) {
           con.error(e);
           ytcenter.embed.failsafe = true;
           /* Trying to write the player when an error was thrown */
           try {
             con.log("[Embed] Writing the embedded player.");
-            ytcenter.embed._writeEmbed();
+            ytcenter.embed.callWriteEmbed();
           } catch (e) {
             con.error(e);
           }
@@ -8049,8 +8090,19 @@
       };
     };
     ytcenter.modules.rangetext = function(option){
+      function getValue(text) {
+        if (option.args.prefix && option.args.prefix !== "") {
+          if (text.indexOf(option.args.prefix) === 0)
+            text = text.substring(option.args.prefix.length);
+        }
+        if (option.args.suffix && option.args.suffix !== "") {
+          if (text.indexOf(option.args.suffix) === text.length - option.args.suffix.length)
+            text = text.substring(0, text.length - option.args.suffix.length);
+        }
+        return text;
+      }
       function update() {
-        _text.value = Math.round(range.getValue());
+        _text.value = (option.args.prefix ? option.args.prefix : "") + Math.round(range.getValue()) + (option.args.suffix ? option.args.suffix : "");
       }
       var range = ytcenter.modules.range(option),
           wrapper = document.createElement("div"),
@@ -8073,20 +8125,56 @@
         });
       }
       
+      _text.addEventListener("focus", function(){
+        var val = 0;
+        if (this.value !== "")
+          val = parseInt(getValue(this.value), 10);
+        if (isNaN(val) || val === Infinity) val = 0;
+        
+        range.update(val);
+        
+        var sel = ytcenter.utils.getCaretPosition(this);
+        this.value = val;
+        ytcenter.utils.setCaretPosition(this, sel);
+        
+        this.setSelectionRange();
+      }, false);
+      
+      _text.addEventListener("blur", function(){
+        var val = 0;
+        if (this.value !== "")
+          val = parseInt(getValue(this.value), 10);
+        if (isNaN(val) || val === Infinity) val = 0;
+        
+        range.update(val);
+        val = range.getValue();
+        if (bCallback) bCallback(range.getValue());
+        
+        this.value = (option.args.prefix ? option.args.prefix : "") + val + (option.args.suffix ? option.args.suffix : "");
+      }, false);
+      
       _text.addEventListener("input", function(){
-        if (this.value === "") this.value = "0";
-        this.value = parseInt(this.value);
-        if (isNaN(this.value) || this.value === Infinity) this.value = "0";
-        range.update(parseInt(this.value));
+        var val = 0;
+        if (this.value !== "")
+          val = parseInt(getValue(this.value), 10);
+        if (isNaN(val) || val === Infinity) val = 0;
+        
+        range.update(val);
+        
+        //this.value = val;
       }, false);
       
       _text.addEventListener("change", function(){
-        if (this.value === '') this.value = "0";
-        else this.value = parseInt(this.value);
+        var val = 0;
+        if (this.value !== "")
+          val = parseInt(getValue(this.value), 10);
+        if (isNaN(val) || val === Infinity) val = 0;
         
-        range.update(parseInt(this.value));
-        this.value = range.getValue();
+        range.update(val);
+        val = range.getValue();
         if (bCallback) bCallback(range.getValue());
+        
+        this.value = (option.args.prefix ? option.args.prefix : "") + val + (option.args.suffix ? option.args.suffix : "");
       }, false);
       
       return {
@@ -9823,6 +9911,37 @@
     };
     
     // @utils
+    
+    ytcenter.utils.setCaretPosition = function(el, pos){
+      if (pos < 0) pos = 0;
+      if (pos > el.value.length) pos = el.value.length;
+      
+      if (typeof el.selectionStart === "number") {
+        el.selectionStart = pos;
+        el.selectionEnd = pos;
+      } else if (document.selection) {
+        el.focus();
+        
+        var sel = document.selection.createRange();
+        sel.moveStart("character", pos);
+        sel.moveEnd("character", 0);
+        sel.select();
+      }
+    };
+    ytcenter.utils.getCaretPosition = function(el){
+      var pos = 0;
+      if (typeof el.selectionStart === "number") {
+        pos = el.selectionStart;
+      } else if (document.selection) {
+        el.focus();
+        
+        var sel = document.selection.createRange();
+        sel.moveStart("character", -el.value.length);
+        pos = sel.text.length;
+      }
+      
+      return pos;
+    };
     
     ytcenter.utils.prefixText = function(text, prefixChar, preferedLength){
       var t = ("" + text);
@@ -11602,6 +11721,8 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      embedWriteEmbedMethodReloadDelay: 1000,
+      embedWriteEmbedMethod: "standard+reload", // "standard", "test1", "test2", "test3", "standard+reload", "test1+reload", "test2+reload", "test3+reload"
       fixHTML5Annotations: false,
       saveErrorStatusTimeout: 5000,
       saveStatusTimeout: 2000,
@@ -13988,7 +14109,8 @@
             "SETTINGS_VOLUME_LABEL",
             {
               "min": 0,
-              "max": 100
+              "max": 100,
+              "suffix": "%"
             }
           );
           subcat.addOption(option);
@@ -14114,6 +14236,63 @@
             "embed_enabled",
             "bool",
             "SETTINGS_EMBEDS_ENABLE"
+          );
+          subcat.addOption(option);
+          
+          // embedWriteEmbedMethod
+          option = ytcenter.settingsPanel.createOption(
+            "embedWriteEmbedMethod",
+            "list",
+            "SETTINGS_EMBEDS_WRITEMETHOD",
+            {
+              "list": [
+                {
+                  "value": "standard",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_STANDARD"
+                }, {
+                  "value": "test1",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST1"
+                }, {
+                  "value": "test2",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST2"
+                }, {
+                  "value": "test3",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST3"
+                }, {
+                  "value": "standard+reload",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_STANDARDRELOAD"
+                }, {
+                  "value": "test1+reload",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST1RELOAD"
+                }, {
+                  "value": "test2+reload",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST2RELOAD"
+                }, {
+                  "value": "test3+reload",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST3RELOAD"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "embedWriteEmbedMethodReloadDelay",
+            "rangetext",
+            "SETTINGS_EMBEDS_WRITEMETHOD_RELOADDELAY",
+            {
+              "min": 0,
+              "max": 10000,
+              "suffix": " ms"
+            }
+          );
+          ytcenter.events.addEvent("settings-update", (function(opt){
+            return function(){ opt.setVisibility(ytcenter.settings.embedWriteEmbedMethod.indexOf("+reload") !== -1); };
+          })(option));
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
           );
           subcat.addOption(option);
           
@@ -14370,7 +14549,8 @@
             "SETTINGS_VOLUME_LABEL",
             {
               "min": 0,
-              "max": 100
+              "max": 100,
+              "suffix": "%"
             }
           );
           subcat.addOption(option);
@@ -14606,7 +14786,8 @@
             "SETTINGS_VOLUME_LABEL",
             {
               "min": 0,
-              "max": 100
+              "max": 100,
+              "suffix": "%"
             }
           );
           subcat.addOption(option);
@@ -14951,7 +15132,8 @@
             "SETTINGS_SPARKBAR_HEIGHT", // label
             {
               "min": 1,
-              "max": 100
+              "max": 100,
+              "suffix": "px"
             }
           );
           option.addEventListener("update", function(){
@@ -15140,7 +15322,8 @@
             "SETTINGS_LIGHTBULB_TRANSPARENCY",
             {
               "min": 0,
-              "max": 100
+              "max": 100,
+              "suffix": "%"
             }
           );
           subcat.addOption(option);
@@ -15212,7 +15395,8 @@
             "SETTINGS_THUMBNAIL_ANIMATION_DELAY", // label
             {
               "min": 250,
-              "max": 5250
+              "max": 5250,
+              "suffix": " ms"
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#delay"
           );
@@ -15225,7 +15409,8 @@
             "SETTINGS_THUMBNAIL_ANIMATION_INTERVAL", // label
             {
               "min": 0,
-              "max": 5000
+              "max": 5000,
+              "suffix": " ms"
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#interval"
           );
@@ -15238,7 +15423,8 @@
             "SETTINGS_THUMBNAIL_ANIMATION_FALLBACK_INTERVAL", // label
             {
               "min": 0,
-              "max": 5000
+              "max": 5000,
+              "suffix": " ms"
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#fallback-interval"
           );
@@ -15497,7 +15683,8 @@
             "SETTINGS_SPARKBAR_HEIGHT", // label
             {
               "min": 1,
-              "max": 100
+              "max": 100,
+              "suffix": "px"
             }
           );
           option.setStyle("margin-left", "12px");
@@ -16177,7 +16364,8 @@
                   { name: "Ismail Aksu" }
                 ],
                 "UA": [
-                  { name: "SPIDER-T1" }
+                  { name: "SPIDER-T1" },
+                  { name: "Petro Lomaka", url: "https://plus.google.com/103266219992558963899/" }
                 ],
                 "vi": [
                   { name: "Tuấn Phạm" }
