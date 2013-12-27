@@ -28,6 +28,7 @@
   "background": {
     "scripts": [ "background.js" ]
   },
+  "options_page": "options.html",
   "permissions": [
     "storage",
     "unlimited_storage",
