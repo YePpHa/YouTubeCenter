@@ -35,7 +35,8 @@
     "http://*.youtube.com/*",
     "https://*.youtube.com/*",
     "http://apis.google.com/u/0/wm/4/_/widget/render/comments?*",
-    "https://apis.google.com/u/0/wm/4/_/widget/render/comments?*"
+    "https://apis.google.com/u/0/wm/4/_/widget/render/comments?*",
+    "https://raw.github.com/YePpHa/YouTubeCenter/master/*"
   ],
   "icons": {"16": "assets/icon16.png",
             "48": "assets/icon48.png",
