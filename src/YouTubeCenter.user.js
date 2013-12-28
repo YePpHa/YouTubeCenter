@@ -5769,6 +5769,8 @@
     })();
     ytcenter.domEvents = (function(){
       function onViewUpdate() {
+        if (uw.self !== uw.top && !offset && !windowDim)
+          return;
         onEnterViewUpdate();
         onExitViewUpdate();
         
