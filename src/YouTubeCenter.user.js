@@ -3931,6 +3931,104 @@
       
       return __r;
     })();
+    ytcenter.uploaderFlag = (function(){
+      function init() {
+        if (!ytcenter.settings.uploaderCountryEnabled) return;
+        
+        ytcenter.cache.putCategory("profile_country", ytcenter.settings.commentCacheSize);
+        
+        var userHeader = document.getElementById("watch7-user-header"),
+            user = userHeader.getElementsByTagName("a")[1],
+            id = user.getAttribute("data-ytid");
+        
+        var country = ytcenter.cache.getItem("profile_country", id);
+        if (country) {
+          addFlag(country.data);
+        } else {
+          work(id);
+        }
+      }
+      function work(id) {
+        ytcenter.jobs.createWorker(id, function(args){
+          try {
+            ytcenter.getUserData(id, function(data){
+              var country = null;
+              if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
+                country = data.entry.yt$location.$t;
+              } else {
+                con.error("[Comment Country] Unknown Location", data);
+              }
+              args.complete(country);
+            });
+          } catch (e) {
+            con.error(e);
+            args.complete(null);
+          }          
+        }, function(data){
+          if (!data) return;
+          if (id) {
+            ytcenter.cache.putItem("profile_country", id, data, 2678400000 /* 31 days */);
+          }
+          addFlag(data);
+        });
+      }
+      function addFlag(country) {
+        var userHeader = document.getElementById("watch7-user-header"),
+            separator = userHeader.children[2],
+            user = userHeader.getElementsByTagName("a")[1],
+            linebreak = userHeader.getElementsByTagName("br")[0],
+            countryContainer = document.createElement("span"),
+            countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+        countryContainer.className = "country";
+        if (ytcenter.settings.uploaderCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
+          var img = document.createElement("img");
+          img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+          img.className = ytcenter.flags[country.toLowerCase()];
+          if (ytcenter.settings.uploaderCountryUseNames) {
+            img.setAttribute("alt", countryName || country);
+            img.setAttribute("title", countryName || country);
+            ytcenter.events.addEvent("language-refresh", function(){
+              var _countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+              img.setAttribute("alt", _countryName || country);
+              img.setAttribute("title", _countryName || country);
+            });
+          } else {
+            img.setAttribute("alt", country);
+            img.setAttribute("title", country);
+          }
+          countryContainer.appendChild(img);
+        } else {
+          if (ytcenter.settings.uploaderCountryUseNames) {
+            countryContainer.textContent = countryName || country;
+            ytcenter.events.addEvent("language-refresh", function(){
+              var _countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+              countryContainer.textContent = _countryName || country;
+            });
+          } else {
+            countryContainer.textContent = country;
+          }
+        }
+        
+        countryContainer.style.verticalAlign = "middle";
+        
+        
+        if (ytcenter.settings.uploaderCountryPosition === "before_username") {
+          countryContainer.style.marginLeft = "10px";
+          user.style.marginLeft = "5px";
+          userHeader.insertBefore(countryContainer, user);
+        } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
+          countryContainer.style.marginLeft = "5px";
+          userHeader.insertBefore(countryContainer, separator);
+        } else if (ytcenter.settings.uploaderCountryPosition === "last") {
+          countryContainer.style.marginLeft = "5px";
+          userHeader.insertBefore(countryContainer, linebreak);
+        }
+      }
+      
+      return {
+        init: init
+      };
+    })();
     ytcenter.jobs = (function(){
       var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = 5;
       
@@ -5752,7 +5850,6 @@
       
       __r.listen = function(win, origin, token, callback){
         ytcenter.utils.addEventListener(win || uw, "message", function(e){
-          con.log("[Message]", e);
           if (origin && e.origin !== origin) return;
           if (!e || !e.data || e.data.indexOf(token) !== 0) return; // Checking if the token is correct
           
@@ -5874,7 +5971,7 @@
         ytcenter.utils.addEventListener(window, "scroll", onViewUpdateBuffer, false);
         ytcenter.utils.addEventListener(window, "resize", onViewUpdateBuffer, false);
         ytcenter.events.addEvent("ui-refresh", onViewUpdateBuffer);
-        uw.setInterval(onViewUpdateBuffer, 2000); // Todo attach this to an event instead.
+        uw.setInterval(onViewUpdateBuffer, 7500); // Todo attach this to an event instead.
         onViewUpdate();
       };
       
@@ -11723,6 +11820,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      headlineTitleExpanded: false,
       videoThumbnailQualitySeparated: true,
       embedWriteEmbedMethodReloadDelay: 1000,
       embedWriteEmbedMethod: "standard+reload", // "standard", "test1", "test2", "test3", "standard+reload", "test1+reload", "test2+reload", "test3+reload"
@@ -11802,12 +11900,19 @@
       enableResize: true,
       guideMode: "default", // [default, always_open, always_closed]
       ytExperimentalLayotTopbarStatic: false,
+      
+      uploaderCountryEnabled: true,
+      uploaderCountryShowFlag: true,
+      uploaderCountryUseNames: true,
+      uploaderCountryPosition: "after_username", // ["before_username", "after_username", "last"]
+      
       commentCountryData: [],
       commentCountryEnabled: false,
       commentCountryShowFlag: true,
       commentCountryUseNames: true,
       commentCountryLazyLoad: true,
       commentCountryPosition: "after_username", // ["before_username", "after_username", "last"]
+      
       videoThumbnailData: [],
       videoThumbnailQualityBar: true,
       videoThumbnailQualityPosition: "topleft",
@@ -12280,11 +12385,11 @@
     ytcenter.saveSettings_intercomTimeout = null;
     ytcenter.saveSettings = function(async, timeout, _callback){
       var callback = function(){
-        con.log("[SaveSettings] Ordering other tabs to load the new settings.");
         uw.clearTimeout(ytcenter.saveSettings_intercomTimeout);
         ytcenter.events.performEvent("save-complete");
         ytcenter.saveSettings_intercomTimeout = uw.setTimeout(function(){
           if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
+            con.log("[SaveSettings] Ordering other tabs to load the new settings.");
             var intercom = ytcenter.Intercom.getInstance();
             intercom.emit("settings", {
               action: "loadSettings",
@@ -13301,6 +13406,13 @@
             "expandDescription", // defaultSetting
             "bool", // module
             "SETTINGS_AUTOEXPANDDESCRIPTION_LABEL"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "headlineTitleExpanded", // defaultSetting
+            "bool", // module
+            "SETTINGS_AUTOEXPANDTITLE_LABEL"
           );
           subcat.addOption(option);
 
@@ -15094,6 +15206,55 @@
           });
           subcat.addOption(option);
           
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line",
+            null
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "uploaderCountryEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_UPLOADER_COUNTRY_FLAG_ENABLE"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "uploaderCountryShowFlag", // defaultSetting
+            "bool", // module
+            "SETTINGS_UPLOADER_COUNTRY_FLAG_SHOW_FLAG" // label
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "uploaderCountryUseNames", // defaultSetting
+            "bool", // module
+            "SETTINGS_UPLOADER_COUNTRY_FLAG_USE_NAME" // label
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "uploaderCountryPosition", // defaultSetting
+            "list", // module
+            "SETTINGS_UPLOADER_COUNTRY_FLAG_POSITION", // label
+            {
+              "list": [
+                {
+                  "value": "before_username",
+                  "label": "SETTINGS_UPLOADER_COUNTRY_FLAG_POSITION_BEFORE_USERNAME"
+                }, {
+                  "value": "after_username",
+                  "label": "SETTINGS_UPLOADER_COUNTRY_FLAG_POSITION_AFTER_USERNAME"
+                }, {
+                  "value": "last",
+                  "label": "SETTINGS_UPLOADER_COUNTRY_FLAG_POSITION_LAST"
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RATINGBAR"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
             "sparkbarLikesColor", // defaultSetting
@@ -16017,7 +16178,7 @@
           );
           subcat.addOption(option);
 
-        /* Not neede as of now
+        /* Not needed as of now
         subcat = ytcenter.settingsPanel.createSubCategory("Subscriptions"); cat.addSubCategory(subcat);
         */  
 
@@ -19624,6 +19785,7 @@
       {element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(loc){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
       {element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
+      {element: function(){return document.getElementById("watch7-headline");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.headlineTitleExpanded;}},
       {element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
       {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){var p = ytcenter.getPage();return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch" && p !== "channel") || (ytcenter.settings.flexWidthOnChannelPage && p === "channel")}},
       {element: function(){return document.body;}, className: "ytcenter-branding-remove-banner", condition: function(loc){return ytcenter.settings.removeBrandingBanner;}},
@@ -20566,6 +20728,8 @@
         
         var id, config;
         if (page === "watch") {
+          ytcenter.uploaderFlag.init();
+          
           ytcenter.page = "watch";
           try {
             ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
@@ -21038,6 +21202,8 @@
           $CreateResizeButton();
           
           initPlacement();
+          
+          ytcenter.uploaderFlag.init();
           
           var wvi = document.getElementById("watch7-views-info"),
               sl = document.getElementsByClassName("video-extras-sparkbar-likes"),
