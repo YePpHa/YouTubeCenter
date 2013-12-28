@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         154
+// @version         155
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -39,12 +39,16 @@
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @match           https://github.com/YePpHa/YouTubeCenter/blob/master/devbuild.number
-// @match           http://apis.google.com/u/*/wm/*/_/widget/render/comments?*
-// @match           https://apis.google.com/u/*/wm/*/_/widget/render/comments?*
+// @match           http://apis.google.com/*/widget/render/comments?*
+// @match           https://apis.google.com/*/widget/render/comments?*
+// @match           http://plus.googleapis.com/*/widget/render/comments?*
+// @match           https://plus.googleapis.com/*/widget/render/comments?*
 // @include         http://*.youtube.com/*
 // @include         https://*.youtube.com/*
-// @include         http://apis.google.com/u/*/wm/*/_/widget/render/comments?*
-// @include         https://apis.google.com/u/*/wm/*/_/widget/render/comments?*
+// @include         http://apis.google.com/*/widget/render/comments?*
+// @include         https://apis.google.com/*/widget/render/comments?*
+// @include         http://plus.googleapis.com/*/widget/render/comments?*
+// @include         https://plus.googleapis.com/*/widget/render/comments?*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
 // @grant           GM_getValue
@@ -73,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 154);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 155);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -2253,8 +2257,9 @@
     }
     
     if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*)|(dl\.dropbox\.com\/u/13162258/YouTube%20Center/(.*))|(userscripts\.org/scripts/source/114002\.meta\.js))$", "")).test(loc.href)
-      && !(new RegExp("http(s)?://apis\.google.com/.*", "")).test(loc.href))
-      || (new RegExp("http(s)?://apiblog\.youtube.com/.*", "")).test(loc.href)) {
+      && !(new RegExp("http(s)?://apis\.google\.com/.*", "")).test(loc.href)
+      && !(new RegExp("http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
+      || (new RegExp("http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
       con.log(loc.href + " doesn't match!");
       return;
     }
@@ -4600,7 +4605,7 @@
       if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/watch\?/)) {
         ytcenter.page = "watch";
         return "watch";
-      } else if (!!url.match(/^http(s)?:\/\/apis\.google\.com\/u\/([0-9a-zA-Z-_\/]+)\/wm\/([0-9]+)\/_\/widget\/render\/comments/)) {
+      } else if (!!url.match(/^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/)) {
         ytcenter.page = "comments";
         return "comments";
       } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\//) && (loc.pathname === "/" || loc.pathname === "/feed/what_to_watch")) {
@@ -5853,13 +5858,14 @@
           if (origin && e.origin !== origin) return;
           if (!e || !e.data || e.data.indexOf(token) !== 0) return; // Checking if the token is correct
           
-          var data = e.data.substring(token.length);
-          
-          callback(JSON.parse(data));
+          var data = JSON.parse(e.data.substring(token.length));
+          //con.log("[Message:" + loc.href + "] Listen@" + token, data);
+          callback(data);
         }, false);
       };
       
       __r.broadcast = function(win, origin, token, data){
+        //con.log("[Message:" + loc.href + "] Sent@" + token, data);
         win.postMessage(token + JSON.stringify(data), origin);
       };
       return __r;
@@ -5873,14 +5879,14 @@
         
         var i, elms = document.getElementsByTagName("iframe"), scrollOffset = null, elmOffset = null, data;
         for (i = 0; i < elms.length; i++) {
-          if (elms[i] && elms[i].src && elms[i].src.indexOf("https://apis.google.com/") === 0 && elms[i].src.indexOf("/widget/render/comments?") !== -1) {
+          if (elms[i] && elms[i].src && (elms[i].src.indexOf("http://apis.google.com/") === 0 || elms[i].src.indexOf("https://apis.google.com/") === 0 || elms[i].src.indexOf("http://plus.googleapis.com") === 0 || elms[i].src.indexOf("https://plus.googleapis.com") === 0) && elms[i].src.indexOf("/widget/render/comments?") !== -1) {
             scrollOffset = ytcenter.utils.getBoundingClientRect(elms[i]);
             data = { scrollOffset: scrollOffset, windowDim: windowDim || {width: window.innerWidth || document.documentElement.clientWidth, height: window.innerHeight || document.documentElement.clientHeight } };
             ytcenter.message.broadcast(
-                elms[i].contentWindow,
-                elms[i].src,
-                "$_scroll",
-                data
+              elms[i].contentWindow,
+              elms[i].src,
+              "$_scroll",
+              data
             );
           }
         }
@@ -5954,15 +5960,32 @@
         });
       };
       
+      __r.ready = function(){
+        if (uw.self === uw.top) return;
+        if ((loc.href.indexOf("apis.google.com/u/") !== -1 || loc.href.indexOf("plus.googleapis.com") !== -1) && loc.href.indexOf("/widget/render/comments?") !== -1) {
+          ytcenter.message.broadcast(
+            uw.parent,
+            document.referrer,
+            "$_ready",
+            {}
+          );
+        }
+      };
+      
       __r.setup = function(){
         if (onViewUpdateBuffer) {
           ytcenter.utils.removeEventListener(window, "scroll", onViewUpdateBuffer, false);
           ytcenter.utils.removeEventListener(window, "resize", onViewUpdateBuffer, false);
         } else {
-          if (loc.href.indexOf("apis.google.com/u/") !== -1 && loc.href.indexOf("/widget/render/comments?") !== -1) {
+          if ((loc.href.indexOf("apis.google.com/u/") !== -1 || loc.href.indexOf("plus.googleapis.com") !== -1) && loc.href.indexOf("/widget/render/comments?") !== -1) {
             ytcenter.message.listen(uw, null, "$_scroll", function(data){
               offset = data.scrollOffset;
               windowDim = data.windowDim;
+            });
+          }
+          if (ytcenter.getPage() === "watch") {
+            ytcenter.message.listen(uw, null, "$_ready", function(data){
+              onViewUpdate();
             });
           }
         }
@@ -20964,8 +20987,12 @@
         }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
-        if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return;
-        if (ytcenter.getPage() === "embed") {
+        var page = ytcenter.getPage();
+        if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+        if (page === "comments") {
+          ytcenter.domEvents.ready();
+        }
+        if (page === "embed") {
           ytcenter.embed.load();
         } else {
           ytcenter.guideMode.setup();
@@ -21305,7 +21332,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 154);
+          main_function(false, 4, true, 155);
         /*} catch (e) {
         }*/
       }
@@ -21325,7 +21352,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 154);
+      main_function(false, 4, true, 155);
     //} catch (e) {
       //console.error(e);
     //}
