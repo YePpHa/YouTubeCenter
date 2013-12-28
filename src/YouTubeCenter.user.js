@@ -4770,7 +4770,7 @@
                     cfg.args = JSON.parse(cfg.args);
                   }
                 }
-                item.stream = ytcenter.player.getBestStream(ytcenter.parseStreams(cfg.args), (ytcenter.settings.dashPlayback ? 1 : 0));
+                item.stream = ytcenter.player.getBestStream(ytcenter.parseStreams(cfg.args), (ytcenter.settings.videoThumbnailQualitySeparated ? (ytcenter.settings.dashPlayback ? 1 : 0) : -1));
                 if (!item.stream) {
                   if (cfg && cfg.args && cfg.args.ypc_module && cfg.args.ypc_vid) {
                     item.stream = {
@@ -11723,6 +11723,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      videoThumbnailQualitySeparated: true,
       embedWriteEmbedMethodReloadDelay: 1000,
       embedWriteEmbedMethod: "standard+reload", // "standard", "test1", "test2", "test3", "standard+reload", "test1+reload", "test2+reload", "test3+reload"
       fixHTML5Annotations: false,
@@ -15448,6 +15449,14 @@
             "videoThumbnailQualityBar", // defaultSetting
             "bool", // module
             "SETTINGS_THUMBVIDEO_QUALITY_ENABLE" // label
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailQualitySeparated", // defaultSetting
+            "bool", // module
+            "SETTINGS_THUMBVIDEO_QUALITY_DASHNONDASHSEPARATED" // label
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
