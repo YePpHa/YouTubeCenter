@@ -2836,6 +2836,16 @@
           } else if (ytcenter.settings.embedWriteEmbedMethod === "test3+reload") { // Sync
             uw.yt.player.Application.create("player", ytcenter.player.getConfig());
             reload = true;
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test4") { // Sync
+            uw.ytcenter_writeEmbed = ytcenter.embed._writeEmbed;
+            ytcenter.inject(function(){
+              var c = JSON.parse(JSON.stringify(ytplayer.config));
+              yt.config_.PLAYER_CONFIG = c;
+              ytcenter_writeEmbed();
+            });
+          } else if (ytcenter.settings.embedWriteEmbedMethod === "test5") { // Sync
+            yt.config_.PLAYER_CONFIG = ytcenter.utils.jsonClone(ytcenter.player.getConfig());
+            ytcenter.embed._writeEmbed();
           }
         } catch (e) {
           con.error(e);
@@ -3070,8 +3080,11 @@
           con.error("[Script Inject] document.body, document.head and document.documentElement doesn't exist!");
           return;
         }
+        if (typeof func === "string") {
+          func = "function(){" + func + "}";
+        }
         script.setAttribute("type", "text/javascript");
-        script.appendChild(document.createTextNode(func));
+        script.appendChild(document.createTextNode("(" + func + ")();\n//# sourceURL=YouTubeCenter.js"));
         p.appendChild(script);
         p.removeChild(script);
       } catch (e) {
@@ -12090,7 +12103,7 @@
       headlineTitleExpanded: false,
       videoThumbnailQualitySeparated: true,
       embedWriteEmbedMethodReloadDelay: 1000,
-      embedWriteEmbedMethod: "standard+reload", // "standard", "test1", "test2", "test3", "standard+reload", "test1+reload", "test2+reload", "test3+reload"
+      embedWriteEmbedMethod: "test5", // "standard", "test1", "test2", "test3", "standard+reload", "test1+reload", "test2+reload", "test3+reload", "test4", "test5"
       fixHTML5Annotations: false,
       saveErrorStatusTimeout: 5000,
       saveStatusTimeout: 2000,
@@ -14652,6 +14665,12 @@
                 }, {
                   "value": "test3+reload",
                   "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST3RELOAD"
+                }, {
+                  "value": "test4",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST4"
+                }, {
+                  "value": "test5",
+                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST5"
                 }
               ]
             }
