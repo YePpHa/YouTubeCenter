@@ -34,6 +34,7 @@
   <property name="src.safari" value="${src}/.safari" />
   <property name="src.opera" value="${src}/.opera" />
   <property name="src.firefox" value="${src}/.firefox" />
+  <property name="src.meta" value="${src}/.meta" />
   
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
@@ -50,7 +51,7 @@
   <property name="indentifier.opera" value="5" />
   <property name="indentifier.firefox" value="6" />
   
-  <target name="all" depends="preinit, userscript, chrome, maxthon, firefox, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, userscript-meta, chrome, maxthon, firefox, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
@@ -118,6 +119,14 @@
   </target>
   
   <target name="userscript" depends="preinit, copy-userscript">
+    <move todir="${dist}">
+      <fileset dir="${buildDir}">
+        <include name="*.js" />
+      </fileset>
+    </move>
+    <antcall target="clean" />
+  </target>
+  <target name="userscript-meta" depends="preinit, copy-userscript-meta">
     <move todir="${dist}">
       <fileset dir="${buildDir}">
         <include name="*.js" />
@@ -208,6 +217,14 @@
         <exclude name=".*" />
       </fileset>
     </copy>
+  </target>
+  
+  <target name="copy-userscript-meta">
+    <copy todir="${buildDir}">
+      <fileset dir="${src.meta}/" />
+    </copy>
+    <antcall target="tokenreplace" />
+    <replace dir="${buildDir}" value="${indentifier.userscript}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-userscript">
@@ -309,10 +326,14 @@
         <property file="${devbuild.number}" />
         <replace dir="${buildDir}" value="${build.number}" token="@version@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@name-dev@}" token="@name@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@dev-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@dev-updateURL@}" token="@updateURL@" encoding="${encoding}" />
       </then>
       <else>
         <replace dir="${buildDir}" value="${@ant-version@}" token="@version@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@name-stable@}" token="@name@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@stable-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@stable-updateURL@}" token="@updateURL@" encoding="${encoding}" />
       </else>
     </if>
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />

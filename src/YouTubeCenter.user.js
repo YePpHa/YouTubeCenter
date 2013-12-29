@@ -57,8 +57,8 @@
 // @grant           GM_addStyle
 // @grant           GM_log
 // @grant           GM_registerMenuCommand
-// @updateURL       http://userscripts.org/scripts/source/114002.meta.js
-// @downloadURL     http://userscripts.org/scripts/source/114002.user.js
+// @updateURL       @updateURL@
+// @downloadURL     @downloadURL@
 // @updateVersion   @ant-revision@
 // @run-at          document-start
 // @priority        9001
