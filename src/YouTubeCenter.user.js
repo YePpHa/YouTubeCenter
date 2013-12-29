@@ -11839,11 +11839,11 @@
           __api,
           sandboxes = [],
           old_sandboxes = [],
-          settings;
+          settings, setting = "buttonPlacementWatch7";
       var rd = {
         init: function(whitelist, blacklist){
           try {
-            settings = ytcenter.settings.buttonPlacementWatch7;
+            settings = ytcenter.settings[setting];
             updateList();
             
             sandboxes = whitelist;
@@ -11929,55 +11929,63 @@
           }
         },
         drop: function(elm){
-          var new_parent = elm.parentNode.id;
-          var new_next_sibling = elm.nextElementSibling;
-          var query = (function(){
-            for (var i = 0; i < database.length; i++) {
-              if (database[i][0] == elm) {
-                return database[i][1];
-              }
-            }
-          })();
-          var old_parent;
-          var old_index;
-          for (var key in settings) {
-            if (settings.hasOwnProperty(key)) {
-              var quit = false;
-              for (var i = 0; i < settings[key].length; i++) {
-                if (query == settings[key][i]) {
-                  old_index = i;
-                  old_parent = key;
-                  quit = true;
-                  break;
-                }
-              }
-              if (quit) break;
-            }
-          }
-          for (var i = 0; i < database.length; i++) {
-            if (database[i][0] == null) continue;
-            setParentData(database[i][0], database[i][0].parentNode.id);
-          }
-          settings[old_parent].splice(old_index, 1);
-          if (new_next_sibling == null) {
-            settings[new_parent].push(query);
-          } else {
-            var new_next_sibling_query = (function(){
+          try {
+            var _s = ytcenter.utils.jsonClone(settings);
+            var new_parent = elm.parentNode.id;
+            var new_next_sibling = elm.nextElementSibling;
+            var query = (function(){
               for (var i = 0; i < database.length; i++) {
-                if (new_next_sibling == database[i][0]) {
+                if (database[i][0] == elm) {
                   return database[i][1];
                 }
               }
+              return null;
             })();
-            for (var i = 0; i < settings[new_parent].length; i++) {
-              if (settings[new_parent][i] == new_next_sibling_query) {
-                settings[new_parent].splice(i, 0, query);
-                break;
+            var old_parent = null;
+            var old_index = null;
+            for (var key in _s) {
+              if (_s.hasOwnProperty(key)) {
+                var quit = false;
+                for (var i = 0; i < _s[key].length; i++) {
+                  if (query == _s[key][i]) {
+                    old_index = i;
+                    old_parent = key;
+                    quit = true;
+                    break;
+                  }
+                }
+                if (quit) break;
               }
             }
+            for (var i = 0; i < database.length; i++) {
+              if (database[i][0] == null) continue;
+              setParentData(database[i][0], database[i][0].parentNode.id);
+            }
+            _s[old_parent].splice(old_index, 1);
+            if (new_next_sibling == null) {
+              _s[new_parent].push(query);
+            } else {
+              var new_next_sibling_query = (function(){
+                for (var i = 0; i < database.length; i++) {
+                  if (new_next_sibling == database[i][0]) {
+                    return database[i][1];
+                  }
+                }
+              })();
+              for (var i = 0; i < _s[new_parent].length; i++) {
+                if (_s[new_parent][i] == new_next_sibling_query) {
+                  _s[new_parent].splice(i, 0, query);
+                  break;
+                }
+              }
+            }
+            settings = _s;
+            ytcenter.settings[setting] = _s;
+            
+            ytcenter.saveSettings();
+          } catch (e) {
+            con.error(e);
           }
-          
-          ytcenter.saveSettings();
         },
         move: function(){
           for (var i = 0; i < database.length; i++) {
@@ -12251,11 +12259,6 @@
       enableUpdateChecker: true,
       updateCheckerInterval: "0",
       updateCheckerLastUpdate: 0,
-      buttonPlacement: {
-        'watch-headline-title': ['watch-headline-title&@&//*[@id="eow-title"]'],
-        'watch-headline-user-info': ['watch-headline-user-info&@&//*[@id="watch-userbanner"]', 'watch-headline-user-info&@&//*[@id="watch-headline-user-info"]/div', 'watch-headline-user-info&@&//*[@id="watch-headline-user-info"]/span', 'watch-headline-user-info&@&//*[@id="watch-mfu-button"]', '@lightbtn'],
-        'watch-actions': ['watch-actions&@&//*[@id="watch-like-unlike"]', 'watch-actions&@&//*[@id="watch-actions"]/button[1]', 'watch-actions&@&//*[@id="watch-share"]', 'watch-actions&@&//*[@id="watch-flag"]', 'watch-actions&@&//*[@id="watch-transcript"]', '@downloadgroup', '@repeatbtn', '@resizebtn', '@aspectbtn']
-      },
       buttonPlacementWatch7: {
         'watch7-ytcenter-buttons': ['@downloadgroup', '@repeatbtn', '@lightbtn', '@resizebtn', '@aspectbtn'],
         'watch7-sentiment-actions': ['watch7-sentiment-actions&@&//*[@id="watch-like-dislike-buttons"]']
@@ -20010,7 +20013,7 @@
         if (ytcenter.settings.watch7centerpage)
           document.getElementById("page").style.setProperty("margin", "0 auto", "important");
         else
-          document.getElementById("page").style.setProperty("margin", "");
+          document.getElementById("page").style.setProperty("margin", "", "");
         return false;
       }},
       {element: function(){return document.getElementById("page");}, className: "", condition: function(loc){
@@ -20068,6 +20071,7 @@
       {element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){var p = ytcenter.getPage();return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch" && p !== "channel") || (ytcenter.settings.flexWidthOnChannelPage && p === "channel")}},
       {element: function(){return document.body;}, className: "ytcenter-branding-remove-banner", condition: function(loc){return ytcenter.settings.removeBrandingBanner;}},
       {element: function(){return document.body;}, className: "ytcenter-branding-remove-background", condition: function(loc){return ytcenter.settings.removeBrandingBackground;}},
+      {element: function(){return document.body;}, className: "ytcenter-site-notcenter", condition: function(loc){return !ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {element: function(){return document.body;}, className: "ytcenter-site-center", condition: function(loc){return ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {element: function(){return document.body;}, className: "ytcenter-exp-topbar-static", condition: function(loc){return ytcenter.settings.ytExperimentalLayotTopbarStatic;}},
       {element: function(){return document.body;}, className: "ytcenter-remove-ads-page", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
