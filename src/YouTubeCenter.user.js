@@ -8434,22 +8434,27 @@
     };
     ytcenter.modules.rangetext = function(option){
       function getValue(text) {
-        if (option.args.prefix && option.args.prefix !== "") {
-          if (text.indexOf(option.args.prefix) === 0)
-            text = text.substring(option.args.prefix.length);
+        if (prefixSuffixActive) {
+          if (option.args.prefix && option.args.prefix !== "") {
+            if (text.indexOf(option.args.prefix) === 0)
+              text = text.substring(option.args.prefix.length);
+          }
+          if (option.args.suffix && option.args.suffix !== "") {
+            if (text.indexOf(option.args.suffix) === text.length - option.args.suffix.length)
+              text = text.substring(0, text.length - option.args.suffix.length);
+          }
         }
-        if (option.args.suffix && option.args.suffix !== "") {
-          if (text.indexOf(option.args.suffix) === text.length - option.args.suffix.length)
-            text = text.substring(0, text.length - option.args.suffix.length);
-        }
+        text = parseInt(text, 10);
+        if (isNaN(text) || text === Infinity) text = 0;
         return text;
       }
       function update() {
         _text.value = (option.args.prefix ? option.args.prefix : "") + Math.round(range.getValue()) + (option.args.suffix ? option.args.suffix : "");
+        prefixSuffixActive = true;
       }
       var range = ytcenter.modules.range(option),
           wrapper = document.createElement("div"),
-          bCallback;
+          bCallback, prefixSuffixActive = true;
       wrapper.style.display = "inline-block";
       wrapper.appendChild(range.element);
       var _text = document.createElement("input");
@@ -8469,55 +8474,41 @@
       }
       
       _text.addEventListener("focus", function(){
-        var val = 0;
-        if (this.value !== "")
-          val = parseInt(getValue(this.value), 10);
-        if (isNaN(val) || val === Infinity) val = 0;
+        var val = getValue(this.value);
         
         range.update(val);
         
         var sel = ytcenter.utils.getCaretPosition(this);
         this.value = val;
+        prefixSuffixActive = false;
         ytcenter.utils.setCaretPosition(this, sel);
         
         this.setSelectionRange();
       }, false);
       
       _text.addEventListener("blur", function(){
-        var val = 0;
-        if (this.value !== "")
-          val = parseInt(getValue(this.value), 10);
-        if (isNaN(val) || val === Infinity) val = 0;
-        
+        var val = getValue(this.value);
         range.update(val);
         val = range.getValue();
-        if (bCallback) bCallback(range.getValue());
+        if (bCallback) bCallback(val);
         
-        this.value = (option.args.prefix ? option.args.prefix : "") + val + (option.args.suffix ? option.args.suffix : "");
+        update();
       }, false);
       
       _text.addEventListener("input", function(){
-        var val = 0;
-        if (this.value !== "")
-          val = parseInt(getValue(this.value), 10);
-        if (isNaN(val) || val === Infinity) val = 0;
+        var val = getValue(this.value);
         
         range.update(val);
-        
-        //this.value = val;
       }, false);
       
       _text.addEventListener("change", function(){
-        var val = 0;
-        if (this.value !== "")
-          val = parseInt(getValue(this.value), 10);
-        if (isNaN(val) || val === Infinity) val = 0;
+        var val = getValue(this.value);
         
         range.update(val);
         val = range.getValue();
-        if (bCallback) bCallback(range.getValue());
+        if (bCallback) bCallback(val);
         
-        this.value = (option.args.prefix ? option.args.prefix : "") + val + (option.args.suffix ? option.args.suffix : "");
+        update();
       }, false);
       
       return {
