@@ -102,8 +102,8 @@
   margin: 0 auto!important;
 }
 
-.ytcenter-resize-disaligned #player,
-.ytcenter-resize-disaligned #player-legacy,
+.ytcenter-resize-disaligned.ytcenter-site-center #player,
+.ytcenter-resize-disaligned.ytcenter-site-center #player-legacy,
 .ytcenter-site-center.ytcenter-resize-disaligned #watch7-playlist-data {
   padding-left: 0!important;
   padding-right: 0!important;
