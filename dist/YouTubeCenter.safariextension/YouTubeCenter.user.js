@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         156
+// @version         157
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 156);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 157);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -1914,7 +1914,7 @@
           type.push("header");
           
         if (type.length === 0) {
-          con.warn("[SPF] Received unknown package!", type, data);
+          con.log("[SPF] Received unknown package!", type, data);
           return "unknown";
         }
         return type.join(",");
@@ -2064,7 +2064,7 @@
               + ytcenter.utils.encodeRawTag(JSON.stringify(config).replace(/&/g, "&amp;").replace(/"/g, "&quot;"))
               + d.html.content.substring(i2);
         } else {
-          con.warn("[SPF] Tried to set the player configuration for a package with no player config!");
+          con.log("[SPF] Tried to set the player configuration for a package with no player config!");
         }
       }
       
@@ -2077,13 +2077,25 @@
         return data.html[id];
       }
       function setAttribute(id, attr, value) {
-        if (!data.attr)
-          data.attr = {};
-        if (!data.attr[id])
-          data.attr[id] = {};
-        data.attr[id][attr] = value;
+        try {
+          if (!data.attr)
+            data.attr = {};
+          if (typeof data.attr[id] === "undefined")
+            data.attr[id] = {};
+        } catch (e) {
+          con.error(e);
+          var _tmp = {};
+          _tmp[id] = {};
+          data.attr = _tmp;
+        }
+        try {
+          data.attr[id][attr] = value;
+        } catch (e) {
+          con.error(e);
+        }
       }
       function getAttribute(id, attr) {
+        if (!data) return null;
         if (!data.attr || !data.attr[id]) return null;
         return data.attr[id][attr];
       }
@@ -2181,6 +2193,7 @@
                 con.log("[SPF] " + event, args);
                 
                 args = callListenerCallbacks(event, "before", args) || args;
+                con.log(args);
                 if (_ytconfig[event]) args = _ytconfig[event].apply(uw, args) || args;
                 args = callListenerCallbacks(event, "after", args) || args;
               } catch (e) {
@@ -2322,11 +2335,12 @@
                   _console.push({args: _args.length === 1 ? _args[0] : _args, type: key});
                 }
                 if (console_debug && console[key].apply) {
-                  return console[key].apply(console, _args)
+                  return console[key].apply(console, args)
                 } else if (console_debug) {
                   return console[key](_args[0]);
                 }
               } catch (e) {
+                console.error(e);
               }
             };
           })(key);
@@ -2370,6 +2384,7 @@
                   return uw.console[key](_args[0]);
                 }
               } catch (e) {
+                console.error(e);
               }
             };
           })(key);
@@ -2413,6 +2428,7 @@
                   return GM_log(_args[0]);
                 }
               } catch (e) {
+                console.error(e);
               }
             };
           })(key);
@@ -10225,6 +10241,26 @@
     };
     
     // @utils
+    ytcenter.utils.cleanObject = function(obj){
+      try {
+        if (obj instanceof Object && typeof obj["__exposedProps__"] !== "undefined") delete obj["__exposedProps__"];
+      } catch (e) {
+        con.error(e);
+      }
+      var key;
+      for (key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          delete obj[key];
+        } else {
+          if (key === "__exposedProps__") {
+            delete obj[key];
+          } else if (obj[key] instanceof Object) {
+            obj[key] = ytcenter.utils.cleanObject(obj[key]);
+          }
+        }
+      }
+      return obj;
+    };
     
     ytcenter.utils.setCaretPosition = function(el, pos){
       if (pos < 0) pos = 0;
@@ -11546,39 +11582,52 @@
       }
       return false;
     };
+    ytcenter.utils.objectKeys = function(obj){
+      if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+        con.error("ytcenter.utils.objectKeys called on non-object");
+      }
+      var result = [], key, i;
+      for (key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          result.push(key);
+        }
+      }
+      
+      if (!({toString: null}).propertyIsEnumerable('toString')) {
+        var dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length;
+        for (i = 0; i < dontEnumsLength; i++) {
+          if (Object.prototype.hasOwnProperty.call(obj, dontEnums[i])) {
+            result.push(dontEnums[i]);
+          }
+        }
+      }
+      return result;
+    };
+    ytcenter.utils.extend = function(what, wit) {
+      var extObj, witKeys = Object.keys(wit);
+      
+      extObj = ytcenter.utils.objectKeys(what).length ? ytcenter.utils.clone(what) : {};
+      
+      witKeys.forEach(function(key) {
+        Object.defineProperty(extObj, key, Object.getOwnPropertyDescriptor(wit, key));
+      });
+      
+      return extObj;
+    }
+    ytcenter.utils.jsonClone = function(obj){
+      return JSON.parse(JSON.stringify(obj));
+    };
     ytcenter.utils.clone = function(obj){
-      if (obj === null || typeof obj !== "object") return obj;
-
-      // Handle Array
-      if (ytcenter.utils.isArray(obj)) {
-        var copy = [];
-        for (var i = 0, len = obj.length; i < len; i++) {
-          copy.push(ytcenter.utils.clone(obj[i]));
-        }
-        return copy;
-      }
-
-      // Handle Date
-      if (obj instanceof Date) {
-        var copy = new Date();
-        copy.setTime(obj.getTime());
-        return copy;
-      }
-
-      // Handle Object
-      if (obj instanceof Object) {
-        var copy = {};
-        for (var attr in obj) {
-          if (obj.hasOwnProperty(attr))
-            copy[attr] = ytcenter.utils.clone(obj[attr]);
-        }
-        return copy;
-      }
-      
-      if (obj.toString)
-        return obj.toString();
-      
-      return null;
+      return ytcenter.utils.extend({}, obj);
     };
     ytcenter.getMutationObserver = function(){
       var a;
@@ -17364,7 +17413,7 @@
           if (!value.args) throw "ytcenter.player.config was trying to be set to something with no args";
           if (!value.args.adaptive_fmts && !value.args.url_encoded_fmt_stream_map && !value.args.live_playback) throw "ytcenter.player.config was trying to be set with no video data!";
         }*/
-        ytcenter.player.config = value;
+        ytcenter.player.config = ytcenter.utils.cleanObject(value);
       } catch (e) {
         con.error(value);
         con.error(e);
@@ -18069,6 +18118,7 @@
       uw.yt.getConfig(config);
     };
     ytcenter.player.getConfig = function(){
+      ytcenter.player.config = ytcenter.utils.cleanObject(ytcenter.player.config);
       return ytcenter.player.config;
     };
     ytcenter.player.getPlayerId = (function(){
@@ -19695,10 +19745,10 @@
       }, 2000);
     };
     ytcenter.player.updateFlashvars = function(player, config){
-      if (!config || !config.args) return;
+      if (!config || !config.args || !player) return;
       var flashvars = "", key;
       for (key in config.args) {
-        if (config.args.hasOwnProperty(key)) {
+        if (config.args.hasOwnProperty(key) && key !== "__exposedProps__") {
           if (flashvars !== "") flashvars += "&";
           flashvars += encodeURIComponent(key) + "=" + encodeURIComponent(config.args[key]);
         }
@@ -21245,7 +21295,9 @@
           var bodyClasses = d.getAttribute("body", "class");
           if (!bodyClasses) bodyClasses = "";
           
-          d.setAttribute("body", "class", ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + bodyClasses);
+          bodyClasses = ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + bodyClasses;
+          
+          d.setAttribute("body", "class", bodyClasses);
           
           var js = d.getJS();
           if (!js) js = "";
@@ -21279,7 +21331,9 @@
           var bodyClasses = d.getAttribute("body", "class");
           if (!bodyClasses) bodyClasses = "";
           
-          d.setAttribute("body", "class", ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + bodyClasses);
+          bodyClasses = ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + bodyClasses;
+          
+          d.setAttribute("body", "class", bodyClasses);
           
           var js = d.getJS();
           if (!js) js = "";
@@ -21463,7 +21517,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 156);
+          main_function(false, 4, true, 157);
         /*} catch (e) {
         }*/
       }
@@ -21483,7 +21537,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 156);
+      main_function(false, 4, true, 157);
     //} catch (e) {
       //console.error(e);
     //}
