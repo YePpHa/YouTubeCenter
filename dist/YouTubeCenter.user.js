@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         155
+// @version         156
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 155);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 156);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -1873,107 +1873,277 @@
       return v > 4 ? v : !!document.documentMode;
     }());
     
-    /* A wrapper function for the SPF data */
-    ytcenter.spfData = function(originalData){
-      function parsePlayerConfigType1(content) {
+    
+    ytcenter.spfPackages = function(originalPackages){
+      function parse(data) {
+        if (ytcenter.utils.isArray(data)) {
+          var i, type;
+          for (i = 0; i < data.length; i++) {
+            type = parseType(data[i]);
+            addType(type, data[i]);
+          }
+        } else {
+          if (data.type && !multipart) {
+            multipart = true;
+            parse(data.parts);
+          } else {
+            addType(parseType(data), data);
+          }
+        }
+      }
+      function addType(type, data) {
+        var _types = type.split(","), i, index = packages.push(ytcenter.spfData(data)) - 1;
+        for (i = 0; i < _types.length; i++) {
+          if (!hasType(_types[i])) {
+            types.push(_types[i]);
+          }
+          if (!pointer[_types[i]]) pointer[_types[i]] = [];
+          pointer[_types[i]].push(index);
+        }
+      }
+      function parseType(data) {
+        var type = [];
+        if ((data.swfcfg) ||
+            (data.html && data.html.content && data.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) ||
+            (data.html && data.html.player && data.html.player && data.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) ||
+            (data.html && data.html.content && data.html.content.indexOf("data-swf-config=\"") !== -1))
+          type.push("player");
+        if (data.attr && data.html && data.js)
+          type.push("page");
+        if (data.css && data.js)
+          type.push("header");
+          
+        if (type.length === 0) {
+          con.warn("[SPF] Received unknown package!", type, data);
+          return "unknown";
+        }
+        return type.join(",");
+      }
+      function getPackage(type) {
+        if (!pointer[type] || !packages[pointer[type][0]]) return null;
+        return packages[pointer[type][0]].getData();
+      }
+      function getData(type) {
+        if (!pointer[type] || !packages[pointer[type][0]]) return null;
+        return packages[pointer[type][0]];
+      }
+      function getAvailableTypes() {
+        return types;
+      }
+      function getOriginalPackages() {
+        return originalPackages;
+      }
+      function getPackages(type) {
+        var i, arr = [];
+        
+        if (type) {
+          if (!pointer[type]) return null;
+          for (i = 0; i < pointer[type].length; i++) {
+            arr.push(packages[pointer[type][i]].getData());
+          }
+          if (multipart) {
+            var _o = ytcenter.utils.clone(originalPackages);
+            _o.parts = arr;
+            return _o;
+          } else {
+            return arr;
+          }
+        } else {
+          for (i = 0; i < packages.length; i++) {
+            arr.push(packages[i].getData());
+          }
+          
+          if (multipart) {
+            var _o = ytcenter.utils.clone(originalPackages);
+            _o.parts = arr;
+            return _o;
+          } else {
+            if (arr.length === 1)
+              return arr[0];
+            return arr;
+          }
+        }
+      }
+      function getTitle() {
+        var i, title = null;
+        for (i = 0; i < packages.length; i++) {
+          title = packages[i].getTitle();
+          if (title) return title;
+        }
+        return title;
+      }
+      function setTitle(title) {
+        var i;
+        for (i = 0; i < packages.length; i++) {
+          if (packages[i].getTitle())
+            packages[i].setTitle(title);
+        }
+      }
+      function hasType(type) {
+        var i;
+        for (i = 0; i < types.length; i++) {
+          if (types[i] === type)
+            return true;
+        }
+        return false;
+      }
+      var types = [], pointer = {} /* { player: [2, 3], page: [3] } */, packages = [], multipart = false;
+      
+      parse(originalPackages);
+      
+      return {
+        getData: getData,
+        getAvailableTypes: getAvailableTypes,
+        hasType: hasType,
+        getPackages: getPackages,
+        getOriginalPackages: getOriginalPackages,
+        getTitle: getTitle,
+        setTitle: setTitle
+      };
+    };
+    ytcenter.spfData = function(originalPackage){
+      function parse(rawData) {
+        parsePlayerConfig(rawData);
+      }
+      
+      function parsePlayerConfigType(content) {
         content = content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
         content = content.split(";</script>")[0];
         return JSON.parse(content);
       }
-      function parsePlayerConfigType2(player) {
-        player = player.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
-        player = player.split(";</script>")[0];
-        return JSON.parse(player);
-      }
-      function injectPlayerConfig(content, config) {
-        return ytcenter.utils.replaceContent(JSON.stringify(config), "<script>var ytplayer = ytplayer || {};ytplayer.config = ", ";</script>");
-      }
-      function parseData(d) {
-        if (!d) return false;
-        if (d.swfcfg) {
-          type = 0;
-          playerConfig = d.swfcfg;
-          return true;
-        } else if (d.html && d.html.content && d.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-          type = 1;
-          playerConfig = parsePlayerConfigType1(d.html.content);
-          return true;
-        } else if (d.html && d.html.player && d.html.player && d.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-          type = 2;
-          playerConfig = parsePlayerConfigType2(d.html.player);
-          return true;
-        }
-        return false;
-      }
-      function injectDataPlayerConfig(d, config) {
-        if (type === 0) {
-          d.swfcfg = config;
-        } else if (type === 1) {
-          d.html.content = injectPlayerConfig(d.html.content, config);
-        } else if (type === 2) {
-          d.html.player = injectPlayerConfig(d.html.player, config);
-        }
-      }
-      originalData = originalData || {}; // Making sure that if no argument is passed we will get an empty object.
-      var data = ytcenter.utils.clone(originalData),
-          playerConfig = null, i, type = -1, dataIndex = -1, isArray = ytcenter.utils.isArray(data), hasPlayerConfig = false;
       
-      if (isArray) {
-        for (i = 0; i < data.length; i++) {
-          if (parseData(data[i])) {
-            dataIndex = i;
-            hasPlayerConfig = true;
-            break;
+      function parsePlayerConfig(d) {
+        if (!d) return;
+        if (d.swfcfg) {
+          playerConfig = d.swfcfg;
+        } else if (d.html && d.html.content && d.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+          playerConfig = parsePlayerConfigType(d.html.content);
+        } else if (d.html && d.html.player && d.html.player && d.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+          playerConfig = parsePlayerConfigType(d.html.player);
+        } else if (d.html && d.html.content && d.html.content.indexOf("data-swf-config=\"") !== -1) {
+          var a = d.html.content.split("data-swf-config=\""), i1, i2;
+          if (a && a.length > 1) {
+            a = a[1];
+            if (a.indexOf("\">") !== -1) {
+              a = a.split("\">");
+              if (a && a.length > 1) {
+                a = a[0];
+              } else {
+                a = null;
+              }
+            } else {
+              a = null;
+            }
+          } else {
+            a = null;
+          }
+          if (a !== null) {
+            playerConfig = JSON.parse(ytcenter.utils.decodeRawTag(a).replace(/&amp;/g, "&").replace(/&quot;/g, "\""));
           }
         }
-      } else {
-        if (parseData(data)) hasPlayerConfig = true;
       }
+      
+      function injectPlayerConfig(content, config) {
+        return ytcenter.utils.replaceContent(content, config, "<script>var ytplayer = ytplayer || {};ytplayer.config = ", ";</script>");
+      }
+      
+      function injectDataPlayerConfig(d, config) {
+        if (d.swfcfg) {
+          d.swfcfg = config;
+        } else if (d.html && d.html.content && d.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+          d.html.content = injectPlayerConfig(d.html.content, config);
+        } else if (d.html && d.html.player && d.html.player && d.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
+          d.html.player = injectPlayerConfig(d.html.player, config);
+        } else if (d.html && d.html.content && d.html.content.indexOf("data-swf-config=\"") !== -1) {
+          var i1, i2;
+          i1 = d.html.content.indexOf("data-swf-config=\"")
+              + "data-swf-config=\"".length;
+          i2 = d.html.content.indexOf("data-swf-config=\"")
+              + d.html.content.split("data-swf-config=\"")[1].indexOf("\">") + "data-swf-config=\"".length;
+          d.html.content = d.html.content.substring(0, i1)
+              + ytcenter.utils.encodeRawTag(JSON.stringify(config).replace(/&/g, "&amp;").replace(/"/g, "&quot;"))
+              + d.html.content.substring(i2);
+        } else {
+          con.warn("[SPF] Tried to set the player configuration for a package with no player config!");
+        }
+      }
+      
+      function setHTML(id, value) {
+        if (!data.html) data.html = {};
+        data.html[id] = value;
+      }
+      function getHTML(id) {
+        if (!data.html) return null;
+        return data.html[id];
+      }
+      function setAttribute(id, attr, value) {
+        if (!data.attr)
+          data.attr = {};
+        if (!data.attr[id])
+          data.attr[id] = {};
+        data.attr[id][attr] = value;
+      }
+      function getAttribute(id, attr) {
+        if (!data.attr || !data.attr[id]) return null;
+        return data.attr[id][attr];
+      }
+      function setCSS(value) {
+        data.css = value;
+      }
+      function getCSS() {
+        return data.css;
+      }
+      function setJS(value) {
+        data.js = value;
+      }
+      function getJS() {
+        return data.js;
+      }
+      function getPlayerConfig() {
+        return playerConfig;
+      }
+      function setPlayerConfig(config) {
+        playerConfig = config;
+        injectDataPlayerConfig(data, config);
+      }
+      function hasPlayerConfig() {
+        return !!playerConfig;
+      }
+      function getTitle() {
+        return data.title;
+      }
+      function setTitle(title) {
+        data.title = title;
+      }
+      
+      function getData() {
+        return data;
+      }
+      function getOriginalPackage() {
+        return originalPackage;
+      }
+      
+      var data = ytcenter.utils.clone(originalPackage),
+          playerConfig = null;
+      
+      parse(data);
       
       return {
-        setPlayerConfig: function(config){
-          playerConfig = config;
-          if (isArray) {
-            injectDataPlayerConfig(data[dataIndex], config);
-          } else {
-            injectDataPlayerConfig(data, config);
-          }
-        },
-        getPlayerConfig: function(){
-          return playerConfig;
-        },
-        getOriginalData: function(){
-          return originalData;
-        },
-        hasPlayerConfig: function(){
-          return hasPlayerConfig;
-        },
-        getData: function(){
-          return data;
-        },
-        getTitle: function(){
-          if (isArray) {
-            for (i = 0; i < data.length; i++) {
-              if (data[i].title) {
-                return data[i].title;
-              }
-            }
-          } else {
-            return data.title;
-          }
-        },
-        setTitle: function(title){
-          if (isArray) {
-            for (i = 0; i < data.length; i++) {
-              if (data[i].title) {
-                data[i].title = title;
-                return;
-              }
-            }
-          } else {
-            data.title = title;
-          }
-        }
+        setHTML: setHTML,
+        getHTML: getHTML,
+        setAttribute: setAttribute,
+        getAttribute: getAttribute,
+        setCSS: setCSS,
+        getCSS: getCSS,
+        setJS: setJS,
+        getJS: getJS,
+        getPlayerConfig: getPlayerConfig,
+        setPlayerConfig: setPlayerConfig,
+        hasPlayerConfig: hasPlayerConfig,
+        getData: getData,
+        getOriginalPackage: getOriginalPackage,
+        getTitle: getTitle,
+        setTitle: setTitle
       };
     };
     
@@ -2009,9 +2179,10 @@
               try {
                 var args = arguments;
                 con.log("[SPF] " + event, args);
+                
                 args = callListenerCallbacks(event, "before", args) || args;
-                if (_ytconfig[event]) _ytconfig[event].apply(uw, args);
-                callListenerCallbacks(event, "after", args);
+                if (_ytconfig[event]) args = _ytconfig[event].apply(uw, args) || args;
+                args = callListenerCallbacks(event, "after", args) || args;
               } catch (e) {
                 con.error(e);
               }
@@ -2025,14 +2196,32 @@
           })(configFunctions[events[i]]));
         }
       }
+      function transformArguments(args) {
+        var a = ytcenter.utils.toArray(args);
+        if (a.length > 1) {
+          a[1] = ytcenter.spfPackages(a[1]);
+        }
+        return a;
+      }
+      function transformArgumentsBack(args) {
+        var a = ytcenter.utils.toArray(args);
+        if (a.length > 1 && a[1] && a[1].getPackages) {
+          a[1] = a[1].getPackages();
+        }
+        return a;
+      }
       function callListenerCallbacks(event, mode, args) {
         if (!listeners[event]) return; // No attached listeners to the specific event.
         var i;
         
+        args = transformArguments(args);
+        
         for (i = 0; i < listeners[event].length; i++) {
           if (listeners[event][i].mode !== mode) continue; // Needs to be the exact same mode.
-          listeners[event][i].callback.apply(null, args);
+          args = listeners[event][i].callback.apply(null, args) || args;
         }
+        
+        return transformArgumentsBack(args);
       }
       function isConfigEvent(key) {
         var i;
@@ -4852,13 +5041,16 @@
               try {
                 try {
                   if (spflink) {
-                    cfg = ytcenter.spfData(JSON.parse(r.responseText));
-                    cfg = cfg.getPlayerConfig();
+                    var packages = ytcenter.spfPackages(JSON.parse(r.responseText)),
+                        player = packages.getData("player");
+                    cfg = player.getPlayerConfig();
+                    con.log(cfg);
                   } else {
                     cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
                     cfg = JSON.parse(cfg);
                   }
                 } catch (e) {
+                  con.error(e);
                   if (r.responseText.indexOf("flashvars=\"") !== -1) {
                     var a = r.responseText.split("flashvars=\"")[1].split("\"")[0].replace(/&amp;/g, "&").replace(/&quot;/g, "\"").split("&"),
                         i, b;
@@ -10076,10 +10268,10 @@
       return t;
     };
     
-    ytcenter.utils.replaceContent = function(content, start, end) {
+    ytcenter.utils.replaceContent = function(content, data, start, end) {
       var a = content.indexOf(start)
           b = content.indexOf(end);
-      return content.substring(0, a + start.length) + JSON.stringify(swfcfg) + content.substring(b);
+      return content.substring(0, a + start.length) + JSON.stringify(data) + content.substring(b);
     }
     
     /* Code taken from https://code.google.com/p/doctype-mirror/wiki/ArticleNodeContains */
@@ -11355,7 +11547,16 @@
       return false;
     };
     ytcenter.utils.clone = function(obj){
-      if (null == obj || "object" != typeof obj) return obj;
+      if (obj === null || typeof obj !== "object") return obj;
+
+      // Handle Array
+      if (ytcenter.utils.isArray(obj)) {
+        var copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+          copy.push(ytcenter.utils.clone(obj[i]));
+        }
+        return copy;
+      }
 
       // Handle Date
       if (obj instanceof Date) {
@@ -11364,26 +11565,20 @@
         return copy;
       }
 
-      // Handle Array
-      if (obj instanceof Array) {
-        var copy = [];
-        for (var i = 0, len = obj.length; i < len; i++) {
-          copy[i] = ytcenter.utils.clone(obj[i]);
-        }
-        return copy;
-      }
-
       // Handle Object
       if (obj instanceof Object) {
         var copy = {};
         for (var attr in obj) {
-          if (obj.hasOwnProperty(attr)) copy[attr] = ytcenter.utils.clone(obj[attr]);
+          if (obj.hasOwnProperty(attr))
+            copy[attr] = ytcenter.utils.clone(obj[attr]);
         }
         return copy;
       }
+      
       if (obj.toString)
         return obj.toString();
-      return;
+      
+      return null;
     };
     ytcenter.getMutationObserver = function(){
       var a;
@@ -20999,24 +21194,26 @@
           ytcenter.actionPanel.setup();
         }
       });
+      
       ytcenter.spf.addEventListener("requested", "before", function(url){
+        ytcenter.spf.unsafeProcessedRun = false;
         if (!ytcenter.settings.ytspf) {
           loc.href = url;
           throw new Error("SPF is disabled!");
         }
       });
       ytcenter.spf.addEventListener("received", "after", function(url, data){
-        var d = ytcenter.spfData(data);
-        
-        ytcenter.title.originalTitle = d.getTitle() || ytcenter.title.originalTitle;
+        ytcenter.title.originalTitle = data.getTitle() || ytcenter.title.originalTitle;
         ytcenter.title.update();
       });
       ytcenter.spf.addEventListener("part-processed", "before", function(url, data){
-        var d = ytcenter.spfData(data);
-        if (d.hasPlayerConfig()) {
+        var d = null;
+        if (data.hasType("player"))
+          d = data.getData("player");
+        
+        if (d && d.hasPlayerConfig()) {
           d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url), d.getPlayerConfig()));
           ytcenter.player.config = d.getPlayerConfig();
-          data = d.getData();
         }
         return [url, data]
       });
@@ -21024,156 +21221,86 @@
         ytcenter.unsafe.spf.url = url;
         ytcenter.unsafe.spf.data = data;
         
-        // Player Part
-        var d = ytcenter.spfData(data);
-        
-        ytcenter.title.originalTitle = d.getTitle() || ytcenter.title.originalTitle;
+        ytcenter.title.originalTitle = data.getTitle() || ytcenter.title.originalTitle;
         ytcenter.title.update();
         
-        if (d.hasPlayerConfig()) {
+        var d = null;
+        if (data.hasType("player"))
+          d = data.getData("player");
+          
+        if (d && d.hasPlayerConfig()) {
           d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url), d.getPlayerConfig()));
           ytcenter.player.config = d.getPlayerConfig();
-          data = d.getData();
         }
         
-        if (ytcenter.settings.experimentalFeatureTopGuide && data.attr) {
-          if (data.attr && data.attr.player && url.indexOf("youtube.com/watch?") !== -1) {
-            if (!data.attr.content)
-              data.attr.content = {};
-            if (!data.attr.content["class"])
-              data.attr.content["class"] = "  ";
-            data.attr.content["class"] += "  yt-card  ";
+        if (data.hasType("page")) {
+          d = data.getData("page");
+          
+          if (ytcenter.settings.experimentalFeatureTopGuide && url.indexOf("youtube.com/watch?") !== -1) {
+            var cc = d.getAttribute("content", "class");
+            if (!cc) cc = "";
+            d.setAttribute("content", "class", cc + " yt-card");
           }
-        }
-        if (data.attr && data.attr.body && data.attr.body["class"]) {
-          data.attr.body["class"] = ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + data.attr.body["class"];
-        }
-        
-        if (data.js) {
-          data.js += "<script>ytcenter.spf.processed();</script>";
+          
+          var bodyClasses = d.getAttribute("body", "class");
+          if (!bodyClasses) bodyClasses = "";
+          
+          d.setAttribute("body", "class", ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + bodyClasses);
+          
+          var js = d.getJS();
+          if (!js) js = "";
+          d.setJS(js + "<script>ytcenter.spf.processed();</script>");
         }
         
         return [url, data];
       });
       
       ytcenter.spf.addEventListener("received", "before", function(url, data){
-        if (ytcenter.utils.isArray(data)) return; // It is already handled by the part-received
-        
         ytcenter.unsafe.spf.url = url;
         ytcenter.unsafe.spf.data = data;
+        var d = null;
         
-        // Player Part
-        if (data.swfcfg && data.swfcfg.args) {
-          data.swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), data.swfcfg);
-          ytcenter.player.config = data.swfcfg;
-        }
-        
-        if (ytcenter.settings.experimentalFeatureTopGuide && data.attr) {
-          if (data.attr && data.attr.player && url.indexOf("youtube.com/watch?") !== -1) {
-            if (!data.attr.content)
-              data.attr.content = {};
-            if (!data.attr.content["class"])
-              data.attr.content["class"] = "  ";
-            data.attr.content["class"] += "  yt-card  ";
-          }
+        if (data.hasType("player"))
+          d = data.getData("player");
+        if (d && d.hasPlayerConfig()) {
+          d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url), d.getPlayerConfig()));
+          ytcenter.player.config = d.getPlayerConfig();
         }
         
-        if (data.html && data.html.content && data.html.content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-          var a, i1, i2, content, tmp, tmp2, swfcfg;
-          try {
-            a = data.html.content.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1];
-            a = a.split(";</script>")[0];
-            swfcfg = JSON.parse(a);
-            swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
-            ytcenter.player.config = swfcfg;
-            content = data.html.content;
-            i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
-            i2 = content.indexOf(";</script>");
-            data.html.content = content.substring(0, i1 + "<script>var ytplayer = ytplayer || {};ytplayer.config = ".length) + JSON.stringify(swfcfg) + content.substring(i2);
-          } catch (e) {
-            con.error(e);
+        if (data.hasType("page")) {
+          d = data.getData("page");
+          
+          if (ytcenter.settings.experimentalFeatureTopGuide && url.indexOf("youtube.com/watch?") !== -1) {
+            var cc = d.getAttribute("content", "class");
+            if (!cc) cc = "";
+            d.setAttribute("content", "class", cc + " yt-card");
           }
-        }
-        if (data.html && data.html.player && data.html.player.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1) {
-          var a, i1, i2, content, tmp, tmp2, swfcfg;
-          try {
-            a = data.html.player.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
-            if (a && a[1]) {
-              a = a[1];
-              a = a.split(";</script>")[0];
-              swfcfg = JSON.parse(a);
-              swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(), swfcfg);
-              ytcenter.player.config = swfcfg;
-              content = data.html.player;
-              i1 = content.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
-              i2 = content.indexOf(";</script>");
-              data.html.player = content.substring(0, i1 + "<script>var ytplayer = ytplayer || {};ytplayer.config = ".length) + JSON.stringify(swfcfg) + content.substring(i2);
-            }
-          } catch (e) {
-            con.error(e);
-          }
-        }
-        if (data.html && data.html.player && data.html.player.indexOf("var swf = \"") !== -1) {
-          var a = data.html.player.split("type=\\\"application\\\/x-shockwave-flash\\\""),
-              wmode = "";
-          if (ytcenter.getPage(url) === "watch") {
-            if (ytcenter.settings.flashWMode !== "none") {
-             wmode = ytcenter.settings.flashWMode;
-            }
-          } else if (ytcenter.getPage(url) === "embed") {
-            if (ytcenter.settings.embed_flashWMode !== "none") {
-              wmode = ytcenter.settings.embed_flashWMode;
-            }
-          } else if (ytcenter.getPage(url) === "channel") {
-            if (ytcenter.settings.channel_flashWMode !== "none") {
-              wmode = ytcenter.settings.channel_flashWMode;
-            }
-          }
-          a[0] += (wmode !== "" ? " wmode=\\\"" + wmode + "\\\" " : "");
-          data.html.player = a.join("type=\\\"application\\\/x-shockwave-flash\\\"");
-        }
-        if (data.html && data.html.content && data.html.content.indexOf("data-swf-config=\"") !== -1) {
-          var a = data.html.content.split("data-swf-config=\""),
-              swfcfg, i1, i2;
-          if (a && a.length > 1) {
-            a = a[1];
-            if (a.indexOf("\">") !== -1) {
-              a = a.split("\">");
-              if (a && a.length > 1) {
-                a = a[0];
-              } else {
-                a = null;
-              }
-            } else {
-              a = null;
-            }
-          } else {
-            a = null;
-          }
-          if (a !== null) {
-            swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(url), JSON.parse(ytcenter.utils.decodeRawTag(a).replace(/&amp;/g, "&").replace(/&quot;/g, "\"")));
-            ytcenter.player.config = swfcfg;
-            i1 = data.html.content.indexOf("data-swf-config=\"") + "data-swf-config=\"".length;
-            i2 = data.html.content.indexOf("data-swf-config=\"") + data.html.content.split("data-swf-config=\"")[1].indexOf("\">") + "data-swf-config=\"".length;
-            data.html.content = data.html.content.substring(0, i1) + ytcenter.utils.encodeRawTag(JSON.stringify(swfcfg).replace(/&/g, "&amp;").replace(/"/g, "&quot;")) + data.html.content.substring(i2);
-          }
-        }
-        if (data.js) {
-          data.js += "<script>ytcenter.spf.processed();</script>";
-        }
-        
-        if (data.attr && data.attr.body && data.attr.body["class"]) {
-          data.attr.body["class"] = ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + data.attr.body["class"];
+          
+          var bodyClasses = d.getAttribute("body", "class");
+          if (!bodyClasses) bodyClasses = "";
+          
+          d.setAttribute("body", "class", ytcenter.classManagement.getClassesForElementByTagName("body", url) + " " + bodyClasses);
+          
+          var js = d.getJS();
+          if (!js) js = "";
+          d.setJS(js + "<script>ytcenter.spf.processed();</script>");
         }
         
         return [url, data];
       });
       
       ytcenter.unsafe.spf.processed = function(url, data){
-        var d = ytcenter.spfData(data),
+        if (ytcenter.spf.unsafeProcessedRun) return;
+        ytcenter.spf.unsafeProcessedRun = true;
+        var d = null,
             config, a, i;
         url = ytcenter.utils.getURL(url || ytcenter.unsafe.spf.url || loc.href) || loc;
-        if (d.hasPlayerConfig()) {
+        
+        
+        if (data.hasType("player"))
+          d = data.getData("player");
+        
+        if (d && d.hasPlayerConfig()) {
           config = d.getPlayerConfig();
           ytcenter.player.config = config;
         } else {
@@ -21279,15 +21406,19 @@
           }
         }
         
-        return [data];
+        return [url, data];
       };
       ytcenter.spf.addEventListener("processed", "before", function(url, data){
-        var d = ytcenter.spfData(data), config;
+        var d = null, config;
         url = ytcenter.utils.getURL(url || ytcenter.unsafe.spf.url || loc.href) || loc;
-        if (d.hasPlayerConfig()) {
+        
+        if (data.hasType("player"))
+          d = data.getData("player");
+        
+        if (d && d.hasPlayerConfig()) {
           d.setPlayerConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url.href), d.getPlayerConfig()));
         }
-        return [url, d.getData()];
+        return [url, data];
       });
       ytcenter.spf.addEventListener("processed", "after", ytcenter.unsafe.spf.processed);
       
@@ -21332,7 +21463,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 155);
+          main_function(false, 0, true, 156);
         /*} catch (e) {
         }*/
       }
@@ -21352,7 +21483,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 155);
+      main_function(false, 0, true, 156);
     //} catch (e) {
       //console.error(e);
     //}
