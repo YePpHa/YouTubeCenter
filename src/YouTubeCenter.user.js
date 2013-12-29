@@ -15541,7 +15541,7 @@
             "colorpicker", // module
             "SETTINGS_SPARKBAR_LIKES_COLOR",
             {
-              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
             }
           );
           option.addEventListener("update", function(){
@@ -15558,7 +15558,7 @@
             "colorpicker", // module
             "SETTINGS_SPARKBAR_DISLIKES_COLOR",
             {
-              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
             }
           );
           option.addEventListener("update", function(){
@@ -16112,7 +16112,7 @@
             "colorpicker", // module
             "SETTINGS_THUMBNAIL_SPARKBAR_LIKES_COLOR",
             {
-              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
             }
           );
           option.setStyle("margin-left", "12px");
@@ -16123,7 +16123,7 @@
             "colorpicker", // module
             "SETTINGS_THUMBNAIL_SPARKBAR_DISLIKES_COLOR",
             {
-              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
             }
           );
           option.setStyle("margin-left", "12px");
@@ -19196,7 +19196,7 @@
             }
           } else {
             wp.style.marginLeft = "";
-            if (align) {
+            if (align || ytcenter.settings['experimentalFeatureTopGuide']) {
               wp.style.margin = "";
             } else {
               wp.style.margin = "0 auto";
@@ -19265,7 +19265,7 @@
               }
             } else {
               p.style.marginLeft = "";
-              if (align) {
+              if (align || ytcenter.settings['experimentalFeatureTopGuide']) {
                 p.style.margin = "";
               } else {
                 p.style.margin = "0 auto";
