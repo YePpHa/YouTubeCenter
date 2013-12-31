@@ -145,12 +145,12 @@ body.ytcenter-channelv2 #page.channel > #guide + #content {
   .rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container {
     padding-right: 58px!important;
   }
-  .ltr.ytcenter-site-notcenter.ytcenter-guide-visible.guide-collapsed #player,
-  .ltr.ytcenter-site-notcenter.ytcenter-guide-visible.guide-collapsed #player-legacy  {
+  .ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,
+  .ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy  {
     padding-left: 0px !important;
   }
-  .rtl.ytcenter-site-notcenter.ytcenter-guide-visible.guide-collapsed #player,
-  .rtl.ytcenter-site-notcenter.ytcenter-guide-visible.guide-collapsed #player-legacy  {
+  .rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,
+  .rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy  {
     padding-right: 0px !important;
   }
 }
