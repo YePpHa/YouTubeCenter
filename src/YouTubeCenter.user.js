@@ -12107,6 +12107,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      YouTubeExperiments: [],
       headlineTitleExpanded: false,
       videoThumbnailQualitySeparated: true,
       embedWriteEmbedMethodReloadDelay: 1000,
