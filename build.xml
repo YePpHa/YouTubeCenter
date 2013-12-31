@@ -183,7 +183,7 @@
       <arg value="-o"/>
       <arg value="${dist}/firefox-update.rdf"/>
       <arg value="${dist}/YouTubeCenter.xpi"/>
-      <arg value="https://github.com/aggroskater/YouTubeCenter/raw/master/dist/YouTubeCenter.xpi"/>
+      <arg value="https://rawgithub.com/aggroskater/YouTubeCenter/master/dist/YouTubeCenter.xpi"/>
     </exec>
     <antcall target="clean" />
   </target>
