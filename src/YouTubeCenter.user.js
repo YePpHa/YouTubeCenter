@@ -3917,22 +3917,30 @@
         if (commentInfo.country) commentInfo.country = commentInfo.country.data;
         else commentInfo.country = null;
         
+        commentInfo.flagAdded = false;
+        
         return commentInfo;
       };
       __r.comments = [];
-      __r.commentLoaded = function(contentElement){
+      __r.commentLoaded = function(commentObject){
         var i;
         for (i = 0; i < __r.comments.length; i++) {
-          if (__r.comments[i].contentElement === contentElement)
+          if (__r.comments[i].contentElement === commentObject.contentElement ||
+              __r.comments[i].wrapper === commentObject.wrapper)
             return true;
         }
         return false;
       };
+      __r.addCommentObject = function(commentObject){
+        if (ytcenter.utils.hasClass(commentObject.contentElement, "ytcenter-comments-loaded")) return;
+        if (__r.commentLoaded(commentObject)) return;
+        
+        __r.comments.push(commentObject);
+      };
       __r.loadComments = function(){
         var a = document.getElementsByClassName("Ct"), i;
         for (i = 0; i < a.length; i++) {
-          if (ytcenter.utils.hasClass(a[i], "ytcenter-comments-loaded") || __r.commentLoaded(a[i])) continue;
-          __r.comments.push(__r.getCommentObject(a[i]));
+          __r.addCommentObject(__r.getCommentObject(a[i]));
         }
       };
       __r.filter = function(){
@@ -14628,68 +14636,72 @@
           );
           subcat.addOption(option);
           
-          // embedWriteEmbedMethod
-          option = ytcenter.settingsPanel.createOption(
-            "embedWriteEmbedMethod",
-            "list",
-            "SETTINGS_EMBEDS_WRITEMETHOD",
-            {
-              "list": [
-                {
-                  "value": "standard",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_STANDARD"
-                }, {
-                  "value": "test1",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST1"
-                }, {
-                  "value": "test2",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST2"
-                }, {
-                  "value": "test3",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST3"
-                }, {
-                  "value": "standard+reload",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_STANDARDRELOAD"
-                }, {
-                  "value": "test1+reload",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST1RELOAD"
-                }, {
-                  "value": "test2+reload",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST2RELOAD"
-                }, {
-                  "value": "test3+reload",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST3RELOAD"
-                }, {
-                  "value": "test4",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST4"
-                }, {
-                  "value": "test5",
-                  "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST5"
-                }
-              ]
-            }
-          );
-          subcat.addOption(option);
-          option = ytcenter.settingsPanel.createOption(
-            "embedWriteEmbedMethodReloadDelay",
-            "rangetext",
-            "SETTINGS_EMBEDS_WRITEMETHOD_RELOADDELAY",
-            {
-              "min": 0,
-              "max": 10000,
-              "suffix": " ms"
-            }
-          );
-          ytcenter.events.addEvent("settings-update", (function(opt){
-            return function(){ opt.setVisibility(ytcenter.settings.embedWriteEmbedMethod.indexOf("+reload") !== -1); };
-          })(option));
-          subcat.addOption(option);
-          
-          option = ytcenter.settingsPanel.createOption(
-            null,
-            "line"
-          );
-          subcat.addOption(option);
+          // Only needed in the developer version for testing.
+          if (devbuild) {
+            option = ytcenter.settingsPanel.createOption(
+              "embedWriteEmbedMethod",
+              "list",
+              "SETTINGS_EMBEDS_WRITEMETHOD",
+              {
+                "list": [
+                  {
+                    "value": "standard",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_STANDARD"
+                  }, {
+                    "value": "test1",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST1"
+                  }, {
+                    "value": "test2",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST2"
+                  }, {
+                    "value": "test3",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST3"
+                  }, {
+                    "value": "standard+reload",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_STANDARDRELOAD"
+                  }, {
+                    "value": "test1+reload",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST1RELOAD"
+                  }, {
+                    "value": "test2+reload",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST2RELOAD"
+                  }, {
+                    "value": "test3+reload",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST3RELOAD"
+                  }, {
+                    "value": "test4",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST4"
+                  }, {
+                    "value": "test5",
+                    "label": "SETTINGS_EMBEDS_WRITEMETHOD_TEST5"
+                  }
+                ]
+              }
+            );
+            subcat.addOption(option);
+            
+            option = ytcenter.settingsPanel.createOption(
+              "embedWriteEmbedMethodReloadDelay",
+              "rangetext",
+              "SETTINGS_EMBEDS_WRITEMETHOD_RELOADDELAY",
+              {
+                "min": 0,
+                "max": 10000,
+                "suffix": " ms"
+              }
+            );
+            ytcenter.events.addEvent("settings-update", (function(opt){
+              return function(){ opt.setVisibility(ytcenter.settings.embedWriteEmbedMethod.indexOf("+reload") !== -1); };
+            })(option));
+            option.setVisibility(ytcenter.settings.embedWriteEmbedMethod.indexOf("+reload") !== -1);
+            subcat.addOption(option);
+            
+            option = ytcenter.settingsPanel.createOption(
+              null,
+              "line"
+            );
+            subcat.addOption(option);
+          }
           
           option = ytcenter.settingsPanel.createOption(
             "embed_dashPlayback",

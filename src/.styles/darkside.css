@@ -13,6 +13,20 @@
   }
 }
 
+@media screen and (max-width:1381px) {
+  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist,
+  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-unavailable,
+  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-api,
+  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist-tray,
+  .ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,
+  .ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,
+  .ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,
+  .ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
 .ytcenter-site-center.ytcenter-player-darkside-bg  #page {
   width: auto !important;
 }
