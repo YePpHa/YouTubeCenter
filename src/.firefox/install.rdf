@@ -30,6 +30,9 @@
     <em:name>@name@</em:name>
     <em:description>YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.</em:description>
     <em:creator>Jeppe Rune Mortensen</em:creator>
+
+    <!-- Auto Update -->
+    <em:updateURL>https://github.com/aggroskater/YouTubeCenter/raw/master/dist/update.rdf</em:updateURL>
     
     <!-- Translators -->
     <em:translator>alihill381</em:translator>
