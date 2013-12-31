@@ -32,7 +32,7 @@
     <em:creator>Jeppe Rune Mortensen</em:creator>
 
     <!-- Auto Update -->
-    <em:updateURL>https://raw.github.com/aggroskater/YouTubeCenter/master/dist/firefox-update.rdf</em:updateURL>
+    <em:updateURL>https://raw.github.com/YePpHa/YouTubeCenter/master/dist/firefox-update.rdf</em:updateURL>
     
     <!-- Translators -->
     <em:translator>alihill381</em:translator>
