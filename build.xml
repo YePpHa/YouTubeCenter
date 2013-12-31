@@ -177,9 +177,16 @@
   </target>
   
   <target name="firefox" depends="preinit, copy-firefox">
-		<zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
+    <zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
+    <property name="uhura-full-path" location="./uhura"/>
+    <exec executable="${uhura-full-path}">
+      <arg value="-o"/>
+      <arg value="${dist}/firefox-update.rdf"/>
+      <arg value="${dist}/YouTubeCenter.xpi"/>
+      <arg value="https://raw.github.com/YePpHa/YouTubeCenter/master/dist/YouTubeCenter.xpi"/>
+    </exec>
     <antcall target="clean" />
-	</target>
+  </target>
   
   <target name="firefox-legacy" depends="preinit, copy-firefox-legacy">
     <exec executable="cmd">
