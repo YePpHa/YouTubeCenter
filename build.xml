@@ -35,6 +35,10 @@
   <property name="src.opera" value="${src}/.opera" />
   <property name="src.firefox" value="${src}/.firefox" />
   <property name="src.meta" value="${src}/.meta" />
+  <property name="src.firefox-update" value="${src}/.firefox-update" />
+  
+  <property name="firefox-update.update" value="${src.firefox-update}/firefox-update.rdf" />
+  <property name="firefox-update.install-part" value="${src.firefox-update}/firefox-install-part.rdf" />
   
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
@@ -42,6 +46,7 @@
   <property name="sdk.maxthon" value="${basedir}/SDK/maxthon.exe" />
   <property name="sdk.yuicompressor" value="${basedir}/SDK/yuicompressor-2.4.7.jar" />
   <property name="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe" />
+  <property name="sdk.uhura-full-path" value="${basedir}/SDK/uhura" />
   
   <property name="indentifier.userscript" value="0" />
   <property name="indentifier.chrome" value="1" />
@@ -178,13 +183,20 @@
   
   <target name="firefox" depends="preinit, copy-firefox">
     <zip destfile="${dist}/${name}.xpi" basedir="${buildDir}" />
-    <property name="uhura-full-path" location="./uhura"/>
-    <exec executable="${uhura-full-path}">
-      <arg value="-o"/>
-      <arg value="${dist}/firefox-update.rdf"/>
-      <arg value="${dist}/YouTubeCenter.xpi"/>
-      <arg value="https://raw.github.com/YePpHa/YouTubeCenter/master/dist/YouTubeCenter.xpi"/>
-    </exec>
+    <antcall target="clean" />
+    
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <antcall target="firefox-update" />
+      </then>
+    </if>
+  </target>
+  <target name="firefox-update" depends="preinit, copy-firefox-update">
+    <move todir="${dist}/">
+      <fileset dir="${buildDir}/" />
+    </move>
     <antcall target="clean" />
   </target>
   
@@ -282,6 +294,11 @@
     <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
   </target>
   
+  <target name="copy-firefox-update">
+    <copy file="${firefox-update.update}" todir="${buildDir}" />
+    <antcall target="tokenreplace" />
+  </target>
+  
   <target name="copy-firefox-legacy">
     <antcall target="copy" />
     <move todir="${buildDir}/data">
@@ -325,6 +342,8 @@
   
   <target name="tokenreplace" depends="buildnumber">
     <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
+    <loadfile property="firefox-update.install-part.content" srcfile="${firefox-update.install-part}" encoding="${encoding}" />
+    
     <replace dir="${buildDir}" value="${language.db.content}" token="@ant-database-language@" encoding="${encoding}" />
     <loadproperties srcFile="${build.prop}"/>
     <if>
@@ -335,12 +354,14 @@
         <replace dir="${buildDir}" value="${@name-dev@}" token="@name@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@dev-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@dev-updateURL@}" token="@updateURL@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${firefox-update.install-part.content}" token="@firefox-update-install-part@" encoding="${encoding}" />
       </then>
       <else>
         <replace dir="${buildDir}" value="${@ant-version@}" token="@version@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@name-stable@}" token="@name@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@stable-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@stable-updateURL@}" token="@updateURL@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="" token="@firefox-update-install-part@" encoding="${encoding}" />
       </else>
     </if>
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />

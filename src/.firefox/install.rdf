@@ -12,17 +12,18 @@
     <!-- Firefox -->
     <em:targetApplication>
       <Description>
-        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>19.0</em:minVersion>
-        <em:maxVersion>26.*</em:maxVersion>
+        <em:id>@firefox-target-id@</em:id>
+        <em:minVersion>@firefox-target-min-version@</em:minVersion>
+        <em:maxVersion>@firefox-target-max-version@</em:maxVersion>
       </Description>
     </em:targetApplication>
+    
     <!-- Firefox Mobile -->
     <em:targetApplication>
       <Description>
-        <em:id>{aa3c5121-dab2-40e2-81ca-7ea25febc110}</em:id>
-        <em:minVersion>19.0</em:minVersion>
-        <em:maxVersion>20.*</em:maxVersion>
+        <em:id>@firefox-target-mobile-id@</em:id>
+        <em:minVersion>@firefox-target-mobile-min-version@</em:minVersion>
+        <em:maxVersion>@firefox-target-mobile-max-version@</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -30,10 +31,7 @@
     <em:name>@name@</em:name>
     <em:description>YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.</em:description>
     <em:creator>Jeppe Rune Mortensen</em:creator>
-
-    <!-- Auto Update -->
-    <em:updateURL>https://raw.github.com/YePpHa/YouTubeCenter/master/dist/firefox-update.rdf</em:updateURL>
-    
+    @firefox-update-install-part@
     <!-- Translators -->
     <em:translator>alihill381</em:translator>
     <em:translator>Joan Alemany</em:translator>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <rdf:Description rdf:about="urn:mozilla:extension:jid1-cwbvBTE216jjpg@jetpack">
+    <em:updates>
+      <rdf:Seq>
+        <rdf:li>
+          <rdf:Description>
+            <em:version>@version@</em:version>
+            <em:targetApplication>
+              <rdf:Description>
+                <em:id>@firefox-target-id@</em:id>
+                <em:minVersion>@firefox-target-min-version@</em:minVersion>
+                <em:maxVersion>@firefox-target-max-version@</em:maxVersion>
+                <em:updateLink>@firefox-update-link@</em:updateLink>
+              </rdf:Description>
+            </em:targetApplication>
+            <em:targetApplication>
+                <rdf:Description>
+                  <em:id>@firefox-target-mobile-id@</em:id>
+                  <em:minVersion>@firefox-target-mobile-min-version@</em:minVersion>
+                  <em:maxVersion>@firefox-target-mobile-max-version@</em:maxVersion>
+                  <em:updateLink>@firefox-update-link@</em:updateLink>
+                </rdf:Description>
+            </em:targetApplication>
+          </rdf:Description>
+        </rdf:li>
+      </rdf:Seq>
+    </em:updates>
+  </rdf:Description>
+</rdf:RDF>
