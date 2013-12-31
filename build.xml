@@ -181,11 +181,10 @@
     <property name="uhura-full-path" location="./uhura"/>
     <exec executable="${uhura-full-path}">
       <arg value="-o"/>
-      <arg value="update.rdf"/>
+      <arg value="${dist}/firefox-update.rdf"/>
       <arg value="${dist}/YouTubeCenter.xpi"/>
       <arg value="https://github.com/aggroskater/YouTubeCenter/raw/master/dist/YouTubeCenter.xpi"/>
     </exec>
-    <move file="update.rdf" todir="${dist}"/> 
     <antcall target="clean" />
   </target>
   
