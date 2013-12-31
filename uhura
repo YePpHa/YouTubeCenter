@@ -1,0 +1,755 @@
+#!/usr/bin/perl
+#*******************************************************************************
+#   Mozilla Extension Update Manifest Generator and Signer, version 1.3
+#   Copyright (C) 2008, 2009, 2011 Sergei Zhirikov (sfzhi@yahoo.com)
+#   This software is available under the GNU General Public License v3.0
+#       (http://www.gnu.org/licenses/gpl-3.0.txt)
+#*******************************************************************************
+use strict;
+use warnings;
+use Pod::Usage;
+use Getopt::Std;
+use XML::Parser;
+use MIME::Base64;
+use Convert::ASN1;
+use RDF::Core::Parser;
+use File::Spec::Functions qw(catfile tmpdir curdir);
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+use sort 'stable';
+#*******************************************************************************
+use constant NSMOZ => 'http://www.mozilla.org/2004/em-rdf#';
+use constant NSRDF => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+use constant ExtensionSubject => qr/^urn:mozilla:extension:([^:]+)$/o;
+use constant sha512WithRSAEncryption => ':1.2.840.113549.1.1.13';
+#*******************************************************************************
+@ARGV or pod2usage(-exitval => 1, -verbose => 99, -sections => 'NAME|SYNOPSIS');
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+sub VERSION_MESSAGE {
+    pod2usage(-exitval => 'NOEXIT', -verbose => 99, -sections => 'NAME');
+}
+sub HELP_MESSAGE {
+    pod2usage(-exitval => 'NOEXIT', -verbose => 1);
+}
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+our %opt;
+getopts('i:o:k:p:ehvum', \%opt) or die "Use '--help' for available options\n";
+our ($rdf, $out, $pem, $pwd) = @opt{qw[i o k p]};
+our $arg = 2 - defined($rdf) + defined($opt{u}) + defined($opt{m});
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ARGV % $arg == 0 or die "The number of arguments must be multiple of $arg\n";
+our (@xpi, %xpi);
+while (@ARGV > 0) {
+    my ($xpi, $url, @arg) = splice(@ARGV, 0, $arg);
+    my ($max, $inf) = (defined($opt{m})? pop(@arg): undef, $arg[0]);
+    push(@xpi, {xpi => $xpi, url => $url, $inf? (inf => $inf): (),
+        $max? (max => $max): ()});
+    $xpi{$xpi} = $#xpi;
+}
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+defined($rdf) || @xpi or die "At least one input RDF or XPI file required\n";
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# http://www.openssl.org/docs/apps/openssl.html#PASS_PHRASE_ARGUMENTS
+(!$pwd || (($pwd eq '-')? ($pwd = 'stdin'): ($pwd =~ s{^([=\@\$\&])}
+    {{'=' => 'pass:', '@' => 'file:', '$' => 'env:', '&' => 'fd:'}->{$1}}e)))
+    or die "Invalid private key password parameter: '$pwd'\n";
+#*******************************************************************************
+our $tmp = catfile(tmpdir() || curdir(), "update.rdf.mxtools.$$.tmp");
+#*******************************************************************************
+sub rdf($) {
+    my $tree = {};
+    (new RDF::Core::Parser(BaseURI => '.', Assert => sub {
+        my %item = @_;
+        push(@{$tree->
+            {$item{subject_uri}}{$item{predicate_ns}}{$item{predicate_name}}},
+            {uri => $item{object_uri}, lit => $item{object_literal}});
+    }))->parse($_[0]);
+    return $tree;
+}
+#*******************************************************************************
+for my $xpi (@xpi) {
+    my $txt = qx[unzip -jnpq "$xpi->{xpi}" install.rdf];
+    $? == 0 or die "Could not extract install manifest from '$xpi->{xpi}'\n";
+    my %max = ();
+    if ($xpi->{max}) {
+        open(MAX, '<', $xpi->{max})
+            or die "Failed to open maxVersion file '$xpi->{max}': $!\n";
+        #binmode(MAX, ':utf8');
+        while (<MAX>) {
+            chomp;
+            if (/^\s*(\S+)\s+(\S+)\s*$/) {
+                $max{$1} = $2;
+            } elsif (!/^\s*$/) {
+                warn("Skipping unrecognized line in maxVersion file: '$_'\n");
+            }
+        }
+        close(MAX);
+    }
+    my $rdf = rdf($txt);
+    my $all = $rdf->{'urn:mozilla:install-manifest'}{NSMOZ()};
+    my ($ext, $ver) = map {
+        (defined($_) && (@{$_} == 1))? $_->[0]{lit}: undef;
+    } @$all{'id', 'version'};
+    my @app = sort {$a->{app} cmp $b->{app}} map {
+        my $uri = $_->{uri};
+        (defined($uri) && exists($rdf->{$uri}))? do {
+            my ($app, $min, $max) = map {
+                (defined($_) && (@{$_} == 1))? $_->[0]{lit}: undef;
+            } @{$rdf->{$uri}{NSMOZ()}}{'id', 'minVersion', 'maxVersion'};
+            $max = $max{$app} if (exists($max{$app}));
+            {app => $app, min => $min, max => $max};
+        }: ();
+    } @{$all->{targetApplication}};
+    $xpi->{ext} = $ext;
+    $xpi->{ver} = $ver;
+    $xpi->{app} = \@app;
+}
+#*******************************************************************************
+if (@xpi && (defined($pem) || $opt{h})) {
+    open(SHA, '-|', 'openssl sha1 -hex '.join(' ', map {qq["$_->{xpi}"]} @xpi))
+        or die "Failed to run OpenSSL to calculate SHA1 hashes: $!\n";
+    while(<SHA>) {
+        if (/^SHA1\((.*?)\)=\s*([[:xdigit:]]{40})\s*$/) {
+            $xpi[$xpi{$1}]->{sha} = "sha1:$2" if (exists($xpi{$1}));
+        }
+    }
+    close(SHA);
+    $? == 0 or die "OpenSSL failed to calculate SHA1 hashes\n";
+}
+#*******************************************************************************
+sub xml($;$) {
+    my $str = XML::Parser::Expat->xml_escape($_[0]);
+    if (!$_[1] && $opt{e}) {
+        $str =~ s/([^\t\r\n -~])/sprintf('&#x%04X;', ord($1))/ge;
+    }
+    return $str;
+}
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+sub ser(*$$$$);
+sub ser(*$$$$) {
+    my ($file, $tree, $offs, $incr, $mode) = @_;
+    my ($name, $data, $attr) = @$tree;
+    my $sort = $mode && $name =~ s/^rdf:/RDF:/;
+    if (ref($data)) {
+        $attr = $attr? ' '.($mode? '': 'rdf:').qq[about="$attr"]: '';
+        print $file "$offs<$name$attr>\n";
+        for my $item ($sort? sort({$a->[0] cmp $b->[0]} @$data): @$data) {
+            ser($file, $item, $offs.$incr, $incr, $mode);
+        }
+        print $file "$offs</$name>\n";
+    } elsif ($name ne 'em:signature') {
+        print $file "$offs<$name>".xml($data, $mode)."</$name>\n";
+    } elsif (!$mode) {
+        print $file "$offs<$name>\n";
+        print $file "$offs$incr", substr($data, 0, 64, ''), "\n" while ($data);
+        print $file "$offs</$name>\n";
+    }
+}
+#*******************************************************************************
+use constant SIG_BUFFER => 32768; # SIG_BUFFER > max(length($signature))
+sub sig($) {
+    open(RDF, '>', $tmp) or die "Failed to create a temporary file: $!\n";
+    binmode(RDF, ':raw:utf8');
+    ser(*RDF, $_[0], '', '  ', 1);
+    close(RDF);
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    open(SIG, '-|', qq[openssl dgst -sha512 -sign "$pem"].
+        ($pwd? qq[ -passin "$pwd"]: '').qq[ -binary "$tmp"])
+        or die "Failed to run OpenSSL to generate the signature: $!\n";
+    binmode(SIG);
+    my $body;
+    my $size = read(SIG, $body, SIG_BUFFER);
+    close(SIG);
+    $? == 0 or die "OpenSSL failed to generate the signature\n";
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if (($size > 0) && ($size < SIG_BUFFER) && ($size == length($body))) {
+        my $asn1 = Convert::ASN1->new(encoding => 'DER');
+        $asn1->prepare(q<
+            Algorithm ::= SEQUENCE {
+                oid OBJECT IDENTIFIER,
+                opt ANY OPTIONAL
+            }
+            Signature ::= SEQUENCE {
+                alg Algorithm,
+                sig BIT STRING
+            }
+        >);
+        my $data = $asn1->encode(sig => $body,
+            alg => {oid => sha512WithRSAEncryption()});
+        if (defined($data)) {
+            return encode_base64($data, '');
+        } else {
+            die "Failed to encode the generated signature: ".$asn1->error."\n";
+        }
+    } else {
+        die "Failed to obtain the generated signature from OpenSSL\n";
+    }
+}
+#*******************************************************************************
+sub out($) {
+    if (defined($out)) {
+        open(OUT, '>', $out) or die "Failed to open output file '$out': $!\n";
+    } else {
+        open(OUT, '>&', \*STDOUT) or die "Failed to open output stream: $!\n";
+    }
+    binmode(OUT, ':utf8');
+}
+#*******************************************************************************
+sub uri($) {
+    my $str = $_[0];
+    $str =~ s/%([[:xdigit:]]{2})/chr(hex($1))/ge;
+    return $str;
+}
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+sub can($$);
+sub can($$) {
+    my ($tree, $subj) = @_;
+    exists($tree->{$subj}) or die "RDF subject not found: '$subj'\n";
+    my $data = [];
+    my $type = 'Description';
+    my $attr = ($subj !~ /^_:/)? uri($subj): undef; # uri(?)
+    my $meta = $tree->{$subj}{NSRDF()};
+    if (defined($meta)) {
+        $type = $meta->{'type'};
+        if (defined($type) && (scalar(@$type) == 1) &&
+            ($type->[0]{uri} =~ /^@{[NSRDF()]}(Seq|Alt|Bag)$/)) {
+            $type = $1;
+            my %keys = ();
+            for (keys(%{$meta})) {
+                $keys{$1} = $_ if (/^_(\d+)$/);
+            }
+            for (sort {$a <=> $b} keys(%keys)) {
+                for my $item (@{$meta->{$keys{$_}}}) {
+                    push(@$data, ['rdf:li' => [can($tree, $item->{uri})]]);
+                }
+            }
+        } else {
+            die "Unrecognized RDF type: '$type'\n";
+        }
+    }
+    my $prop = $tree->{$subj}{NSMOZ()};
+    for my $name (sort(keys(%$prop))) {
+        if ($name eq 'targetApplication') {
+            for my $item (sort {$a->[0] cmp $b->[0]} map {
+                my $id = $tree->{$_->{uri}}{NSMOZ()}{id}[0]{lit};
+                die "Missing 'id' for 'targetApplication'\n"
+                    unless (defined($id) && ($id ne ''));
+                [$id, $_];
+            } @{$prop->{$name}}) {
+                push(@$data, ["em:$name" => [can($tree, $item->[1]{uri})]]);
+            }
+        } elsif ($name ne 'signature') {
+            for my $item (@{$prop->{$name}}) {
+                if (defined($item->{uri})) {
+                    push(@$data, ["em:$name" => [can($tree, $item->{uri})]]);
+                } else {
+                    push(@$data, ["em:$name" => $item->{lit}]);
+                }
+            }
+        }
+    }
+    return ["rdf:$type" => $data, defined($attr)? "$attr": ()];
+}
+#*******************************************************************************
+sub upd(\@$$;$) {
+    my ($upd, $key, $val, $sig) = @_;
+    if (defined($val) && (!exists($key->{tag}) || defined($key->{tag}))) {
+        push(@$upd, {key => $key, val => $val, $sig? (sig => $sig): ()});
+    }
+}
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+sub set(\$$;$) {
+    my ($str, $upd, $sig) = @_;
+    my $val = xml($upd->{val});
+    if (exists($upd->{key}{tag})) {
+        my $tag = $upd->{key}{tag};
+        return undef unless(defined($tag));
+        if ($tag) {
+            substr($$str, $upd->{key}{src} + $upd->{key}{len} - 2, 1,
+                ">$val</$tag") eq '/' or die "Internal error while patching\n";
+            return '';
+        } elsif ($upd->{key}{str} =~
+            /^(\s*[\r\n])?([ \t]*)\S(?:.*?\S)?(\s*[\r\n])?([ \t]*)\z/s) {
+            my ($pre, $end) = (($1? "\n": '').$2, ($3? "\n": '').$4);
+            if (defined($sig) && defined($1)) {
+                $val =~ s/(.{1,64})/$pre$1/g;
+                $val .= $end;
+            } else {
+                $val = $pre.$val.$end;
+            }
+        }
+    }
+    return substr($$str, $upd->{key}{src}, $upd->{key}{len}, $val);
+}
+#*******************************************************************************
+if (defined($rdf)) {
+#*******************************************************************************
+my $src = '';
+my @ctx = ();
+my @upd = ();
+my %url = defined($opt{u})? map {$_->{url} => $_} @xpi: ();
+my $idx = 0;
+(new XML::Parser(Namespaces => 1, Handlers => {
+    XMLDecl => sub {
+        my ($xml, $ver, $enc, $std) = @_;
+        $src .= qq[<?xml version="@{[$ver || '1.0']}" encoding="UTF-8"?>];
+    },
+    Default => sub {
+        $src .= $_[0]->recognized_string;
+    },
+    Start => sub {
+        my ($xml, $tag, @tag) = @_;
+        my $ctx = {col => $xml->current_column, src => length($src)};
+        $src .= (my $str = $xml->recognized_string);
+        $ctx->{len} = length($src) - $ctx->{src};
+        my %tag = ();
+        while (@tag > 0) {
+            my ($key, $val) = splice(@tag, 0, 2);
+            my $nsp = $xml->namespace($key);
+            die $rdf.':'.$xml->current_line.
+                ": Missing namespace prefix for '$key'\n"
+                    unless (defined($nsp));
+            $tag{$nsp}{$key} = $val;
+        }
+        die $rdf.':'.$xml->current_line.
+            ": Inner tag '$tag' inside a text-only tag\n"
+                if ((@ctx > 0) && exists($ctx[$#ctx]{txt}));
+        if (($tag eq 'Description') && ($xml->namespace($tag) eq NSRDF)) {
+            $ctx->{rdf} = 1;
+            my $res = $tag{NSRDF()}{about};
+            if (defined($res) && ($res =~ ExtensionSubject)) {
+                $ctx->{ext} = $1;
+                $ctx->{moz}{signature} = undef;
+            } else {
+                $ctx->{res} = $res;
+                $ctx->{moz} = {map {$_ => undef}
+                    qw[id minVersion maxVersion updateLink updateHash]
+                };
+            }
+            if (defined(my $moz = $tag{NSMOZ()})) {
+                my $nsp = join('|', (map {
+                    ($xml->expand_ns_prefix($_) ne NSMOZ)? ():
+                    (($_ ne '#default')? quotemeta("$_:"): '')
+                } $xml->current_ns_prefixes));
+                foreach my $key (keys(%$moz)) {
+                    if (exists($ctx->{moz}{$key})) {
+                        $ctx->{moz}{$key}{val} = $moz->{$key};
+                        if ($str =~ /\s(?:$nsp)\Q$key\E=("|')(.*?)\1/s) {
+                            $ctx->{moz}{$key}{src} = $ctx->{src} + $-[2];
+                            $ctx->{moz}{$key}{len} = $+[2] - $-[2];
+                            $ctx->{moz}{$key}{str} = $2;
+                        }
+                    }
+                }
+            }
+        } elsif ($xml->namespace($tag) eq NSMOZ) {
+            $ctx->{rdf} = 0;
+            my $top = $ctx[$#ctx];
+            if (defined($top) && $top->{rdf} && exists($top->{moz}) &&
+                exists($top->{moz}{$tag})) {
+                $top->{moz}{$tag}{tag} = $ctx;
+                $ctx->{txt} = $ctx->{str} = '';
+            }
+        }
+        push(@ctx, $ctx);
+    },
+    Char => sub {
+        my ($xml, $txt) = @_;
+        $src .= (my $str = $xml->recognized_string);
+        if (defined($ctx[$#ctx])) {
+            $ctx[$#ctx]{txt} .= $txt if (exists($ctx[$#ctx]{txt}));
+            $ctx[$#ctx]{str} .= $str if (exists($ctx[$#ctx]{str}));
+        }
+    },
+    End => sub {
+        my ($xml, $tag) = @_;
+        my $end = {src => length($src)};
+        $src .= $xml->recognized_string;
+        $end->{len} = length($src) - $end->{src};
+        my $ctx = pop(@ctx);
+        if (defined($ctx) && exists($ctx->{rdf})) {
+            $ctx->{end} = $end;
+            if ($ctx->{rdf}) {
+                my $moz = $ctx->{moz};
+                foreach my $val (values(%$moz)) {
+                #while (my ($key, $val) = each(%$moz)) {
+                    if (defined($val) && exists($val->{tag})) {
+                        $val->{val} = $val->{tag}{txt};
+                        $val->{str} = $val->{tag}{str};
+                        $val->{col} = $val->{tag}{col};
+                        if ($val->{tag}{end}{len} > 0) {
+                            $val->{src} = $val->{tag}{src} + $val->{tag}{len};
+                            $val->{len} = $val->{tag}{end}{src} - $val->{src};
+                            $val->{tag} = '';
+                        } elsif (substr($src, $val->{tag}{src},
+                            $val->{tag}{len}) =~ /^<([^\s>]+)(?:\s.*)?\/>$/s) {
+                            $val->{src} = $val->{tag}{src};
+                            $val->{len} = $val->{tag}{len};
+                            $val->{tag} = $1;
+                        } else {
+                            $val->{src} = $val->{len} = 0;
+                            $val->{tag} = undef;
+                        }
+                    }
+                }
+                if (defined($moz->{updateLink})) {
+                    my $val = $moz->{updateLink}->{val};
+                    if (defined($val) && defined(my $xpi = do {
+                        unless (exists($url{$val}) || defined($opt{u})) {
+                            $url{$val} = $xpi[$idx++] if ($idx < @xpi);
+                        }
+                        $url{$val};
+                    })) {
+                        upd(@upd, $moz->{updateHash}, $xpi->{sha});
+                        if ($opt{v} && defined($moz->{id}) &&
+                            defined(my $aid = $moz->{id}{val})) {
+                            for my $app (@{$xpi->{app}}) {
+                                if ($app->{app} eq $aid) {
+                                    upd(@upd, $moz->{minVersion}, $app->{min});
+                                    upd(@upd, $moz->{maxVersion}, $app->{max});
+                                    last;
+                                }
+                            }
+                        }
+                    }
+                } elsif (defined($moz->{signature})) {
+                    upd(@upd, $moz->{signature}, '', $ctx->{ext});
+                }
+            }
+        }
+    },
+}))->parsefile($rdf);
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+my @sig = ();
+foreach my $upd (sort {$b->{key}{src} <=> $a->{key}{src}} @upd) {
+    if (exists($upd->{sig})) {
+        $upd->{len} = length($src);
+        push(@sig, $upd);
+    } else {
+        set($src, $upd);
+    }
+}
+my $rdf = rdf($src);
+my %ext = map {($_ =~ ExtensionSubject)? (uri($1) => $_): ()} keys(%$rdf);
+my $len = length($src);
+foreach my $sig (@sig) {
+    $sig->{key}{src} += $len - $sig->{len};
+    if ($pem && exists($ext{$sig->{sig}})) {
+        $sig->{val} = sig(can($rdf, $ext{$sig->{sig}}));
+        set($src, $sig, 1);
+    }
+}
+out($out);
+print OUT $src;
+close(OUT);
+#*******************************************************************************
+} else {
+#*******************************************************************************
+my %ext = ();
+my @ext = ();
+for my $xpi (@xpi) {
+    if (my $ext = $xpi->{ext}) {
+        push(@ext, $ext) unless (exists($ext{$ext}));
+        push(@{$ext{$ext}}, $xpi);
+    }
+}
+#*******************************************************************************
+for my $ext (values(%ext)) {
+    @$ext = sort {
+        my @ab = map {$_->{ver}} ($a, $b);
+        my ($ax, $bx) = map {[map {($_ eq '*')? '*': [('0') x !/^-?\d/,
+            split /(?<=\d)(?=\D)|(?<=[^-\d])(?=-?\d)/]} split /\./]} @ab;
+        push(@$ax, (['0']) x ($#$bx - $#$ax)) if ($#$bx > $#$ax);
+        push(@$bx, (['0']) x ($#$ax - $#$bx)) if ($#$ax > $#$bx);
+        my $cmp = 0;
+        for my $ay (@$ax) {
+            my $by = shift @$bx;
+            if (ref($ay) && ref($by)) {
+                foreach my $i (0..(($#$ay > $#$by)? $#$ay: $#$by)) {
+                    my ($az, $bz) = ($ay->[$i], $by->[$i]);
+                    $cmp = ($i % 2)? ((defined($bz) <=> defined($az)) ||
+                        ($az cmp $bz)): (($az || 0) <=> ($bz || 0));
+                    return $cmp if $cmp;
+                }
+            } else {
+                $cmp = !ref($ay) <=> !ref($by);
+            }
+            return $cmp if $cmp;
+        }
+        return 0;
+    } @$ext if (@$ext > 1);
+}
+#*******************************************************************************
+my @rdf = map {
+    ['rdf:Description' => [
+        ['em:updates' => [
+            ['rdf:Seq' => [
+                (map {
+                    my $upd = $_;
+                    ['rdf:li' => [
+                        ['rdf:Description' => [
+                            ['em:version' => $upd->{ver}],
+                            (map {
+                                ['em:targetApplication' => [
+                                    ['rdf:Description' => [
+                                        ['em:id' => $_->{app}],
+                                        ['em:minVersion' => $_->{min}],
+                                        ['em:maxVersion' => $_->{max}],
+                                        ['em:updateLink' => $upd->{url}],
+                                        exists($upd->{sha})?
+                                        ['em:updateHash' => $upd->{sha}]: (),
+                                        exists($upd->{inf})?
+                                        ['em:updateInfoURL' => $upd->{inf}]: ()
+                                    ]]
+                                ]]
+                            } @{$upd->{app}})
+                        ]]
+                    ]]
+                } @{$ext{$_}})
+            ]]
+        ]]
+    ], 'urn:mozilla:extension:'.$_]
+} @ext;
+#*******************************************************************************
+if ($pem) {
+    push(@{$_->[1]}, ['em:signature' => sig($_)]) for (@rdf);
+}
+#*******************************************************************************
+out($out);
+use constant INDENT => ' ' x 4;
+print OUT <<'RDF';
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+RDF
+ser(*OUT, $_, INDENT(), INDENT(), 0) for (@rdf);
+print OUT "</rdf:RDF>\n";
+close(OUT);
+#*******************************************************************************
+} END { unlink($tmp) if (defined($tmp) && (-e $tmp)); }
+#*******************************************************************************
+=pod
+
+=head1 NAME
+
+uhura - Mozilla Extension Update Manifest Generator and Signer, v1.3
+
+=head1 SYNOPSIS
+
+uhura [options] [file1.xpi [URL1 [URL1']] [file1.txt]] [file2.xpi ...] [...]
+
+=head1 ARGUMENTS
+
+The options are followed by an arbitrary number of groups of 1, 2, 3 or 4
+arguments, depending on the specified options. The arguments in each group have
+the following meaning:
+
+=over 2
+
+=item B<fileN.xpi>
+
+The path to the installation package in the local file system (used to extract
+information about the extension and to calculate SHA1 hash if necessary).
+
+=item B<URLN>
+
+The public URL where the installation package is going to be available for
+download (the package does not have to be available at that URL at the time of
+running the command).
+
+=item B<URLN'>
+
+The public URL of the "What's new" page (C<updateInfoURL>) to be included when
+generating a new update manifest.
+
+=item B<fileN.txt>
+
+The path to the text file that specifies overriding C<maxVersion> specified in
+the installation package (used with B<-m> option described below.
+
+=back
+
+The options are used to provide extra input information and to specify what
+actions are to be performed. The following options are supported:
+
+=over 2
+
+=item B<-i input.rdf>
+
+The input update manifest file to be signed. If this option is omitted a new
+update manifest will be generated based on the contents of the installation
+packages.
+
+=item B<-h>
+
+Calculate SHA1 hash of the installation packages and set the corresponding
+C<updateHash> fields in the update manifest to the computed values. This option
+is implied if the update manifest is to be signed (i.e. when B<-k> option is
+present).
+
+=item B<-v>
+
+Set the target application version fields (C<minVersion> and C<maxVersion>) in
+the update manifest to the values extracted from the corresponding installation
+packages. This option has no effect in generating mode (without an input update
+manifest specified with B<-i> option), because all the fields must always be
+filled in to produce a valid update manifest.
+
+=item B<-m>
+
+If specified, each input installation package is accompanied with a text file
+that allows to override C<maxVersion> field for target applications. Each line
+in such a file should contain a pair of tokens separated with whitespace. The
+first token is the target application C<id> and the second one is the value to
+be used as the corresponding C<maxVersion>. The name of the file is specified
+as an additional element in each parameter group, as described below.
+
+=item B<-k keyfile.pem>
+
+The private key to sign the update manifest with. Typically it is an RSA key
+in PEM format. If this parameter is omitted the update manifest will not be
+signed. The presence of this option also implies B<-h> option described above.
+
+=item B<-p passwarg>
+
+The password for the private key. Only has a meaning if a key file is specified
+with B<-k> option. If this option is omitted or if the value of B<passwarg> is
+an empty string the key must be unencrypted.
+
+The B<passwarg> parameter can have one of the following forms (where the first
+character indicates which form is used):
+
+=over 2
+
+=item B<=password>
+
+The password is specified literally. This is the easiest way, but in many cases
+it may be insecure on a multi-user system, since any user can see the password
+using C<ps> utility or alike.
+
+=item B<@filename>
+
+The password is read from the specified file. The first line of the file is
+assumed to contain the password.
+
+=item B<$ENV_VAR>
+
+The password is fetched from the specified environment variable. This is not
+the same as having the environment variable expanded by the shell when invoking
+the command. The syntax is very similar to most UNIX shells, but here the C<$>
+character is passed literally (thus must be escaped properly when using a
+UNIX-like shell).
+
+=item B<&fd>
+
+The password is read from the specified file descriptor. Depending on the OS
+this may or may not be supported (usually supported on UNIX-like OS). The first
+line read from the file descriptor is assumed to contain the password.
+
+=item B<->
+
+The password is read from the standard input. The first line of the input
+stream is assumed to contain the password.
+
+=back
+
+The password argument is converted to one of the forms accepted by OpenSSL
+B<-passin> argument, as described in the OpenSSL manual:
+L<http://www.openssl.org/docs/apps/openssl.html#PASS_PHRASE_ARGUMENTS>. So the
+security considerations applicable to OpenSSL invocation also apply here.
+
+=item B<-u>
+
+This option indicates that an extra URL parameter is present in each parameter
+group for each input installation package. The exact meaning of this option
+depends on the operation mode as described below.
+
+=item B<-o update.rdf>
+
+The output update manifest file. This can be the same file as specified with
+B<-i> option (in that case the file will be overwritten). If this parameter is
+omitted the resulting update manifest will be written to the standard output.
+
+=item B<-e>
+
+Although the output XML always specifies UTF-8 encoding in the XML declaration,
+with this option present, all non-ASCII characters are converted to the
+corresponding XML character entities, which makes it compatible with US-ASCII
+character encoding. Note: in signing mode this option only affect parts
+generated or modified in the process, leaving the rest of the update manifest
+unchanged.
+
+=back
+
+The remaining command line arguments form one or more groups specifying the
+installation packages to be used and the corresponding URLs. The number of
+parameters in each group depends on the presence of B<-i> and B<-u> options:
+
+=over 2
+
+=item B<neither>
+
+Generating mode. Each group consists of two parameters: the installation package
+file name and the corresponding update URL to be put in the update manifest.
+
+=item B<-u only>
+
+Generating mode. Each group consists of three parameters: the installation
+package file name, the corresponding update URL, and the corresponding
+"What's new" URL to be put in the update manifest.
+
+=item B<-i only>
+
+Signing mode. Each group consists of a single parameter specifying the
+installation package file name. The order of the file names in the command line
+must be the same as the order of corresponding sections in the input update
+manifest (with duplicate occurrences skipped).
+
+=item B<both>
+
+Signing mode. Each group consists of two parameters: the installation package
+file name and the corresponding update URL. The latter is used to match the
+installation packages specified on the command line with the corresponding
+sections of the input update manifest (so that the order of the file names in
+the command line does not matter).
+
+=back
+
+In addition to that, if B<-m> option is present then each parameter group
+contains one more element specifying the path to the C<maxVersion> override
+file. If some of the input installation packages do not need such a file the
+corresponding path can be an empty string.
+
+=head1 DESCRIPTION
+
+The F<install.rdf> file found in each installation package specified in the
+command line is parsed to retrieve the information about the extension (I<id>,
+I<version>) and about the target application(s) (I<id>, I<minVersion>,
+I<maxVersion>). Also, if the update manifest is to be signed or if B<-h>
+command line option is present, the SHA1 hash of each installation package
+(xpi file) is calculated. That information is used to construct a new update
+manifest or, if an input update manifest is specified with B<-i> option, to
+update the corresponding fields of the existing update manifest.
+
+When processing an existing update manifest only the fields that already exist
+are updated. It means that the input update manifest should contain placeholders
+for all fields to be filled in. The values are not important, as they will be
+replaced with the actual ones.
+
+=head1 KNOWN ISSUES
+
+The I<targetPlatform> from the installation packages is not taken into account.
+
+=head1 DEPENDENCIES
+
+Convert::ASN1, XML::Parser, RDF::Core, OpenSSL, unzip
+
+=head1 HOME PAGE
+
+L<http://www.softlights.net/projects/mxtools/>
+
+=head1 AUTHORS
+
+Copyright (C) 2008, 2009, 2011, 2012 Sergei Zhirikov (sfzhi@yahoo.com)
+
+=cut
