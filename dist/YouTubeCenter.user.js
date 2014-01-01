@@ -4273,10 +4273,10 @@
       __r.createWorker = function(id, action, complete){
         if (id in workers) {
           if (workers[id].completed) {
-			con.log("[Worker] Job has already been executed once (" + id + ")");
+            con.log("[Worker] Job has already been executed once (" + id + ")");
             complete(workers[id].data);
           } else {
-			con.log("[Worker] Job is currently being executed (" + id + ")");
+            con.log("[Worker] Job is currently being executed (" + id + ")");
             workers[id].completeActions.push(complete);
           }
         } else {
@@ -4307,7 +4307,7 @@
             },
             completed: false
           };
-		  con.log("[Worker] Addiong new job (" + id + ")");
+          con.log("[Worker] Addiong new job (" + id + ")");
           pendingWorkers.push(id);
           
           __r.run();
@@ -6239,6 +6239,16 @@
       __r.addEvent = function(event, callback){
         if (!db.hasOwnProperty(event)) db[event] = [];
         db[event].push(callback);
+        return [event, callback];
+      };
+      __r.removeEvent = function(event, callback){
+        var i;
+        for (i = 0; i < db[event].length; i++) {
+          if (db[event][i] === callback) {
+            db[event].splice(i, 1);
+            return;
+          }
+        }
       };
       __r.performEvent = function(event){
         if (!db.hasOwnProperty(event)) return;
@@ -6255,7 +6265,7 @@
       
       return __r;
     })();
-    ytcenter._dialogVisible = null;
+    ytcenter._dialogVisible = null
     ytcenter.dialog = function(titleLabel, content, actions, alignment){
       var __r = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer, eventListeners = {}, actionButtons = {}, _visible = false;
       alignment = alignment || "center";
@@ -6910,6 +6920,110 @@
       return __r;
     })();
     ytcenter.modules = {};
+    ytcenter.modules.layoutExperiments = function(option){
+      function loadExperiments() {
+        // YouTubeExperiments
+        $XMLHTTPRequest({
+          method: "GET",
+          url: "https://raw.github.com/YePpHa/YouTubeCenter/master/ytexperiments.json",
+          headers: {
+            "Content-Type": "text/plain"
+          },
+          onload: function(response){
+            try {
+              var data = JSON.parse(response.responseText);
+              ytcenter.settings.YouTubeExperiments = data;
+              ytcenter.saveSettings();
+              setStatus("Updated");
+              
+              update();
+            } catch (e) {
+              setStatus("error");
+            }
+          },
+          onerror: function(){
+            setStatus("error");
+          }
+        });
+      }
+      function createText(data) {
+        function getText() {
+          if (data.locale) {
+            return ytcenter.language.getLocale(data.locale);
+          } else if (data.raw_locales) {
+            if (data.raw_locales[language]) {
+              return data.raw_locales[language];
+            } else {
+              return data.raw_locales["en"] || data.raw;
+            }
+          } else if (data.raw) {
+            return data.raw;
+          }
+        }
+        var node = document.createTextNode(getText());
+        
+        unloadEventList.push(ytcenter.events.addEvent("language-refresh", function(){
+          node.textContent = getText();
+        }));
+        return node;
+      }
+      function createListItem(data) {
+        var wrapper = document.createElement("li");
+        
+        if (data.preview) {
+        }
+        
+        if (data.description) {
+          var descriptionWrapper = document.createElement("div"),
+              descriptionTitle = document.createElement("h3"),
+              descriptionContent = document.createElement("span");
+          descriptionTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_DESCRIPTION"); // Raw: Description
+          unloadEventList.push(ytcenter.events.addEvent("language-refresh", function(){
+            descriptionTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_DESCRIPTION");
+          }));
+          descriptionContent.appendChild(createText(data.description));
+          
+          descriptionWrapper.appendChild(descriptionTitle);
+          descriptionWrapper.appendChild(descriptionContent);
+        }
+        
+        if (data.features) {
+        }
+        
+        if (data.date) {
+          // data = { expires: some data, created/started: some date }
+        }
+        
+        return wrapper;
+      }
+      function update() {
+        var i;
+        unloadEvents(); // Unloading events
+        item.innerHTML = ""; // Clearing the list
+        for (i = 0; i < ytcenter.settings.YouTubeExperiments.length; i++) {
+          list.appendChild(createListItem(ytcenter.settings.YouTubeExperiments[i]));
+        }
+      }
+      function unloadEvents() {
+        var i;
+        for (i = 0; i < unloadEventList.length; i++) {
+          ytcenter.events.removeEvent(unloadEventList[i][0], unloadEventList[i][1]);
+        }
+        unloadEventList = [];
+      }
+      function setStatus(text) {
+        
+      }
+      var elm = document.createElement("div"),
+          list = document.createElement("ul"),
+          unloadEventList = [];
+  
+      return {
+        element: elm,
+        bind: function(){},
+        update: function(){}
+      };
+    };
     ytcenter.modules.aboutText = function(option){
       var elm = document.createElement("div"),
           content1 = document.createElement("div");

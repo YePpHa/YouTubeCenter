@@ -5,7 +5,7 @@
       .list {
         padding: 0;
       }
-      .list li {
+      .list > li {
         float: left;
         list-style: none;
         height: 100px;
@@ -13,8 +13,11 @@
         padding: 10px;
         position: relative;
       }
-      .list li:hover {
+      .list > li:hover {
         background-color: #aaa;
+      }
+      .features ul {
+        padding-left: 10px;
       }
       .cover {
         width: 100px;
@@ -26,8 +29,10 @@
         width: 100%;
         height: 100%;
       }
-      .description {
+      .description,
+      .features  {
         padding-left: 110px;
+        padding-bottom: 10px;
       }
       .clearfix:before {
         content: '.';
@@ -69,7 +74,14 @@
                   </a>
                 </div>
                 <div class="description">
-                  Old Layout = Boring...
+                  <h3>Description</h3>
+                  <span>The default YouTube layout.</span>
+                </div>
+                <div class="features">
+                  <h3>Features</h3>
+                  <ul>
+                    <li>Page is aligned to the left.</li>
+                  </ul>
                 </div>
                 <div class="actions">
                   <button type="button" role="button" class="yt-uix-button yt-uix-button-default">
@@ -84,7 +96,17 @@
                   </a>
                 </div>
                 <div class="description">
-                  New layout xD
+                  <h3>Description</h3>
+                  <span>The experimental layout. It will probably be forced onto users sometime in the future.</span>
+                </div>
+                <div class="features">
+                  <h3>Features</h3>
+                  <ul>
+                    <li>Centered Layout</li>
+                    <li>Fixed Header</li>
+                    <li>Card Based UI</li>
+                    <li>Guide is a dropdown menu from the fixed header.</li>
+                  </ul>
                 </div>
                 <div class="actions">
                   <button type="button" role="button" class="yt-uix-button yt-uix-button-default">
