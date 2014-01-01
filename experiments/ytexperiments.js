@@ -6,7 +6,7 @@ ytcenter.modules.ytexperiments = (function(){
     // YouTubeExperiments
     $XMLHTTPRequest({
       method: "GET",
-      url: "https://raw.github.com/YePpHa/YouTubeCenter/master/ytexperiments.json",
+      url: "https://raw.github.com/YePpHa/YouTubeCenter/master/data/ytexperiments.json",
       headers: {
         "Content-Type": "text/plain"
       },
@@ -15,6 +15,7 @@ ytcenter.modules.ytexperiments = (function(){
           var data = JSON.parse(response.responseText);
           ytcenter.settings.YouTubeExperiments = data;
           ytcenter.saveSettings();
+          
           setStatus("Updated");
           
           update();
@@ -27,16 +28,25 @@ ytcenter.modules.ytexperiments = (function(){
       }
     });
   }
+  function createListItem(data) {
+    var wrapper = document.createElement("li");
+    
+    
+    
+    return wrapper;
+  }
   function update() {
     var i;
+    item.innerHTML = ""; // Clearing the list
     for (i = 0; i < ytcenter.settings.YouTubeExperiments.length; i++) {
-      var item = document.createElement("li");
+      list.appendChild(createListItem(ytcenter.settings.YouTubeExperiments[i]));
     }
   }
   function setStatus(text) {
     
   }
-  var elm = document.createElement("div");
+  var elm = document.createElement("div"),
+      list = document.createElement("ul");
   
   return {
     element: elm,
