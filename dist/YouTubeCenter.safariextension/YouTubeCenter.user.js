@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         176
+// @version         177
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 176);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 177);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -4261,7 +4261,7 @@
       };
     })();
     ytcenter.jobs = (function(){
-      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = 5;
+      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = -1;
       
       /*  id        the id of the worker.
           action    the action function, which will do the job.
@@ -4273,8 +4273,10 @@
       __r.createWorker = function(id, action, complete){
         if (id in workers) {
           if (workers[id].completed) {
-            workers[id].complete(workers[id].data);
+			con.log("[Worker] Job has already been executed once (" + id + ")");
+            complete(workers[id].data);
           } else {
+			con.log("[Worker] Job is currently being executed (" + id + ")");
             workers[id].completeActions.push(complete);
           }
         } else {
@@ -4305,6 +4307,7 @@
             },
             completed: false
           };
+		  con.log("[Worker] Addiong new job (" + id + ")");
           pendingWorkers.push(id);
           
           __r.run();
@@ -4313,7 +4316,7 @@
       
       __r.run = function(){
         var id;
-        while (workingWorkers.length < _max_workers && pendingWorkers.length > 0) {
+        while ((workingWorkers.length < _max_workers || _max_workers === -1) && pendingWorkers.length > 0) {
           id = pendingWorkers.splice(0, 1)[0];
           workingWorkers.push(id);
           con.log("[Worker] Executing new job (" + id + ")");
@@ -21544,7 +21547,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 176);
+          main_function(false, 4, true, 177);
         /*} catch (e) {
         }*/
       }
@@ -21564,7 +21567,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 176);
+      main_function(false, 4, true, 177);
     //} catch (e) {
       //console.error(e);
     //}
