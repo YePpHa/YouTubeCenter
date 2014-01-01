@@ -6925,19 +6925,21 @@
         // YouTubeExperiments
         $XMLHTTPRequest({
           method: "GET",
-          url: "https://raw.github.com/YePpHa/YouTubeCenter/master/ytexperiments.json",
+          url: "https://raw.github.com/YePpHa/YouTubeCenter/master/data/ytexperiments.json",
           headers: {
             "Content-Type": "text/plain"
           },
           onload: function(response){
+            con.log(response);
             try {
               var data = JSON.parse(response.responseText);
-              ytcenter.settings.YouTubeExperiments = data;
+              ytcenter.settings[option.defaultSetting] = data;
               ytcenter.saveSettings();
               setStatus("Updated");
               
               update();
             } catch (e) {
+              con.error(e);
               setStatus("error");
             }
           },
@@ -6985,9 +6987,27 @@
           
           descriptionWrapper.appendChild(descriptionTitle);
           descriptionWrapper.appendChild(descriptionContent);
+          
+          wrapper.appendChild(descriptionWrapper);
         }
         
         if (data.features) {
+          var featuresWrapper = document.createElement("div"),
+              featuresTitle = document.createElement("h3"),
+              featuresContent = document.createElement("ul");
+          featuresTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_FEATURES"); // Raw: Description
+          unloadEventList.push(ytcenter.events.addEvent("language-refresh", function(){
+            featuresTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_FEATURES");
+          }));
+          var i;
+          for (i = 0; i < data.features.length; i++) {
+            var item = document.createElement("li");
+            item.appendChild(createText(data.features[i]));
+            featuresContent.appendChild(item);
+          }
+          featuresWrapper.appendChild(featuresContent);
+          
+          wrapper.appendChild(featuresWrapper);
         }
         
         if (data.date) {
@@ -6999,9 +7019,9 @@
       function update() {
         var i;
         unloadEvents(); // Unloading events
-        item.innerHTML = ""; // Clearing the list
-        for (i = 0; i < ytcenter.settings.YouTubeExperiments.length; i++) {
-          list.appendChild(createListItem(ytcenter.settings.YouTubeExperiments[i]));
+        list.innerHTML = ""; // Clearing the list
+        for (i = 0; i < ytcenter.settings[option.defaultSetting].length; i++) {
+          list.appendChild(createListItem(ytcenter.settings[option.defaultSetting]));
         }
       }
       function unloadEvents() {
@@ -7014,14 +7034,37 @@
       function setStatus(text) {
         
       }
+      function init() {
+        var updateButton = ytcenter.modules.button({
+              args: {
+                text: "MODULES_YTEXPERIMENTS_UPDATELIST",
+                listeners: [
+                  {
+                    event: "click",
+                    callback: function(){
+                      loadExperiments();
+                    }
+                  }
+                ]
+              }
+            }),
+            headerWrapper = document.createElement("div");
+        headerWrapper.appendChild(updateButton.element);
+        
+        elm.appendChild(headerWrapper);
+        elm.appendChild(list);
+      }
       var elm = document.createElement("div"),
           list = document.createElement("ul"),
           unloadEventList = [];
-  
+      
+      init();
+      update();
+      
       return {
         element: elm,
         bind: function(){},
-        update: function(){}
+        update: function(){ update(); }
       };
     };
     ytcenter.modules.aboutText = function(option){
@@ -14109,6 +14152,12 @@
             ytcenter.classManagement.applyClasses();
           });
           subcat.addOption(option);
+        /*subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_EXPERIMENTS"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "YouTubeExperiments", // defaultSetting
+            "layoutExperiments"
+          );
+          subcat.addOption(option);*/
 
       /* Category:Player */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER");

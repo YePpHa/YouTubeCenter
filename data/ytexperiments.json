@@ -1,32 +1,32 @@
 [
   {
-    codes: ["o-HeXA0cVoQ"],
-    screenshots: [],
-    preview: [],
-    description: {
-      raw: "The default YouTube layout."
+    "codes": ["o-HeXA0cVoQ"],
+    "screenshots": [],
+    "preview": [],
+    "description": {
+      "raw": "The default YouTube layout."
     },
-    features: [
+    "features": [
       {
-        raw: "Page is aligned to the left."
+        "raw": "Page is aligned to the left."
       }
     ]
   }, {
-    codes: ["81nZqGTqTaM"],
-    screenshots: [],
-    preview: [],
-    description: {
-      raw: "The experimental layout. It will probably be forced onto users sometime in the future."
+    "codes": ["81nZqGTqTaM"],
+    "screenshots": [],
+    "preview": [],
+    "description": {
+      "raw": "The experimental layout. It will probably be forced onto users sometime in the future."
     },
-    features: [
+    "features": [
       {
-        raw: "Centered Layout"
+        "raw": "Centered Layout"
       }, {
-        raw: "Fixed Header"
+        "raw": "Fixed Header"
       }, {
-        raw: "Card Based UI"
+        "raw": "Card Based UI"
       }, {
-        raw: "Guide is a dropdown menu from the fixed header."
+        "raw": "Guide is a dropdown menu from the fixed header."
       }
     ]
   }
