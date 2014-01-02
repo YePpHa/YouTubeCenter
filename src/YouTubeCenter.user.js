@@ -4263,7 +4263,7 @@
       };
     })();
     ytcenter.jobs = (function(){
-      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = -1;
+      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = 20;
       
       /*  id        the id of the worker.
           action    the action function, which will do the job.

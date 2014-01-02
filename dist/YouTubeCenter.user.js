@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         186
+// @version         187
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 186);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 187);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -4263,7 +4263,7 @@
       };
     })();
     ytcenter.jobs = (function(){
-      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = -1;
+      var __r = {}, workers = {}, pendingWorkers = [], workingWorkers = [], completedWorkers = [], _max_workers = 20;
       
       /*  id        the id of the worker.
           action    the action function, which will do the job.
@@ -21895,7 +21895,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 186);
+          main_function(false, 0, true, 187);
         /*} catch (e) {
         }*/
       }
@@ -21915,7 +21915,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 186);
+      main_function(false, 0, true, 187);
     //} catch (e) {
       //console.error(e);
     //}
