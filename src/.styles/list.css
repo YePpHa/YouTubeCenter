@@ -28,6 +28,11 @@
   height: 40px;
   cursor: move;
   position: absolute;
+}
+.ltr .ytcenter-list-item .ytcenter-dragdrop-handle {
+  left: 0;
+}
+.rtl .ytcenter-list-item .ytcenter-dragdrop-handle {
   left: 0;
 }
 
@@ -47,8 +52,11 @@
   background: url(//s.ytimg.com/yts/img/playlist/drag-drop-indicator-vflv1iR5Z.png) 10px 15px no-repeat;
 }
 
-.ytcenter-list-item .ytcenter-list-item-content {
+.ltr .ytcenter-list-item .ytcenter-list-item-content {
   padding: 8px 13px 0 20px;
+}
+.rtl .ytcenter-list-item .ytcenter-list-item-content {
+  padding: 8px 20px 0 13px;
 }
 
 .ytcenter-list:hover .ytcenter-list-item {
@@ -93,11 +101,16 @@
   border: 0!important;
   border-radius: 0!important;
   background: #fff!important;
-  border-right: 1px solid #eee!important;
   color: #000!important;
   text-shadow: 0 0 0!important;
   overflow: hidden!important;
   position: relative!important;
+}
+.ltr .ytcenter-list-header-btn {
+  border-right: 1px solid #eee!important;
+}
+.rtl .ytcenter-list-header-btn {
+  border-left: 1px solid #eee!important;
 }
 
 .ytcenter-list-header-btn:hover {
