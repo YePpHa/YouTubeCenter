@@ -36,9 +36,13 @@
   <property name="src.firefox" value="${src}/.firefox" />
   <property name="src.meta" value="${src}/.meta" />
   <property name="src.firefox-update" value="${src}/.firefox-update" />
+  <property name="src.chrome-update" value="${src}/.chrome-update" />
   
   <property name="firefox-update.update" value="${src.firefox-update}/firefox-update.rdf" />
   <property name="firefox-update.install-part" value="${src.firefox-update}/firefox-install-part.rdf" />
+  
+  <property name="chrome-update.update" value="${src.chrome-update}/chrome-update.xml" />
+  <property name="chrome-update.install-part" value="${src.chrome-update}/chrome-install-part.json_part" />
   
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
@@ -147,7 +151,7 @@
     <antcall target="clean" />
   </target>
   
-  <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx, clean" />
+  <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx" />
   <target name="chrome-zip" depends="preinit, copy-chrome">
     <zip destfile="${buildDir}/chrome.zip" basedir="${buildDir}" />
   </target>
@@ -158,6 +162,15 @@
       <arg value="${cert.chrome}" />
       <arg value="${dist}/${name}.crx" />
     </exec>
+    <antcall target="clean" />
+    
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <antcall target="chrome-update" />
+      </then>
+    </if>
   </target>
   
   <target name="chrome-keycheck">
@@ -171,6 +184,12 @@
       <arg value="-prv" />
       <arg value="${cert.chrome}" />
     </exec>
+  </target>
+  <target name="chrome-update" depends="preinit, copy-chrome-update">
+    <move todir="${dist}/">
+      <fileset dir="${buildDir}/" />
+    </move>
+    <antcall target="clean" />
   </target>
   
   <target name="maxthon" depends="preinit, copy-maxthon">
@@ -298,6 +317,10 @@
     <copy file="${firefox-update.update}" todir="${buildDir}" />
     <antcall target="tokenreplace" />
   </target>
+  <target name="copy-chrome-update">
+    <copy file="${chrome-update.update}" todir="${buildDir}" />
+    <antcall target="tokenreplace" />
+  </target>
   
   <target name="copy-firefox-legacy">
     <antcall target="copy" />
@@ -343,6 +366,7 @@
   <target name="tokenreplace" depends="buildnumber">
     <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
     <loadfile property="firefox-update.install-part.content" srcfile="${firefox-update.install-part}" encoding="${encoding}" />
+    <loadfile property="chrome-update.install-part.content" srcfile="${chrome-update.install-part}" encoding="${encoding}" />
     
     <replace dir="${buildDir}" value="${language.db.content}" token="@ant-database-language@" encoding="${encoding}" />
     <loadproperties srcFile="${build.prop}"/>
@@ -355,6 +379,7 @@
         <replace dir="${buildDir}" value="${@dev-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@dev-updateURL@}" token="@updateURL@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${firefox-update.install-part.content}" token="@firefox-update-install-part@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${chrome-update.install-part.content}" token="@chrome-update-install-part@" encoding="${encoding}" />
       </then>
       <else>
         <replace dir="${buildDir}" value="${@ant-version@}" token="@version@" encoding="${encoding}" />
@@ -362,6 +387,7 @@
         <replace dir="${buildDir}" value="${@stable-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="${@stable-updateURL@}" token="@updateURL@" encoding="${encoding}" />
         <replace dir="${buildDir}" value="" token="@firefox-update-install-part@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="" token="@chrome-update-install-part@" encoding="${encoding}" />
       </else>
     </if>
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />
