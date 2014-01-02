@@ -7,8 +7,13 @@
 
 .ytcenter-modules-rangetext {
   width: 65px;
-  margin-left: 4px;
   vertical-align: middle;
+}
+.ltr .ytcenter-modules-rangetext {
+  margin-left: 4px;
+}
+.rtl .ytcenter-modules-rangetext {
+  margin-right: 4px;
 }
 
 .ytcenter-colorpicker-presets {
@@ -17,12 +22,19 @@
 
 .ytcenter-colorpicker-presets-color {
   display: inline-block;
-  float: left;
   width: 20px;
   height: 29px;
-  margin-right: 5px;
   cursor: pointer;
   border: 1px solid #eee;
+}
+
+.ltr .ytcenter-colorpicker-presets-color {
+  float: left;
+  margin-right: 5px;
+}
+.rtl .ytcenter-colorpicker-presets-color {
+  float: right;
+  margin-left: 5px;
 }
 
 .ytcenter-colorpicker-presets-label {
@@ -53,9 +65,15 @@
 
 .ytcenter-modules-currentcolor {
   display: inline-block;
-  float: left;
   width: 20px;
   height: 29px;
+}
+
+.ltr .ytcenter-modules-currentcolor {
+  float: left;
+}
+.rtl .ytcenter-modules-currentcolor {
+  float: right;
 }
 
 .ytcenter-modules-rgbwrapper {
@@ -171,7 +189,6 @@
 .ytcenter-modules-range-handle {
   position: absolute;
   top: 0;
-  left: 0;
   cursor: default!important;
   margin: 0;
   padding: 0;
@@ -187,32 +204,50 @@
   background-image: linear-gradient(to bottom,#fcfcfc 0,#f8f8f8 100%);
 }
 
+.ltr .ytcenter-modules-range-handle {
+  right: 0 !important;
+}
+.rtl .ytcenter-modules-range-handle {
+  left: 0 !important;
+}
+
 .ytcenter-modules-range-handle .ytcenter-modules-range-handle-left {
   position: absolute;
   top: -7px;
-  left: -7px;
   width: 0;
   height: 0;
   border: solid transparent;
   border-width: 7px;
-  border-left-color: #fff;
 }
 
 .ytcenter-modules-range-handle .ytcenter-modules-range-handle-right {
   position: absolute;
   top: -7px;
-  left: 7px;
   width: 0;
   height: 0;
   border: solid transparent;
   border-width: 7px;
+}
+.ltr .ytcenter-modules-range-handle .ytcenter-modules-range-handle-right,
+.ltr .ytcenter-modules-range-handle .ytcenter-modules-range-handle-left {
+  left: 7px;
   border-right-color: #fff;
+}
+.rtl .ytcenter-modules-range-handle .ytcenter-modules-range-handle-right,
+.rtl .ytcenter-modules-range-handle .ytcenter-modules-range-handle-left {
+  right: -7px;
+  border-left-color: #fff;
 }
 
 .ytcenter-modules-range.ytcenter-modules-hue .ytcenter-modules-range-handle .ytcenter-modules-range-handle-right {
   border-top: 7px solid transparent!important;
   border-bottom: 7px solid transparent!important;
+}
+.ltr .ytcenter-modules-range.ytcenter-modules-hue .ytcenter-modules-range-handle .ytcenter-modules-range-handle-right {
   border-right: 7px solid #000!important;
+}
+.rtl .ytcenter-modules-range.ytcenter-modules-hue .ytcenter-modules-range-handle .ytcenter-modules-range-handle-right {
+  border-left: 7px solid #000!important;
 }
 
 .ytcenter-modules-colorpicker {
@@ -231,7 +266,6 @@
   width: 100%;
   height: 100%;
   top: 0;
-  left: 0;
   background-image: -webkit-gradient(linear,0 0,100% 0,from(#FFF),to(rgba(204,154,129,0)));
   background-image: -webkit-linear-gradient(left,#FFF,rgba(204,154,129,0));
   background-image: -moz-linear-gradient(left,#fff,rgba(204,154,129,0));
@@ -247,7 +281,6 @@
   width: 100%;
   height: 100%;
   top: 0;
-  left: 0;
   background-image: -webkit-gradient(linear,0 100%,0 0,from(#000),to(rgba(204,154,129,0)));
   background-image: -webkit-linear-gradient(bottom,#000,rgba(204,154,129,0));
   background-image: -moz-linear-gradient(bottom,#000,rgba(204,154,129,0));
@@ -258,10 +291,31 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00CC9A81',endColorstr='#FF000000');
 }
 
-.ytcenter-modules-colorpicker-handler {
+.ltr .ytcenter-modules-colorpicker-value,
+.ltr .ytcenter-modules-colorpicker-saturation {
+  left: 0;
+}
+.rtl .ytcenter-modules-colorpicker-value,
+.rtl .ytcenter-modules-colorpicker-saturation {
+  right: 0;
+}
+
+.ltr .ytcenter-modules-colorpicker-handler {
   position: absolute;
   top: 0;
   left: 0;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #fff;
+  background: #000;
+}
+.rtl .ytcenter-modules-colorpicker-handler {
+  position: absolute;
+  top: 0;
+  right: 0;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -342,133 +396,18 @@
   box-shadow: inset 0 1px 0 rgba(0,0,0,.14),inset 0 -1px 0 rgba(0,0,0,.07);
 }
 
-.ytcenter-list {
-  background: #fbfbfb;
-  width: 100%;
-  height: 100%;
-}
-
-.ytcenter-list.ytcenter-dragdrop-indragging,.ytcenter-list.ytcenter-dragdrop-indragging * {
-  cursor: move!important;
-}
-
-.ytcenter-list-item:first-of-type {
-  border-top-color: transparent;
-}
-
-.ytcenter-list-item {
-  position: relative;
-  clear: both;
-  margin: 0;
-  border-top: 1px solid #fff;
-  border-bottom: 1px solid #e3e3e3;
-  font-size: 13px;
-  width: 100%;
-  height: 40px;
-}
-
-.ytcenter-list-item .ytcenter-dragdrop-handle {
-  width: 20px;
-  height: 40px;
-  cursor: move;
-  position: absolute;
-  left: 0;
-}
-
-.ytcenter-list-item.ytcenter-dragdrop-dragging {
-  background: #f2f2f2;
-}
-
-.ytcenter-list-item.ytcenter-dragdrop-dragging li {
-  background: 0;
-}
-
-.ytcenter-list-item.ytcenter-dragdrop-dragging .ytcenter-dragdrop-handle {
-  background: url(//s.ytimg.com/yts/img/playlist/drag-drop-indicator-vflv1iR5Z.png) 10px 15px no-repeat;
-}
-
-.ytcenter-list.ytcenter-dragdrop-notdragging .ytcenter-list-item:hover .ytcenter-dragdrop-handle {
-  background: url(//s.ytimg.com/yts/img/playlist/drag-drop-indicator-vflv1iR5Z.png) 10px 15px no-repeat;
-}
-
-.ytcenter-list-item .ytcenter-list-item-content {
-  padding: 8px 13px 0 20px;
-}
-
-.ytcenter-list:hover .ytcenter-list-item {
-  width: auto;
-}
-
-.ytcenter-list-item .ytcenter-list-item-title {
-  color: #000;
-  font-weight: bold;
-  font-size: 13px;
-}
-
-.ytcenter-list-item .ytcenter-list-item-subtext {
-  display: block;
-  font-size: 11px;
-  color: #777;
-  line-height: 1.4em;
-  height: 1.4em;
-}
-
-.ytcenter-list-item-title,.ytcenter-list-item-subtext {
-  text-overflow: ellipsis;
-  -o-text-overflow: ellipsis;
-  word-wrap: normal;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.ytcenter-list-item.ytcenter-list-item-selected {
-  border-color: #e6e6e6;
-  background: #e6e6e6!important;
-}
-
-.ytcenter-list.ytcenter-dragdrop-notdragging .ytcenter-list-item:hover {
-  background: #f2f2f2;
-  cursor: pointer;
-}
-
-.ytcenter-list-header-btn {
-  min-width: 172px!important;
-  height: 100%!important;
-  border: 0!important;
-  border-radius: 0!important;
-  background: #fff!important;
-  border-right: 1px solid #eee!important;
-  color: #000!important;
-  text-shadow: 0 0 0!important;
-  overflow: hidden!important;
-  position: relative!important;
-}
-
-.ytcenter-list-header-btn:hover {
-  background: 0;
-  border: 0;
-  padding-top: 1px;
-}
-
-.ytcenter-list-header-btn:hover:before {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 200px;
-  content: ' ';
-  -moz-box-shadow: inset 0 0 5px #bbb;
-  -ms-box-shadow: inset 0 0 5px #bbb;
-  -webkit-box-shadow: inset 0 0 5px #bbb;
-  box-shadow: inset 0 0 5px #bbb;
-  background: transparent;
-}
-
-.ytcenter-confirmbox {
+.ltr .ytcenter-confirmbox {
   position: fixed;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+}
+.rtl .ytcenter-confirmbox {
+  position: fixed;
+  top: 0;
+  right: 0;
   width: 100%;
   height: 100%;
   z-index: 9999;
@@ -480,8 +419,13 @@
   background: #000;
 }
 
-.ytcenter-confirmbox .ytcenter-confirmbox-floater {
+.ltr .ytcenter-confirmbox .ytcenter-confirmbox-floater {
   float: left;
+  height: 50%;
+  margin-bottom: -59px;
+}
+.rtl .ytcenter-confirmbox .ytcenter-confirmbox-floater {
+  float: right;
   height: 50%;
   margin-bottom: -59px;
 }
@@ -558,4 +502,130 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.rtl .ytcenter-modules-layoutExperiments {
+  text-align: right;
+}
+
+.ltr .ytcenter-modules-layoutExperiments {
+  text-align: left;
+}
+
+.ytcenter-modules-layoutExperiments ul.layoutExperimentList {
+  margin-top: 10px;
+}
+
+.ytcenter-modules-layoutExperiments ul.layoutExperimentList > li {
+  min-height: 100px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.ytcenter-modules-layoutExperiments ul.layoutExperimentList > li:first-child {
+  border-top: 1px solid #eee;
+}
+
+.ytcenter-modules-layoutExperiments .layoutExperimentDescription,
+.ytcenter-modules-layoutExperiments .layoutExperimentFeatures {
+  padding-top: 10px;
+}
+
+.ytcenter-modules-layoutExperiments .layoutExperimentDescription span {
+  display: block;
+  padding-top: 2px;
+}
+
+.ltr .ytcenter-modules-layoutExperiments .layoutExperimentFeaturesList > li {
+  padding: 2px 0 2px 10px;
+}
+.rtl .ytcenter-modules-layoutExperiments .layoutExperimentFeaturesList > li {
+  padding: 2px 10px 2px 0;
+}
+
+.ltr .ytcenter-modules-layoutExperiments .layoutExperimentCodes {
+  text-align: right;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.rtl .ytcenter-modules-layoutExperiments .layoutExperimentCodes {
+  text-align: left;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.ytcenter-modules-layoutExperiments .layoutExperimentScreenshots {
+  padding-top: 5px;
+  font-style: italic;
+}
+
+.ytcenter-modules-layoutExperiments .layoutExperimentScreenshots a {
+  margin: 0 5px;
+}
+
+.ytcenter-modules-layoutExperiments .layoutExperimentPreview {
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+}
+
+.ltr .ytcenter-modules-layoutExperiments .layoutExperimentPreview {
+  float: left;
+}
+
+.rtl .ytcenter-modules-layoutExperiments .layoutExperimentPreview {
+  float: right;
+}
+
+.ytcenter-modules-layoutExperiments .layoutExperimentPreview img {
+  width: 100%;
+  height: 100%;
+}
+
+.ltr .ytcenter-modules-layoutExperiments .layoutExperimentContent {
+  position: relative;
+  margin-left: 160px;
+  min-height: 150px;
+}
+
+.rtl .ytcenter-modules-layoutExperiments .layoutExperimentContent {
+  position: relative;
+  margin-right: 160px;
+  min-height: 150px;
+}
+
+.ytcenter-modules-layoutExperiments .layoutExperimentPad {
+  padding-bottom: 40px;
+}
+
+.ltr .ytcenter-modules-layoutExperiments .layoutExperimentsHeaderUpdateListButton,
+.rtl .ytcenter-modules-layoutExperiments .layoutExperimentsHeaderSetCodeButton {
+  float: right;
+}
+.ltr .ytcenter-modules-layoutExperiments .layoutExperimentsHeaderSetCodeButton,
+.rtl .ytcenter-modules-layoutExperiments .layoutExperimentsHeaderUpdateListButton {
+  float: left;
+}
+
+.ltr .ytcenter-arrow-fix {
+  margin-left: -10px;
+}
+.rtl .ytcenter-arrow-fix {
+  margin-right: -10px;
+}
+
+.ltr .ytcenter-button-fix {
+  text-align: left;
+}
+.rtl .ytcenter-button-fix {
+  text-align: right;
+}
+
+.ltr .ytcenter-modules-links {
+  margin-left: 20px;
+}
+.rtl .ytcenter-modules-links {
+  margin-right: 20px;
 }

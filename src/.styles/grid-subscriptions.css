@@ -15,9 +15,14 @@
 .ytcenter-grid-subscriptions.cardified-page .feed-item-dismissable   {
   padding: 3px;
 }
-.ytcenter-grid-subscriptions.cardified-page .yt-lockup-thumbnail,
-.ytcenter-grid-subscriptions.cardified-page .feed-item-action-menu {
+.ltr.ytcenter-grid-subscriptions.cardified-page .yt-lockup-thumbnail,
+.ltr.ytcenter-grid-subscriptions.cardified-page .feed-item-action-menu {
   margin-left: -3px;
+  margin-top: -3px;
+}
+.rtl.ytcenter-grid-subscriptions.cardified-page .yt-lockup-thumbnail,
+.rtl.ytcenter-grid-subscriptions.cardified-page .feed-item-action-menu {
+  margin-right: -3px;
   margin-top: -3px;
 }
 
@@ -37,9 +42,15 @@
   padding: 0!important;
   width: 185px!important;
   height: 210px!important;
+  border: 0!important;
+}
+.ltr.ytcenter-grid-subscriptions .feed-item-container {
   float: left;
   margin: 0 0 30px 10px!important;
-  border: 0!important;
+}
+.rtl.ytcenter-grid-subscriptions .feed-item-container {
+  float: right;
+  margin: 0 10px 30px 0!important;
 }
 
 .ytcenter-grid-subscriptions .feed-item-header {
@@ -56,9 +67,13 @@
   display: none!important;
 }
 
-.ytcenter-grid-subscriptions .feed-item-action-menu {
+.ltr.ytcenter-grid-subscriptions .feed-item-action-menu {
   top: 8px!important;
   right: 0px!important;
+}
+.rtl.ytcenter-grid-subscriptions .feed-item-action-menu {
+  top: 8px!important;
+  left: 0px!important;
 }
 
 .ytcenter-grid-subscriptions .yt-lockup-meta {
@@ -71,8 +86,12 @@
   border: 0!important;
 }
 
-.ytcenter-grid-subscriptions .feed-item-container .feed-item-main .yt-lockup-content {
+.ltr.ytcenter-grid-subscriptions .feed-item-container .feed-item-main .yt-lockup-content {
   float: left!important;
+  width: 100%!important;
+}
+.rtl.ytcenter-grid-subscriptions .feed-item-container .feed-item-main .yt-lockup-content {
+  float: right!important;
   width: 100%!important;
 }
 

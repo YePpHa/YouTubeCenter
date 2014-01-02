@@ -20,9 +20,13 @@
 }
 
 @media screen and (min-width: 1409px) {
-  .show-guide-if-wide.guide-pinned #page,
-  .show-guide.guide-pinned #page {
+  .ltr.show-guide-if-wide.guide-pinned #page,
+  .ltr.show-guide.guide-pinned #page {
     padding-left: 230px !important;
+  }
+  .rtl.show-guide-if-wide.guide-pinned #page,
+  .rtl.show-guide.guide-pinned #page {
+    padding-right: 230px !important;
   }
 }
 
@@ -43,9 +47,13 @@
 .site-as-giant-card .feed-item-main.legacy-style.ytcenter-intelligentfeed .feed-item-main-content {
   width: auto !important;
 }
-.site-as-giant-card .feed-item-main.legacy-style .feed-item-main-content {
+.ltr.site-as-giant-card .feed-item-main.legacy-style .feed-item-main-content {
   width: auto !important;
   padding-right: 40px !important;
+}
+.rtl.site-as-giant-card .feed-item-main.legacy-style .feed-item-main-content {
+  width: auto !important;
+  padding-left: 40px !important;
 }
 
 .ytcenter-branding-remove-background.site-as-giant-card #watch7-sidebar {

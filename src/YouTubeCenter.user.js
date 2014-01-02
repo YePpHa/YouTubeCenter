@@ -867,6 +867,7 @@
       img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
       img.setAttribute("alt", "");
       img.style.marginLeft = "0px";
+      img.style.marginRight = "0px";
       btn2.appendChild(img);
       
       var stream_groups = (function(){
@@ -1848,6 +1849,7 @@
     var _console = [];
     
     var uw, loc, con, ytcenter = {}, yt = {};
+    ytcenter.ltr = true;
     
     uw = (function(){
       var a;
@@ -6922,7 +6924,8 @@
     ytcenter.modules = {};
     ytcenter.modules.layoutExperiments = function(option){
       function loadExperiments() {
-        // YouTubeExperiments
+        loadedOnce = true;
+        setButtonStatus(1);
         $XMLHTTPRequest({
           method: "GET",
           url: "https://raw.github.com/YePpHa/YouTubeCenter/master/data/ytexperiments.json",
@@ -6930,25 +6933,47 @@
             "Content-Type": "text/plain"
           },
           onload: function(response){
-            con.log(response);
             try {
               var data = JSON.parse(response.responseText);
+              con.log(data);
               ytcenter.settings[option.defaultSetting] = data;
               ytcenter.saveSettings();
+              setButtonStatus(2);
               setStatus("Updated");
               
               update();
             } catch (e) {
               con.error(e);
+              setButtonStatus(3);
               setStatus("error");
             }
           },
           onerror: function(){
+            setButtonStatus(3);
             setStatus("error");
           }
         });
       }
-      function createText(data) {
+      function setButtonStatus(status) {
+        if (setButtonStatusTimer) uw.clearTimeout(setButtonStatusTimer);
+        if (status === 0) {
+          updateButton.setText("MODULES_YTEXPERIMENTS_UPDATELIST");
+          updateButton.setEnabled(true);
+        } else if (status === 1) {
+          updateButton.setText("MODULES_YTEXPERIMENTS_UPDATINGLIST");
+          updateButton.setEnabled(false);
+        } else if (status === 2) {
+          updateButton.setText("MODULES_YTEXPERIMENTS_UPDATEDLIST");
+          updateButton.setEnabled(true);
+          setButtonStatusTimer = uw.setTimeout(function(){
+            setButtonStatus(0);
+          }, 2500);
+        } else if (status === 3) {
+          updateButton.setText("MODULES_YTEXPERIMENTS_UPDATELISTERROR");
+          updateButton.setEnabled(true);
+        }
+      }
+      function createText(data, replace) {
         function getText() {
           if (data.locale) {
             return ytcenter.language.getLocale(data.locale);
@@ -6962,23 +6987,50 @@
             return data.raw;
           }
         }
-        var node = document.createTextNode(getText());
+        var node = document.createTextNode((replace ? ytcenter.utils.replaceTextToText(getText(), replace) : getText()));
         
         unloadEventList.push(ytcenter.events.addEvent("language-refresh", function(){
-          node.textContent = getText();
+          node.textContent = (replace ? ytcenter.utils.replaceTextToText(getText(), replace) : getText());
         }));
         return node;
       }
       function createListItem(data) {
         var wrapper = document.createElement("li");
+        wrapper.className = "clearfix";
         
         if (data.preview) {
+          var previewWrapper = document.createElement("div"),
+              redirectElm = document.createElement("a"),
+              img = document.createElement("img"),
+              src = "";
+          if (ytcenter.utils.isArray(data.preview)) {
+            if (data.preview.length > 0) {
+              var rand = Math.floor(Math.random()*data.preview.length);
+              src = data.preview[rand];
+            }
+          } else {
+            src = data.preview;
+          }
+          redirectElm.href = src;
+          redirectElm.setAttribute("target", "_blank");
+          img.src = src;
+          
+          previewWrapper.className = "layoutExperimentPreview";
+          
+          redirectElm.appendChild(img);
+          previewWrapper.appendChild(redirectElm);
+          
+          wrapper.appendChild(previewWrapper);
         }
+        
+        var content = document.createElement("div");
+        content.className = "layoutExperimentContent";
         
         if (data.description) {
           var descriptionWrapper = document.createElement("div"),
               descriptionTitle = document.createElement("h3"),
               descriptionContent = document.createElement("span");
+          descriptionWrapper.className = "layoutExperimentDescription";
           descriptionTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_DESCRIPTION"); // Raw: Description
           unloadEventList.push(ytcenter.events.addEvent("language-refresh", function(){
             descriptionTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_DESCRIPTION");
@@ -6988,17 +7040,20 @@
           descriptionWrapper.appendChild(descriptionTitle);
           descriptionWrapper.appendChild(descriptionContent);
           
-          wrapper.appendChild(descriptionWrapper);
+          content.appendChild(descriptionWrapper);
         }
         
         if (data.features) {
           var featuresWrapper = document.createElement("div"),
               featuresTitle = document.createElement("h3"),
               featuresContent = document.createElement("ul");
+          featuresWrapper.className = "layoutExperimentFeatures";
+          featuresContent.className = "layoutExperimentFeaturesList";
           featuresTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_FEATURES"); // Raw: Description
           unloadEventList.push(ytcenter.events.addEvent("language-refresh", function(){
             featuresTitle.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_FEATURES");
           }));
+          featuresWrapper.appendChild(featuresTitle);
           var i;
           for (i = 0; i < data.features.length; i++) {
             var item = document.createElement("li");
@@ -7007,12 +7062,53 @@
           }
           featuresWrapper.appendChild(featuresContent);
           
-          wrapper.appendChild(featuresWrapper);
+          content.appendChild(featuresWrapper);
+        }
+        
+        if (data.screenshots) {
+          var screenshotsWrapper = document.createElement("div");
+          screenshotsWrapper.className = "layoutExperimentScreenshots";
+          var i;
+          for (i = 0; i < data.screenshots.length; i++) {
+            var screenshot = document.createElement("a");
+            screenshot.href = data.screenshots[i];
+            screenshot.setAttribute("target", "_blank");
+            screenshot.appendChild(createText({ locale: "MODULES_YTEXPERIMENTS_SCREENSHOTS" }, { number: i + 1 }));
+            screenshotsWrapper.appendChild(screenshot);
+          }
+          content.appendChild(screenshotsWrapper);
         }
         
         if (data.date) {
           // data = { expires: some data, created/started: some date }
         }
+        
+        if (data.codes) {
+          var codesWrapper = document.createElement("div"),
+              codesButton = ytcenter.modules.button({
+                args: {
+                  text: "MODULES_YTEXPERIMENTS_CODES_SELECT",
+                  listeners: [
+                    {
+                      event: "click",
+                      callback: function(){
+                        applyCookieCode(data.codes[0]);
+                      }
+                    }
+                  ]
+                }
+              });
+          codesWrapper.className = "layoutExperimentCodes";
+          codesWrapper.appendChild(codesButton.element);
+          
+          if (content.children.length > 0) {
+            content.lastChild.className += " layoutExperimentPad";
+          }
+          
+          content.appendChild(codesWrapper);
+        }
+        
+        wrapper.appendChild(content);
         
         return wrapper;
       }
@@ -7020,8 +7116,12 @@
         var i;
         unloadEvents(); // Unloading events
         list.innerHTML = ""; // Clearing the list
-        for (i = 0; i < ytcenter.settings[option.defaultSetting].length; i++) {
-          list.appendChild(createListItem(ytcenter.settings[option.defaultSetting]));
+        if (ytcenter.settings[option.defaultSetting].length === 0) {
+          // Empty
+        } else {
+          for (i = 0; i < ytcenter.settings[option.defaultSetting].length; i++) {
+            list.appendChild(createListItem(ytcenter.settings[option.defaultSetting][i]));
+          }
         }
       }
       function unloadEvents() {
@@ -7034,29 +7134,66 @@
       function setStatus(text) {
         
       }
+      function applyCookieCode(code) {
+        document.cookie = "VISITOR_INFO1_LIVE=" + encodeURIComponent(code) + "; path=/; domain=.youtube.com";
+        loc.reload();
+      }
       function init() {
-        var updateButton = ytcenter.modules.button({
-              args: {
-                text: "MODULES_YTEXPERIMENTS_UPDATELIST",
-                listeners: [
-                  {
-                    event: "click",
-                    callback: function(){
-                      loadExperiments();
-                    }
-                  }
-                ]
-              }
-            }),
-            headerWrapper = document.createElement("div");
+        var headerWrapper = document.createElement("div"),
+            setCodeWrapper = document.createElement("div");
+        
+        updateButton.element.className += " layoutExperimentsHeaderUpdateListButton";
+        setCodeWrapper.className = "layoutExperimentsHeaderSetCodeButton";
+        
+        setButtonInput.style.width = "85px";
+        setButtonInput.style.height = "15px";
+        setButtonInput.style.verticalAlign = "middle";
+        
+        setCodeWrapper.appendChild(setButton.element);
+        setCodeWrapper.appendChild(setButtonInput);
+        
+        headerWrapper.appendChild(setCodeWrapper);
         headerWrapper.appendChild(updateButton.element);
+        
+        elm.className = "ytcenter-modules-layoutExperiments";
+        headerWrapper.className = "layoutExperimentsHeader clearfix";
+        list.className = "layoutExperimentList";
         
         elm.appendChild(headerWrapper);
         elm.appendChild(list);
       }
       var elm = document.createElement("div"),
           list = document.createElement("ul"),
-          unloadEventList = [];
+          updateButton = ytcenter.modules.button({
+            args: {
+              text: "MODULES_YTEXPERIMENTS_UPDATELIST",
+              listeners: [
+                {
+                  event: "click",
+                  callback: function(){
+                    loadExperiments();
+                  }
+                }
+              ]
+            }
+          }),
+          setButton = ytcenter.modules.button({
+            args: {
+              text: "MODULES_YTEXPERIMENTS_SETCODE",
+              listeners: [
+                {
+                  event: "click",
+                  callback: function(){
+                    applyCookieCode(setButtonInput.value);
+                  }
+                }
+              ]
+            }
+          }),
+          setButtonInput = ytcenter.gui.createYouTubeTextInput(),
+          unloadEventList = [],
+          setButtonStatusTimer = null,
+          loadedOnce = false;
       
       init();
       update();
@@ -7064,7 +7201,9 @@
       return {
         element: elm,
         bind: function(){},
-        update: function(){ update(); }
+        update: function(){ update(); },
+        loadExperiments: function(){ loadExperiments(); },
+        hasLoadedOnce: function(){ return loadedOnce; }
       };
     };
     ytcenter.modules.aboutText = function(option){
@@ -7165,7 +7304,9 @@
       };
     };
     ytcenter.modules.button = function(option){
-      var elm = document.createElement("button");
+      var elm = document.createElement("button"),
+          languageListener = null,
+          localeText = null;
       elm.setAttribute("type", "button");
       elm.setAttribute("role", "button");
       elm.setAttribute("onclick", ";return false;");
@@ -7173,8 +7314,11 @@
       var c = document.createElement("span");
       c.className = "yt-uix-button-content";
       if (option && option.args && option.args.text) {
-        c.textContent = ytcenter.language.getLocale(option.args.text);
-        ytcenter.language.addLocaleElement(c, option.args.text, "@textContent");
+        localeText = option.args.text;
+        c.textContent = ytcenter.language.getLocale(localeText);
+        languageListener = ytcenter.events.addEvent("language-refresh", function(){
+          c.textContent = ytcenter.language.getLocale(localeText);
+        });
       }
       if (option && option.args && option.args.listeners) {
         for (var j = 0; j < option.args.listeners.length; j++) {
@@ -7198,6 +7342,18 @@
         },
         removeEventListener: function(event, callback, bubble){
           elm.removeEventListener(event, callback, bubble);
+        },
+        setText: function(text){
+          localeText = text;
+          c.textContent = ytcenter.language.getLocale(localeText);
+          if (!languageListener) {
+            languageListener = ytcenter.events.addEvent("language-refresh", function(){
+              c.textContent = ytcenter.language.getLocale(localeText);
+            })
+          }
+        },
+        setEnabled: function(enabled){
+          elm.disabled = !enabled;
         }
       };
     };
@@ -7255,6 +7411,18 @@
       }
       function updateHueRange() {
         if (Math.max(red, green, blue) !== Math.min(red, green, blue)) {
+          hsv = ytcenter.utils.getHSV(red, green, blue);
+          hueRange.update(hsv.hue);
+        } else {
+          var __hsv = ytcenter.utils.getHSV(red, green, blue);
+          if (hsv.value > hsv.saturation) {
+            hsv.saturation = __hsv.saturation;
+          } else if (hsv.value < hsv.saturation) {
+            hsv.value = __hsv.value;
+          } else {
+            hsv.saturation = __hsv.saturation;
+            hsv.value = __hsv.value;
+          }
           hueRange.update(hsv.hue);
         }
       }
@@ -7327,20 +7495,20 @@
       redRange.bind(function(value){
         red = value;
         update();
-        updateHueRange();
         updateColorField();
+        updateHueRange();
       });
       greenRange.bind(function(value){
         green = value;
         update();
-        updateHueRange();
         updateColorField();
+        updateHueRange();
       });
       blueRange.bind(function(value){
         blue = value;
         update();
-        updateHueRange();
         updateColorField();
+        updateHueRange();
       });
       
       rWrapper.appendChild(rText.element);
@@ -7405,8 +7573,8 @@
         hsv = ytcenter.utils.getHSV(red, green, blue);
         
         update();
-        updateHueRange();
         updateColorField();
+        updateHueRange();
       });
       htmlColor.element.className += " ytcenter-modules-htmlcolor";
       
@@ -7448,8 +7616,8 @@
               hsv = ytcenter.utils.getHSV(red, green, blue);
               
               update();
-              updateHueRange();
               updateColorField();
+              updateHueRange();
             };
           })(option.args.presetColors[i]), false);
           presets.appendChild(color);
@@ -7475,8 +7643,8 @@
             green = rgb.green;
             blue = rgb.blue;
             update();
-            updateHueRange();
             updateColorField();
+            updateHueRange();
             ytcenter.events.performEvent("ui-refresh");
             
             dialog.setVisibility(false);
@@ -7501,8 +7669,8 @@
       });
       
       update();
-      updateHueRange();
       updateColorField();
+      updateHueRange();
       
       return {
         element: wrapper,
@@ -7516,8 +7684,8 @@
           green = rgb.green;
           blue = rgb.blue;
           update();
-          updateHueRange();
           updateColorField();
+          updateHueRange();
           //ytcenter.events.performEvent("ui-refresh");
         }
       };
@@ -7527,7 +7695,11 @@
         var x = sat/100*wrapper.clientWidth,
             y = (100 - val)/100*wrapper.clientHeight;
         handler.style.top = Math.round(y - handler.offsetHeight/2) + "px";
-        handler.style.left = Math.round(x - handler.offsetWidth/2) + "px";
+        if (ytcenter.ltr) {
+          handler.style.left = Math.round(x - handler.offsetWidth/2) + "px";
+        } else {
+          handler.style.right = Math.round(wrapper.clientWidth - x - handler.offsetWidth/2) + "px";
+        }
       }
       function updateBackground() {
         wrapper.style.background = ytcenter.utils.hsvToHex(hue, 100, 100);
@@ -7777,10 +7949,9 @@
       
       menu.className = "yt-uix-button-menu yt-uix-button-menu-default yt-uix-button-menu-external hid";
       menu.setAttribute("role", "menu");
-      arrow.style.marginLeft = "-10px";
-      
+      arrow.className += " ytcenter-arrow-fix";
+      btn.className += " ytcenter-button-fix";
       btn.style.width = "175px";
-      btn.style.textAlign = "left";
       
       wrapper.appendChild(btn);
       
@@ -8063,7 +8234,11 @@
       
       dropZoneContent.style.margin = "0 auto";
       dropZoneContent.style.display = "inline-block";
-      dropZoneContent.style.textAlign = "left";
+      if (ytcenter.ltr) {
+        dropZoneContent.style.textAlign = "left";
+      } else {
+        dropZoneContent.style.textAlign = "right";
+      }
       
       dropZone.appendChild(dropZoneContent);
       dropZone.appendChild(status);
@@ -8148,7 +8323,7 @@
         title.textContent = option.args.title + ":";
       }
       var content = document.createElement("div");
-      content.style.marginLeft = "20px";
+      content.className = "ytcenter-modules-links";
       
       for (var i = 0; i < option.args.links.length; i++) {
         if (i > 0) content.appendChild(document.createElement("br"));
@@ -8478,6 +8653,7 @@
           handle.style.top = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientHeight - handle.offsetHeight)) + "px";
         } else {
           handle.style.left = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientWidth - handle.offsetWidth)) + "px";
+          handle.style.right = ((options.value - options.min)/(options.max - options.min)*(wrapper.clientWidth - handle.offsetWidth)) + "px";
         }
       }
       function eventToValue(e) {
@@ -8498,6 +8674,8 @@
           l = v - parseInt(options.height)/2;
           if (l < 0) l = 0;
           if (l > wrapper.clientWidth - handle.clientWidth) l = wrapper.clientWidth - handle.clientWidth;
+          
+          if (!ytcenter.ltr) l = (wrapper.clientWidth - handle.clientWidth) - l;
           
           setValue(l/(wrapper.clientWidth - handle.clientWidth)*(options.max - options.min) + options.min);
         }
@@ -9186,9 +9364,7 @@
         optionsWrapper.className = "clearfix resize-options";
         
         var saveBtn = ytcenter.gui.createYouTubePrimaryButton("", [ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_PLAYERSIZE_SAVE")]);
-        saveBtn.style.cssFloat = "right";
-        saveBtn.style.marginLeft = "10px";
-        saveBtn.style.minWidth = "60px";
+        saveBtn.className += " resize-options-right";
         ytcenter.utils.addEventListener(saveBtn, "click", function(){
           state = 0;
           wrp.style.visibility = "hidden";
@@ -9197,9 +9373,7 @@
         });
         
         var cancelBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_PLAYERSIZE_CANCEL")]);
-        cancelBtn.style.cssFloat = "right";
-        cancelBtn.style.marginLeft = "10px";
-        cancelBtn.style.minWidth = "60px";
+        cancelBtn.className += " resize-options-right";
         ytcenter.utils.addEventListener(cancelBtn, "click", function(){
           if (hasUnsavedChanges()) {
             ytcenter.confirmBox("EMBED_RESIZEITEMLIST_CONFIRM_TITLE", "EMBED_RESIZEITEMLIST_UNSAVED_CONFIRM_MESSAGE", function(accepted){
@@ -9219,8 +9393,7 @@
         });
         
         var deleteBtn = ytcenter.gui.createYouTubeDefaultButton("", [ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_PLAYERSIZE_DELETE")]);
-        deleteBtn.style.cssFloat = "left";
-        deleteBtn.style.minWidth = "60px";
+        deleteBtn.className += " resize-options-left";
         ytcenter.utils.addEventListener(deleteBtn, "click", function(){
           ytcenter.confirmBox("EMBED_RESIZEITEMLIST_DELETE_CONFIRM_TITLE", "EMBED_RESIZEITEMLIST_DELETE_CONFIRM_MESSAGE", function(del){
             if (del) {
@@ -13756,11 +13929,7 @@
             closeIcon = document.createElement("img");
         closeIcon.className = "close";
         closeIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
-        closeButton.style.position = "absolute";
-        closeButton.style.top = "0";
-        closeButton.style.right = "0";
-        closeButton.style.margin = "0";
-        closeButton.className = "yt-alert";
+        closeButton.className = "yt-alert ytcenter-settings-close-button";
         closeButton.appendChild(closeIcon);
         ytcenter.utils.addEventListener(closeButton, "click", function(){
           dialog.setVisibility(false);
@@ -14152,12 +14321,6 @@
             ytcenter.classManagement.applyClasses();
           });
           subcat.addOption(option);
-        /*subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_EXPERIMENTS"); cat.addSubCategory(subcat);
-          option = ytcenter.settingsPanel.createOption(
-            "YouTubeExperiments", // defaultSetting
-            "layoutExperiments"
-          );
-          subcat.addOption(option);*/
 
       /* Category:Player */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER");
@@ -14787,7 +14950,8 @@
             "SETTINGS_TOPSCROLLPLAYER_BUMPTIMER", // label
             {
               "min": 0,
-              "max": 10000
+              "max": 10000,
+              "suffix": " ms"
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#counter-reset-after"
           );
@@ -16829,6 +16993,18 @@
           );
           subcat.addOption(option);
 
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_EXPERIMENTS"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "YouTubeExperiments", // defaultSetting
+            "layoutExperiments"
+          );
+          subcat.addEventListener("click", (function(opt){
+            return function(){
+              if (!opt.getLiveModule().hasLoadedOnce())
+                opt.getLiveModule().loadExperiments();
+            };
+          })(option));
+          subcat.addOption(option);
         //subcat = ytcenter.settingsPanel.createSubCategory("Options"); cat.addSubCategory(subcat);
 
 
@@ -18827,6 +19003,7 @@
       scrollToPlayerButtonArrow.alt = "";
       scrollToPlayerButtonArrow.setAttribute("alt", "");
       scrollToPlayerButtonArrow.style.marginLeft = "0";
+      scrollToPlayerButtonArrow.style.marginRight = "0";
       scrollToPlayerButtonArrow.style.display = "inline-block";
       scrollToPlayerButton = ytcenter.gui.createYouTubeDefaultButton("SCROLL_TOOLTIP", [scrollToPlayerButtonArrow]);
       if (ytcenter.settings.experimentalFeatureTopGuide) {
@@ -20900,6 +21077,7 @@
         /*****END OF SAVEAS AND BLOB IMPLEMENTATION*****/
       });
       ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
+        if (!ytcenter.utils.hasClass(document.body, "ltr")) ytcenter.ltr = false;
         var page = ytcenter.getPage();
         if (page === "comments") return; // We don't need to do anything here.
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;

@@ -1,8 +1,13 @@
 .ytcenter-panel {
-  border-left: 1px solid #eee;
   display: inline-block;
   width: 773px;
   position: relative;
+}
+.ltr .ytcenter-panel {
+  border-left: 1px solid #eee;
+}
+.rtl .ytcenter-panel {
+  border-right: 1px solid #eee;
 }
 
 .ytcenter-panel-label:first-of-type {
@@ -19,4 +24,10 @@
   padding-right: 8px;
   width: 100px;
   display: inline-block;
+}
+.ltr .ytcenter-panel-label label {
+  padding-right: 8px;
+}
+.rtl .ytcenter-panel-label label {
+  padding-left: 8px;
 }

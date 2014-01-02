@@ -1,8 +1,7 @@
 [
   {
     "codes": ["o-HeXA0cVoQ"],
-    "screenshots": [],
-    "preview": [],
+    "preview": ["https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/26-07-2013%20-%201.png"],
     "description": {
       "raw": "The default YouTube layout."
     },
@@ -13,10 +12,14 @@
     ]
   }, {
     "codes": ["81nZqGTqTaM"],
-    "screenshots": [],
-    "preview": [],
+    "screenshots": [
+      "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/experimental_layout/screenshot1.png",
+      "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/experimental_layout/screenshot2.png",
+      "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/experimental_layout/screenshot3.png"
+    ],
+    "preview": ["https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/experimental_layout/preview.png"],
     "description": {
-      "raw": "The experimental layout. It will probably be forced onto users sometime in the future."
+      "raw": "The experimental layout. It will probably be forced onto users at some point in the future."
     },
     "features": [
       {

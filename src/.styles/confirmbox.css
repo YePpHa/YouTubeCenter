@@ -1,10 +1,16 @@
 .ytcenter-confirmbox {
   position: fixed;
   top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   z-index: 9999;
+}
+
+.ltr .ytcenter-confirmbox {
+  left: 0;
+}
+.rtl .ytcenter-confirmbox {
+  right: 0;
 }
 
 .ytcenter-confirmbox .ytcenter-confirmbox-mask {
@@ -14,9 +20,14 @@
 }
 
 .ytcenter-confirmbox .ytcenter-confirmbox-floater {
-  float: left;
   height: 50%;
   margin-bottom: -59px;
+}
+.ltr .ytcenter-confirmbox .ytcenter-confirmbox-floater {
+  float: left;
+}
+.rtl .ytcenter-confirmbox .ytcenter-confirmbox-floater {
+  float: right;
 }
 
 .ytcenter-confirmbox .ytcenter-confirmbox-box {

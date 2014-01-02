@@ -1,3 +1,15 @@
+.ytcenter-settings-close-button {
+  position: absolute;
+  top: 0;
+  margin: 0;
+}
+.ltr .ytcenter-settings-close-button {
+  right: 0;
+}
+.rtl .ytcenter-settings-close-button {
+  left: 0;
+}
+
 .ytcenter-settings-category-list {
   width: 100%;
 }
@@ -38,18 +50,27 @@
   position: relative;
   display: table-cell;
   padding-bottom: 30px;
-  border-right: 1px solid #e2e2e2;
   min-width: 190px;
   width: 190px;
+}
+.ltr .ytcenter-settings-panel-left {
+  border-right: 1px solid #e2e2e2;
+}
+.rtl .ytcenter-settings-panel-left {
+  border-left: 1px solid #e2e2e2;
 }
 
 .ytcenter-settings-panel-right-content {
   width: 100%;
 }
 
-.ytcenter-settings-subcat-header li {
+.ltr .ytcenter-settings-subcat-header li {
   float: left;
   margin-left: 13px;
+}
+.rtl .ytcenter-settings-subcat-header li {
+  float: right;
+  margin-right: 13px;
 }
 
 .ytcenter-settings-subcat-header-wrapper {
@@ -80,8 +101,11 @@
   height: 32px;
 }
 
-.ytcenter-settings-subcat-header li:last-child {
+.ltr .ytcenter-settings-subcat-header li:last-child {
   margin-right: 13px;
+}
+.rtl .ytcenter-settings-subcat-header li:last-child {
+  margin-left: 13px;
 }
 
 .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item.ytcenter-selected,
@@ -105,9 +129,7 @@
 .ytcenter-settings-subcat-statusbar-wrapper {
   position: absolute;
   bottom: 0;
-  right: 0;
   
-  text-align: right;
   padding: 9px;
   color: #999;
   
@@ -117,6 +139,14 @@
   -moz-transition: opacity 1s;
   -webkit-transition: opacity 1s;
   transition: opacity 1s;
+}
+.ltr .ytcenter-settings-subcat-statusbar-wrapper {
+  right: 0;
+  text-align: right;
+}
+.rtl .ytcenter-settings-subcat-statusbar-wrapper {
+  left: 0;
+  text-align: left;
 }
 .ytcenter-settings-subcat-statusbar-wrapper.visible {
   opacity: 1;
@@ -216,8 +246,11 @@
   color: #aaa;
 }
 
-.ytcenter-theme-dark .ytcenter-settings-panel-left {
+.ltr.ytcenter-theme-dark .ytcenter-settings-panel-left {
   border-right: 1px solid #1d1d1d;
+}
+.rtl.ytcenter-theme-dark .ytcenter-settings-panel-left {
+  border-left: 1px solid #1d1d1d;
 }
 
 .ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item:hover {
