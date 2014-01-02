@@ -7148,6 +7148,7 @@
         setButtonInput.style.width = "85px";
         setButtonInput.style.height = "15px";
         setButtonInput.style.verticalAlign = "middle";
+        setButtonInput.value = ytcenter.utils.getCookie("VISITOR_INFO1_LIVE");
         
         setCodeWrapper.appendChild(setButton.element);
         setCodeWrapper.appendChild(setButtonInput);
