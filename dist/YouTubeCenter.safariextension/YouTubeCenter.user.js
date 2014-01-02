@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         187
+// @version         188
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 187);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 188);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -5954,7 +5954,6 @@
           vendorSub: uw.navigator.vendorSub,
           platform: uw.navigator.platform
         };
-        //dbg._settings = ytcenter._settings;
         dbg.settings = {};
         for (a in ytcenter.settings) {
           if (ytcenter.settings.hasOwnProperty(a)) {
@@ -12507,6 +12506,7 @@
       videoThumbnailAnimationFallbackInterval: 2000,
       forcePlayerType: "default", // default, flash, html5
       embed_forcePlayerType: "default", // default, flash, html5
+      channel_forcePlayerType: "default", // default, flash, html5
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
       ytspf: false,
@@ -15313,6 +15313,20 @@
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
+            "channel_forcePlayerType",
+            "list",
+            "SETTINGS_FORCEPLAYERTYPE",
+            {
+              "list": [
+                { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
+                { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
+                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
             "channel_autohide",
             "list",
             "SETTINGS_AUTOHIDECONTROLBAR_LABEL",
@@ -17955,7 +17969,7 @@
         }
         
         if (ytcenter.settings.channel_preventAutoBuffer) {
-          //api.stopVideo();
+          api.stopVideo();
         } else if (ytcenter.settings.channel_preventAutoPlay) {
           api.playVideo();
           api.pauseVideo();
@@ -18108,6 +18122,11 @@
       if (!config.args) config.args = {};
       con.log("[Player modifyConfig] => " + page);
       
+      if (document.getElementById("upsell-video")) {
+        var swf_config = JSON.parse(document.getElementById("upsell-video").getAttribute("data-swf-config").replace(/&amp;/g, "&").replace(/&quot;/g, "\""));
+        config = swf_config;
+      }
+      
       if (config && config.args && ((config.args.url_encoded_fmt_stream_map && config.args.fmt_list) || config.args.adaptive_fmts)) {
         var streams = ytcenter.parseStreams(config.args);
         ytcenter.video.streams = streams;
@@ -18149,6 +18168,20 @@
           config.disable = { html5: 1 };
           ytcenter.player.setPlayerType("flash");
         } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+          config.html5 = true;
+          delete config.args.ad3_module;
+          config.args.allow_html5_ads = 1;
+          config.args.html5_sdk_version = "3.1";
+          config.disable = { flash: 1 };
+          ytcenter.player.setPlayerType("html5");
+        }
+      } else if (ytcenter.getPage() === "embed") {
+        if (ytcenter.settings.channel_forcePlayerType === "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+          config.html5 = false;
+          config.args.html5_sdk_version = "0";
+          config.disable = { html5: 1 };
+          ytcenter.player.setPlayerType("flash");
+        } else if (ytcenter.settings.channel_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
           delete config.args.ad3_module;
           config.args.allow_html5_ads = 1;
@@ -18311,6 +18344,7 @@
         }
       } else if (page === "embed") {
         if (ytcenter.settings.embed_forcePlayerType === "flash") {
+          
           config.html5 = false;
         } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
@@ -18353,6 +18387,13 @@
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", ytcenter.settings.embed_bgcolor);
         }
       } else if (page === "channel") {
+        if (ytcenter.settings.channel_forcePlayerType === "flash") {
+          config.html5 = false;
+        } else if (ytcenter.settings.channel_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+          config.html5 = true;
+          delete config.args.ad3_module;
+        }
+        
         if (ytcenter.settings.channel_dashPlayback) {
           config.args.dash = "1";
         } else {
@@ -18401,11 +18442,7 @@
         } else if (ytcenter.settings.channel_bgcolor !== "default" && ytcenter.settings.channel_bgcolor.indexOf("#") === 0) {
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", ytcenter.settings.channel_bgcolor);
         }
-        
         if (document.getElementById("upsell-video")) {
-          var swf_config = JSON.parse(document.getElementById("upsell-video").getAttribute("data-swf-config").replace(/&amp;/g, "&").replace(/&quot;/g, "\""));
-          swf_config.args = config.args;
-          config = swf_config;
           document.getElementById("upsell-video").setAttribute("data-swf-config", JSON.stringify(config).replace(/&/g, "&amp;").replace(/"/g, "&quot;"));
         }
       }
@@ -21895,7 +21932,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 187);
+          main_function(false, 4, true, 188);
         /*} catch (e) {
         }*/
       }
@@ -21915,7 +21952,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 187);
+      main_function(false, 4, true, 188);
     //} catch (e) {
       //console.error(e);
     //}
