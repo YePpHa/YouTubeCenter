@@ -20051,33 +20051,21 @@
     ytcenter.player._appliedBefore = false;
     ytcenter.player._onPlayerLoadedBefore = false;
     ytcenter.player.setPlayerType = function(type){
-      if (type !== "html5" && type !== "flash") {
-        con.error("[Player setPlayerType] Invalid type: " + type);
-        return;
-      }
-      if (ytcenter.player.isLiveStream()) {
-        con.log("[Player setPlayerType] Is disabled on live streams!");
-        return;
-      }
-      if (ytcenter.player.isOnDemandStream()) {
-        con.log("[Player setPlayerType] Is disabled on live streams!");
-        return;
-      }
-      var api = ytcenter.player.getAPI();
-      if (api) {
-        if (api.getPlayerType() === type) {
-          con.log("[Player setPlayerType] Type is already " + type + "!");
+      try {
+        if (type !== "html5" && type !== "flash") {
+          con.error("[Player setPlayerType] Invalid type: " + type);
           return;
         }
-        con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
-        
-        api.writePlayer(type);
-      } else {
-        var called = false;
-        var cb = function(api){
-          if (!api || called) return;
-          called = true;
-          if (type === "flash") ytcenter.player.disableHTML5Tick();
+        if (ytcenter.player.isLiveStream()) {
+          con.log("[Player setPlayerType] Is disabled on live streams!");
+          return;
+        }
+        if (ytcenter.player.isOnDemandStream()) {
+          con.log("[Player setPlayerType] Is disabled on live streams!");
+          return;
+        }
+        var api = ytcenter.player.getAPI();
+        if (api) {
           if (api.getPlayerType() === type) {
             con.log("[Player setPlayerType] Type is already " + type + "!");
             return;
@@ -20085,11 +20073,27 @@
           con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
           
           api.writePlayer(type);
-        };
-        con.log("[Player setPlayerType] API isn't ready!");
-        if (type === "flash") ytcenter.player.disableHTML5();
-        //ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
-        ytcenter.player.listeners.addEventListener("onReady", cb);
+        } else {
+          var called = false;
+          var cb = function(api){
+            if (!api || called) return;
+            called = true;
+            if (type === "flash") ytcenter.player.disableHTML5Tick();
+            if (api.getPlayerType() === type) {
+              con.log("[Player setPlayerType] Type is already " + type + "!");
+              return;
+            }
+            con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
+            
+            api.writePlayer(type);
+          };
+          con.log("[Player setPlayerType] API isn't ready!");
+          if (type === "flash") ytcenter.player.disableHTML5();
+          //ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
+          ytcenter.player.listeners.addEventListener("onReady", cb);
+        }
+      } catch (e) {
+        con.error(e);
       }
     };
     ytcenter.player.disableHTML5Tick = function(){
