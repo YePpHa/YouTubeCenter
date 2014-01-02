@@ -1,7 +1,7 @@
 /**
   The MIT License (MIT)
 
-  Copyright (c) 2013 Jeppe Rune Mortensen
+  Copyright (c) 2014 Jeppe Rune Mortensen
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of
   this software and associated documentation files (the "Software"), to deal in
@@ -6978,7 +6978,7 @@
       function createText(data, replace) {
         function getText() {
           if (data.locale) {
-            return ytcenter.language.getLocale(data.locale);
+            return ytcenter.language.getLocale(data.locale) || data.raw;
           } else if (data.raw_locales) {
             if (data.raw_locales[language]) {
               return data.raw_locales[language];
