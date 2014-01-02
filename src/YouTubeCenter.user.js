@@ -21640,6 +21640,10 @@
           
           initPlacement();
         }
+        
+        if (loc.hash === "#ytcenter.settings.open") {
+          ytcenter.unsafe.openSettings();
+        }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
         var page = ytcenter.getPage();
@@ -21656,7 +21660,6 @@
         
         if (loc.hash === "#ytcenter.settings.open") {
           loc.hash = "#!";
-          ytcenter.unsafe.openSettings();
         }
       });
       
