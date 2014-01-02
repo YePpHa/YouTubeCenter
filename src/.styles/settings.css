@@ -1,7 +1,7 @@
 .ytcenter-settings-close-button {
-  position: absolute;
-  top: 0;
-  margin: 0;
+  position: absolute !important;
+  top: 0 !important;
+  margin: 0 !important;
 }
 .ltr .ytcenter-settings-close-button {
   right: 0;

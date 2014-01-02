@@ -7073,7 +7073,7 @@
             var screenshot = document.createElement("a");
             screenshot.href = data.screenshots[i];
             screenshot.setAttribute("target", "_blank");
-            screenshot.appendChild(createText({ locale: "MODULES_YTEXPERIMENTS_SCREENSHOTS" }, { number: i + 1 }));
+            screenshot.appendChild(createText({ locale: "MODULES_YTEXPERIMENTS_SCREENSHOTS" }, { "{number}": i + 1 }));
             screenshotsWrapper.appendChild(screenshot);
           }
           content.appendChild(screenshotsWrapper);
@@ -10923,6 +10923,8 @@
               con.error("[TextReplace] Unknown type of replacer!");
             }
           } else if (typeof replacer[matched] === "string") {
+            tmp += replacer[matched];
+          } else if (typeof replacer[matched] === "number") {
             tmp += replacer[matched];
           } else {
             con.error("[TextReplace] Unknown type of replacer!");
