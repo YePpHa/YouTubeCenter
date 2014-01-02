@@ -2195,7 +2195,6 @@
                 con.log("[SPF] " + event, args);
                 
                 args = callListenerCallbacks(event, "before", args) || args;
-                con.log(args);
                 if (_ytconfig[event]) args = _ytconfig[event].apply(uw, args) || args;
                 args = callListenerCallbacks(event, "after", args) || args;
               } catch (e) {
@@ -2226,17 +2225,21 @@
         return a;
       }
       function callListenerCallbacks(event, mode, args) {
-        if (!listeners[event]) return; // No attached listeners to the specific event.
-        var i;
-        
-        args = transformArguments(args);
-        
-        for (i = 0; i < listeners[event].length; i++) {
-          if (listeners[event][i].mode !== mode) continue; // Needs to be the exact same mode.
-          args = listeners[event][i].callback.apply(null, args) || args;
+        try {
+          if (!listeners[event]) return; // No attached listeners to the specific event.
+          var i;
+          
+          args = transformArguments(args);
+          
+          for (i = 0; i < listeners[event].length; i++) {
+            if (listeners[event][i].mode !== mode) continue; // Needs to be the exact same mode.
+            args = listeners[event][i].callback.apply(null, args) || args;
+          }
+          
+          return transformArgumentsBack(args);
+        } catch (e) {
+          con.error(e);
         }
-        
-        return transformArgumentsBack(args);
       }
       function isConfigEvent(key) {
         var i;
@@ -20109,8 +20112,8 @@
             return;
           }
           con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
-          
-          api.writePlayer(type);
+          if (api.writePlayer)
+            api.writePlayer(type);
         } else {
           var called = false;
           var cb = function(api){
@@ -21665,6 +21668,8 @@
       
       ytcenter.spf.addEventListener("requested", "before", function(url){
         ytcenter.spf.unsafeProcessedRun = false;
+        ytcenter.unsafe.spf.__url = null;
+        ytcenter.unsafe.spf.__data = null;
         if (!ytcenter.settings.ytspf) {
           loc.href = url;
           throw new Error("SPF is disabled!");
@@ -21756,6 +21761,8 @@
           var js = d.getJS();
           if (!js) js = "";
           d.setJS(js + "<script>ytcenter.spf.processed();</script>");
+          ytcenter.unsafe.spf.__url = url;
+          ytcenter.unsafe.spf.__data = data;
         }
         
         return [url, data];
@@ -21766,6 +21773,8 @@
         ytcenter.spf.unsafeProcessedRun = true;
         var d = null,
             config, a, i;
+        url = url || ytcenter.unsafe.spf.__url;
+        data = data || ytcenter.unsafe.spf.__data;
         url = ytcenter.utils.getURL(url || ytcenter.unsafe.spf.url || loc.href) || loc;
         
         

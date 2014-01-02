@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         190
+// @version         191
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 190);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 191);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -2195,7 +2195,6 @@
                 con.log("[SPF] " + event, args);
                 
                 args = callListenerCallbacks(event, "before", args) || args;
-                con.log(args);
                 if (_ytconfig[event]) args = _ytconfig[event].apply(uw, args) || args;
                 args = callListenerCallbacks(event, "after", args) || args;
               } catch (e) {
@@ -2226,17 +2225,21 @@
         return a;
       }
       function callListenerCallbacks(event, mode, args) {
-        if (!listeners[event]) return; // No attached listeners to the specific event.
-        var i;
-        
-        args = transformArguments(args);
-        
-        for (i = 0; i < listeners[event].length; i++) {
-          if (listeners[event][i].mode !== mode) continue; // Needs to be the exact same mode.
-          args = listeners[event][i].callback.apply(null, args) || args;
+        try {
+          if (!listeners[event]) return; // No attached listeners to the specific event.
+          var i;
+          
+          args = transformArguments(args);
+          
+          for (i = 0; i < listeners[event].length; i++) {
+            if (listeners[event][i].mode !== mode) continue; // Needs to be the exact same mode.
+            args = listeners[event][i].callback.apply(null, args) || args;
+          }
+          
+          return transformArgumentsBack(args);
+        } catch (e) {
+          con.error(e);
         }
-        
-        return transformArgumentsBack(args);
       }
       function isConfigEvent(key) {
         var i;
@@ -20109,8 +20112,8 @@
             return;
           }
           con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
-          
-          api.writePlayer(type);
+          if (api.writePlayer)
+            api.writePlayer(type);
         } else {
           var called = false;
           var cb = function(api){
@@ -21665,6 +21668,8 @@
       
       ytcenter.spf.addEventListener("requested", "before", function(url){
         ytcenter.spf.unsafeProcessedRun = false;
+        ytcenter.unsafe.spf.__url = null;
+        ytcenter.unsafe.spf.__data = null;
         if (!ytcenter.settings.ytspf) {
           loc.href = url;
           throw new Error("SPF is disabled!");
@@ -21756,6 +21761,8 @@
           var js = d.getJS();
           if (!js) js = "";
           d.setJS(js + "<script>ytcenter.spf.processed();</script>");
+          ytcenter.unsafe.spf.__url = url;
+          ytcenter.unsafe.spf.__data = data;
         }
         
         return [url, data];
@@ -21766,6 +21773,8 @@
         ytcenter.spf.unsafeProcessedRun = true;
         var d = null,
             config, a, i;
+        url = url || ytcenter.unsafe.spf.__url;
+        data = data || ytcenter.unsafe.spf.__data;
         url = ytcenter.utils.getURL(url || ytcenter.unsafe.spf.url || loc.href) || loc;
         
         
@@ -21935,7 +21944,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 190);
+          main_function(false, 4, true, 191);
         /*} catch (e) {
         }*/
       }
@@ -21955,7 +21964,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 190);
+      main_function(false, 4, true, 191);
     //} catch (e) {
       //console.error(e);
     //}
