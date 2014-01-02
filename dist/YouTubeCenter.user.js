@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         183
+// @version         184
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 183);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 184);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21598,11 +21598,6 @@
           
           initPlacement();
         }
-        
-        if (loc.hash === "#ytcenter.settings.open") {
-          loc.hash = "#!";
-          ytcenter.unsafe.openSettings();
-        }
       });
       ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
         var page = ytcenter.getPage();
@@ -21615,6 +21610,11 @@
         } else {
           ytcenter.guideMode.setup();
           ytcenter.actionPanel.setup();
+        }
+        
+        if (loc.hash === "#ytcenter.settings.open") {
+          loc.hash = "#!";
+          ytcenter.unsafe.openSettings();
         }
       });
       
@@ -21890,7 +21890,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 183);
+          main_function(false, 0, true, 184);
         /*} catch (e) {
         }*/
       }
@@ -21910,7 +21910,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 183);
+      main_function(false, 0, true, 184);
     //} catch (e) {
       //console.error(e);
     //}
