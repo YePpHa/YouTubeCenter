@@ -31,6 +31,7 @@
     "scripts": [ "background.js" ]
   },
   "options_page": "options.html",
+  @chrome-update-install-part@
   "permissions": [
     "storage",
     "unlimited_storage",
