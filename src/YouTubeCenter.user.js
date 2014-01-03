@@ -13390,6 +13390,9 @@
       }, {
         label: 'SETTINGS_MP3SERVICES_SNIPMP3',
         value: 'http://snipmp3.com/?url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}'
+      }, {
+        label: 'SETTINGS_MP3SERVICES_CLIPCONVERTER',
+        value: 'http://www.clipconverter.cc/?ref=bookmarklet&url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}'
       }
     ];
     con.log("Initializing settings ui");
