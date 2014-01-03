@@ -63,3 +63,7 @@
 .ytcenter-branding-remove-background.site-as-giant-card .watch-wide #watch7-sidebar {
   background-color: transparent!important;
 }
+
+.site-center-aligned #content #yt-admin {
+  padding: 0 !important;
+}

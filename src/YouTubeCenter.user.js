@@ -4215,6 +4215,7 @@
             linebreak = userHeader.getElementsByTagName("br")[0],
             countryContainer = document.createElement("span"),
             countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+        if (userHeader.getElementsByClassName("country").length > 0) return;
         countryContainer.className = "country";
         if (ytcenter.settings.uploaderCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
           var img = document.createElement("img");
@@ -19976,7 +19977,6 @@
       return "auto";
     };*/
     ytcenter.player.getQuality = function(vq, streams, dash){
-      con.log("[getQuality] Prefered quality: " + vq + "; DASH: " + dash + "; HTML5: " + ytcenter.html5 + "; Streams: ", streams);
       var _vq = "auto", priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'],
           a = document.createElement("video"), cpt = a && a.canPlayType,
           currentIndex = 0, quality, qualityIndex, preferedIndex;
