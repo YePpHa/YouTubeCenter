@@ -14599,7 +14599,7 @@
           subcat.addOption(option);
           
           // Will only be visible in the developer build.
-          if (@devbuild@) {
+          /*if (@devbuild@) {
             option = ytcenter.settingsPanel.createOption(
               null, // defaultSetting
               "line"
@@ -14612,7 +14612,7 @@
               "SETTINGS_HTML_ANNOTATION_FIX"
             );
             subcat.addOption(option);
-          }
+          }*/
         
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_AUTOPLAY"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
@@ -19398,9 +19398,6 @@
             playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
         
-        ytcenter.player.fixAnnotations.setPreferredDimension(calcWidth, calcHeight);
-        ytcenter.player.fixAnnotations.forceUpdate();
-        
         if (player && player.className && player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
           playerHeight = playerHeight + 80;
         }
@@ -19671,20 +19668,25 @@
             }
           }
         }
+        
+        ytcenter.player.fixAnnotations.setPreferredDimension(calcWidth, calcHeight);
       };
     })();
     ytcenter.player.fixAnnotations = (function(){
       function getOriginalVideoDimension() {
-        var videoContentElement, dim = [854, 480];
+        var dimensions = {
+          small: [640, 360],
+          large: [854, 480]
+        },
+        playerSize = document.body.getAttribute("data-player-size");
         
-        videoContentElement = document.getElementsByClassName("html5-video-content");
-        if (!videoContentElement || !videoContentElement[0]) return dim;
-        
-        if (videoContentElement[0].style.width)
-          dim[0] = parseInt(videoContentElement[0].style.width, 10);
-        if (videoContentElement[0].style.height)
-          dim[1] = parseInt(videoContentElement[0].style.height, 10);
-        return dim;
+        if (playerSize === "small") {
+          return dimensions.small;
+        } else if (playerSize === "large") {
+          return dimensions.large;
+        } else {
+          return dimensions.large;
+        }
       }
       function getCurrentVideoDimension() {
         return [pWidth, pHeight];
@@ -19720,7 +19722,7 @@
           annotation.setAttribute("viewBox", "0 0 " + wid + " " + hei);
         }
         
-        var mc = (function(ann, annLeft, annTop, annWidth, annHeight){
+        var mc = ytcenter.utils.throttle((function(ann, annLeft, annTop, annWidth, annHeight){
           var _top, _left, _width, _height;
           
           _top = top;
@@ -19777,10 +19779,10 @@
             if (annotation.style.height && (ah !== ann.style.height || force))
               ann.style.height = ah;
           };
-        })(annotation, (left/dim[0]), (top/dim[1]), (wid/dim[0]), (hei/dim[1]));
+        })(annotation, (left/dim[0]), (top/dim[1]), (wid/dim[0]), (hei/dim[1])), 0);
         updaters.push(mc);
         
-        ytcenter.mutation.observe(annotation, { attributes: true }, ytcenter.utils.throttle((function(mcc){return function(){ mcc(false); }})(mc), 0));
+        ytcenter.mutation.observe(annotation, { attributes: true }, (function(mcc){return function(){ mcc(false); }})(mc));
       }
       function fixAnnotations() {
         var annotationContainer = ytcenter.utils.toArray(document.getElementsByClassName("video-annotations")), i, j, k, annotations = null, annotation = null,
@@ -19791,13 +19793,15 @@
             annotation = annotations[j];
             
             fixAnnotation(annotation, dim, cDim);
-            for (k = 0; k < annotation.children.length; k++) {
-              fixAnnotation(annotation.children[k], dim, cDim);
+            var children = ytcenter.utils.toArray(annotation.children);
+            for (k = 0; k < children.length; k++) {
+              fixAnnotation(children[k], dim, cDim);
             }
           }
         }
       }
       function setup() {
+        return;
         if (!ytcenter.settings.fixHTML5Annotations) return;
         
         if (observer) {
@@ -19810,40 +19814,41 @@
         }, 500));
         fixAnnotations();
       }
-      var observer = null, anns = [], pWidth = 854, pHeight = 480, updaters = [];
-      ytcenter.events.addEvent("ui-refresh", function(){
+      function update(force) {
+        return;
         if (!ytcenter.html5) return;
-        
-        if (observer) {
-          observer.disconnect();
-          observer = null;
+        if (typeof force !== "boolean") force = false;
+        var i;
+        for (i = 0; i < updaters.length; i++) {
+          updaters[i](force);
         }
-        // Used to fix the added annotations.
-        observer = ytcenter.mutation.observe(document.getElementById("player"), { childList: true, subtree: true }, function(){
-          fixAnnotations();
-        });
-        
+      }
+      var observer = null, anns = [], pWidth = 854, pHeight = 480, updaters = [];
+      /*ytcenter.events.addEvent("resize-update", function(){
         fixAnnotations();
+        update();
       });
+      ytcenter.events.addEvent("ui-refresh", function(){
+        update();
+      });*/
       
       return {
         setup: setup,
         checkForNewAnnotations: fixAnnotations,
         setPreferredDimension: function(width, height){
+          return;
           pWidth = width;
           pHeight = height;
+          
+          update(false);
         },
         forceUpdate: function(){
-          var i;
-          for (i = 0; i < updaters.length; i++) {
-            updaters[i](true);
-          }
+          return;
+          update(true);
         },
         update: function(){
-          var i;
-          for (i = 0; i < updaters.length; i++) {
-            updaters[i](false);
-          }
+          return;
+          update(false);
         }
       };
     })();
