@@ -19729,7 +19729,7 @@
           _height = hei;
           
           return function(force){
-            if (!ann) return;
+            if (!ann || document.body.getAttribute("data-player-size") === "fullscreen") return;
             
             var currentDim = getCurrentVideoDimension(),
                 al = (annLeft*currentDim[0]) + "px",
@@ -19779,10 +19779,11 @@
           };
         })(annotation, (left/dim[0]), (top/dim[1]), (wid/dim[0]), (hei/dim[1]));
         updaters.push(mc);
-        ytcenter.mutation.observe(annotation, { attributes: true }, (function(mcc){return function(){ mcc(false); }})(mc));
+        
+        ytcenter.mutation.observe(annotation, { attributes: true }, ytcenter.utils.throttle((function(mcc){return function(){ mcc(false); }})(mc), 0));
       }
       function fixAnnotations() {
-        var annotationContainer = document.getElementsByClassName("video-annotations"), i, j, k, annotations = null, annotation = null,
+        var annotationContainer = ytcenter.utils.toArray(document.getElementsByClassName("video-annotations")), i, j, k, annotations = null, annotation = null,
             dim = getOriginalVideoDimension(), cDim = getCurrentVideoDimension();
         for (i = 0; i < annotationContainer.length; i++) {
           annotations = annotationContainer[i].children;
