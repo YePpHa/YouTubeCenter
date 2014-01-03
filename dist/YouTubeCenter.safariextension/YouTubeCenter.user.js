@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         192
+// @version         193
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 192);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 193);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -7134,9 +7134,7 @@
         }
         unloadEventList = [];
       }
-      function setStatus(text) {
-        
-      }
+      function setStatus(text) { }
       function applyCookieCode(code) {
         document.cookie = "VISITOR_INFO1_LIVE=" + encodeURIComponent(code) + "; path=/; domain=.youtube.com";
         loc.reload();
@@ -20208,12 +20206,6 @@
           player.parentNode.replaceChild(clone, player);
           player = clone;
           con.log("[Player Update] Player has been cloned and replaced!");
-        } else {
-          var observer = ytcenter.mutation.observe(document.getElementById("player"), { childList: true }, function(){
-            observer.disconnect();
-            observer = null;
-            ytcenter.player.update(config);
-          });
         }
       } catch (e) {
         con.error(e);
@@ -20481,8 +20473,6 @@
       {element: function(){return document.body;}, className: "ytcenter-site-not-watch", condition: function(loc){return loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-site-search", condition: function(loc){return loc.pathname === "/results";}},
       {element: function(){return document.body;}, className: "ytcenter-site-watch", condition: function(loc){return loc.pathname === "/watch";}},
-      {element: function(){return document.body;}, className: "ytcenter-resize-aligned", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings.enableResize && ytcenter.player.isPlayerAligned();}},
-      {element: function(){return document.body;}, className: "ytcenter-resize-disaligned", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings.enableResize && !ytcenter.player.isPlayerAligned();}},
       {element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
     ytcenter.intelligentFeed = (function(){
@@ -21944,7 +21934,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 192);
+          main_function(false, 4, true, 193);
         /*} catch (e) {
         }*/
       }
@@ -21964,7 +21954,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 192);
+      main_function(false, 4, true, 193);
     //} catch (e) {
       //console.error(e);
     //}

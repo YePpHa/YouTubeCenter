@@ -7134,9 +7134,7 @@
         }
         unloadEventList = [];
       }
-      function setStatus(text) {
-        
-      }
+      function setStatus(text) { }
       function applyCookieCode(code) {
         document.cookie = "VISITOR_INFO1_LIVE=" + encodeURIComponent(code) + "; path=/; domain=.youtube.com";
         loc.reload();
@@ -20208,12 +20206,6 @@
           player.parentNode.replaceChild(clone, player);
           player = clone;
           con.log("[Player Update] Player has been cloned and replaced!");
-        } else {
-          var observer = ytcenter.mutation.observe(document.getElementById("player"), { childList: true }, function(){
-            observer.disconnect();
-            observer = null;
-            ytcenter.player.update(config);
-          });
         }
       } catch (e) {
         con.error(e);
@@ -20481,8 +20473,6 @@
       {element: function(){return document.body;}, className: "ytcenter-site-not-watch", condition: function(loc){return loc.pathname !== "/watch";}},
       {element: function(){return document.body;}, className: "ytcenter-site-search", condition: function(loc){return loc.pathname === "/results";}},
       {element: function(){return document.body;}, className: "ytcenter-site-watch", condition: function(loc){return loc.pathname === "/watch";}},
-      {element: function(){return document.body;}, className: "ytcenter-resize-aligned", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings.enableResize && ytcenter.player.isPlayerAligned();}},
-      {element: function(){return document.body;}, className: "ytcenter-resize-disaligned", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings.enableResize && !ytcenter.player.isPlayerAligned();}},
       {element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
     ytcenter.intelligentFeed = (function(){
