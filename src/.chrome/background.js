@@ -1,6 +1,7 @@
-var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
+var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension",
+    messageOrRequest = runtimeOrExtension === "extension" && !chrome.extension.onMessage ? "onRequest" : "onMessage";
 
-chrome[runtimeOrExtension].onMessage.addListener(
+chrome[runtimeOrExtension][messageOrRequest].addListener(
   function(request, sender, sendResponse) {
     if (typeof request === "string") request = (JSON && JSON.parse ? JSON.parse(request) : eval("(" + request + ")"));
     if (request.method === "setLocalStorage") {
