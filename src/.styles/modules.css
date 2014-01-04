@@ -204,6 +204,10 @@
   background-image: linear-gradient(to bottom,#fcfcfc 0,#f8f8f8 100%);
 }
 
+.rtl .ytcenter-modules-range-handle {
+  left: -1px !important;
+}
+
 .ytcenter-modules-range-handle .ytcenter-modules-range-handle-left {
   position: absolute;
   top: -7px;
