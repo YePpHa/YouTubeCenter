@@ -96,3 +96,13 @@ body[data-player-size=fullscreen] .hide-controls.autohide-embeds.playing-mode .h
   top: 0 !important;
   right: 0 !important;
 }
+
+.ytcenter-disable-endscreen .html5-video-player .html5-endscreen {
+  display: none!important;
+}
+
+/* Player setPlayerType - Hide video container until finished */
+.ytcenter-disable-html5 #movie_player.html5-video-player,
+.ytcenter-disable-html5 #player-unavailable {
+  display: none !important;
+}
