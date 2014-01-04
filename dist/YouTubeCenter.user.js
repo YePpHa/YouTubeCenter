@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         203
+// @version         204
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 203);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 204);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -120,7 +120,7 @@
           responseHeaders: (xmlhttp.readyState === 4 ? xmlhttp.getAllResponseHeaders() : ''),
           status: (xmlhttp.readyState === 4 ? xmlhttp.status : 0),
           statusText: (xmlhttp.readyState === 4 ? xmlhttp.statusText : ''),
-          finalUrl: (xmlhttp.readyState === 4 ? xmlhttp.finalUrl : details.url)
+          finalUrl: (xmlhttp.readyState === 4 ? xmlhttp.finalUrl : '')
         };
         inject("window.ytcenter.xhr.onreadystatechange(" + id + ", " + JSON.stringify(responseState) + ")");
         if (xmlhttp.readyState === 4) {
@@ -1767,7 +1767,7 @@
               responseHeaders:(xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
               status:(xmlhttp.readyState == 4 ? xmlhttp.status : 0),
               statusText:(xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
-              finalUrl:(xmlhttp.readyState == 4 ? xmlhttp.finalUrl : details.url)
+              finalUrl:(xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
             };
             if (details["onreadystatechange"]) {
               details["onreadystatechange"](responseState);
@@ -11363,7 +11363,8 @@
           readyState: xmlhttp.readyState,
           responseHeaders: (xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
           status: (xmlhttp.readyState == 4 ? xmlhttp.status : 0),
-          statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : '')
+          statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
+          finalUrl: (xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
         };
         if (details["onreadystatechange"]) {
           details["onreadystatechange"](responseState);
@@ -22016,7 +22017,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 203);
+          main_function(false, 0, true, 204);
         /*} catch (e) {
         }*/
       }
@@ -22036,7 +22037,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 203);
+      main_function(false, 0, true, 204);
     //} catch (e) {
       //console.error(e);
     //}

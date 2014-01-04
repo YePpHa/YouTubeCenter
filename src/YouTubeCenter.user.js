@@ -120,7 +120,7 @@
           responseHeaders: (xmlhttp.readyState === 4 ? xmlhttp.getAllResponseHeaders() : ''),
           status: (xmlhttp.readyState === 4 ? xmlhttp.status : 0),
           statusText: (xmlhttp.readyState === 4 ? xmlhttp.statusText : ''),
-          finalUrl: (xmlhttp.readyState === 4 ? xmlhttp.finalUrl : details.url)
+          finalUrl: (xmlhttp.readyState === 4 ? xmlhttp.finalUrl : '')
         };
         inject("window.ytcenter.xhr.onreadystatechange(" + id + ", " + JSON.stringify(responseState) + ")");
         if (xmlhttp.readyState === 4) {
@@ -1767,7 +1767,7 @@
               responseHeaders:(xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
               status:(xmlhttp.readyState == 4 ? xmlhttp.status : 0),
               statusText:(xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
-              finalUrl:(xmlhttp.readyState == 4 ? xmlhttp.finalUrl : details.url)
+              finalUrl:(xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
             };
             if (details["onreadystatechange"]) {
               details["onreadystatechange"](responseState);
@@ -11363,7 +11363,8 @@
           readyState: xmlhttp.readyState,
           responseHeaders: (xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
           status: (xmlhttp.readyState == 4 ? xmlhttp.status : 0),
-          statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : '')
+          statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
+          finalUrl: (xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
         };
         if (details["onreadystatechange"]) {
           details["onreadystatechange"](responseState);
