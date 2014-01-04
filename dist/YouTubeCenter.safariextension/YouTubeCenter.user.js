@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         196
+// @version         197
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 196);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 197);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3863,8 +3863,6 @@
       };
       __r.getCommentObject = function(contentElement){
         var commentInfo = {}, tmp;
-        commentInfo.id = __r.__commentInfoIdNext;
-        __r.__commentInfoIdNext += 1;
         
         if (!contentElement) {
           con.error("[CommentsPlus:getCommentObject] contentElement is undefined!");
@@ -3878,34 +3876,52 @@
         commentInfo.children = ytcenter.utils.toArray(contentElement.childNodes); // We don't want the array to change
         
         commentInfo.isReply = contentElement.parentNode.className.indexOf("Pm") === -1;
+        commentInfo.isOrignalSharedReference = contentElement.parentNode.parentNode.parentNode.parentNode.className.indexOf("dga") !== -1;
         
         if (commentInfo.isReply) {
           commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode;
           commentInfo.parentId = __r.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.firstChild).id;
+        } else if (commentInfo.isOrignalSharedReference) {
+          commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode;
+          commentInfo.parentId = __r.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode).id;
         } else {
           commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode;
           commentInfo.parentId = -1;
         }
-        
-        commentInfo.username = commentInfo.wrapper.getElementsByTagName("img")[0].getAttribute("title");
+        if (commentInfo.isOrignalSharedReference) {
+          commentInfo.username = commentInfo.wrapper.children[1].textContent;
+        } else {
+          commentInfo.username = commentInfo.wrapper.getElementsByTagName("img")[0].getAttribute("title");
+        }
         commentInfo.profileRedirectURL = commentInfo.wrapper.getElementsByTagName("img")[0].parentNode.href;
         
         if (commentInfo.profileRedirectURL.indexOf("youtube.com/profile_redirector/") !== -1) {
           commentInfo.profileRedirectId = commentInfo.profileRedirectURL.split("youtube.com/profile_redirector/")[1];
           commentInfo.channelRedirectId = null;
+          commentInfo.googlePlusRedirectId = null;
         } else if (commentInfo.profileRedirectURL.indexOf("youtube.com/channel/") !== -1) {
           commentInfo.channelRedirectId = commentInfo.profileRedirectURL.split("youtube.com/channel/")[1];
           commentInfo.profileRedirectId = null;
+          commentInfo.googlePlusRedirectId = null;
         } else if (commentInfo.profileRedirectURL.indexOf("youtube.com/user/") !== -1) {
           commentInfo.channelRedirectId = commentInfo.profileRedirectURL.split("youtube.com/user/")[1];
+          commentInfo.profileRedirectId = null;
+          commentInfo.googlePlusRedirectId = null;
+        } else if (commentInfo.profileRedirectURL.indexOf("apis.google.com/u/") !== -1) {
+          var s = commentInfo.profileRedirectURL.split("/");
+          commentInfo.googlePlusRedirectId = s[s.length - 1];
+          commentInfo.channelRedirectId = null;
           commentInfo.profileRedirectId = null;
         } else {
           commentInfo.profileRedirectId = null;
           commentInfo.channelRedirectId = null;
+          commentInfo.googlePlusRedirectId = null;
         }
         
         if (commentInfo.isReply) {
           commentInfo.headerElement = commentInfo.wrapper.getElementsByClassName("fR")[0];
+        } else if (commentInfo.isOrignalSharedReference) {
+          commentInfo.headerElement = commentInfo.wrapper;
         } else {
           commentInfo.headerElement = commentInfo.wrapper.getElementsByClassName("Mpa")[0];
         }
@@ -3914,7 +3930,7 @@
           con.log(commentInfo);
         }
         
-        if (commentInfo.isReply) {
+        if (commentInfo.isReply || commentInfo.isOrignalSharedReference) {
           commentInfo.headerUserDataElement = commentInfo.headerElement;
         } else {
           commentInfo.headerUserDataElement = commentInfo.headerElement.parentNode;
@@ -3922,6 +3938,8 @@
         
         if (commentInfo.isReply) {
           commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 3 ? false : true;
+        } else if (commentInfo.isOrignalSharedReference) {
+          commentInfo.viaGooglePlus = true;
         } else {
           commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 1 ? false : true;
         }
@@ -3949,12 +3967,19 @@
         if (ytcenter.utils.hasClass(commentObject.contentElement, "ytcenter-comments-loaded")) return;
         if (__r.commentLoaded(commentObject)) return;
         
+        commentObject.id = __r.__commentInfoIdNext;
+        __r.__commentInfoIdNext += 1;
+        
         __r.comments.push(commentObject);
       };
       __r.loadComments = function(){
         var a = document.getElementsByClassName("Ct"), i;
         for (i = 0; i < a.length; i++) {
-          __r.addCommentObject(__r.getCommentObject(a[i]));
+          try {
+            __r.addCommentObject(__r.getCommentObject(a[i]));
+          } catch (e) {
+            con.error(e);
+          }
         }
       };
       __r.filter = function(){
@@ -4051,17 +4076,29 @@
         
         if (ytcenter.settings.commentCountryPosition === "before_username") {
           countryContainer.style.marginRight = "10px";
-          metadata.insertBefore(countryContainer, metadata.children[0]);
+          if (comment.isOrignalSharedReference) {
+            metadata.insertBefore(countryContainer, metadata.children[1]);
+          } else {
+            metadata.insertBefore(countryContainer, metadata.children[0]);
+          }
         } else if (ytcenter.settings.commentCountryPosition === "after_username") {
-          if (!comment.isReply) {
+          if (comment.isOrignalSharedReference) {
+            countryContainer.style.marginLeft = "4px";
+          } else if (!comment.isReply) {
             countryContainer.style.marginLeft = "10px";
           } else {
             countryContainer.style.marginRight = "8px";
           }
-          metadata.insertBefore(countryContainer, metadata.children[1]);
+          if (comment.isOrignalSharedReference) {
+            metadata.insertBefore(countryContainer, metadata.childNodes[2]);
+          } else {
+            metadata.insertBefore(countryContainer, metadata.children[1]);
+          }
         } else if (ytcenter.settings.commentCountryPosition === "last") {
           countryContainer.style.marginLeft = "10px";
-          if (!comment.isReply) {
+          if (comment.isOrignalSharedReference) {
+            metadata.insertBefore(countryContainer, metadata.lastChild);
+          } else if (!comment.isReply) {
             if (metadata.children.length > 2) {
               metadata.insertBefore(countryContainer, metadata.children[2]);
             } else {
@@ -4077,10 +4114,10 @@
         }
       };
       __r.handleFlagWorker = function(comment){
-        ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId, function(args){
+        ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId || comment.googlePlusRedirectId, function(args){
           try {
-            if (comment.profileRedirectId) {
-              ytcenter.getGooglePlusUserData(comment.profileRedirectId, function(data){
+            if (comment.profileRedirectId || comment.googlePlusRedirectId) {
+              ytcenter.getGooglePlusUserData(comment.profileRedirectId || comment.googlePlusRedirectId, function(data){
                 if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
                   comment.country = data.entry.yt$location.$t;
                 } else {
@@ -4353,17 +4390,27 @@
       return __r;
     })();
     ytcenter.cache = (function(){
-      var __r = {};
+      function saveChanges() {
+        if (!_timer) {
+          _timer = uw.setTimeout(function(){
+            _timer = null;
+            
+            ytcenter.saveSettings();
+          },  2000);
+        }
+      }
+      var __r = {}, _timer = null;
       
       __r.putCategory = function(id, size){
         if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
+        if (ytcenter.settings.cache[id] && ytcenter.settings.cache[id].size === size) return;
         if (ytcenter.settings.cache[id]) {
           ytcenter.settings.cache[id].size = size;
         } else {
           ytcenter.settings.cache[id] = { size: size, items: [] };
         }
         
-        ytcenter.saveSettings();
+        saveChanges();
       };
       
       __r.getCategory = function(id){
@@ -4407,7 +4454,7 @@
           cat.items.push(item);
         }
         
-        ytcenter.saveSettings();
+        saveChanges();
       };
       
       /* Find expired items and removes them. */
@@ -4426,7 +4473,8 @@
             }
           }
         }
-        ytcenter.saveSettings();
+        
+        saveChanges();
       };
       
       return __r;
@@ -21949,7 +21997,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 196);
+          main_function(false, 4, true, 197);
         /*} catch (e) {
         }*/
       }
@@ -21969,7 +22017,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 196);
+      main_function(false, 4, true, 197);
     //} catch (e) {
       //console.error(e);
     //}
