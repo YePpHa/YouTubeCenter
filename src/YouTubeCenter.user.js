@@ -4865,12 +4865,13 @@
           try {
             data = JSON.parse(r.responseText);
           } catch (e) {
+            con.error("[Comments getUserData] Couldn't parse data from https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json");
             con.error(e);
           }
           callback(data);
         },
         onerror: function(){
-          con.error("[Comments getGooglePlusUserData] Couldn't fetch data from https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json");
+          con.error("[Comments getUserData] Couldn't fetch data from https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json");
           callback(null);
         }
       });
@@ -4895,6 +4896,8 @@
               callback(null);
             }
           } catch (e) {
+            con.error("[Comments getGooglePlusUserData] Couldn't parse data from http://www.youtube.com/profile_redirector/" + oId);
+            con.error(r);
             con.error(e);
             callback(null);
           }
