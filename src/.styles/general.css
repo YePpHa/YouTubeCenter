@@ -842,3 +842,7 @@ body > #page {
 .ytcenter-hide-guide-count .guide-count {
   display: none !important;
 }
+
+.ytcenter-hide-feed-item-action-menu #feed .feed-item-action-menu {
+  display: none !important;
+}

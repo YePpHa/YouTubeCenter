@@ -12548,6 +12548,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      disableFeedItemActionMenu: false,
       disableGuideCount: false,
       YouTubeExperiments: [],
       headlineTitleExpanded: false,
@@ -15921,6 +15922,23 @@
             "disableGuideCount",
             "bool",
             "SETTINGS_HIDE_GUIDE_COUNT",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "disableFeedItemActionMenu",
+            "bool",
+            "SETTINGS_HIDE_FEED_ITEM_ACTION_MENU",
             {
               "listeners": [
                 {
@@ -20561,6 +20579,7 @@
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg", condition: function(loc){
         return ytcenter.player.darkside();
       }},
+      {element: function(){return document.body;}, className: "ytcenter-hide-feed-item-action-menu", condition: function(loc){return ytcenter.settings.disableFeedItemActionMenu;}},
       {element: function(){return document.body;}, className: "ytcenter-hide-guide-count", condition: function(loc){return ytcenter.settings.disableGuideCount;}},
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg-retro", condition: function(loc){return (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large && ytcenter.settings.playerDarkSideBG && ytcenter.settings.playerDarkSideBGRetro);}},
       {element: function(){return document.body;}, className: "ytcenter-thumbnail-watchlater-pos-topleft", condition: function(loc){return ytcenter.settings.videoThumbnailWatchLaterPosition === "topleft";}},
