@@ -8,7 +8,7 @@ function xhr(details) {
       responseHeaders:(xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
       status:(xmlhttp.readyState == 4 ? xmlhttp.status : 0),
       statusText:(xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
-      finalUrl:(xmlhttp.readyState == 4 ? xmlhttp.finalUrl : details.url)
+      finalUrl:(xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
     };
     if (details["onreadystatechange"]) {
       details["onreadystatechange"](responseState);
