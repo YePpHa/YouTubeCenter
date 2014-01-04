@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         200
+// @version         201
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 200);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 201);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -4870,28 +4870,38 @@
           callback(data);
         },
         onerror: function(){
+          con.error("[Comments getGooglePlusUserData] Couldn't fetch data from https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json");
           callback(null);
         }
       });
     };
     ytcenter.getGooglePlusUserData = function(oId, callback){
-      var userId = null;
       $XMLHTTPRequest({
         url: "http://www.youtube.com/profile_redirector/" + oId,
         method: "GET",
         onload: function(r){
-          if (r.finalUrl.indexOf("youtube.com/channel/") !== -1) {
-            userId = r.finalUrl.split("youtube.com/channel/");
-            if (userId && userId[1])
-              ytcenter.getUserData(userId[1], callback);
-          } else if (r.finalUrl.indexOf("youtube.com/user/") !== -1) {
-            userId = r.finalUrl.split("youtube.com/user/");
-            if (userId && userId[1])
-              ytcenter.getUserData(userId[1], callback);
-          } else {
-            con.error("[Comments getGooglePlusUserData] Final URL: " + r.finalUrl);
+          var userId = null;
+          try {
+            if (r.finalUrl.indexOf("youtube.com/channel/") !== -1) {
+              userId = r.finalUrl.split("youtube.com/channel/");
+              if (userId && userId[1])
+                ytcenter.getUserData(userId[1], callback);
+            } else if (r.finalUrl.indexOf("youtube.com/user/") !== -1) {
+              userId = r.finalUrl.split("youtube.com/user/");
+              if (userId && userId[1])
+                ytcenter.getUserData(userId[1], callback);
+            } else {
+              con.error("[Comments getGooglePlusUserData] Final URL: " + r.finalUrl);
+              callback(null);
+            }
+          } catch (e) {
+            con.error(e);
             callback(null);
           }
+        },
+        onerror: function(){
+          con.error("[Comments getGooglePlusUserData] Couldn't fetch data from http://www.youtube.com/profile_redirector/" + oId);
+          callback(null);
         }
       });
     };
@@ -22001,7 +22011,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 200);
+          main_function(false, 0, true, 201);
         /*} catch (e) {
         }*/
       }
@@ -22021,7 +22031,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 200);
+      main_function(false, 0, true, 201);
     //} catch (e) {
       //console.error(e);
     //}
