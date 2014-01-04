@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         204
+// @version         206
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 204);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 206);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3863,8 +3863,9 @@
         }
         return null;
       };
-      __r.getCommentObject = function(contentElement){
+      __r.getCommentObject = function(contentElement, reshared){
         var commentInfo = {}, tmp;
+        commentInfo.isShared = (typeof reshared === "boolean" ? reshared : false);
         
         if (!contentElement) {
           con.error("[CommentsPlus:getCommentObject] contentElement is undefined!");
@@ -3877,8 +3878,9 @@
         commentInfo.shared = commentInfo.textContent === "";
         commentInfo.children = ytcenter.utils.toArray(contentElement.childNodes); // We don't want the array to change
         
-        commentInfo.isReply = contentElement && contentElement.parentNode && contentElement.parentNode.className.indexOf("Pm") === -1;
-        commentInfo.isOrignalSharedReference = contentElement &&
+        commentInfo.isReply = !commentInfo.isShared && contentElement && contentElement.parentNode && contentElement.parentNode.className.indexOf("Pm") === -1;
+        commentInfo.isOrignalSharedReference = !commentInfo.isShared &&
+                                               contentElement &&
                                                contentElement.parentNode &&
                                                contentElement.parentNode.parentNode &&
                                                contentElement.parentNode.parentNode.parentNode &&
@@ -3888,10 +3890,20 @@
           commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode;
           commentInfo.parentId = __r.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.firstChild).id;
         } else if (commentInfo.isOrignalSharedReference) {
+          try {
+            __r.addCommentObject(__r.getCommentObject(contentElement, true));
+          } catch (e) {
+            con.error(e);
+          }
           commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode;
-          commentInfo.parentId = __r.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode).id;
+          var parent = __r.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode);
+          commentInfo.parentId = (parent !== null ? parent.id : null);
         } else {
-          commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode;
+          if (commentInfo.isShared) {
+            commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
+          } else {
+            commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode;
+          }
           commentInfo.parentId = -1;
         }
         if (commentInfo.isOrignalSharedReference) {
@@ -3963,7 +3975,7 @@
       __r.commentLoaded = function(commentObject){
         var i;
         for (i = 0; i < __r.comments.length; i++) {
-          if (__r.comments[i].contentElement === commentObject.contentElement ||
+          if (__r.comments[i].contentElement === commentObject.contentElement &&
               __r.comments[i].wrapper === commentObject.wrapper)
             return true;
         }
@@ -4307,6 +4319,9 @@
           userHeader.insertBefore(countryContainer, user);
         } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
           countryContainer.style.marginLeft = "5px";
+          if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified")) {
+            separator = userHeader.children[3];
+          }
           userHeader.insertBefore(countryContainer, separator);
         } else if (ytcenter.settings.uploaderCountryPosition === "last") {
           countryContainer.style.marginLeft = "5px";
@@ -4879,23 +4894,30 @@
       });
     };
     ytcenter.getGooglePlusUserData = function(oId, callback){
+      function handleFinalUrl(url) {
+          var userId = null;
+          if (url.indexOf("youtube.com/channel/") !== -1) {
+            userId = url.split("youtube.com/channel/");
+            if (userId && userId[1])
+              ytcenter.getUserData(userId[1], callback);
+          } else if (url.indexOf("youtube.com/user/") !== -1) {
+            userId = url.split("youtube.com/user/");
+            if (userId && userId[1])
+              ytcenter.getUserData(userId[1], callback);
+          } else {
+            con.error("[Comments getGooglePlusUserData] Final URL: " + r.finalUrl);
+            callback(null);
+          }
+      }
       $XMLHTTPRequest({
         url: "http://www.youtube.com/profile_redirector/" + oId,
         method: "GET",
         onload: function(r){
-          var userId = null;
           try {
-            if (r.finalUrl.indexOf("youtube.com/channel/") !== -1) {
-              userId = r.finalUrl.split("youtube.com/channel/");
-              if (userId && userId[1])
-                ytcenter.getUserData(userId[1], callback);
-            } else if (r.finalUrl.indexOf("youtube.com/user/") !== -1) {
-              userId = r.finalUrl.split("youtube.com/user/");
-              if (userId && userId[1])
-                ytcenter.getUserData(userId[1], callback);
+            if (!r.finalUrl || r.finalUrl === "") {
+              handleFinalUrl(ytcenter.utils.getContentByTags(r.responseText, "<meta property=\"og:url\" content=\"", "\">"));
             } else {
-              con.error("[Comments getGooglePlusUserData] Final URL: " + r.finalUrl);
-              callback(null);
+              handleFinalUrl(r.finalUrl);
             }
           } catch (e) {
             con.error("[Comments getGooglePlusUserData] Couldn't parse data from http://www.youtube.com/profile_redirector/" + oId);
@@ -10664,6 +10686,11 @@
     };
     
     // @utils
+    ytcenter.utils.getContentByTags = function(text, startTag, endTag){
+      text = text.split(startTag)[1];
+      text = text.split(endTag)[0];
+      return text;
+    };
     ytcenter.utils.cleanObject = function(obj){
       try {
         if (obj instanceof Object && typeof obj["__exposedProps__"] !== "undefined") delete obj["__exposedProps__"];
@@ -22017,7 +22044,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 204);
+          main_function(false, 0, true, 206);
         /*} catch (e) {
         }*/
       }
@@ -22037,7 +22064,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 204);
+      main_function(false, 0, true, 206);
     //} catch (e) {
       //console.error(e);
     //}
