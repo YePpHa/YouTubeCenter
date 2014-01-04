@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         199
+// @version         200
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 199);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 200);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3875,9 +3875,13 @@
         commentInfo.shared = commentInfo.textContent === "";
         commentInfo.children = ytcenter.utils.toArray(contentElement.childNodes); // We don't want the array to change
         
-        commentInfo.isReply = contentElement.parentNode.className.indexOf("Pm") === -1;
-        commentInfo.isOrignalSharedReference = contentElement.parentNode.parentNode.parentNode.parentNode.className.indexOf("dga") !== -1;
-        
+        commentInfo.isReply = contentElement && contentElement.parentNode && contentElement.parentNode.className.indexOf("Pm") === -1;
+        commentInfo.isOrignalSharedReference = contentElement &&
+                                               contentElement.parentNode &&
+                                               contentElement.parentNode.parentNode &&
+                                               contentElement.parentNode.parentNode.parentNode &&
+                                               contentElement.parentNode.parentNode.parentNode.parentNode &&
+                                               contentElement.parentNode.parentNode.parentNode.parentNode.className.indexOf("dga") !== -1;
         if (commentInfo.isReply) {
           commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode;
           commentInfo.parentId = __r.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.firstChild).id;
@@ -3937,11 +3941,11 @@
         }
         
         if (commentInfo.isReply) {
-          commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 3 ? false : true;
+          commentInfo.viaGooglePlus = commentInfo.headerElement && commentInfo.headerElement.children && commentInfo.headerElement.children.length === 3 ? false : true;
         } else if (commentInfo.isOrignalSharedReference) {
           commentInfo.viaGooglePlus = true;
         } else {
-          commentInfo.viaGooglePlus = commentInfo.headerElement.children.length === 1 ? false : true;
+          commentInfo.viaGooglePlus = commentInfo.headerElement && commentInfo.headerElement.children && commentInfo.headerElement.children.length === 1 ? false : true;
         }
         
         commentInfo.country = ytcenter.cache.getItem("profile_country", commentInfo.profileRedirectId || commentInfo.channelRedirectId);
@@ -3964,7 +3968,7 @@
         return false;
       };
       __r.addCommentObject = function(commentObject){
-        if (ytcenter.utils.hasClass(commentObject.contentElement, "ytcenter-comments-loaded")) return;
+        //if (ytcenter.utils.hasClass(commentObject.contentElement, "ytcenter-comments-loaded")) return;
         if (__r.commentLoaded(commentObject)) return;
         
         commentObject.id = __r.__commentInfoIdNext;
@@ -20998,13 +21002,13 @@
       };
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
-        if (ytcenter.settings.useSecureProtocol) {
+        var page = ytcenter.getPage();
+        if (ytcenter.settings.useSecureProtocol && page !== "comments") {
           if (loc.href.indexOf("http://") === 0) {
             loc.href = loc.href.replace(/^http/, "https");
             return;
           }
         }
-        var page = ytcenter.getPage();
         if (page === "embed" || !ytcenter.settings.ytspf) ytcenter.spf.disable();
         
         // Settings made public
@@ -21997,7 +22001,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 199);
+          main_function(false, 4, true, 200);
         /*} catch (e) {
         }*/
       }
@@ -22017,7 +22021,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 199);
+      main_function(false, 4, true, 200);
     //} catch (e) {
       //console.error(e);
     //}
