@@ -2480,21 +2480,15 @@
     
     ytcenter.actionPanel = (function(){
       function getEventListener(options) {
-        con.log("[ActionPanel:getEventListener]", options);
         if (typeof uw.yt === "undefined" || typeof uw.yt.events === "undefined" || typeof uw.yt.events.listeners_ === "undefined") return null;
         var i, item = null;
         for (i = 1; i <= uw.yt.events.counter_.count; i++) {
           item = uw.yt.events.listeners_[i];
           if ((options.element === item[0] || options.element.id === item[0].id) && options.event === item[1]) {
-            con.log("[ActionPanel:getEventListener] Matched", options.element === item[0], options.element.id === item[0].id, options.event === item[1]);
             return item;
           }
-          if (options.element === item[0]) con.log("[ActionPanel:getEventListener] Element match", item, options);
-          if (options.event === item[1]) con.log("[ActionPanel:getEventListener] Event match", item, options);
         }
         item = null;
-        
-        con.log("[ActionPanel:getEventListener] Events not found!", uw.yt.events.listeners_, options);
         
         return null;
       }
@@ -2520,7 +2514,7 @@
         }
       }
       function listenerDisabler(e) {
-        con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to desired tab.");
+        con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to preferred tab (" + ytcenter.settings.likeSwitchToTab + ").");
         
         var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
         if (enabled && !h) {
@@ -2528,11 +2522,11 @@
           onceLock();
         }
         
-        __r.originalEventListener(e);
+        originalEventListener(e);
         
         if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
           uw.setTimeout(function(){
-            __r.switchTo(ytcenter.settings.likeSwitchToTab);
+            switchTo(ytcenter.settings.likeSwitchToTab);
           }, 0);
         }
       }
@@ -2596,7 +2590,7 @@
           
           if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
             likeButton = likeButton;
-            uw.setTimeout(function(){ __r.setup(); }, 5000);
+            uw.setTimeout(function(){ setup(); }, 5000);
             return;
           }
           con.log("[ActionPanel] Setup has begun!");
