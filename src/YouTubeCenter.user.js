@@ -2585,7 +2585,7 @@
         var elm = document.getElementById("watch-like");
         if (elm) return elm;
         
-        elm = document.getElementsById("watch7-sentiment-actions");
+        elm = document.getElementById("watch7-sentiment-actions");
         if (elm && elm.firstChild && elm.firstChild.firstChild && elm.firstChild.firstChild.firstChild)
           return elm.firstChild.firstChild.firstChild;
         con.log("[ActionPanel:getLikeButton] Could not for some really unexplained reason get a reference to the like button.");
