@@ -2581,42 +2581,40 @@
         enableActionPanel();
         uw.setTimeout(disableActionPanel, 0);
       };
+      __r.getLikeButton = function(){
+        var elm = document.getElementById("watch-like");
+        if (elm) return elm;
+        
+        elm = document.getElementsById("watch7-sentiment-actions");
+        if (elm && elm.firstChild && elm.firstChild.firstChild && elm.firstChild.firstChild.firstChild)
+          return elm.firstChild.firstChild.firstChild;
+        con.log("[ActionPanel:getLikeButton] Could not for some really unexplained reason get a reference to the like button.");
+        return null;
+      };
       __r.setup = function(){
-        con.log("[ActionPanel] Setup...");
         if (ytcenter.getPage() !== "watch") return;
         
-        var a = uw.document.getElementById("watch-like"), b;
-        b = getEventListener({ event: "click", element: a });
+        var likeButton = __r.getLikeButton(),
+            likeButtonEvent = getEventListener({ event: "click", element: likeButton });
         
-        if (!a || !b || typeof b[3] !== "function") {
-          con.log("[ActionPanel] Waiting 1000 ms...");
-          con.log("[ActionPanel]", a, b);
-          uw.setTimeout(function(){ __r.setup(); }, 1000);
+        if (!likeButton || !likeButtonEvent || typeof likeButtonEvent[3] !== "function") {
+          //uw.setTimeout(function(){ __r.setup(); }, 1000);
+          con.log(uw, likeButton, likeButtonEvent);
+          uw.
           return;
         }
         con.log("[ActionPanel] Setup has begun!");
         
-        __r.replaceListener = ytcenter.bind(function(){
-          listenerDisabler();
-        });
-        __r.originalEventListener = b[3];
+        __r.originalEventListener = likeButtonEvent[3];
         
         con.log("[ActionPanel] Adding/Removing listeners");
-        a.removeEventListener("click", __r.originalEventListener, b[4]);
-        a.addEventListener("click", __r.replaceListener, b[4]);
+        a.removeEventListener("click", __r.originalEventListener, likeButtonEvent[4]);
+        a.addEventListener("click", listenerDisabler, likeButtonEvent[4]);
         
         
         con.log("[ActionPanel] Handling other inits");
         initActionPanel();
         disableActionPanel();
-        
-        uw.setInterval(function(){
-          con.log("[ActionPanel] Removing both listeners and adding the custom one.");
-          a.removeEventListener("click", __r.originalEventListener, b[4]);
-          a.removeEventListener("click", __r.replaceListener, b[4]);
-          
-          a.addEventListener("click", __r.replaceListener, b[4]);
-        }, 7500);
       };
       return __r;
     })();
