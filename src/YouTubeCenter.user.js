@@ -2580,7 +2580,8 @@
             b = getEventListener({ event: "click", element: a });
         if (!a || !b || typeof b[3] !== "function") {
           con.log("[ActionPanel] Waiting 1000 ms...");
-          uw.setTimeout(__r.setup, 1000);
+          con.log("[ActionPanel]", a, b);
+          uw.setTimeout(function(){ __r.setup(); }, 1000);
           return;
         }
         con.log("[ActionPanel] Setup has begun!");
