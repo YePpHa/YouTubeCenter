@@ -2545,13 +2545,7 @@
           });
         });
       }
-      var __r = {},
-          enabled = true,
-          switchToElm = null,
-          observer = null;
-      
-      
-      __r.switchTo = function(tab){
+      function switchTo(tab) {
         if (tab === "none" || !tab) return;
         con.log("[ActionPanel:switchTo] Switching to " + tab);
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
@@ -2563,21 +2557,21 @@
             return;
           }
         }
-      };
-      __r.setEnabled = function(a){
-        if (a) {
-          enabled = !!a;
+      }
+      function setEnabled(aEnabled) {
+        if (aEnabled) {
+          enabled = true;
           disableActionPanel();
         } else {
-          enabled = !!a;
+          enabled = false;
           enableActionPanel();
         }
-      };
-      __r.setThreadEnabled = function(){
+      }
+      function setThreadEnabled() {
         enableActionPanel();
         uw.setTimeout(disableActionPanel, 0);
-      };
-      __r.getLikeButton = function(){
+      }
+      function getLikeButton() {
         var elm = document.getElementById("watch-like");
         if (elm) return elm;
         
@@ -2586,13 +2580,12 @@
           return elm.firstChild.firstChild.firstChild;
         con.log("[ActionPanel:getLikeButton] Could not for some really unexplained reason get a reference to the like button.", elm);
         return null;
-      };
-      __r.likeButton = null;
-      __r.setup = function(){
+      }
+      function setup() {
         if (ytcenter.getPage() !== "watch") return;
         
-        var likeButton = __r.likeButton || __r.getLikeButton(),
-            likeButtonEvent = getEventListener({ event: "click", element: likeButton });
+        likeButton = __r.likeButton || __r.getLikeButton(),
+        likeButtonEvent = getEventListener({ event: "click", element: likeButton });
         
         if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
           __r.likeButton = likeButton;
@@ -2601,17 +2594,29 @@
         }
         con.log("[ActionPanel] Setup has begun!");
         
-        __r.originalEventListener = likeButtonEvent[3];
+        originalEventListener = likeButtonEvent[3];
         
         con.log("[ActionPanel] Adding/Removing listeners");
-        a.removeEventListener("click", __r.originalEventListener, likeButtonEvent[4]);
+        a.removeEventListener("click", originalEventListener, likeButtonEvent[4]);
         a.addEventListener("click", listenerDisabler, likeButtonEvent[4]);
-        
         
         con.log("[ActionPanel] Handling other inits");
         initActionPanel();
         disableActionPanel();
-      };
+      }
+      var __r = {},
+        enabled = true,
+        switchToElm = null,
+        observer = null,
+        originalEventListener = null,
+        likeButton = null,
+        likeButtonEvent = null;
+      
+      __r.switchTo = switchTo;
+      __r.setEnabled = setEnabled;
+      __r.setThreadEnabled = setThreadEnabled;
+      __r.getLikeButton = getLikeButton;
+      __r.setup = setup;
       return __r;
     })();
     ytcenter.mutation = (function(){
