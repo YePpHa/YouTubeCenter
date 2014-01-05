@@ -2585,7 +2585,7 @@
         con.log("[ActionPanel] Setup...");
         if (ytcenter.getPage() !== "watch") return;
         
-        var a = document.getElementById("watch-like"), b;
+        var a = uw.document.getElementById("watch-like"), b;
         b = getEventListener({ event: "click", element: a });
         
         if (!a || !b || typeof b[3] !== "function") {
