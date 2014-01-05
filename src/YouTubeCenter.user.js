@@ -2481,14 +2481,14 @@
       function getEventListener(options) {
         con.log("[ActionPanel:getEventListener]", options);
         if (!options || !uw.yt || !uw.yt.events || !uw.yt.events.listeners_) return null;
-        var key, item = null;
-        for (key in uw.yt.events.listeners_) {
-          if (uw.yt.events.listeners_.hasOwnProperty(key)) {
-            item = uw.yt.events.listeners_[key];
-            if (options.element == item[0] && options.event == item[1]) {
-              return item;
-            }
+        var i, item = null;
+        for (i = 1; i <= uw.yt.events.counter_.count; i++) {
+          item = uw.yt.events.listeners_[i];
+          if (options.element == item[0] && options.event == item[1]) {
+            return item;
           }
+          if (options.element == item[0]) con.log("[ActionPanel:getEventListener] Element match", item, options);
+          if (options.event == item[1]) con.log("[ActionPanel:getEventListener] Event match", item, options);
         }
         con.error("[ActionPanel:getEventListener] Events not found!", uw.yt.events.listeners_, options);
         
