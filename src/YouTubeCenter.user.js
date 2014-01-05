@@ -2517,7 +2517,8 @@
           switchToElm = document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0];
           onceLock();
         }
-        getEventListener({ event: "click", element: document.getElementById("watch-like") })[3]();
+        
+        __r.originalEventListener();
         
         if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
           uw.setTimeout(function(){
@@ -2570,17 +2571,31 @@
       };
       __r.setup = function(){
         if (ytcenter.getPage() !== "watch") return;
+        
         var a = document.getElementById("watch-like"),
             b = getEventListener({ event: "click", element: a });
-        if (!b || !b[3]) {
+        if (!a || !b || typeof b[3] !== "function") {
           uw.setTimeout(__r.setup, 1000);
           return;
         }
-        a.removeEventListener("click", b[3], false);
-        a.addEventListener("click", listenerDisabler, false);
+        
+        __r.replaceListener = ytcenter.bind(function(){
+          listenerDisabler();
+        });
+        __r.originalEventListener = b[3];
+        
+        a.removeEventListener("click", __r.originalEventListener, false);
+        a.addEventListener("click", __r.replaceListener, false);
         
         initActionPanel();
         disableActionPanel();
+        
+        uw.setInterval(function(){
+          a.removeEventListener("click", __r.originalEventListener, false);
+          a.removeEventListener("click", __r.replaceListener, false);
+          
+          a.addEventListener("click", __r.replaceListener, false);
+        }, 7500);
       };
       return __r;
     })();
@@ -13496,9 +13511,6 @@
       }, {
         label: 'SETTINGS_MP3SERVICES_SNIPMP3',
         value: 'http://snipmp3.com/?url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}'
-      }, {
-        label: 'SETTINGS_MP3SERVICES_CLIPCONVERTER',
-        value: 'http://www.clipconverter.cc/?ref=bookmarklet&url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}'
       }
     ];
     con.log("Initializing settings ui");
@@ -21800,6 +21812,7 @@
           ytcenter.embed.load();
         } else {
           ytcenter.guideMode.setup();
+          
           ytcenter.actionPanel.setup();
         }
         
