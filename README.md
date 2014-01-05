@@ -36,6 +36,7 @@ The build system is made in ant and require ant and java to be installed.
  * `ant userscript` -- Build the userscript (.user.js)
  * `ant safari` -- Makes everything ready for Safari to finish building YouTube Center.
  * `ant styles` -- Minifies the styles used. This is needed to be called everytime a change in the styles is made.
+ * `ant language` -- Retrieves the newest translations for YouTube Center and stores it as a JSON file.
 
 ### Build Properties (build.properties)
 The keys in this file have the prefix and suffix `@`.
