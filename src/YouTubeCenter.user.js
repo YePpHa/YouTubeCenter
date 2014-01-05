@@ -2512,6 +2512,8 @@
         }
       }
       function listenerDisabler() {
+        con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to desired tab.");
+        
         var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
         if (enabled && !h) {
           switchToElm = document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0];
@@ -2546,6 +2548,7 @@
       
       __r.switchTo = function(tab){
         if (tab === "none" || !tab) return;
+        con.log("[ActionPanel:switchTo] Switching to " + tab);
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
           if (secondaryActions.children[i].children[0].getAttribute("data-trigger-for") === "action-panel-" + tab) {
@@ -2578,19 +2581,24 @@
           uw.setTimeout(__r.setup, 1000);
           return;
         }
+        con.log("[ActionPanel] Setup has begun!");
         
         __r.replaceListener = ytcenter.bind(function(){
           listenerDisabler();
         });
         __r.originalEventListener = b[3];
         
+        con.log("[ActionPanel] Adding/Removing listeners");
         a.removeEventListener("click", __r.originalEventListener, false);
         a.addEventListener("click", __r.replaceListener, false);
         
+        
+        con.log("[ActionPanel] Handling other inits");
         initActionPanel();
         disableActionPanel();
         
         uw.setInterval(function(){
+          con.log("[ActionPanel] Removing both listeners and adding the custom one.");
           a.removeEventListener("click", __r.originalEventListener, false);
           a.removeEventListener("click", __r.replaceListener, false);
           
