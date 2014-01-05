@@ -18,7 +18,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 var sandbox_storage = new Storage(),
     session_storage = new Session();
 
-function createSandbox(wrappedContentWin, chromeWin) {
+function createSandbox(wrappedContentWin, chromeWin, firebugConsole) {
   var sandbox = new Components.utils.Sandbox(
     wrappedContentWin, {
       "sandboxName": "YouTube Center",
@@ -27,6 +27,8 @@ function createSandbox(wrappedContentWin, chromeWin) {
     }
   );
   sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
+  if (firebugConsole) sandbox.console = firebugConsole;
+  
   sandbox.request = bind(new Request(wrappedContentWin, chromeWin), "sendRequest");
   
   sandbox.storage_setValue = bind(sandbox_storage, "setValue");
@@ -47,10 +49,6 @@ function createSandbox(wrappedContentWin, chromeWin) {
   
   return sandbox;
 }
-function contentLoad(e) {
-  e.target.defaultView.removeEventListener('DOMContentLoaded', contentLoad, true);
-  e.target.defaultView.removeEventListener('load', contentLoad, true);
-}
 function startup(s) {
   if (startupHasRun) return;
   startupHasRun = true;
@@ -58,6 +56,17 @@ function startup(s) {
   var observerService = Components.classes['@mozilla.org/observer-service;1']
      .getService(Components.interfaces.nsIObserverService);
   observerService.addObserver(s, 'document-element-inserted', false);
+}
+
+function getFirebugConsole(wrappedContentWindow, chromeWindow) {
+  try {
+    return chromeWindow.Firebug
+        && chromeWindow.Firebug.getConsoleByGlobal
+        && chromeWindow.Firebug.getConsoleByGlobal(wrappedContentWindow)
+        || null;
+  } catch (e) {
+    return null;
+  }
 }
 
 function isRunnable(url) {
@@ -69,7 +78,6 @@ function isRunnable(url) {
 }
 
 function service() {
-  this.contentLoad = contentLoad;
   this.filename = Components.stack.filename;
   this.wrappedJSObject = this;
 }
@@ -124,7 +132,8 @@ service.prototype.observe = function(aSubject, aTopic, aData) {
 };
 
 service.prototype.runYouTubeCenter = function(wrappedContentWin){
-  var sandbox = createSandbox(wrappedContentWin, getChromeWinForContentWin(wrappedContentWin));
+  var chromeWindow = getChromeWinForContentWin(wrappedContentWin);
+  var sandbox = createSandbox(wrappedContentWin, chromeWindow, getFirebugConsole(wrappedContentWin, chromeWindow));
   Services.scriptloader.loadSubScript("chrome://ytcenter/content/YouTubeCenter.user.js", sandbox, "UTF-8");
 };
 
