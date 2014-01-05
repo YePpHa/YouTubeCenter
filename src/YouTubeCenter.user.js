@@ -2603,8 +2603,8 @@
           originalEventListener = likeButtonEvent[3];
           
           con.log("[ActionPanel] Adding/Removing listeners");
-          a.removeEventListener("click", originalEventListener, likeButtonEvent[4]);
-          a.addEventListener("click", listenerDisabler, likeButtonEvent[4]);
+          likeButton.removeEventListener("click", originalEventListener, likeButtonEvent[4]);
+          likeButton.addEventListener("click", listenerDisabler, likeButtonEvent[4]);
           
           con.log("[ActionPanel] Handling other inits");
           initActionPanel();
