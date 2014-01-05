@@ -2573,11 +2573,13 @@
         uw.setTimeout(disableActionPanel, 0);
       };
       __r.setup = function(){
+        con.log("[ActionPanel] Setup...");
         if (ytcenter.getPage() !== "watch") return;
         
         var a = document.getElementById("watch-like"),
             b = getEventListener({ event: "click", element: a });
         if (!a || !b || typeof b[3] !== "function") {
+          con.log("[ActionPanel] Waiting 1000 ms...");
           uw.setTimeout(__r.setup, 1000);
           return;
         }
