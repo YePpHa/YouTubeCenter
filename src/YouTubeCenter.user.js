@@ -2481,19 +2481,14 @@
       function getEventListener(options) {
         con.log("[ActionPanel:getEventListener]", options);
         if (!options || !uw.yt || !uw.yt.events || !uw.yt.events.listeners_) return null;
-        con.log("[ActionPanel:getEventListener] YouTube is ready.");
-        var key, item;
+        var key, item = null;
         for (key in uw.yt.events.listeners_) {
-          item = uw.yt.events.listeners_[key];
-          if (options.element && options.element !== item[0]) continue;
-          if (options.event && options.event !== item[1]) continue;
-          /*return {
-            element: item[0],
-            event: item[1],
-            listener: item[3],
-            isCapture: item[4]
-          };*/
-          return item;
+          if (uw.yt.events.listeners_.hasOwnProperty(key)) {
+            item = uw.yt.events.listeners_[key];
+            if (options.element == item[0] && options.event == item[1]) {
+              return item;
+            }
+          }
         }
         con.error("[ActionPanel:getEventListener] Events not found!", uw.yt.events.listeners_, options);
         
