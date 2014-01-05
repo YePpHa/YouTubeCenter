@@ -2579,16 +2579,19 @@
         if (elm && elm.firstChild && elm.firstChild.firstChild && elm.firstChild.firstChild.firstChild)
           return elm.firstChild.firstChild.firstChild;
         con.log("[ActionPanel:getLikeButton] Could not for some really unexplained reason get a reference to the like button.", elm);
+        
+        elm = null;
+        
         return null;
       }
       function setup() {
         if (ytcenter.getPage() !== "watch") return;
         
-        likeButton = __r.likeButton || __r.getLikeButton(),
+        likeButton = likeButton || getLikeButton(),
         likeButtonEvent = getEventListener({ event: "click", element: likeButton });
         
         if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
-          __r.likeButton = likeButton;
+          likeButton = likeButton;
           uw.setTimeout(function(){ __r.setup(); }, 5000);
           return;
         }
