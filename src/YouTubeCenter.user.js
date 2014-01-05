@@ -1214,6 +1214,7 @@
           if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
           ytcenter.settingsPanelDialog.setVisibility(true);
         }, false);
+        
         if (document.getElementById("masthead-user")) {
           document.getElementById("masthead-user").appendChild(btn);
         } else if (document.getElementById("yt-masthead-user")) {
@@ -21801,6 +21802,8 @@
         
         if (page === "watch") {
           //ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab });
+          ytcenter.actionPanel.setup();
+          
           ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": false });
           if (uw.ytplayer && uw.ytplayer.config) {
             ytcenter.player.setConfig(uw.ytplayer.config);
@@ -21835,8 +21838,6 @@
           ytcenter.embed.load();
         } else {
           ytcenter.guideMode.setup();
-          
-          ytcenter.actionPanel.setup();
         }
         
         if (loc.hash === "#ytcenter.settings.open") {
