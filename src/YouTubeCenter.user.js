@@ -2564,10 +2564,13 @@
         onceLock();
       }
       function onceLock() {
+        var oldClassName = null;
         if (observer) observer.disconnect();
+        
+        oldClassName = switchToElm.className;
         observer = ytcenter.mutation.observe(switchToElm, { attributes: true }, function(mutations){
           mutations.forEach(function(mutation){
-            if (mutation.type === "attributes" && mutation.attributeName === "class") {
+            if (mutation.type === "attributes" && mutation.attributeName === "class" && oldClassName !== switchToElm.className) {
               ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
               //delaySwitchTab();
               
@@ -2661,17 +2664,9 @@
     })();
     ytcenter.mutation = (function(){
       var __r = {},
-          M = null, setup = false,
-          db = [],
-          disconnects = [];
-      __r.getObserver = function(callback){
-        var i;
-        for (i = 0; i < db.length; i++) {
-          if (db[i].callback === callback)
-            return db[i].observer;
-        }
-        return null;
-      };
+        M = null,
+        setup = false,
+        disconnects = [];
       __r.fallbackObserve = function(target, options, callback){
         function MutationRecord(record) {
           this.addedNodes = record.addedNodes || null;
@@ -2686,6 +2681,8 @@
           this.event = record.event || null;
         }
         function c() {
+          removeListeners();
+          
           if (insertedNodes.length > 0 || removedNodes.length > 0) {
             mutationRecords.push(new MutationRecord({
               addedNodes: insertedNodes,
@@ -2746,6 +2743,8 @@
           attributes = [];
           characterDataModified = null;
           subtreeModified = false;
+          
+          addListeners();
         }
         function DOMNodeInserted(e) {
           insertedNodes.push(e.target);
@@ -2774,6 +2773,42 @@
           subtreeModified = true;
           throttleFunc();
         }
+        function addListeners() {
+          if (options.childList) {
+            ytcenter.utils.addEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
+            ytcenter.utils.addEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
+          }
+          
+          if (options.attributes) {
+            ytcenter.utils.addEventListener(target, "DOMAttrModified", DOMAttrModified, false);
+          }
+          
+          if (options.characterData) {
+            ytcenter.utils.addEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
+          }
+          
+          if (options.subtree) {
+            ytcenter.utils.addEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
+          }
+        }
+        function removeListeners() {
+          if (options.childList) {
+            ytcenter.utils.removeEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
+            ytcenter.utils.removeEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
+          }
+          
+          if (options.attributes) {
+            ytcenter.utils.removeEventListener(target, "DOMAttrModified", DOMAttrModified, false);
+          }
+          
+          if (options.characterData) {
+            ytcenter.utils.removeEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
+          }
+          
+          if (options.subtree) {
+            ytcenter.utils.removeEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
+          }
+        }
         
         var buffer = null, i,
             insertedNodes = [],
@@ -2784,22 +2819,8 @@
             subtreeModified = false,
             throttleFunc = ytcenter.utils.throttle(c, 500);
         
-        if (options.childList) {
-          ytcenter.utils.addEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
-          ytcenter.utils.addEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
-        }
+        addListeners();
         
-        if (options.attributes) {
-          ytcenter.utils.addEventListener(target, "DOMAttrModified", DOMAttrModified, false);
-        }
-        
-        if (options.characterData) {
-          ytcenter.utils.addEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
-        }
-        
-        if (options.subtree) {
-          ytcenter.utils.addEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
-        }
         return disconnects[disconnects.push({
           DOMNodeInserted: DOMNodeInserted,
           DOMNodeRemoved: DOMNodeRemoved,
@@ -2809,36 +2830,28 @@
           target: target,
           options: options,
           callback: callback,
-          disconnect: function(){
-            if (options.childList) {
-              ytcenter.utils.removeEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
-              ytcenter.utils.removeEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
-            }
-            
-            if (options.attributes) {
-              ytcenter.utils.removeEventListener(target, "DOMAttrModified", DOMAttrModified, false);
-            }
-            
-            if (options.characterData) {
-              ytcenter.utils.removeEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
-            }
-            
-            if (options.subtree) {
-              ytcenter.utils.removeEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
-            }
-          }
+          disconnect: removeListeners
         }) - 1];
       };
       __r.observe = function(target, options, callback){
+        function mutationCallback(mutations) {
+          // Disconnecting observer to prevent an infinite loop
+          observer.disconnect();
+          
+          callback(mutations);
+          
+          observer.observe(target, options);
+        }
+        function finishedCalling() {
+          calling = false;
+        }
+        var calling = false;
+        
         if (!target || !options || !callback) return;
         if (!setup) __r.setup();
         
         if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
-        var observer = __r.getObserver(callback);
-        if (!observer) {
-          observer = new M(callback);
-          db.push({ callback: callback, observer: observer});
-        }
+        var observer = new M(mutationCallback);
         observer.observe(target, options);
         return disconnects[disconnects.push({
           target: target,
