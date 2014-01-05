@@ -2598,9 +2598,8 @@
             likeButtonEvent = getEventListener({ event: "click", element: likeButton });
         
         if (!likeButton || !likeButtonEvent || typeof likeButtonEvent[3] !== "function") {
-          //uw.setTimeout(function(){ __r.setup(); }, 1000);
           con.log(uw, likeButton, likeButtonEvent);
-          uw.
+          uw.setTimeout(function(){ __r.setup(); }, 5000);
           return;
         }
         con.log("[ActionPanel] Setup has begun!");
