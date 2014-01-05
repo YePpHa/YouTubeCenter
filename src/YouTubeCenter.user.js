@@ -2496,6 +2496,7 @@
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
           secondaryActions.children[i].children[0].addEventListener("click", function(){
+            clearDelaySwitchTab();
             enableActionPanel();
             uw.setTimeout(disableActionPanel, 0);
           }, false);
@@ -2514,21 +2515,44 @@
         }
       }
       function listenerDisabler(e) {
-        con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to preferred tab (" + ytcenter.settings.likeSwitchToTab + ").");
-        
-        var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
-        if (enabled && !h) {
-          switchToElm = document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0];
-          onceLock();
-        }
-        
-        originalEventListener(e);
-        
-        if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
-          uw.setTimeout(function(){
+        function switchToPreferredTab() {
+          try {
             switchTo(ytcenter.settings.likeSwitchToTab);
-          }, 0);
+          } catch (e) {
+            con.error(e);
+          }
         }
+        try {
+          con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to preferred tab (" + ytcenter.settings.likeSwitchToTab + ").");
+          
+          var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
+          if (enabled && typeof h !== "undefined") {
+            switchToElm = document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0];
+            onceLock();
+          }
+          
+          originalEventListener(e);
+          
+          if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
+            uw.setTimeout(switchToPreferredTab, 0);
+          }
+        } catch (e) {
+          con.error(e);
+        }
+      }
+      function clearDelaySwitchTab() {
+        if (delayedSwitchTabTimer) {
+          delayedSwitchTabTimer = null;
+          uw.clearTimeout(delayedSwitchTabTimer);
+        }
+      }
+      function delaySwitchTab() {
+        function delayedSwitchTabCallback() {
+          delayedSwitchTabTimer = null;
+          ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
+        }
+        clearDelaySwitchTab();
+        delayedSwitchTabTimer = uw.setTimeout(delayedSwitchTabCallback, 1000);
       }
       function onceLock() {
         if (observer) observer.disconnect();
@@ -2536,6 +2560,8 @@
           mutations.forEach(function(mutation){
             if (mutation.type === "attributes" && mutation.attributeName === "class") {
               ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
+              delaySwitchTab();
+              
               if (observer) observer.disconnect();
               observer = null;
             }
@@ -2614,7 +2640,8 @@
         observer = null,
         originalEventListener = null,
         likeButton = null,
-        likeButtonEvent = null;
+        likeButtonEvent = null,
+        delayedSwitchTabTimer = null;
       
       __r.switchTo = switchTo;
       __r.setEnabled = setEnabled;
