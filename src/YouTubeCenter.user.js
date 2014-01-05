@@ -2480,17 +2480,18 @@
     ytcenter.actionPanel = (function(){
       function getEventListener(options) {
         con.log("[ActionPanel:getEventListener]", options);
-        if (!options || !uw.yt || !uw.yt.events || !uw.yt.events.listeners_) return null;
+        if (typeof uw.yt === "undefined" || typeof uw.yt.events === "undefined" || typeof uw.yt.events.listeners_ === "undefined") return null;
         var i, item = null;
         for (i = 1; i <= uw.yt.events.counter_.count; i++) {
           item = uw.yt.events.listeners_[i];
-          if (options.element == item[0] && options.event == item[1]) {
+          if (options.element === item[0] && options.event === item[1]) {
             return item;
           }
-          if (options.element == item[0]) con.log("[ActionPanel:getEventListener] Element match", item, options);
-          if (options.event == item[1]) con.log("[ActionPanel:getEventListener] Event match", item, options);
+          if (options.element === item[0]) con.log("[ActionPanel:getEventListener] Element match", item, options);
+          if (options.event === item[1]) con.log("[ActionPanel:getEventListener] Event match", item, options);
         }
-        con.error("[ActionPanel:getEventListener] Events not found!", uw.yt.events.listeners_, options);
+        
+        con.log("[ActionPanel:getEventListener] Events not found!", uw.yt.events.listeners_, options);
         
         return null;
       }
@@ -2586,13 +2587,15 @@
         con.log("[ActionPanel:getLikeButton] Could not for some really unexplained reason get a reference to the like button.", elm);
         return null;
       };
+      __r.likeButton = null;
       __r.setup = function(){
         if (ytcenter.getPage() !== "watch") return;
         
-        var likeButton = __r.getLikeButton(),
+        var likeButton = __r.likeButton || __r.getLikeButton(),
             likeButtonEvent = getEventListener({ event: "click", element: likeButton });
         
-        if (!likeButton || !likeButtonEvent || typeof likeButtonEvent[3] !== "function") {
+        if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
+          __r.likeButton = likeButton;
           uw.setTimeout(function(){ __r.setup(); }, 5000);
           return;
         }
