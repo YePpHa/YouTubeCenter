@@ -2485,8 +2485,14 @@
         var key, item;
         for (key in uw.yt.events.listeners_) {
           item = uw.yt.events.listeners_[key];
-          if (options.element) if (options.element !== item[0]) continue;
-          if (options.event) if (options.event !== item[1]) continue;
+          if (options.element && options.element !== item[0]) continue;
+          if (options.event && options.event !== item[1]) continue;
+          /*return {
+            element: item[0],
+            event: item[1],
+            listener: item[3],
+            isCapture: item[4]
+          };*/
           return item;
         }
         con.error("[ActionPanel:getEventListener] Events not found!");
@@ -2579,8 +2585,9 @@
         con.log("[ActionPanel] Setup...");
         if (ytcenter.getPage() !== "watch") return;
         
-        var a = document.getElementById("watch-like"),
-            b = getEventListener({ event: "click", element: a });
+        var a = document.getElementById("watch-like"), b;
+        b = getEventListener({ event: "click", element: a });
+        
         if (!a || !b || typeof b[3] !== "function") {
           con.log("[ActionPanel] Waiting 1000 ms...");
           con.log("[ActionPanel]", a, b);
@@ -2595,8 +2602,8 @@
         __r.originalEventListener = b[3];
         
         con.log("[ActionPanel] Adding/Removing listeners");
-        a.removeEventListener("click", __r.originalEventListener, false);
-        a.addEventListener("click", __r.replaceListener, false);
+        a.removeEventListener("click", __r.originalEventListener, b[4]);
+        a.addEventListener("click", __r.replaceListener, b[4]);
         
         
         con.log("[ActionPanel] Handling other inits");
@@ -2605,10 +2612,10 @@
         
         uw.setInterval(function(){
           con.log("[ActionPanel] Removing both listeners and adding the custom one.");
-          a.removeEventListener("click", __r.originalEventListener, false);
-          a.removeEventListener("click", __r.replaceListener, false);
+          a.removeEventListener("click", __r.originalEventListener, b[4]);
+          a.removeEventListener("click", __r.replaceListener, b[4]);
           
-          a.addEventListener("click", __r.replaceListener, false);
+          a.addEventListener("click", __r.replaceListener, b[4]);
         }, 7500);
       };
       return __r;
