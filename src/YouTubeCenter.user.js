@@ -2492,14 +2492,16 @@
         
         return null;
       }
+      function tabClickedEventListener() {
+        removeOnceLock();
+        clearDelaySwitchTab();
+        enableActionPanel();
+        uw.setTimeout(disableActionPanel, 0);
+      }
       function initActionPanel() {
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
-          secondaryActions.children[i].children[0].addEventListener("click", function(){
-            clearDelaySwitchTab();
-            enableActionPanel();
-            uw.setTimeout(disableActionPanel, 0);
-          }, false);
+          secondaryActions.children[i].children[0].addEventListener("click", tabClickedEventListener, false);
         }
       }
       function enableActionPanel() {
@@ -2527,8 +2529,7 @@
           
           var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
           if (enabled && typeof h !== "undefined") {
-            switchToElm = document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0];
-            onceLock();
+            setSwitchTab(document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0]);
           }
           
           originalEventListener(e);
@@ -2554,16 +2555,24 @@
         clearDelaySwitchTab();
         delayedSwitchTabTimer = uw.setTimeout(delayedSwitchTabCallback, 1000);
       }
+      function removeOnceLock() {
+        if (observer) observer.disconnect();
+        observer = null;
+      }
+      function setSwitchTab(elm) {
+        switchToElm = elm;
+        onceLock();
+      }
       function onceLock() {
         if (observer) observer.disconnect();
         observer = ytcenter.mutation.observe(switchToElm, { attributes: true }, function(mutations){
           mutations.forEach(function(mutation){
             if (mutation.type === "attributes" && mutation.attributeName === "class") {
               ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
-              delaySwitchTab();
+              //delaySwitchTab();
               
-              if (observer) observer.disconnect();
-              observer = null;
+              /*if (observer) observer.disconnect();
+              observer = null;*/
             }
           });
         });
@@ -2574,8 +2583,8 @@
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
           if (secondaryActions.children[i].children[0].getAttribute("data-trigger-for") === "action-panel-" + tab) {
+            setSwitchTab(secondaryActions.children[i].children[0]);
             secondaryActions.children[i].children[0].click();
-            switchToElm = secondaryActions.children[i].children[0];
             uw.setTimeout(onceLock, 0);
             return;
           }
