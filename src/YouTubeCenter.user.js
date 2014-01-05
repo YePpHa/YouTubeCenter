@@ -2486,6 +2486,7 @@
         for (i = 1; i <= uw.yt.events.counter_.count; i++) {
           item = uw.yt.events.listeners_[i];
           if ((options.element === item[0] || options.element.id === item[0].id) && options.event === item[1]) {
+            con.log("[ActionPanel:getEventListener] Matched", options.element === item[0], options.element.id === item[0].id, options.event === item[1]);
             return item;
           }
           if (options.element === item[0]) con.log("[ActionPanel:getEventListener] Element match", item, options);
@@ -2518,7 +2519,7 @@
           ytcenter.utils.removeClass(secondaryActions.children[i].children[0], "action-panel-trigger");
         }
       }
-      function listenerDisabler() {
+      function listenerDisabler(e) {
         con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to desired tab.");
         
         var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
@@ -2527,7 +2528,7 @@
           onceLock();
         }
         
-        __r.originalEventListener();
+        __r.originalEventListener(e);
         
         if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
           uw.setTimeout(function(){
