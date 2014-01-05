@@ -2495,7 +2495,7 @@
           };*/
           return item;
         }
-        con.error("[ActionPanel:getEventListener] Events not found!");
+        con.error("[ActionPanel:getEventListener] Events not found!", uw.yt.events.listeners_, options);
         
         return null;
       }
@@ -2594,23 +2594,10 @@
       __r.setup = function(){
         if (ytcenter.getPage() !== "watch") return;
         
-        try {
-          if (unsafeWindow === uw) {
-            con.log("UNSAFEWINDOW IS A SUCCESS!");
-          } else {
-            con.log("I SERIOUSLY HAVE NO CLUE WHAT IS HAPPENING HERE!!!");
-          }
-          con.log(unsafeWindow, uw);
-        } catch (e) {
-          con.log(unsafeWindow, uw);
-          con.error(e);
-        }
-        
         var likeButton = __r.getLikeButton(),
             likeButtonEvent = getEventListener({ event: "click", element: likeButton });
         
         if (!likeButton || !likeButtonEvent || typeof likeButtonEvent[3] !== "function") {
-          con.log(uw, likeButton, likeButtonEvent);
           uw.setTimeout(function(){ __r.setup(); }, 5000);
           return;
         }
