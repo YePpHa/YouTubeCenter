@@ -2587,27 +2587,31 @@
         return null;
       }
       function setup() {
-        if (ytcenter.getPage() !== "watch") return;
-        
-        likeButton = likeButton || getLikeButton(),
-        likeButtonEvent = getEventListener({ event: "click", element: likeButton });
-        
-        if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
-          likeButton = likeButton;
-          uw.setTimeout(function(){ __r.setup(); }, 5000);
-          return;
+        try {
+          if (ytcenter.getPage() !== "watch") return;
+          
+          likeButton = likeButton || getLikeButton(),
+          likeButtonEvent = getEventListener({ event: "click", element: likeButton });
+          
+          if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
+            likeButton = likeButton;
+            uw.setTimeout(function(){ __r.setup(); }, 5000);
+            return;
+          }
+          con.log("[ActionPanel] Setup has begun!");
+          
+          originalEventListener = likeButtonEvent[3];
+          
+          con.log("[ActionPanel] Adding/Removing listeners");
+          a.removeEventListener("click", originalEventListener, likeButtonEvent[4]);
+          a.addEventListener("click", listenerDisabler, likeButtonEvent[4]);
+          
+          con.log("[ActionPanel] Handling other inits");
+          initActionPanel();
+          disableActionPanel();
+        } catch (e) {
+          con.error(e);
         }
-        con.log("[ActionPanel] Setup has begun!");
-        
-        originalEventListener = likeButtonEvent[3];
-        
-        con.log("[ActionPanel] Adding/Removing listeners");
-        a.removeEventListener("click", originalEventListener, likeButtonEvent[4]);
-        a.addEventListener("click", listenerDisabler, likeButtonEvent[4]);
-        
-        con.log("[ActionPanel] Handling other inits");
-        initActionPanel();
-        disableActionPanel();
       }
       var __r = {},
         enabled = true,
