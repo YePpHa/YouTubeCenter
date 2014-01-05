@@ -3,7 +3,7 @@ YouTube Center
 
 Build
 -----
-YouTube Center are using the build system [Ant](http://ant.apache.org/).
+YouTube Center is using the build system [Ant](http://ant.apache.org/).
 
 ### Base requirements
  * Computer
