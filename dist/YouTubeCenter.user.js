@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         210
+// @version         211
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 210);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 211);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -2492,13 +2492,16 @@
         
         return null;
       }
+      function tabClickedEventListener() {
+        removeOnceLock();
+        clearDelaySwitchTab();
+        enableActionPanel();
+        uw.setTimeout(disableActionPanel, 0);
+      }
       function initActionPanel() {
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
-          secondaryActions.children[i].children[0].addEventListener("click", function(){
-            enableActionPanel();
-            uw.setTimeout(disableActionPanel, 0);
-          }, false);
+          secondaryActions.children[i].children[0].addEventListener("click", tabClickedEventListener, false);
         }
       }
       function enableActionPanel() {
@@ -2514,30 +2517,65 @@
         }
       }
       function listenerDisabler(e) {
-        con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to preferred tab (" + ytcenter.settings.likeSwitchToTab + ").");
-        
-        var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
-        if (enabled && !h) {
-          switchToElm = document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0];
-          onceLock();
-        }
-        
-        originalEventListener(e);
-        
-        if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
-          uw.setTimeout(function(){
+        function switchToPreferredTab() {
+          try {
             switchTo(ytcenter.settings.likeSwitchToTab);
-          }, 0);
+          } catch (e) {
+            con.error(e);
+          }
+        }
+        try {
+          con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to preferred tab (" + ytcenter.settings.likeSwitchToTab + ").");
+          
+          var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
+          if (enabled && typeof h !== "undefined") {
+            setSwitchTab(document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0]);
+          }
+          
+          originalEventListener(e);
+          
+          if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
+            uw.setTimeout(switchToPreferredTab, 0);
+          }
+        } catch (e) {
+          con.error(e);
         }
       }
-      function onceLock() {
+      function clearDelaySwitchTab() {
+        if (delayedSwitchTabTimer) {
+          delayedSwitchTabTimer = null;
+          uw.clearTimeout(delayedSwitchTabTimer);
+        }
+      }
+      function delaySwitchTab() {
+        function delayedSwitchTabCallback() {
+          delayedSwitchTabTimer = null;
+          ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
+        }
+        clearDelaySwitchTab();
+        delayedSwitchTabTimer = uw.setTimeout(delayedSwitchTabCallback, 1000);
+      }
+      function removeOnceLock() {
         if (observer) observer.disconnect();
+        observer = null;
+      }
+      function setSwitchTab(elm) {
+        switchToElm = elm;
+        onceLock();
+      }
+      function onceLock() {
+        var oldClassName = null;
+        if (observer) observer.disconnect();
+        
+        oldClassName = switchToElm.className;
         observer = ytcenter.mutation.observe(switchToElm, { attributes: true }, function(mutations){
           mutations.forEach(function(mutation){
-            if (mutation.type === "attributes" && mutation.attributeName === "class") {
+            if (mutation.type === "attributes" && mutation.attributeName === "class" && oldClassName !== switchToElm.className) {
               ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
-              if (observer) observer.disconnect();
-              observer = null;
+              //delaySwitchTab();
+              
+              /*if (observer) observer.disconnect();
+              observer = null;*/
             }
           });
         });
@@ -2548,8 +2586,8 @@
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
           if (secondaryActions.children[i].children[0].getAttribute("data-trigger-for") === "action-panel-" + tab) {
+            setSwitchTab(secondaryActions.children[i].children[0]);
             secondaryActions.children[i].children[0].click();
-            switchToElm = secondaryActions.children[i].children[0];
             uw.setTimeout(onceLock, 0);
             return;
           }
@@ -2614,7 +2652,8 @@
         observer = null,
         originalEventListener = null,
         likeButton = null,
-        likeButtonEvent = null;
+        likeButtonEvent = null,
+        delayedSwitchTabTimer = null;
       
       __r.switchTo = switchTo;
       __r.setEnabled = setEnabled;
@@ -2625,17 +2664,9 @@
     })();
     ytcenter.mutation = (function(){
       var __r = {},
-          M = null, setup = false,
-          db = [],
-          disconnects = [];
-      __r.getObserver = function(callback){
-        var i;
-        for (i = 0; i < db.length; i++) {
-          if (db[i].callback === callback)
-            return db[i].observer;
-        }
-        return null;
-      };
+        M = null,
+        setup = false,
+        disconnects = [];
       __r.fallbackObserve = function(target, options, callback){
         function MutationRecord(record) {
           this.addedNodes = record.addedNodes || null;
@@ -2650,6 +2681,8 @@
           this.event = record.event || null;
         }
         function c() {
+          removeListeners();
+          
           if (insertedNodes.length > 0 || removedNodes.length > 0) {
             mutationRecords.push(new MutationRecord({
               addedNodes: insertedNodes,
@@ -2710,6 +2743,8 @@
           attributes = [];
           characterDataModified = null;
           subtreeModified = false;
+          
+          addListeners();
         }
         function DOMNodeInserted(e) {
           insertedNodes.push(e.target);
@@ -2738,6 +2773,42 @@
           subtreeModified = true;
           throttleFunc();
         }
+        function addListeners() {
+          if (options.childList) {
+            ytcenter.utils.addEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
+            ytcenter.utils.addEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
+          }
+          
+          if (options.attributes) {
+            ytcenter.utils.addEventListener(target, "DOMAttrModified", DOMAttrModified, false);
+          }
+          
+          if (options.characterData) {
+            ytcenter.utils.addEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
+          }
+          
+          if (options.subtree) {
+            ytcenter.utils.addEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
+          }
+        }
+        function removeListeners() {
+          if (options.childList) {
+            ytcenter.utils.removeEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
+            ytcenter.utils.removeEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
+          }
+          
+          if (options.attributes) {
+            ytcenter.utils.removeEventListener(target, "DOMAttrModified", DOMAttrModified, false);
+          }
+          
+          if (options.characterData) {
+            ytcenter.utils.removeEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
+          }
+          
+          if (options.subtree) {
+            ytcenter.utils.removeEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
+          }
+        }
         
         var buffer = null, i,
             insertedNodes = [],
@@ -2748,22 +2819,8 @@
             subtreeModified = false,
             throttleFunc = ytcenter.utils.throttle(c, 500);
         
-        if (options.childList) {
-          ytcenter.utils.addEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
-          ytcenter.utils.addEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
-        }
+        addListeners();
         
-        if (options.attributes) {
-          ytcenter.utils.addEventListener(target, "DOMAttrModified", DOMAttrModified, false);
-        }
-        
-        if (options.characterData) {
-          ytcenter.utils.addEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
-        }
-        
-        if (options.subtree) {
-          ytcenter.utils.addEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
-        }
         return disconnects[disconnects.push({
           DOMNodeInserted: DOMNodeInserted,
           DOMNodeRemoved: DOMNodeRemoved,
@@ -2773,36 +2830,28 @@
           target: target,
           options: options,
           callback: callback,
-          disconnect: function(){
-            if (options.childList) {
-              ytcenter.utils.removeEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
-              ytcenter.utils.removeEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
-            }
-            
-            if (options.attributes) {
-              ytcenter.utils.removeEventListener(target, "DOMAttrModified", DOMAttrModified, false);
-            }
-            
-            if (options.characterData) {
-              ytcenter.utils.removeEventListener(target, "DOMCharacterDataModified", DOMCharacterDataModified, false);
-            }
-            
-            if (options.subtree) {
-              ytcenter.utils.removeEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
-            }
-          }
+          disconnect: removeListeners
         }) - 1];
       };
       __r.observe = function(target, options, callback){
+        function mutationCallback(mutations) {
+          // Disconnecting observer to prevent an infinite loop
+          observer.disconnect();
+          
+          callback(mutations);
+          
+          observer.observe(target, options);
+        }
+        function finishedCalling() {
+          calling = false;
+        }
+        var calling = false;
+        
         if (!target || !options || !callback) return;
         if (!setup) __r.setup();
         
         if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
-        var observer = __r.getObserver(callback);
-        if (!observer) {
-          observer = new M(callback);
-          db.push({ callback: callback, observer: observer});
-        }
+        var observer = new M(mutationCallback);
         observer.observe(target, options);
         return disconnects[disconnects.push({
           target: target,
@@ -22123,7 +22172,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 210);
+          main_function(false, 0, true, 211);
         /*} catch (e) {
         }*/
       }
@@ -22143,7 +22192,7 @@
     }
   } else {
     //try {
-      main_function(false, 0, true, 210);
+      main_function(false, 0, true, 211);
     //} catch (e) {
       //console.error(e);
     //}
