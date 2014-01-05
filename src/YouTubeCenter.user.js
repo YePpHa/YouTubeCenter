@@ -2479,7 +2479,9 @@
     
     ytcenter.actionPanel = (function(){
       function getEventListener(options) {
+        con.log("[ActionPanel:getEventListener]", options);
         if (!options || !uw.yt || !uw.yt.events || !uw.yt.events.listeners_) return null;
+        con.log("[ActionPanel:getEventListener] YouTube is ready.");
         var key, item;
         for (key in uw.yt.events.listeners_) {
           item = uw.yt.events.listeners_[key];
@@ -2487,6 +2489,7 @@
           if (options.event) if (options.event !== item[1]) continue;
           return item;
         }
+        con.error("[ActionPanel:getEventListener] Events not found!");
         
         return null;
       }
