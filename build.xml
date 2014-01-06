@@ -59,6 +59,7 @@
   <property name="indentifier.safari" value="4" />
   <property name="indentifier.opera" value="5" />
   <property name="indentifier.firefox" value="6" />
+  <property name="indentifier.scriptish" value="7" />
   
   <target name="all" depends="preinit, userscript, userscript-meta, chrome, maxthon, firefox, safari, opera, clean" />
   <target name="preinit">
