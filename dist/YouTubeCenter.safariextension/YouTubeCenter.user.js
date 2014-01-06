@@ -21,10 +21,11 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 // ==UserScript==
+// @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         213
-// @author          Jeppe Rune Mortensen (YePpHa)
+// @version         215
+// @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
 // @icon64          https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-64x64.png
@@ -33,12 +34,17 @@
 // @domain          www.youtube.com
 // @domain          gdata.youtube.com
 // @domain          apis.google.com
+// @domain          plus.googleapis.com
+// @domain          googleapis.com
+// @domain          raw.github.com
+// @domain          s.ytimg.com
 // @match           http://*.youtube.com/*
 // @match           https://*.youtube.com/*
 // @match           http://userscripts.org/scripts/source/114002.meta.js
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
-// @match           https://github.com/YePpHa/YouTubeCenter/blob/master/devbuild.number
+// @match           https://raw.github.com/YePpHa/YouTubeCenter/master/*
+// @match           https://raw.github.com/YePpHa/YouTubeCenter/master/devbuild.number
 // @match           http://apis.google.com/*/widget/render/comments?*
 // @match           https://apis.google.com/*/widget/render/comments?*
 // @match           http://plus.googleapis.com/*/widget/render/comments?*
@@ -57,11 +63,13 @@
 // @grant           GM_addStyle
 // @grant           GM_log
 // @grant           GM_registerMenuCommand
+// @grant           unsafeWindow
 // @updateURL       https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.meta.js
 // @downloadURL     https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.user.js
 // @updateVersion   148
 // @run-at          document-start
 // @priority        9001
+// @contributionURL https://github.com/YePpHa/YouTubeCenter/wiki/Donate
 // ==/UserScript==
 
 (function(){
@@ -77,7 +85,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 213);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 215);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -150,19 +158,8 @@
     }
   }
   
-  var main_function = function(injected, identifier, devbuild, devnumber){
+  var main_function = function(injected, identifier, devbuild, devnumber, _unsafeWindow){
     "use strict";
-    //console.log("Script was " + (injected ? "injected" : " not injected") + ".");
-    /** Injected
-     * True, if it's injected into the page to compensate for the missing unsafeWindow variable.
-     ** Identifier
-     * 0 : UserScript
-     * 1 : Chrome
-     * 2 : Maxthon
-     * 3 : Firefox
-     * 4 : Safari
-     * 5 : Opera
-     **/
     /* UTILS */
     function $SaveData(key, value) {
       if (identifier === 2) {
@@ -193,6 +190,7 @@
         return window.external.mxGetRuntime().storage.getConfig(key);
       } else {
         if (ytcenter.storageType === 3) {
+          con.log("[Storage] Using GM_getValue");
           var d = GM_getValue(key, null);
           if (d !== null) return d;
         } else if (ytcenter.storageType === 2) {
@@ -1826,7 +1824,8 @@
     
     /* Classes */
     function defineLockedProperty(obj, key, setter, getter) {
-      if (ytcenter.utils.ie) {
+      if (typeof obj !== "object") obj = {};
+      if (ytcenter.utils.ie || typeof Object.defineProperty === "function") {
         Object.defineProperty(obj, key, {
           get: getter,
           set: setter
@@ -1851,10 +1850,12 @@
     var console_debug = devbuild; // Disable this to stop YouTube Center from writing in the console log.
     var _console = [];
     
-    var uw, loc, con, ytcenter = {}, yt = {};
-    ytcenter.ltr = true;
-    
-    uw = (function(){
+    var uw = null,
+      loc = null,
+      con = null,
+      ytcenter = {},
+      yt = {};
+    uw = _unsafeWindow || (function(){
       var a;
       try {
         a = unsafeWindow === window ? false : unsafeWindow;
@@ -1871,6 +1872,10 @@
         }());
       }
     })();
+    ytcenter.unsafe = {};
+    uw.ytcenter = ytcenter.unsafe;
+    
+    ytcenter.ltr = true; 
     
     ytcenter.utils = {};
     ytcenter.utils.ie = (function(){
@@ -2622,6 +2627,11 @@
       }
       function setup() {
         try {
+          if (observer) observer.disconnect();
+          if (likeButton && listenerDisabler && likeButtonEvent) {
+            likeButton.removeEventListener("click", listenerDisabler, likeButtonEvent[4]);
+          }
+          
           if (ytcenter.getPage() !== "watch") return;
           
           likeButton = getLikeButton(),
@@ -3064,9 +3074,7 @@
     }
     
     ytcenter.io = {};
-    ytcenter.unsafe = {};
     
-    uw.ytcenter = ytcenter.unsafe;
     ytcenter.unsafe.io = ytcenter.io;
     ytcenter.unsafe.spf = {};
     ytcenter.unsafe.storage = {};
@@ -5267,12 +5275,15 @@
         if (item.stream && item.storyboard) {
           callback(item.stream, item.storyboard);
         } else {
-          //var spflink = Math.round(Math.random()) === 1 ? true : false;
-          var spflink = /*ytcenter.spf.isEnabled()*/true;
-          //var spflink = true;
-          
+          var spflink = true,
+            url = "//www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : "");
+          if (loc.href.indexOf("https://") === 0) {
+            url = "https:" + url;
+          } else {
+            url = "http:" + url;
+          }
           $XMLHTTPRequest({
-            url: "http://www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : ""),
+            url: url,
             method: "GET",
             onload: function(r){
               var cfg, errorType = "unknown";
@@ -5365,7 +5376,7 @@
       function loadVideoData(item, callback) {
         if (item.likes && item.dislikes) {
           callback(item.likes, item.dislikes);
-        } else {
+        } else if (item.id) {
           $XMLHTTPRequest({
             url: "https://gdata.youtube.com/feeds/api/videos/" + item.id + "?v=2&alt=json",
             method: "GET",
@@ -6126,7 +6137,7 @@
         if (document.body)
           dbg.htmlelements.body = {className: document.body.className};
         dbg.injected = injected;
-        dbg.identifier = 4;
+        dbg.identifier = identifier;
         dbg.devbuild = devbuild; // variable is true if this a developer build
         dbg.devnumber = devnumber; // developer build number. Only really needed for the developer build.
         dbg.storageType = ytcenter.storageType;
@@ -7124,6 +7135,7 @@
         $XMLHTTPRequest({
           method: "GET",
           url: "https://raw.github.com/YePpHa/YouTubeCenter/master/data/ytexperiments.json",
+          ignoreCache: true,
           headers: {
             "Content-Type": "text/plain"
           },
@@ -13305,6 +13317,7 @@
           $XMLHTTPRequest({
             method: "GET",
             url: "https://raw.github.com/YePpHa/YouTubeCenter/master/devbuild.number",
+            ignoreCache: true,
             headers: {
               "Content-Type": "text/plain"
             },
@@ -13420,7 +13433,7 @@
           return;
         }
         // If it's the Chrome/Opera addon and the browser is Opera, or if it's the Firefox addon it will not check for updates!
-        if ((4 === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || 4 === 6) {
+        if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
           con.log("[UpdateChecker] UpdateChecker has been disabled!");
           if (typeof disabled == "function")
             disabled();
@@ -13497,17 +13510,17 @@
                   ytcenter.language.addLocaleElement(f3, "UPDATE_INSTALL", "@textContent", {});
                   var f4 = document.createTextNode(" ");
                   var f5 = document.createElement("a");
-                  if (4 === 0) {
+                  if (identifier === 0) {
                     f5.href = "http://userscripts.org/scripts/source/114002.user.js";
-                  } else if (4 === 1) {
+                  } else if (identifier === 1) {
                     f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
-                  } else if (4 === 2) {
+                  } else if (identifier === 2) {
                     f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
-                  } else if (4 === 3) {
+                  } else if (identifier === 3) {
                     f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
-                  } else if (4 === 4) {
+                  } else if (identifier === 4) {
                     f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
-                  } else if (4 === 5) {
+                  } else if (identifier === 5) {
                     f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
                   }
                   f5.setAttribute("target", "_blank");
@@ -13518,7 +13531,7 @@
                   var f8 = document.createTextNode(" ");
                   var f9 = document.createElement("a");
                   f9.setAttribute("target", "_blank");
-                  if (4 === 6) {
+                  if (identifier === 6) {
                     f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
                     f9.textContent = "addons.mozilla.org";
                   } else {
@@ -14799,7 +14812,7 @@
           subcat.addOption(option);
           
           // Will only be visible in the developer build.
-          /*if (true) {
+          /*if (devbuild) {
             option = ytcenter.settingsPanel.createOption(
               null, // defaultSetting
               "line"
@@ -17062,11 +17075,11 @@
       /* Category:Update */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_UPDATE");
         if (!devbuild) {
-          if ((4 === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || 4 === 6) {
+          if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
             cat.setVisibility(false);
           }
           ytcenter.events.addEvent("ui-refresh", function(){
-            if ((4 === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || 4 === 6) {
+            if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
               this.setVisibility(false);
             } else {
               this.setVisibility(true);
@@ -20967,7 +20980,7 @@
       ytcenter.classManagement.applyClasses();
     });
     var extensionCompatibilityChecker = function(){
-      if (injected && 4 === 0 && !ytcenter.settings.compatibilityCheckerForChromeDisable) {
+      if (injected && identifier === 0 && !ytcenter.settings.compatibilityCheckerForChromeDisable) {
         var alert,
             content = document.createElement("div"),
             p1 = document.createTextNode(ytcenter.language.getLocale("ALERT_ERROR_COMPATIBILITY_ISSUE_CHROME_TEXT1")),
@@ -22152,18 +22165,19 @@
     })();
     con.log("At Scope End");
   };
+  var crossUnsafeWindow = (function(){
+    var a;
+    try {
+      a = unsafeWindow === window ? false : unsafeWindow;
+    } catch (e) {
+    } finally {
+      return a || window;
+    }
+  })();
+  
   if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && 4 !== 2) {
     try {
-      var __uw = (function(){
-        var a;
-        try {
-          a = unsafeWindow === window ? false : unsafeWindow;
-        } catch (e) {
-        } finally {
-          return a || window;
-        }
-      })();
-      if (__uw === window) {
+      if (crossUnsafeWindow === window) {
         window.addEventListener("message", function(e){
           if (!e.data || e.data.indexOf("{") !== 0) return;
           var d = JSON.parse(e.data);
@@ -22179,7 +22193,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 213);
+          main_function(false, 4, true, 215, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -22198,10 +22212,6 @@
       inject(main_function);
     }
   } else {
-    //try {
-      main_function(false, 4, true, 213);
-    //} catch (e) {
-      //console.error(e);
-    //}
+    main_function(false, 4, true, 215, crossUnsafeWindow);
   }
 })();
