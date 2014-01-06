@@ -4063,8 +4063,10 @@
       __r.commentLoaded = function(commentObject){
         var i;
         for (i = 0; i < __r.comments.length; i++) {
-          if (__r.comments[i].contentElement === commentObject.contentElement &&
-              __r.comments[i].wrapper === commentObject.wrapper)
+          /* Make sure that a comment won't be added multiple times */
+          if (__r.comments[i].isOrignalSharedReference === commentObject.isOrignalSharedReference &&
+              __r.comments[i].isShared === commentObject.isShared &&
+              (__r.comments[i].contentElement === commentObject.contentElement || __r.comments[i].wrapper === commentObject.wrapper))
             return true;
         }
         return false;
@@ -4072,6 +4074,7 @@
       __r.addCommentObject = function(commentObject){
         //if (ytcenter.utils.hasClass(commentObject.contentElement, "ytcenter-comments-loaded")) return;
         if (__r.commentLoaded(commentObject)) return;
+        con.log("[CommentsPlus:addCommentObject] Adding new comment with id: " + __r.__commentInfoIdNext + ".");
         
         commentObject.id = __r.__commentInfoIdNext;
         __r.__commentInfoIdNext += 1;
@@ -4258,6 +4261,7 @@
       __r.handleFlag = function(comment){
         if (comment.flagAdded) return;
         comment.flagAdded = true;
+        
         if (comment.country) {
           __r.completeFlag(comment, comment.country);
         } else {
@@ -4272,7 +4276,6 @@
       };
       __r.addFlags = function(){
         if (!ytcenter.settings.commentCountryEnabled) return;
-        ytcenter.cache.putCategory("profile_country", ytcenter.settings.commentCacheSize);
         var i;
         for (i = 0; i < __r.comments.length; i++) {
           __r.handleFlag(__r.comments[i]);
@@ -4290,7 +4293,6 @@
       __r.setupObserver = function(){
         try {
           observer = ytcenter.mutation.observe(document.body, { childList: true, subtree: true }, function(){
-            con.log("[Comment Observer] Mutation Observed!");
             __r.update();
           });
         } catch (e) {
@@ -4304,6 +4306,9 @@
         }
       };
       __r.setup = function(){
+        if (!ytcenter.settings.commentCountryEnabled) return;
+        ytcenter.cache.putCategory("profile_country", ytcenter.settings.commentCacheSize);
+        
         ytcenter.domEvents.setup();
         
         __r.update();
@@ -4314,7 +4319,6 @@
           __r.update();
         });
         __r.setupObserver();
-        
       };
       
       return __r;
@@ -4519,6 +4523,7 @@
           ytcenter.settings.cache[id] = { size: size, items: [] };
         }
         
+        __r.checkCache();
         saveChanges();
       };
       
@@ -4529,7 +4534,6 @@
       
       __r.getItem = function(catId, id){
         if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
-        __r.checkCache();
         
         var cat = __r.getCategory(catId), i;
         if (!cat) return false;

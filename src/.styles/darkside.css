@@ -14,10 +14,10 @@
 }
 
 @media screen and (max-width:1381px) {
-  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist,
-  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-unavailable,
-  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-api,
-  .ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist-tray,
+  .ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist,
+  .ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-unavailable,
+  .ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-api,
+  .ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist-tray,
   .ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,
   .ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,
   .ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,
