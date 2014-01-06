@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         212
+// @version         213
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 212);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 213);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -2482,9 +2482,10 @@
       function getEventListener(options) {
         if (typeof uw.yt === "undefined" || typeof uw.yt.events === "undefined" || typeof uw.yt.events.listeners_ === "undefined") return null;
         var i, item = null;
+        con.log("[ActionPanel] Amount of YouTube listeners: " + uw.yt.events.counter_.count);
         for (i = 1; i <= uw.yt.events.counter_.count; i++) {
           item = uw.yt.events.listeners_[i];
-          if ((options.element === item[0] || options.element.id === item[0].id) && options.event === item[1]) {
+          if (item && item.length > 1 && (options.element === item[0] || options.element.id === item[0].id) && options.event === item[1]) {
             return item;
           }
         }
@@ -2623,12 +2624,11 @@
         try {
           if (ytcenter.getPage() !== "watch") return;
           
-          likeButton = likeButton || getLikeButton(),
+          likeButton = getLikeButton(),
           likeButtonEvent = getEventListener({ event: "click", element: likeButton });
           
           if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
-            likeButton = likeButton;
-            uw.setTimeout(function(){ setup(); }, 5000);
+            uw.setTimeout(function(){ setup(); }, 2500);
             return;
           }
           con.log("[ActionPanel] Setup has begun!");
@@ -2681,8 +2681,6 @@
           this.event = record.event || null;
         }
         function c() {
-          removeListeners();
-          
           if (insertedNodes.length > 0 || removedNodes.length > 0) {
             mutationRecords.push(new MutationRecord({
               addedNodes: insertedNodes,
@@ -2737,6 +2735,8 @@
           }
           
           callback(mutationRecords);
+          
+          // Cleaning up
           insertedNodes = [];
           removedNodes = [];
           mutationRecords = [];
@@ -2748,11 +2748,11 @@
         }
         function DOMNodeInserted(e) {
           insertedNodes.push(e.target);
-          throttleFunc();
+          wrapperFunction();
         }
         function DOMNodeRemoved(e) {
           removedNodes.push(e.target);
-          throttleFunc();
+          wrapperFunction();
         }
         function DOMAttrModified(e) {
           attributes.push({
@@ -2760,18 +2760,18 @@
             attributeNamespace: e.attrName,
             oldValue: e.prevValue
           });
-          throttleFunc();
+          wrapperFunction();
         }
         function DOMCharacterDataModified(e) {
           characterDataModified = {
             newValue: e.newValue,
             oldValue: e.prevValue
           };
-          throttleFunc();
+          wrapperFunction();
         }
         function DOMSubtreeModified(e) {
           subtreeModified = true;
-          throttleFunc();
+          wrapperFunction();
         }
         function addListeners() {
           if (options.childList) {
@@ -2808,6 +2808,10 @@
           if (options.subtree) {
             ytcenter.utils.removeEventListener(target, "DOMSubtreeModified", DOMSubtreeModified, false);
           }
+        }
+        function wrapperFunction(){
+          removeListeners();
+          throttleFunc();
         }
         
         var buffer = null, i,
@@ -4063,6 +4067,7 @@
       __r.commentLoaded = function(commentObject){
         var i;
         for (i = 0; i < __r.comments.length; i++) {
+          /* Make sure that a comment won't be added multiple times */
           if (__r.comments[i].isOrignalSharedReference === commentObject.isOrignalSharedReference &&
               __r.comments[i].isShared === commentObject.isShared &&
               (__r.comments[i].contentElement === commentObject.contentElement || __r.comments[i].wrapper === commentObject.wrapper))
@@ -4291,9 +4296,7 @@
       };
       __r.setupObserver = function(){
         try {
-          observer = ytcenter.mutation.observe(document.body, { childList: true, subtree: true }, function(){
-            __r.update();
-          });
+          observer = ytcenter.mutation.observe(document.body, { childList: true, subtree: true }, __r.update);
         } catch (e) {
           con.error(e);
         }
@@ -21798,7 +21801,8 @@
             }
             ytcenter.player.getAPI().playVideo();
           }
-          if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none") {
+          
+          if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none" && state === 0) {
             ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
           }
         });
@@ -22175,7 +22179,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 212);
+          main_function(false, 4, true, 213);
         /*} catch (e) {
         }*/
       }
@@ -22195,7 +22199,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 212);
+      main_function(false, 4, true, 213);
     //} catch (e) {
       //console.error(e);
     //}
