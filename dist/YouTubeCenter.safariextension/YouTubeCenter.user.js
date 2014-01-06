@@ -23,7 +23,7 @@
 // ==UserScript==
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         211
+// @version         212
 // @author          Jeppe Rune Mortensen (YePpHa)
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -77,7 +77,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 211);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 212);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3229,7 +3229,7 @@
       centering: ".ytcenter-site-center #yt-masthead,.ytcenter-site-center #footer-hh{width:1003px!important}#page.search.no-flex .branded-page-v2-container{min-width:0!important}.ytcenter-exp-settings-dialog .ytcenter-settings-content,.ytcenter-exp-settings-dialog .ytcenter-settings-content>div{padding-left:0!important}.ytcenter-exp-settings-dialog .yt-uix-form-textarea{width:100%!important}.ytcenter-site-center #alerts{margin:0 auto!important}.ytcenter-site-center #sb-wrapper{width:1003px!important}body.ytcenter-channelv2 #yt-masthead,body.ytcenter-channelv2 #page-container>#page.channel{width:auto!important;min-width:1003px;max-width:1422px}body.ytcenter-channelv2 #page.channel>#guide+#content{width:auto!important}.ytcenter-site-center #page-container>#page{margin:0 auto!important}.ytcenter-site-center #masthead-subnav>ul{width:1003px;margin:0 auto!important}.ytcenter-site-center #page.channel.page-default{width:100%!important}.ytcenter-site-center #content-container #baseDiv,.ytcenter-site-center #masthead-subnav{margin-left:auto!important;margin-right:auto!important}.ytcenter-site-center #footer-container #footer{width:1003px!important;margin-left:auto!important;margin-right:auto!important}.ytcenter-site-center #yt-masthead-container #yt-masthead,.ytcenter-site-center #header,.ytcenter-site-center #alerts{width:1003px;margin:0 auto!important;padding:0 10px!important}.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #guide+#content{width:823px!important}.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #page{width:1003px!important}.ytcenter-site-not-watch.ytcenter-site-center #page{width:1003px}.ytcenter-site-not-watch.ytcenter-site-center #page-container{padding:0 10px!important}.ytcenter-site-not-watch.ytcenter-site-center.flex-width-enabled #page{padding:0 10px!important}.flex-width-enabled #yt-masthead{width:auto!important;max-width:1422px!important;min-width:1003px!important}.flex-width-enabled.exp-top-guide #yt-masthead,.flex-width-enabled.site-center-aligned #yt-masthead,.flex-width-enabled.site-as-giant-card #yt-masthead{width:auto!important;max-width:none!important;min-width:none!important}.ytcenter-site-center.ytcenter-non-resize #player,.ytcenter-site-center.ytcenter-non-resize #player-legacy,.ytcenter-site-center.ytcenter-non-resize #content,.ytcenter-site-center.ytcenter-non-resize #watch7-main-container{width:1003px!important;padding-left:0!important;padding-right:0!important}@media screen and (max-width:1381px){.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #content{margin:0!important}.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #player,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #player-legacy,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #watch7-main-container{padding-left:190px!important;padding-right:190px!important;margin:0!important}.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #guide-container{left:10px!important}.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #guide-container{right:10px!important}}@media screen and (max-width:1165px){.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{margin:0!important}.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{padding-left:58px!important}.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{padding-right:58px!important}.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0!important}.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-right:0!important}}.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0}.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0}",
       embed: "#cued-embed .video-thumbnail{padding-top:30px;height:100%;background-size:100%;background-repeat:no-repeat;background-position:center}",
       player: ".ytcenter-scrolled-top #page,.ytcenter-scrolled-top-player-pre #page{position:static!important}.ytcenter-scrolled-top #player,.ytcenter-scrolled-top #player-legacy{overflow:visible!important}.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{position:absolute!important;top:-100%!important;left:0!important;width:100%!important;height:100%!important}.ltr.ytcenter-scrolled-top-player-pre #player-api,.ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,.ltr.ytcenter-scrolled-top #player-api,.ltr.ytcenter-scrolled-top #player-api-legacy{left:0!important}.rtl.ytcenter-scrolled-top-player-pre #player-api,.rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,.rtl.ytcenter-scrolled-top #player-api,.rtl.ytcenter-scrolled-top #player-api-legacy{right:0!important}.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top #player-api-legacy{-moz-transition:top .5s;-webkit-transition:top .5s;-o-transition:top .5s;transition:top .5s;position:absolute!important;top:0!important;width:100%!important;height:100%!important}.ytcenter-scrolled-top-element{display:none}.ytcenter-site-watch .ytcenter-scrolled-top-element{width:100%;height:100%;max-height:1px;background:#000;-moz-transition:max-height .5s;-webkit-transition:max-height .5s;-o-transition:max-height .5s;transition:max-height .5s;display:block}.ytcenter-scrolled-top .ytcenter-scrolled-top-element{max-height:100%}.ytcenter-scrolled-inverse #player-api,.ytcenter-scrolled-inverse #player-api-legacy{margin-top:1px!important}.ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element{padding-bottom:1px}.ytcenter-scrolled-top-noscrollbar{overflow:hidden!important}.ytcenter-scrolled-top #masthead-positioner,.ytcenter-scrolled-top-static #masthead-positioner{position:static!important}.ytcenter-scrolled-top #masthead-positioner-height-offset,.ytcenter-scrolled-top-static #masthead-positioner-height-offset{display:none!important}.ytcenter-scrolled-top #guide,.ytcenter-scrolled-top-static #guide{display:none!important}.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy{-moz-transition:none!important;-webkit-transition:none!important;-o-transition:none!important;transition:none!important}",
-      darkside: "@media screen and (min-width:1166px){.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:auto!important;margin-right:auto!important;float:none!important}}@media screen and (max-width:1381px){.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:0!important;margin-right:0!important}}.ytcenter-site-center.ytcenter-player-darkside-bg #page{width:auto!important}.ytcenter-site-center.ytcenter-player-darkside-bg #guide-container{margin-left:0!important;margin-right:0!important}.ytcenter-site-center.ytcenter-player-darkside-bg #player.watch-medium{margin-left:0!important;margin-right:0!important}.ytcenter-player-darkside-bg #player.watch-medium{width:auto!important;background-color:#1b1b1b}.ytcenter-player-darkside-bg.ytcenter-player-darkside-bg-retro #player.watch-medium{background-color:#444;background-image:-moz-linear-gradient(top,#555,#333);background-image:-webkit-gradient(linear,left top,left bottom,from(#555),to(#333));filter:progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr='#555555',endColorStr='#333333')}.ytcenter-player-darkside-bg.ytcenter-non-resize #player.watch-small{background-color:transparent!important}"
+      darkside: "@media screen and (min-width:1166px){.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:auto!important;margin-right:auto!important;float:none!important}}@media screen and (max-width:1381px){.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:0!important;margin-right:0!important}}.ytcenter-site-center.ytcenter-player-darkside-bg #page{width:auto!important}.ytcenter-site-center.ytcenter-player-darkside-bg #guide-container{margin-left:0!important;margin-right:0!important}.ytcenter-site-center.ytcenter-player-darkside-bg #player.watch-medium{margin-left:0!important;margin-right:0!important}.ytcenter-player-darkside-bg #player.watch-medium{width:auto!important;background-color:#1b1b1b}.ytcenter-player-darkside-bg.ytcenter-player-darkside-bg-retro #player.watch-medium{background-color:#444;background-image:-moz-linear-gradient(top,#555,#333);background-image:-webkit-gradient(linear,left top,left bottom,from(#555),to(#333));filter:progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr='#555555',endColorStr='#333333')}.ytcenter-player-darkside-bg.ytcenter-non-resize #player.watch-small{background-color:transparent!important}"
     };
     ytcenter.topScrollPlayer = (function(){
       function scroll(e) {
@@ -4063,8 +4063,9 @@
       __r.commentLoaded = function(commentObject){
         var i;
         for (i = 0; i < __r.comments.length; i++) {
-          if (__r.comments[i].contentElement === commentObject.contentElement &&
-              __r.comments[i].wrapper === commentObject.wrapper)
+          if (__r.comments[i].isOrignalSharedReference === commentObject.isOrignalSharedReference &&
+              __r.comments[i].isShared === commentObject.isShared &&
+              (__r.comments[i].contentElement === commentObject.contentElement || __r.comments[i].wrapper === commentObject.wrapper))
             return true;
         }
         return false;
@@ -4072,6 +4073,7 @@
       __r.addCommentObject = function(commentObject){
         //if (ytcenter.utils.hasClass(commentObject.contentElement, "ytcenter-comments-loaded")) return;
         if (__r.commentLoaded(commentObject)) return;
+        con.log("[CommentsPlus:addCommentObject] Adding new comment with id: " + __r.__commentInfoIdNext + ".");
         
         commentObject.id = __r.__commentInfoIdNext;
         __r.__commentInfoIdNext += 1;
@@ -4258,6 +4260,7 @@
       __r.handleFlag = function(comment){
         if (comment.flagAdded) return;
         comment.flagAdded = true;
+        
         if (comment.country) {
           __r.completeFlag(comment, comment.country);
         } else {
@@ -4272,7 +4275,6 @@
       };
       __r.addFlags = function(){
         if (!ytcenter.settings.commentCountryEnabled) return;
-        ytcenter.cache.putCategory("profile_country", ytcenter.settings.commentCacheSize);
         var i;
         for (i = 0; i < __r.comments.length; i++) {
           __r.handleFlag(__r.comments[i]);
@@ -4290,7 +4292,6 @@
       __r.setupObserver = function(){
         try {
           observer = ytcenter.mutation.observe(document.body, { childList: true, subtree: true }, function(){
-            con.log("[Comment Observer] Mutation Observed!");
             __r.update();
           });
         } catch (e) {
@@ -4304,6 +4305,9 @@
         }
       };
       __r.setup = function(){
+        if (!ytcenter.settings.commentCountryEnabled) return;
+        ytcenter.cache.putCategory("profile_country", ytcenter.settings.commentCacheSize);
+        
         ytcenter.domEvents.setup();
         
         __r.update();
@@ -4314,7 +4318,6 @@
           __r.update();
         });
         __r.setupObserver();
-        
       };
       
       return __r;
@@ -4519,6 +4522,7 @@
           ytcenter.settings.cache[id] = { size: size, items: [] };
         }
         
+        __r.checkCache();
         saveChanges();
       };
       
@@ -4529,7 +4533,6 @@
       
       __r.getItem = function(catId, id){
         if (!ytcenter.settings.cache) ytcenter.settings.cache = {};
-        __r.checkCache();
         
         var cat = __r.getCategory(catId), i;
         if (!cat) return false;
@@ -22172,7 +22175,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 211);
+          main_function(false, 4, true, 212);
         /*} catch (e) {
         }*/
       }
@@ -22192,7 +22195,7 @@
     }
   } else {
     //try {
-      main_function(false, 4, true, 211);
+      main_function(false, 4, true, 212);
     //} catch (e) {
       //console.error(e);
     //}
