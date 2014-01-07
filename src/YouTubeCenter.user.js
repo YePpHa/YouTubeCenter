@@ -5798,13 +5798,47 @@
           if (item.itemWrapper) ytcenter.utils.removeClass(item.itemWrapper, "ytcenter-video-watched-wrapper");
         }
       }
+      function getChannelBubble(item) {
+        var elm = null;
+        if (item.itemWrapper) {
+          elm = item.itemWrapper.getElementsByTagName("a");
+          if (elm && elm.length > 0) {
+            elm = elm[0];
+          } else {
+            elm = null;
+          }
+        }
+        return elm;
+      }
+      function getChannelName(wrapper) {
+        var elm = null;
+        if (wrapper) {
+          elm = wrapper.getElementsByTagName("img");
+          if (elm && elm.length > 0) {
+            elm = elm[0];
+          }
+        }
+        if (elm) {
+          elm = elm.getAttribute("alt");
+        }
+        return elm;
+      }
+      function convertChannelBubble(elm) {
+        if (elm) {
+          elm.textContent = getChannelName(elm);
+          elm.className = elm.className.replace("feed-author-bubble", "");
+        }
+        return elm;
+      }
       function subscriptionGrid(item) {
-        var username = item.content.parentNode.parentNode.parentNode.parentNode.getElementsByClassName("yt-user-name")[0],
+        var username = convertChannelBubble(getChannelBubble(item)),
             metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
             actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
             usernameWrapper = document.createElement("div"), i, am, li, s,
             primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
-        if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username") || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
+        
+        if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username")
+            || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
           if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
             primaryCol[0].style.overflow = "visible";
             ytcenter.utils.addClass(primaryCol[0], "clearfix");

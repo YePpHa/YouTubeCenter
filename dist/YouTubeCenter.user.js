@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         216
+// @version         217
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -85,7 +85,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 216);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 217);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -5798,13 +5798,47 @@
           if (item.itemWrapper) ytcenter.utils.removeClass(item.itemWrapper, "ytcenter-video-watched-wrapper");
         }
       }
+      function getChannelBubble(item) {
+        var elm = null;
+        if (item.itemWrapper) {
+          elm = item.itemWrapper.getElementsByTagName("a");
+          if (elm && elm.length > 0) {
+            elm = elm[0];
+          } else {
+            elm = null;
+          }
+        }
+        return elm;
+      }
+      function getChannelName(wrapper) {
+        var elm = null;
+        if (wrapper) {
+          elm = wrapper.getElementsByTagName("img");
+          if (elm && elm.length > 0) {
+            elm = elm[0];
+          }
+        }
+        if (elm) {
+          elm = elm.getAttribute("alt");
+        }
+        return elm;
+      }
+      function convertChannelBubble(elm) {
+        if (elm) {
+          elm.textContent = getChannelName(elm);
+          elm.className = elm.className.replace("feed-author-bubble", "");
+        }
+        return elm;
+      }
       function subscriptionGrid(item) {
-        var username = item.content.parentNode.parentNode.parentNode.parentNode.getElementsByClassName("yt-user-name")[0],
+        var username = convertChannelBubble(getChannelBubble(item)),
             metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
             actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
             usernameWrapper = document.createElement("div"), i, am, li, s,
             primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
-        if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username") || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
+        
+        if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username")
+            || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
           if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
             primaryCol[0].style.overflow = "visible";
             ytcenter.utils.addClass(primaryCol[0], "clearfix");
@@ -22193,7 +22227,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 216, crossUnsafeWindow);
+          main_function(false, 0, true, 217, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -22212,6 +22246,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 0, true, 216, crossUnsafeWindow);
+    main_function(false, 0, true, 217, crossUnsafeWindow);
   }
 })();
