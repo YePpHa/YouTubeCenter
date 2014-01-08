@@ -17546,6 +17546,9 @@
                 "ar-bh": [
                   { name: "alihill381" }
                 ],
+                "bg": [
+                  { name: "Mani Farone" }
+                ],
                 "ca": [
                   { name: "Joan Alemany" },
                   { name: "Raül Cambeiro" }
