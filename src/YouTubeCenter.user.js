@@ -12714,6 +12714,7 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      enableYouTubeShortcuts: false,
       disableFeedItemActionMenu: false,
       disableGuideCount: false,
       YouTubeExperiments: [],
@@ -15128,11 +15129,22 @@
         
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_SHORTCUTS"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
+            "enableYouTubeShortcuts", // defaultSetting
+            "bool", // module
+            "SETTINGS_ENABLEYTSHORTCUTS_LABEL" // label
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
             "enableShortcuts", // defaultSetting
             "bool", // module
             "SETTINGS_ENABLESHORTCUTS_LABEL" // label
           );
           subcat.addOption(option);
+          ytcenter.events.addEvent("settings-update", (function(opt){
+            return function(){ opt.setVisibility(ytcenter.settings.enableYouTubeShortcuts); };
+          })(option));
+          option.setVisibility(ytcenter.settings.enableYouTubeShortcuts);
           
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_TOPSCROLLPLAYER"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
@@ -18038,7 +18050,7 @@
       con.log("Adding player shortcuts to document");
       document.addEventListener("keydown", function(e){
         e = e || window.event;
-        if (ytcenter.settings.enableShortcuts && ytcenter.getPage() === "watch" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        if (ytcenter.settings.enableYouTubeShortcuts && ytcenter.settings.enableShortcuts && ytcenter.getPage() === "watch" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           if (document.activeElement.tagName.toLowerCase() === "input" || document.activeElement.tagName.toLowerCase() === "textarea" || document.activeElement.tagName.toLowerCase() === "object" || document.activeElement.tagName.toLowerCase() === "embed" || document.activeElement.tagName.toLowerCase() === "button") return;
           if (document.activeElement.id === "movie_player" && ytcenter.utils.hasClass(document.activeElement, "html5-video-player")) return;
           if (ytcenter.utils.isParent(document.getElementById("movie_player"), document.activeElement)) return;
@@ -18459,6 +18471,11 @@
       
       
       if (ytcenter.getPage() === "watch") {
+        if (ytcenter.settings.enableYouTubeShortcuts) {
+          config.disablekb = 0;
+        } else {
+          config.disablekb = 1;
+        }
         if (ytcenter.settings.forcePlayerType === "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = false;
           config.disable = { html5: 1 };
