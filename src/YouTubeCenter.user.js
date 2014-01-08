@@ -2992,7 +2992,11 @@
               ytcenter_writeEmbed();
             });
           } else if (ytcenter.settings.embedWriteEmbedMethod === "test5") { // Sync
-            yt.config_.PLAYER_CONFIG = ytcenter.utils.jsonClone(ytcenter.player.getConfig());
+            try {
+              uw.yt.config_.PLAYER_CONFIG = ytcenter.utils.jsonClone(ytcenter.player.getConfig());
+            } catch (e) {
+              con.error(e);
+            }
             ytcenter.embed._writeEmbed();
           }
         } catch (e) {
