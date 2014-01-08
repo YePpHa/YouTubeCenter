@@ -5830,28 +5830,48 @@
         }
         return elm;
       }
-      function subscriptionGrid(item) {
-        var username = convertChannelBubble(getChannelBubble(item)),
-            metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0],
-            actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling,
-            usernameWrapper = document.createElement("div"), i, am, li, s,
-            primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
+      function isInSubscription(item) {
+        var feed = document.getElementById("feed"),
+          children = feed.getElementsByClassName("video-thumb"),
+          i;
         
-        if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username")
-            || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
-          if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
-            primaryCol[0].style.overflow = "visible";
-            ytcenter.utils.addClass(primaryCol[0], "clearfix");
-            primaryCol[0].getElementsByClassName("feed-header")[0].style.height = "32px";
+        for (i = 0; i < children.length; i++) {
+          if (children[i] === item.videoThumb) {
+            return true;
           }
-          usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
-          usernameWrapper.className = "ytcenter-grid-subscriptions-username";
-          metadata.parentNode.insertBefore(usernameWrapper, metadata);
+        }
+        
+        return false;
+      }
+      function subscriptionGrid(item) {
+        var username = null,
+            metadata = null,
+            actionMenu = null,
+            usernameWrapper = null, i, am, li, s,
+            primaryCol = null;
+        if (isInSubscription(item)) {
+          metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0];
+          actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling;
+          usernameWrapper = document.createElement("div");
+          primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
           
-          ytcenter.events.addEvent("language-refresh", function(){
-            usernameWrapper.innerHTML = "";
+          if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username")
+              || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
+            if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
+              primaryCol[0].style.overflow = "visible";
+              ytcenter.utils.addClass(primaryCol[0], "clearfix");
+              primaryCol[0].getElementsByClassName("feed-header")[0].style.height = "32px";
+            }
+            username = convertChannelBubble(getChannelBubble(item));
             usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
-          });
+            usernameWrapper.className = "ytcenter-grid-subscriptions-username";
+            metadata.parentNode.insertBefore(usernameWrapper, metadata);
+            
+            ytcenter.events.addEvent("language-refresh", function(){
+              usernameWrapper.innerHTML = "";
+              usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
+            });
+          }
         }
       }
       function processItemHeavyLoad(item) {
