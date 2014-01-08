@@ -21524,13 +21524,14 @@
             _timer = null;
           ytcenter.utils.addEventListener(guideButton, "click", function(){
             function startTimer() {
+              ytcenter.utils.cssFix(pageElm);
               _timer = uw.setInterval(function(){
-                if (count > 20) {
+                if (count > 3) {
                   stopTimer();
                 }
                 ytcenter.utils.cssFix(pageElm);
                 count++;
-              }, 100);
+              }, 300);
             }
             function stopTimer() {
               if (_timer) {
