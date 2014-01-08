@@ -844,3 +844,24 @@ body > #page {
 .ytcenter-hide-feed-item-action-menu #feed .feed-item-action-menu {
   display: none !important;
 }
+
+.ytcenter-hide-recommended-channels .branded-page-v2-secondary-col {
+  display: none !important;
+}
+.ytcenter-hide-recommended-channels .branded-page-v2-col-container {
+  width: 100% !important;
+}
+.ytcenter-hide-recommended-channels .watch-sidebar-section {
+  margin: 0 !important;
+}
+
+.site-center-aligned.ytcenter-hide-recommended-channels .browse-list-item-container:hover .compact-shelf .yt-uix-shelfslider-prev {
+  left: -25px !important;
+}
+.site-center-aligned.ytcenter-hide-recommended-channels .browse-list-item-container:hover .compact-shelf .yt-uix-shelfslider-next {
+  right: -25px !important;
+}
+
+.site-center-aligned.ytcenter-hide-recommended-channels .browse-list-item-container:hover .compact-shelf .yt-uix-button-shelf-slider-pager {
+  width: 25px !important;
+}

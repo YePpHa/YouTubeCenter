@@ -672,13 +672,6 @@
       if (!ytcenter.settings.repeatShowIcon) {
         iconw.style.display = "none";
       }
-      ytcenter.events.addEvent("ui-refresh", function(){
-        if (ytcenter.settings.repeatShowIcon) {
-          iconw.style.display = "";
-        } else {
-          iconw.style.display = "none";
-        }
-      });
       var icon = document.createElement("img");
       icon.className = "yt-uix-button-icon " + (ytcenter.watch7 ? "ytcenter-repeat-icon" : "yt-uix-button-icon-playlist-bar-autoplay");
       icon.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
@@ -699,6 +692,23 @@
       t.className = "yt-uix-button-content";
       t.textContent = ytcenter.language.getLocale("BUTTON_REPEAT_TEXT");
       ytcenter.language.addLocaleElement(t, "BUTTON_REPEAT_TEXT", "@textContent");
+      
+      if (!ytcenter.settings.repeatShowText) {
+        t.style.display = "none";
+      }
+      
+      ytcenter.events.addEvent("ui-refresh", function(){
+        if (ytcenter.settings.repeatShowIcon) {
+          iconw.style.display = "";
+        } else {
+          iconw.style.display = "none";
+        }
+        if (ytcenter.settings.repeatShowText) {
+          t.style.display = "";
+        } else {
+          t.style.display = "none";
+        }
+      });
       
       btn.appendChild(t);
       
@@ -12714,6 +12724,9 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      logoLink: "/",
+      hideRecommendedChannels: false,
+      repeatShowText: true,
       enableYouTubeShortcuts: false,
       disableFeedItemActionMenu: false,
       disableGuideCount: false,
@@ -16034,6 +16047,22 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-icon"
           );
           subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "repeatShowText",
+            "bool",
+            "SETTINGS_REPEAT_SHOW_TEXT",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
 
 
       /* Category:UI */
@@ -16115,6 +16144,32 @@
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
+            null,
+            "line",
+            null
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "logoLink",
+            "textfield",
+            "SETTINGS_LOGO_LINK",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    if (document.getElementById("logo-container")) {
+                      document.getElementById("logo-container").href = ytcenter.settings.logoLink;
+                    }
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
             "disableFeedItemActionMenu",
             "bool",
             "SETTINGS_HIDE_FEED_ITEM_ACTION_MENU",
@@ -16128,6 +16183,30 @@
                 }
               ]
             }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "hideRecommendedChannels",
+            "bool",
+            "SETTINGS_HIDE_RECOMMENDED_CHANNELS",
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.classManagement.applyClasses();
+                  }
+                }
+              ]
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line",
+            null
           );
           subcat.addOption(option);
           
@@ -20763,6 +20842,7 @@
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg", condition: function(loc){
         return ytcenter.player.darkside();
       }},
+      {element: function(){return document.body;}, className: "ytcenter-hide-recommended-channels", condition: function(loc){return ytcenter.settings.hideRecommendedChannels;}},
       {element: function(){return document.body;}, className: "ytcenter-hide-feed-item-action-menu", condition: function(loc){return ytcenter.settings.disableFeedItemActionMenu;}},
       {element: function(){return document.body;}, className: "ytcenter-hide-guide-count", condition: function(loc){return ytcenter.settings.disableGuideCount;}},
       {element: function(){return document.body;}, className: "ytcenter-player-darkside-bg-retro", condition: function(loc){return (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large && ytcenter.settings.playerDarkSideBG && ytcenter.settings.playerDarkSideBGRetro);}},
@@ -21457,6 +21537,11 @@
           if (!ytcenter.welcome.hasBeenLaunched())
             ytcenter.welcome.setVisibility(true);
         }
+        
+        if (document.getElementById("logo-container")) {
+          document.getElementById("logo-container").href = ytcenter.settings.logoLink;
+        }
+        
         if (loc.pathname !== "/watch")
           ytcenter.player.turnLightOn();
         else if (ytcenter.settings.lightbulbAutoOff)
