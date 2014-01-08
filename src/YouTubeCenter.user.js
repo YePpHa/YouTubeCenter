@@ -10826,6 +10826,12 @@
     };
     
     // @utils
+    ytcenter.utils.cssFix = function(elm){
+      var width = elm.style.width;
+      elm.style.width = "0px";
+      elm.offsetHeight;
+      elm.style.width = (width ? width : "");
+    };
     ytcenter.utils.getContentByTags = function(text, startTag, endTag){
       text = text.split(startTag)[1];
       text = text.split(endTag)[0];
@@ -21467,6 +21473,7 @@
               }
               ytcenter.saveSettings(false, false);
               loc.reload();
+              return;
             }
           } else {
             if (ytcenter.experiments.isTopGuide()) {
@@ -21491,6 +21498,7 @@
               }
               ytcenter.saveSettings(false, false);
               loc.reload();
+              return;
             }
           }
           if (ytcenter.settings['ytExperimentFixedTopbar']) {
@@ -21498,14 +21506,43 @@
               ytcenter.settings['ytExperimentFixedTopbar'] = false;
               ytcenter.saveSettings(false, false);
               loc.reload();
+              return;
             }
           } else {
             if (ytcenter.experiments.isFixedTopbar()) {
               ytcenter.settings['ytExperimentFixedTopbar'] = true;
               ytcenter.saveSettings(false, false);
               loc.reload();
+              return;
             }
           }
+        }
+        
+        /* A simple Webkit hack, which will fix the horizontal scroll bar from appearing */
+        if (ytcenter.settings['experimentalFeatureTopGuide'] && document.body.className.indexOf("webkit") !== -1) {
+          var guideButton = document.getElementById("appbar-guide-button"),
+            _timer = null;
+          ytcenter.utils.addEventListener(guideButton, "click", function(){
+            function startTimer() {
+              _timer = uw.setInterval(function(){
+                if (count > 20) {
+                  stopTimer();
+                }
+                ytcenter.utils.cssFix(pageElm);
+                count++;
+              }, 100);
+            }
+            function stopTimer() {
+              if (_timer) {
+                uw.clearInterval(_timer);
+                _timer = null;
+              }
+            }
+            var pageElm = document.getElementById("page"),
+              count = 0;
+            stopTimer();
+            startTimer();
+          }, false);
         }
         
         yt = uw.yt;
