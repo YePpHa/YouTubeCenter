@@ -1893,6 +1893,35 @@
       return v > 4 ? v : !!document.documentMode;
     }());
     
+    ytcenter.updateLogoLink_ = null;
+    ytcenter.updateLogoLink = function(){
+      var logoContainer = document.getElementById("logo-container"),
+        url = ytcenter.settings.logoLink;
+      if (logoContainer && logoContainer.tagName === "A") {
+        if (ytcenter.updateLogoLink_ === null) {
+          ytcenter.updateLogoLink_ = document.getElementById("logo-container").getAttribute("href");
+        }
+        if (ytcenter.updateLogoLink_ !== "/" && (url.indexOf("http://") === 0 || url.indexOf("https://") === 0)) {
+          url = ytcenter.updateLogoLink_.substring(0, ytcenter.updateLogoLink_.indexOf("http")) + url;
+        } else if (ytcenter.updateLogoLink_ !== "/") {
+          if (url.indexOf("/") === 0) url = url.substring(1);
+          url = ytcenter.updateLogoLink_ + url;
+        }
+        document.getElementById("logo-container").setAttribute("href", url);
+      } else if (logoContainer) {
+        var map = logoContainer.getElementsByTagName("map");
+        if (map && map.length > 0 && map[0] && map[0].children && map[0].children.length > 0) {
+          if (ytcenter.updateLogoLink_ === null) ytcenter.updateLogoLink_ = map[0].children[0].getAttribute("href");
+            if (ytcenter.updateLogoLink_ !== "/" && (url.indexOf("http://") === 0 || url.indexOf("https://") === 0)) {
+            url = ytcenter.updateLogoLink_.substring(0, ytcenter.updateLogoLink_.indexOf("http")) + url;
+          } else if (ytcenter.updateLogoLink_ !== "/") {
+            if (url.indexOf("/") === 0) url = url.substring(1);
+            url = ytcenter.updateLogoLink_ + url;
+          }
+          map[0].children[0].setAttribute("href", url);
+        }
+      }
+    };
     
     ytcenter.spfPackages = function(originalPackages){
       function parse(data) {
@@ -16159,9 +16188,7 @@
                 {
                   "event": "click",
                   "callback": function(){
-                    if (document.getElementById("logo-container")) {
-                      document.getElementById("logo-container").href = ytcenter.settings.logoLink;
-                    }
+                    ytcenter.updateLogoLink();
                   }
                 }
               ]
@@ -21538,9 +21565,7 @@
             ytcenter.welcome.setVisibility(true);
         }
         
-        if (document.getElementById("logo-container")) {
-          document.getElementById("logo-container").href = ytcenter.settings.logoLink;
-        }
+        ytcenter.updateLogoLink();
         
         if (loc.pathname !== "/watch")
           ytcenter.player.turnLightOn();
