@@ -20475,8 +20475,10 @@
         priority = ["highres", "hd1440", "hd1080", "hd720", "large", "medium", "small", "tiny", "auto"],
         i = 0,
         priorityIndex = $ArrayIndexOf(priority, ytcenter.player.config.args.vq);
-      ytcenter.player.fixPreferredQuality_timer = uw.setInterval(updateQuality, 100);
-      updateQuality();
+      if (ytcenter.html5) {
+        ytcenter.player.fixPreferredQuality_timer = uw.setInterval(updateQuality, 100);
+        updateQuality();
+      }
     };
     ytcenter.player.getQuality = function(vq, streams, dash){
       var _vq = "auto", priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'],
