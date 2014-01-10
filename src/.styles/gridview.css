@@ -1,0 +1,125 @@
+
+.ytcenter-grid-subscriptions-username {
+  display: none;
+}
+
+.ytcenter-gridview .ytcenter-grid-subscriptions-username {
+  display: block;
+}
+
+/* Removes the recommend channels (second column) */
+/* Removes the bubble thingy... */
+.ytcenter-gridview .branded-page-v2-secondary-col,
+.ytcenter-gridview .feed-item-container .feed-author-bubble-container {
+  display: none!important;
+}
+
+.ytcenter-gridview ul.feed-list {
+  margin: 0 auto;
+}
+
+.ytcenter-gridview.cardified-page .feed-item-dismissable   {
+  padding: 3px;
+}
+.ltr.ytcenter-gridview.cardified-page .yt-lockup-thumbnail,
+.ltr.ytcenter-gridview.cardified-page .feed-item-action-menu {
+  margin-left: -3px;
+  margin-top: -3px;
+}
+.rtl.ytcenter-gridview.cardified-page .yt-lockup-thumbnail,
+.rtl.ytcenter-gridview.cardified-page .feed-item-action-menu {
+  margin-right: -3px;
+  margin-top: -3px;
+}
+
+/*.ytcenter-gridview ul.feed-list:before,
+.ytcenter-gridview ul.feed-list:after {
+  content: '.';
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+.ytcenter-gridview ul.feed-list:after {
+  clear: both;
+}*/
+
+/* Removes padding from the list items */
+.ytcenter-gridview .feed-item-container {
+  padding: 0!important;
+  width: 185px!important;
+  height: 210px!important;
+  border: 0!important;
+}
+.ltr.ytcenter-gridview .feed-item-container {
+  float: left;
+  margin: 0 0 30px 10px!important;
+}
+.rtl.ytcenter-gridview .feed-item-container {
+  float: right;
+  margin: 0 10px 30px 0!important;
+}
+
+.ytcenter-gridview .feed-item-header {
+  display: none!important;
+  position: absolute!important;
+  top: 110px!important;
+}
+
+.ytcenter-gridview .ytcenter-gridview-username {
+  margin-bottom: 5px;
+}
+
+.ytcenter-gridview .feed-item-header .feed-item-time {
+  display: none!important;
+}
+
+.ltr.ytcenter-gridview .feed-item-action-menu {
+  top: 8px!important;
+  right: 0px!important;
+}
+.rtl.ytcenter-gridview .feed-item-action-menu {
+  top: 8px!important;
+  left: 0px!important;
+}
+
+.ytcenter-gridview .yt-lockup-meta {
+  margin: 0!important;
+}
+
+/* Removes margin from item main div */
+.ytcenter-gridview .feed-item-container .feed-item-main {
+  margin: 0!important;
+  border: 0!important;
+}
+
+.ltr.ytcenter-gridview .feed-item-container .feed-item-main .yt-lockup-content {
+  float: left!important;
+  width: 100%!important;
+}
+.rtl.ytcenter-gridview .feed-item-container .feed-item-main .yt-lockup-content {
+  float: right!important;
+  width: 100%!important;
+}
+
+/*.ytcenter-gridview .feed-container {
+  margin-left: 16px!important;
+}*/
+
+.ytcenter-gridview .yt-lockup-badges,
+.ytcenter-hide-watched-videos .ytcenter-video-watched-wrapper {
+  display: none!important;
+}
+
+/* Clear the float */
+.ytcenter-gridview .feed-load-more-container,
+.ytcenter-gridview .feed-page .feed-list-item:last-child::after {
+  clear: both;
+}
+
+.ytcenter-gridview .feed-page .feed-list-item:last-child::before,
+.ytcenter-gridview .feed-page .feed-list-item:last-child::after {
+  content: '.';
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
