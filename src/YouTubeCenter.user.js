@@ -3271,7 +3271,7 @@
       topbar: "@styles-topbar@",
       flags: "@styles-flags@",
       html5player: "@styles-html5player@",
-      gridSubscriptions: "@styles-grid-subscriptions@",
+      gridview: "@styles-gridview@",
       images: "@styles-images@",
       dialog: "@styles-dialog@",
       scrollbar: "@styles-scrollbar@",
@@ -4088,7 +4088,6 @@
         }
         if (!commentInfo.headerElement) {
           con.error("[Comment Info] headerElement is undefined");
-          con.log(commentInfo);
         }
         
         if (commentInfo.isReply || commentInfo.isOrignalSharedReference) {
@@ -6138,6 +6137,7 @@
       }
       var __r = {}, videoThumbs, observer = null, observer2 = null;
       __r.update = function(){
+        ytcenter.gridview.update();
         ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
         
         var vt = compareDifference(getVideoThumbs(), videoThumbs), i;
@@ -6152,9 +6152,6 @@
           updateReuse(vt[i]);
           processItem(vt[i]);
           processItemHeavyLoad(vt[i]);
-          if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
-            subscriptionGrid(vt[i]);
-          }
           if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
             updateWatchedClass(vt[i]);
           }
@@ -6193,6 +6190,7 @@
       };
       ytcenter.unload(__r.dispose);
       __r.setup = function(){
+        ytcenter.gridview.update();
         try {
           var i;
           cacheChecker();
@@ -6208,9 +6206,6 @@
             updateReuse(videoThumbs[i]);
             processItem(videoThumbs[i]);
             processItemHeavyLoad(videoThumbs[i]);
-            if (loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage) {
-              subscriptionGrid(videoThumbs[i]);
-            }
             if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
               updateWatchedClass(videoThumbs[i]);
             }
@@ -7239,7 +7234,6 @@
           onload: function(response){
             try {
               var data = JSON.parse(response.responseText);
-              con.log(data);
               ytcenter.settings[option.defaultSetting] = data;
               ytcenter.saveSettings();
               setButtonStatus(2);
@@ -12757,10 +12751,11 @@
     ytcenter.languages = @ant-database-language@;
     con.log("default settings initializing");
     ytcenter._settings = {
+      gridCollectionPage: true,
       logoLink: "/",
       hideRecommendedChannels: false,
       repeatShowText: true,
-      enableYouTubeShortcuts: false,
+      enableYouTubeShortcuts: true,
       disableFeedItemActionMenu: false,
       disableGuideCount: false,
       YouTubeExperiments: [],
@@ -14628,12 +14623,23 @@
           option = ytcenter.settingsPanel.createOption(
             "gridSubscriptionsPage", // defaultSetting
             "bool", // module
-            "SETTINGS_GRIDSUBSCRIPTIONS", // label
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-for-comments" // help
+            "SETTINGS_GRIDSUBSCRIPTIONS"
           );
           option.addEventListener("update", function(){
-            ytcenter.classManagement.updateClassesByGroup(["grid-subscriptions"]);
+            ytcenter.classManagement.updateClassesByGroup(["gridview"]);
           });
+          
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "gridCollectionPage", // defaultSetting
+            "bool", // module
+            "SETTINGS_GRIDCOLLECTIONS"
+          );
+          option.addEventListener("update", function(){
+            ytcenter.classManagement.updateClassesByGroup(["gridview"]);
+          });
+          
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
@@ -17945,6 +17951,128 @@
       });
     };
     
+    ytcenter.gridview = (function(){
+      function getFeed() {
+        return document.getElementById("feed");
+      }
+      function getIndividualFeed(feed) {
+        if (feed && feed.children && feed.children.length > 0 && feed.children[0]) {
+          return feed.children[0];
+        }
+        return null;
+      }
+      function getFeedName(feed) {
+        var individualFeed = getIndividualFeed(feed);
+        if (individualFeed && individualFeed.getAttribute) {
+          return individualFeed.getAttribute("data-feed-name");
+        }
+        return null;
+      }
+      function getFeedType(feed) {
+        var individualFeed = getIndividualFeed(feed),
+          type = null;
+        if (individualFeed && individualFeed.getAttribute) {
+          type = individualFeed.getAttribute("data-feed-type");
+        }
+        return type;
+      }
+      function getFeedItems(feed) {
+        var items = [],
+          feedContainer = feed.getElementsByClassName("feed-item-container"),
+          i;
+        if (feed && feed.getElementsByClassName) {
+          for (i = 0; i < feedContainer.length; i++) {
+            items.push(parseFeedItem(feedContainer[i]));
+          }
+        }
+        return items;
+      }
+      function parseFeedItem(item) {
+        var details = {},
+          aElm = item.getElementsByTagName("a");
+        if (aElm && aElm[0] && aElm[0].getAttribute) {
+          var images = aElm[0].getElementsByTagName("img");
+          details.channelURL = aElm[0].getAttribute("href");
+          
+          if (images && images.length > 0 && images[0] && images[0].getAttribute) {
+            details.channelName = images[0].getAttribute("alt");
+          }
+        } else {
+          details.channelURL = null;
+          details.channelName = null;
+        }
+        
+        details.wrapper = item;
+        details.metadata = item.getElementsByClassName("yt-lockup-meta")[0];
+        
+        details.channelVerified = (item.getElementsByClassName("yt-user-name-icon-verified").length > 0);
+        details.bubbleContainer = item.getElementsByClassName("feed-author-bubble-container")[0];
+        details.bubbleElement = item.getElementsByClassName("feed-author-bubble")[0];
+        
+        if (item.getElementsByClassName("yt-user-name").length > 0) {
+          details.usernameElement = item.getElementsByClassName("yt-user-name")[0];
+          details.ownerElement = details.usernameElement.parentNode;
+        } else {
+          details.usernameElement = null;
+          details.ownerElement = null;
+        }
+        
+        return details;
+      }
+      function createOwnerElement(details) {
+        var b = details.bubbleElement.cloneNode(false);
+        b.textContent = details.channelName;
+        b.className = b.className.replace("feed-author-bubble", "");
+        
+        return b;
+      }
+      function isEnabled(feed) {
+        feed = feed || getFeed();
+        return (getFeedName(feed) === "subscriptions" && ytcenter.settings.gridSubscriptionsPage) || (getFeedType(feed) === "collection" && ytcenter.settings.gridCollectionPage);
+      }
+      function update() {
+        if (loc.pathname.indexOf("/feed/") === 0) {
+          var feed = getFeed();
+          if (isEnabled(feed)) {
+            var items = getFeedItems(feed),
+              i,
+              ownerElm = null,
+              ownerWrapper = null,
+              details = null;
+            for (i = 0; i < items.length; i++) {
+              details = items[i];
+              if (!ytcenter.utils.inArray(feedItems, details.wrapper)) {
+                feedItems.push(details.wrapper);
+                
+                if (details.ownerElement) {
+                  ownerElm = details.ownerElement.cloneNode(true);
+                } else {
+                  ownerElm = createOwnerElement(items[i]);
+                }
+                ownerWrapper = document.createElement("div");
+                ownerWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": ownerElm}));
+                ownerWrapper.className = "ytcenter-grid-subscriptions-username";
+                ytcenter.events.addEvent("language-refresh", (function(oW, oE){
+                  return function(){
+                    oW.innerHTML = "";
+                    oW.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": oE}));
+                  };
+                })(ownerWrapper, ownerElm));
+                details.ownerWrapper = ownerWrapper;
+                details.metadata.parentNode.insertBefore(ownerWrapper, details.metadata);
+              }
+            }
+          }
+        }
+      }
+      var feedItems = [];
+        
+      return {
+        update: update,
+        isEnabled: isEnabled
+      };
+    })();
+    
     ytcenter.player = {};
     ytcenter.player.darkside = function(){
       if (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large) {
@@ -21020,8 +21148,8 @@
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
       {groups: ["page-center"], element: function(){return document.body;}, className: "site-left-aligned", condition: function(loc){return !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {groups: ["page-center"], element: function(){return document.body;}, className: "site-center-aligned", condition: function(loc){return ytcenter.settings['experimentalFeatureTopGuide'];}},
-      {groups: ["hide-watched-videos"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.settings.gridSubscriptionsPage && ytcenter.settings.hideWatchedVideos;}},
-      {groups: ["grid-subscriptions"], element: function(){return document.body;}, className: "ytcenter-grid-subscriptions", condition: function(loc){return loc.pathname === "/feed/subscriptions" && ytcenter.settings.gridSubscriptionsPage;}},
+      {groups: ["hide-watched-videos"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.gridview.isEnabled() && ytcenter.settings.hideWatchedVideos;}},
+      {groups: ["gridview"], element: function(){return document.body;}, className: "ytcenter-gridview", condition: function(loc){return ytcenter.gridview.isEnabled();}},
       {groups: ["flex"], element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(loc){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
       {groups: ["description"], element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
@@ -21602,7 +21730,7 @@
           $AddStyle(ytcenter.css.general);
           $AddStyle(ytcenter.css.flags);
           $AddStyle(ytcenter.css.html5player);
-          $AddStyle(ytcenter.css.gridSubscriptions);
+          $AddStyle(ytcenter.css.gridview);
           $AddStyle(ytcenter.css.images);
           $AddStyle(ytcenter.css.dialog);
           $AddStyle(ytcenter.css.scrollbar);
@@ -21906,7 +22034,7 @@
           ytcenter.player.fixPreferredQualityUpdate(quality);
         });
         ytcenter.player.listeners.addEventListener("onReady", function(api){
-          if (api && api.getPlaybackQuality && api.setPlaybackQuality) {
+          if (config && config.args && api && api.getPlaybackQuality && api.setPlaybackQuality) {
             if (ytcenter.settings.enableAutoVideoQuality) {
               if (api.getPlaybackQuality && api.getPlaybackQuality() !== config.args.vq || config.args.vq === "auto") {
                 if (config.args.vq === "auto") {
