@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         230
+// @version         231
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -85,7 +85,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 230);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 231);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -18028,7 +18028,7 @@
       }
       function isEnabled(feed) {
         feed = feed || getFeed();
-        return (getFeedName(feed) === "subscriptions" && ytcenter.settings.gridSubscriptionsPage) || (getFeedType(feed) === "collection" && ytcenter.settings.gridCollectionPage);
+        return (loc.pathname.indexOf("/feed/subscriptions") === 0 && ytcenter.settings.gridSubscriptionsPage) || (getFeedType(feed) === "collection" && ytcenter.settings.gridCollectionPage);
       }
       function update() {
         if (loc.pathname.indexOf("/feed/") === 0) {
@@ -21148,8 +21148,8 @@
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
       {groups: ["page-center"], element: function(){return document.body;}, className: "site-left-aligned", condition: function(loc){return !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {groups: ["page-center"], element: function(){return document.body;}, className: "site-center-aligned", condition: function(loc){return ytcenter.settings['experimentalFeatureTopGuide'];}},
-      {groups: ["hide-watched-videos"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.gridview.isEnabled() && loc.pathname.indexOf("/feed/watch_later") !== 0 && ytcenter.settings.hideWatchedVideos;}},
-      {groups: ["gridview"], element: function(){return document.body;}, className: "ytcenter-gridview", condition: function(loc){return ytcenter.gridview.isEnabled();}},
+      {groups: ["hide-watched-videos", "page"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.gridview.isEnabled() && loc.pathname.indexOf("/feed/watch_later") !== 0 && ytcenter.settings.hideWatchedVideos;}},
+      {groups: ["gridview", "page"], element: function(){return document.body;}, className: "ytcenter-gridview", condition: function(loc){return ytcenter.gridview.isEnabled();}},
       {groups: ["flex"], element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(loc){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
       {groups: ["description"], element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
@@ -21811,6 +21811,7 @@
         if (page === "comments") return; // We don't need to do anything here.
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
         ytcenter.classManagement.applyClassesForElement(document.body);
+        ytcenter.classManagement.updateClassesByGroup(["page"]);
         
         if (loc.href.indexOf(".youtube.com/embed/") === -1) {
           if (!ytcenter.welcome.hasBeenLaunched())
@@ -21842,7 +21843,7 @@
           ytcenter.commentsPlus.setup();
           return;
         }
-        
+        ytcenter.gridview.update();
         // Checking if the correct settings were applied and if not correct them and forcing a refresh of the page.
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         if (page !== "embed") {
@@ -22679,7 +22680,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 230, crossUnsafeWindow);
+          main_function(false, 0, true, 231, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -22698,6 +22699,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 0, true, 230, crossUnsafeWindow);
+    main_function(false, 0, true, 231, crossUnsafeWindow);
   }
 })();
