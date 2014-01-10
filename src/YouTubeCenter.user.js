@@ -21148,7 +21148,7 @@
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
       {groups: ["page-center"], element: function(){return document.body;}, className: "site-left-aligned", condition: function(loc){return !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {groups: ["page-center"], element: function(){return document.body;}, className: "site-center-aligned", condition: function(loc){return ytcenter.settings['experimentalFeatureTopGuide'];}},
-      {groups: ["hide-watched-videos"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.gridview.isEnabled() && ytcenter.settings.hideWatchedVideos;}},
+      {groups: ["hide-watched-videos"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.gridview.isEnabled() && loc.pathname.indexOf("/feed/watch_later") !== 0 && ytcenter.settings.hideWatchedVideos;}},
       {groups: ["gridview"], element: function(){return document.body;}, className: "ytcenter-gridview", condition: function(loc){return ytcenter.gridview.isEnabled();}},
       {groups: ["flex"], element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(loc){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
