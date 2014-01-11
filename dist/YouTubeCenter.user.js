@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         232
+// @version         233
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -85,7 +85,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 232);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 233);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -18469,12 +18469,17 @@
               } else if (preventAutoPlay) {
                 api.pauseVideo();
               }
+              !ytcenter.settings.mute && api.isMuted && api.unMute();
               ytcenter.player.listeners.removeEventListener("onStateChange", onStateChangeCallback);
               onStateChangeCallback = null;
             }
           };
         if ((preventAutoBuffering && !ytcenter.html5) || (!preventAutoBuffering && preventAutoPlay)) {
+          api.mute();
           ytcenter.player.listeners.addEventListener("onStateChange", onStateChangeCallback);
+          /*if (!preventAutoBuffering && preventAutoPlay) {
+            api.pauseVideo();
+          }*/
         }
       }
       
@@ -18528,6 +18533,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventTabPlaylistAutoPlay) {
               api.mute();
@@ -18547,6 +18553,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventTabAutoPlay) {
               api.mute();
@@ -18568,6 +18575,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventPlaylistAutoPlay) {
               api.mute();
@@ -18579,7 +18587,7 @@
             if (ytcenter.settings.preventAutoBuffer) {
               if (ytcenter.html5) {
                 api.mute();
-                var cl =  function(state){
+                var cl = function(state){
                   if (state === 1) {
                     ytcenter.player.listeners.removeEventListener("onStateChange", cl);
                     api.stopVideo();
@@ -18587,6 +18595,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventAutoPlay) {
               api.mute();
@@ -22793,7 +22802,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 232, crossUnsafeWindow);
+          main_function(false, 0, true, 233, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -22812,6 +22821,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 0, true, 232, crossUnsafeWindow);
+    main_function(false, 0, true, 233, crossUnsafeWindow);
   }
 })();

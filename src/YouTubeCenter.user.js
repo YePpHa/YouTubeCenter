@@ -18469,12 +18469,17 @@
               } else if (preventAutoPlay) {
                 api.pauseVideo();
               }
+              !ytcenter.settings.mute && api.isMuted && api.unMute();
               ytcenter.player.listeners.removeEventListener("onStateChange", onStateChangeCallback);
               onStateChangeCallback = null;
             }
           };
         if ((preventAutoBuffering && !ytcenter.html5) || (!preventAutoBuffering && preventAutoPlay)) {
+          api.mute();
           ytcenter.player.listeners.addEventListener("onStateChange", onStateChangeCallback);
+          /*if (!preventAutoBuffering && preventAutoPlay) {
+            api.pauseVideo();
+          }*/
         }
       }
       
@@ -18528,6 +18533,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventTabPlaylistAutoPlay) {
               api.mute();
@@ -18547,6 +18553,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventTabAutoPlay) {
               api.mute();
@@ -18568,6 +18575,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventPlaylistAutoPlay) {
               api.mute();
@@ -18579,7 +18587,7 @@
             if (ytcenter.settings.preventAutoBuffer) {
               if (ytcenter.html5) {
                 api.mute();
-                var cl =  function(state){
+                var cl = function(state){
                   if (state === 1) {
                     ytcenter.player.listeners.removeEventListener("onStateChange", cl);
                     api.stopVideo();
@@ -18587,6 +18595,7 @@
                   }
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", cl);
+                api.stopVideo();
               }
             } else if (ytcenter.settings.preventAutoPlay) {
               api.mute();
