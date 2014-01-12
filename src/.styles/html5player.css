@@ -36,7 +36,12 @@ body[data-player-size=fullscreen] .autohide-fade.playing-mode .html5-video-conta
 body[data-player-size=fullscreen] .autohide-embeds.buffering-mode .html5-video-container,
 body[data-player-size=fullscreen] .autohide-embeds.playing-mode .html5-video-container,
 body[data-player-size=fullscreen] .autohide-embeds.autohide-aspect.buffering-mode .html5-video-container,
-body[data-player-size=fullscreen] .autohide-embeds.autohide-aspect.playing-mode .html5-video-container {
+body[data-player-size=fullscreen] .autohide-embeds.autohide-aspect.playing-mode .html5-video-container,
+body[data-player-size=fullscreen] .autohide-fade:not(.ended-mode) .html5-video-container,
+body[data-player-size=fullscreen] .hide-controls.autohide-fade.buffering-mode .html5-video-container,
+body[data-player-size=fullscreen] .hide-controls.autohide-fade.playing-mode .html5-video-container,
+body[data-player-size=fullscreen] .hide-controls.autohide-embeds.buffering-mode .html5-video-container,
+body[data-player-size=fullscreen] .hide-controls.autohide-embeds.playing-mode .html5-video-container {
   bottom: 0!important;
 }
 

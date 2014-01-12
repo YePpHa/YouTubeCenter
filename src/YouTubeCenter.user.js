@@ -2793,7 +2793,9 @@
           characterDataModified = null;
           subtreeModified = false;
           
-          addListeners();
+          if (failsafe) {
+            addListeners();
+          }
         }
         function DOMNodeInserted(e) {
           insertedNodes.push(e.target);
@@ -2859,7 +2861,9 @@
           }
         }
         function wrapperFunction(){
-          removeListeners();
+          if (failsafe) {
+            removeListeners();
+          }
           throttleFunc();
         }
         
@@ -2870,8 +2874,11 @@
             attributes = [],
             characterDataModified = null,
             subtreeModified = false,
-            throttleFunc = ytcenter.utils.throttle(c, 500);
-        
+            throttleFunc = ytcenter.utils.throttle(c, 500),
+            failsafe = true;
+        if (typeof options.failsafe === "boolean") {
+          failsafe = options.failsafe;
+        }
         addListeners();
         
         return disconnects[disconnects.push({
@@ -2889,18 +2896,26 @@
       __r.observe = function(target, options, callback){
         function mutationCallback(mutations) {
           // Disconnecting observer to prevent an infinite loop
-          observer.disconnect();
+          if (failsafe) {
+            observer.disconnect();
+          }
           
           callback(mutations);
           
-          observer.observe(target, options);
+          if (failsafe) {
+            observer.observe(target, options);
+          }
         }
         function finishedCalling() {
           calling = false;
         }
-        var calling = false;
+        var calling = false,
+          failsafe = true;
         
         if (!target || !options || !callback) return;
+        if (typeof options.failsafe === "boolean") {
+          failsafe = options.failsafe;
+        }
         if (!setup) __r.setup();
         
         if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
@@ -3166,7 +3181,7 @@
         } else {
           ytcenter.title.originalTitle = ytcenter.title.processOriginalTitle(document.title);
         }
-        ytcenter.mutation.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true }, ytcenter.title.modified);
+        ytcenter.mutation.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true, failsafe: false }, ytcenter.title.modified);
         ytcenter.title.update();
       } else {
         if (ytcenter.title._init_count > 20) {
@@ -3198,9 +3213,8 @@
       try {
         document.title = ytcenter.title.liveTitle;
       } catch (e) {
-        con.error(e); // Opera 12 will throw an error because it seems to be read only.
+        con.error(e);
       }
-      //a.textContent = ytcenter.title.liveTitle;
     };
     ytcenter.title.hasSuffix = function(){
       return / - YouTube$/.test(ytcenter.title.liveTitle);
@@ -3303,10 +3317,8 @@
               __r.bumpCount();
               count++;
               ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
-              //window.scroll(0, (scrollUpExit ? 1 : 0));
             } else {
               ytcenter.utils.scrollTop(1);
-              //window.scroll(0, 1);
               pa.style.top = "";
               p.style.height = "";
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
@@ -3323,7 +3335,6 @@
             }
           } else if (scrollUpExit) {
             ytcenter.utils.scrollTop(1);
-            //window.scroll(0, 1);
           }
         } else {
           if (scrollTop === 0) {
@@ -3331,15 +3342,12 @@
               __r.bumpCount();
               count++;
               ytcenter.utils.scrollTop(1)
-              //window.scroll(0, 1);
             } else {
               if (ytcenter.settings.topScrollPlayerEnabledOnlyVideoPlaying && (!api || !api.getPlayerState || api.getPlayerState() !== 1)) {
                 ytcenter.utils.scrollTop(1);
-                //window.scroll(0, 1);
                 return;
               }
               ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
-              //window.scroll(0, (scrollUpExit ? 1 : 0));
               p.style.height = pa.style.height;
               if (!ytcenter.settings.topScrollPlayerAnimation)
                 ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
@@ -3401,7 +3409,6 @@
             document.body.insertBefore(elm, document.body.children[0]);
           }
           if (scrollTop === 0) ytcenter.utils.scrollTop(1);
-          //if (scrollTop === 0) window.scroll(0, 1);
         }
       };
       __r.bumpCount = function(){
@@ -3436,13 +3443,11 @@
                 ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               }
               ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
-              //window.scroll(0, (ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0));
             } else {
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
               ytcenter.utils.scrollTop(1);
-              //window.scroll(0, 1);
             }
             throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
             ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
@@ -11000,12 +11005,11 @@
     ytcenter.utils.scrollTop = function(scrollTop){
       if (!document) return null;
       if (typeof scrollTop === "number") {
+        con.log("[scrollTop] Scrolling to y-position: " + scrollTop);
         window.scroll(0, scrollTop);
-        /*if (document.body && typeof document.body.scrollTop === "number") {
-          document.body.scrollTop = scrollTop;
-        } else {
-          document.documentElement.scrollTop = scrollTop;
-        }*/
+      } else if (typeof scrollTop === "object" && scrollTop.scrollIntoView) {
+        con.log("[scrollTop] Scrolling to element.");
+        scrollTop.scrollIntoView(true);
       }
       if (document.body && typeof document.body.scrollTop === "number") {
         return document.body.scrollTop;
@@ -19747,15 +19751,15 @@
             posY += scrollElm.offsetTop;
             scrollElm = scrollElm.offsetParent;
           }
-          window.scrollTo(0, posY - mp.offsetHeight + (ytcenter.settings['experimentalFeatureTopGuide'] ? (document.getElementById("yt-masthead-container").offsetHeight + 2) : 0));
+          ytcenter.utils.scrollTop(posY - mp.offsetHeight + (ytcenter.settings['experimentalFeatureTopGuide'] ? (document.getElementById("yt-masthead-container").offsetHeight) : 0));
           if (ytcenter.settings['experimentalFeatureTopGuide']) {
             uw.setTimeout(function(){
-              document.getElementById("masthead-positioner").style.top = -(document.getElementById("yt-masthead-container").offsetHeight + 1) + "px";
+              document.getElementById("masthead-positioner").style.top = -(document.getElementById("yt-masthead-container").offsetHeight) + "px";
               ytcenter.player._mastheadHeightListenerUpdate && ytcenter.player._mastheadHeightListenerUpdate();
             }, 750);
           }
         } else {
-          (document.getElementById("player-api-legacy") || document.getElementById("player-api")).scrollIntoView();
+          ytcenter.utils.scrollTop(document.getElementById("player-api-legacy") || document.getElementById("player-api"));
         }
       }, false);
       
@@ -19772,15 +19776,15 @@
               posY += scrollElm.offsetTop;
               scrollElm = scrollElm.offsetParent;
             }
-            window.scrollTo(0, posY - mp.offsetHeight + (ytcenter.settings['experimentalFeatureTopGuide'] ? (document.getElementById("yt-masthead-container").offsetHeight + 2) : 0));
+            ytcenter.utils.scrollTop(posY - mp.offsetHeight + (ytcenter.settings['experimentalFeatureTopGuide'] ? (document.getElementById("yt-masthead-container").offsetHeight) : 0));
             if (ytcenter.settings['experimentalFeatureTopGuide']) {
               uw.setTimeout(function(){
-                document.getElementById("masthead-positioner").style.top = -(document.getElementById("yt-masthead-container").offsetHeight + 1) + "px";
+                document.getElementById("masthead-positioner").style.top = -(document.getElementById("yt-masthead-container").offsetHeight) + "px";
                 ytcenter.player._mastheadHeightListenerUpdate && ytcenter.player._mastheadHeightListenerUpdate();
               }, 750);
             }
           } else {
-            (document.getElementById("player-api-legacy") || document.getElementById("player-api")).scrollIntoView();
+            ytcenter.utils.scrollTop(document.getElementById("player-api-legacy") || document.getElementById("player-api"));
           }
         }
         
@@ -21281,12 +21285,12 @@
       {groups: ["player-branding"], element: function(){return document.body;}, className: "ytcenter-branding-remove-background", condition: function(loc){return ytcenter.settings.removeBrandingBackground;}},
       {groups: ["page-center", "page"], element: function(){return document.body;}, className: "ytcenter-site-notcenter", condition: function(loc){return !ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {groups: ["page-center", "page"], element: function(){return document.body;}, className: "ytcenter-site-center", condition: function(loc){return ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
-      {groups: ["topbar"], element: function(){return document.body;}, className: "ytcenter-exp-topbar-static", condition: function(loc){return ytcenter.settings.ytExperimentalLayotTopbarStatic;}},
+      {groups: ["topbar", "page"], element: function(){return document.body;}, className: "ytcenter-exp-topbar-static", condition: function(loc){return ytcenter.settings.ytExperimentalLayotTopbarStatic;}},
       {groups: ["ads"], element: function(){return document.body;}, className: "ytcenter-remove-ads-page", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-not-watch", condition: function(loc){return loc.pathname !== "/watch";}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-search", condition: function(loc){return loc.pathname === "/results";}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-watch", condition: function(loc){return loc.pathname === "/watch";}},
-      {groups: ["player-resize"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
+      {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
     ytcenter.intelligentFeed = (function(){
       var __r = {}, observer, config = { attributes: true }, feed;
@@ -22311,8 +22315,11 @@
           
           if (ytcenter.page === "watch") {
             if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
-              if (document.getElementById("watch-headline-container") || document.getElementById("page-container"))
-                (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+              if ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+                ytcenter.utils.scrollTop(90);
+              } else if (document.getElementById("watch-headline-container") || document.getElementById("page-container")) {
+                ytcenter.utils.scrollTop(document.getElementById("watch-headline-container") || document.getElementById("page-container"));
+              }
             }
           }
         } else if (page === "channel") {
@@ -22711,7 +22718,11 @@
           
           if (ytcenter.page === "watch") {
             if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
-              (document.getElementById("watch-headline-container") || document.getElementById("page-container")).scrollIntoView(true);
+              if ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+                ytcenter.utils.scrollTop(90);
+              } else if (document.getElementById("watch-headline-container") || document.getElementById("page-container")) {
+                ytcenter.utils.scrollTop(document.getElementById("watch-headline-container") || document.getElementById("page-container"));
+              }
             }
           }
           ytcenter.playlist = false;
