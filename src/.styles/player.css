@@ -44,6 +44,13 @@
   height: 100% !important;
 }
 
+.ltr.ytcenter-scrolled-top #page {
+  padding-left: 0 !important;
+}
+.rtl.ytcenter-scrolled-top #page {
+  padding-right: 0 !important;
+}
+
 .ytcenter-scrolled-top-element {
   display: none;
 }
