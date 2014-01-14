@@ -3462,6 +3462,31 @@
           }
         }
         __r.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
+        
+        ytcenter.player.listeners.addEventListener("onStateChange", function(state){
+          if (!enabled || state !== 0 || !ytcenter.settings.topScrollPlayerExitOnVideoEnd || !activated) return;
+          var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+          var pa = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
+            p = document.getElementById("player") || document.getElementById("player-api"),
+            api = ytcenter.player.getAPI(),
+            scrollUpExit = ytcenter.settings.topScrollPlayerScrollUpToExit;
+          ytcenter.utils.scrollTop(1);
+          pa.style.top = "";
+          p.style.height = "";
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
+          
+          uw.setTimeout(function(){
+            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
+            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
+          }, 500);
+          
+          activated = false;
+          count = 0;
+          __r.stopTimer();
+        });
         ytcenter.events.addEvent("settings-update", function(){
           __r.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
           if (enabled) {
@@ -12841,6 +12866,7 @@
       //enableYouTubeAutoSwitchToShareTab: false,
       topScrollPlayerEnabled: false,
       topScrollPlayerActivated: false,
+      topScrollPlayerExitOnVideoEnd: false,
       topScrollPlayerTimesToEnter: 1,
       topScrollPlayerTimesToExit: 0,
       topScrollPlayerCountIncreaseBefore: true,
@@ -15274,6 +15300,13 @@
             "SETTINGS_TOPSCROLLPLAYER_ONLYVIDEOPLAYING",
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#only-when-video-is-playing"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "topScrollPlayerExitOnVideoEnd", // defaultSetting
+            "bool", // module
+            "SETTINGS_TOPSCROLLPLAYER_EXITONVIDEOEND"
           );
           subcat.addOption(option);
           
@@ -21311,7 +21344,7 @@
       {groups: ["description"], element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
       {groups: ["headline"], element: function(){return document.getElementById("watch7-headline");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.headlineTitleExpanded;}},
       {groups: ["ads"], element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
-      {groups: ["flex"], element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){var p = ytcenter.getPage();return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch" && p !== "channel") || (ytcenter.settings.flexWidthOnChannelPage && p === "channel")}},
+      {groups: ["flex", "page"], element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){var p = ytcenter.getPage();return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch" && p !== "channel") || (ytcenter.settings.flexWidthOnChannelPage && p === "channel")}},
       {groups: ["player-branding"], element: function(){return document.body;}, className: "ytcenter-branding-remove-banner", condition: function(loc){return ytcenter.settings.removeBrandingBanner;}},
       {groups: ["player-branding"], element: function(){return document.body;}, className: "ytcenter-branding-remove-background", condition: function(loc){return ytcenter.settings.removeBrandingBackground;}},
       {groups: ["page-center", "page"], element: function(){return document.body;}, className: "ytcenter-site-notcenter", condition: function(loc){return !ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
