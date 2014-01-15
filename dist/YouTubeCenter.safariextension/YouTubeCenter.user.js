@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         236
+// @version         239
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -84,7 +84,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 236);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 239);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3302,11 +3302,24 @@
       settings: ".ytcenter-settings-close-button{position:absolute!important;top:0!important;margin:0!important}.ltr .ytcenter-settings-close-button{right:0}.rtl .ytcenter-settings-close-button{left:0}.ytcenter-settings-category-list{width:100%}.ytcenter-settings-category-list .ytcenter-settings-category-item{display:block;position:relative;border:0;height:24px;background:0;color:#555;font-size:11px;text-decoration:none;overflow:hidden}.ytcenter-settings-category-list .ytcenter-settings-category-item:hover{background:#444;color:#fff}.ytcenter-settings-category-list .ytcenter-settings-category-item.ytcenter-selected{background:#cc181e;color:#fff;font-weight:bold;text-shadow:-1px -1px 0 rgba(0,0,0,0.25)}.ytcenter-settings-category-list .ytcenter-settings-category-item .yt-valign-container{padding:0 24px}.ytcenter-settings-content{display:table;min-width:1003px;margin:0 -20px -20px -20px}.ytcenter-settings-panel-left{position:relative;display:table-cell;padding-bottom:30px;min-width:190px;width:190px}.ltr .ytcenter-settings-panel-left{border-right:1px solid #e2e2e2}.rtl .ytcenter-settings-panel-left{border-left:1px solid #e2e2e2}.ytcenter-settings-panel-right-content{width:100%}.ltr .ytcenter-settings-subcat-header li{float:left;margin-left:13px}.rtl .ytcenter-settings-subcat-header li{float:right;margin-right:13px}.ytcenter-settings-subcat-header-wrapper{padding-top:4px}.ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item{border:0;padding:0 .9em 3px;cursor:pointer;background:0;color:#9c9c9c;font-size:11px;font-weight:bold;height:29px;line-height:29px;-moz-box-sizing:content-box;-ms-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box;-moz-border-radius:0;-webkit-border-radius:0;border-radius:0}.ytcenter-settings-subcat-header{border-bottom:1px solid #e6e6e6;height:32px}.ltr .ytcenter-settings-subcat-header li:last-child{margin-right:13px}.rtl .ytcenter-settings-subcat-header li:last-child{margin-left:13px}.ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item.ytcenter-selected,.ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item:hover{height:29px;line-height:29px;vertical-align:bottom;color:#333;border-bottom:3px solid;border-color:#b00;padding-bottom:0;display:inline-block;text-decoration:none}.ytcenter-settings-subcat-content-wrapper{position:relative;padding:8px 8px 31px}.ytcenter-settings-subcat-statusbar-wrapper{position:absolute;bottom:0;padding:9px;color:#999;opacity:0;filter:alpha(opacity=0);-moz-transition:opacity 1s;-webkit-transition:opacity 1s;transition:opacity 1s}.ltr .ytcenter-settings-subcat-statusbar-wrapper{right:0;text-align:right}.rtl .ytcenter-settings-subcat-statusbar-wrapper{left:0;text-align:left}.ytcenter-settings-subcat-statusbar-wrapper.visible{opacity:1;filter:alpha(opacity=100);-moz-transition:opacity .3s;-webkit-transition:opacity .3s;transition:opacity .3s}.ytcenter-settings-option-label{display:inline-block;width:260px;color:#555;vertical-align:middle}.ytcenter-settings-option-label.ytcenter-disabled{color:#b9b9b9}.ytcenter-settings-help{vertical-align:super;font-size:10px}.ytcenter-settings-version{position:absolute;bottom:0;right:0;left:0;color:#bbb;font-size:11px;padding:9px}.ytcenter-settings-subcat-option{padding:4px 0}.ytcenter-settings-table{width:100%}.ytcenter-settings-table tr{border-top:1px solid #ccc;background-color:#fff}.ytcenter-settings-table tr:nth-child(2n){background-color:#f8f8f8}.ytcenter-settings-table thead tr{background-color:#f8f8f8}.ytcenter-settings-table thead tr td{font-weight:bold}.ytcenter-settings-table tr td{border:1px solid #ddd;padding:6px 13px}.ytcenter-theme-dark .ytcenter-dialog-fg{background:#000;border:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-dialog-bg{background:#000}.ytcenter-theme-dark .yt-alert .close:hover{background-color:rgba(255,255,255,.15)}.ytcenter-theme-dark .ytcenter-settings-content,.ytcenter-theme-dark .ytcenter-dialog-base .ytcenter-dialog-header h2,.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item{color:#aaa}.ytcenter-theme-dark .ytcenter-settings-content a{color:#1a6299}.ytcenter-theme-dark .ytcenter-dialog-base .ytcenter-dialog-header,.ytcenter-theme-dark .ytcenter-settings-subcat-header{border-bottom:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-dialog .yt-horizontal-rule{border-top:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-settings-option-label{color:#aaa}.ltr.ytcenter-theme-dark .ytcenter-settings-panel-left{border-right:1px solid #1d1d1d}.rtl.ytcenter-theme-dark .ytcenter-settings-panel-left{border-left:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item:hover{background:#333}.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item{color:#636363}.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item.ytcenter-selected,.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item:hover{color:#ccc;border-color:#400}.ytcenter-theme-dark .ytcenter-settings-table tr{border-top:1px solid #333;background-color:#000}.ytcenter-theme-dark .ytcenter-settings-table tr:nth-child(2n){background-color:#070707}.ytcenter-theme-dark .ytcenter-settings-table thead tr{background-color:#070707}.ytcenter-theme-dark .ytcenter-settings-table thead tr td{font-weight:bold}.ytcenter-theme-dark .ytcenter-settings-table tr td{border:1px solid #222;padding:6px 13px}.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item:hover{color:#ddd}.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item.ytcenter-selected{background:#330607;color:#fff}",
       centering: ".ytcenter-site-center #yt-masthead,.ytcenter-site-center #footer-hh{width:1003px!important}#page.search.no-flex .branded-page-v2-container{min-width:0!important}.ytcenter-exp-settings-dialog .ytcenter-settings-content,.ytcenter-exp-settings-dialog .ytcenter-settings-content>div{padding-left:0!important}.ytcenter-exp-settings-dialog .yt-uix-form-textarea{width:100%!important}.ytcenter-site-center #alerts{margin:0 auto!important}.ytcenter-site-center #sb-wrapper{width:1003px!important}body.ytcenter-channelv2 #yt-masthead,body.ytcenter-channelv2 #page-container>#page.channel{width:auto!important;min-width:1003px;max-width:1422px}body.ytcenter-channelv2 #page.channel>#guide+#content{width:auto!important}.ytcenter-site-center #page-container>#page{margin:0 auto!important}.ytcenter-site-center #masthead-subnav>ul{width:1003px;margin:0 auto!important}.ytcenter-site-center #page.channel.page-default{width:100%!important}.ytcenter-site-center #content-container #baseDiv,.ytcenter-site-center #masthead-subnav{margin-left:auto!important;margin-right:auto!important}.ytcenter-site-center #footer-container #footer{width:1003px!important;margin-left:auto!important;margin-right:auto!important}.ytcenter-site-center #yt-masthead-container #yt-masthead,.ytcenter-site-center #header,.ytcenter-site-center #alerts{width:1003px;margin:0 auto!important;padding:0 10px!important}.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #guide+#content{width:823px!important}.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #page{width:1003px!important}.ytcenter-site-not-watch.ytcenter-site-center #page{width:1003px}.ytcenter-site-not-watch.ytcenter-site-center #page-container{padding:0 10px!important}.ytcenter-site-not-watch.ytcenter-site-center.flex-width-enabled #page{padding:0 10px!important}.flex-width-enabled #yt-masthead{width:auto!important;max-width:1422px!important;min-width:1003px!important}.flex-width-enabled.exp-top-guide #yt-masthead,.flex-width-enabled.site-center-aligned #yt-masthead,.flex-width-enabled.site-as-giant-card #yt-masthead{width:auto!important;max-width:none!important;min-width:none!important}.ytcenter-site-center.ytcenter-non-resize #player,.ytcenter-site-center.ytcenter-non-resize #player-legacy,.ytcenter-site-center.ytcenter-non-resize #content,.ytcenter-site-center.ytcenter-non-resize #watch7-main-container{width:1003px!important;padding-left:0!important;padding-right:0!important}@media screen and (max-width:1381px){.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #content{margin:0!important}.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #player,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #player-legacy,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #watch7-main-container{padding-left:190px!important;padding-right:190px!important;margin:0!important}.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #guide-container{left:10px!important}.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #guide-container{right:10px!important}}@media screen and (max-width:1165px){.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{margin:0!important}.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{padding-left:58px!important}.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{padding-right:58px!important}.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0!important}.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-right:0!important}}.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0}.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0}",
       embed: "#cued-embed .video-thumbnail{padding-top:30px;height:100%;background-size:100%;background-repeat:no-repeat;background-position:center}",
-      player: ".ytcenter-scrolled-top #page,.ytcenter-scrolled-top-player-pre #page{position:static!important}.ytcenter-scrolled-top #player,.ytcenter-scrolled-top #player-legacy{overflow:visible!important}.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{position:absolute!important;top:-100%!important;left:0!important;width:100%!important;height:100%!important}.ltr.ytcenter-scrolled-top-player-pre #player-api,.ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,.ltr.ytcenter-scrolled-top #player-api,.ltr.ytcenter-scrolled-top #player-api-legacy{left:0!important}.rtl.ytcenter-scrolled-top-player-pre #player-api,.rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,.rtl.ytcenter-scrolled-top #player-api,.rtl.ytcenter-scrolled-top #player-api-legacy{right:0!important}.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top #player-api-legacy{-moz-transition:top .5s;-webkit-transition:top .5s;-o-transition:top .5s;transition:top .5s;position:absolute!important;top:0!important;width:100%!important;height:100%!important}.ltr.ytcenter-scrolled-top #page{padding-left:0!important}.rtl.ytcenter-scrolled-top #page{padding-right:0!important}.ytcenter-scrolled-top-element{display:none}.ytcenter-site-watch .ytcenter-scrolled-top-element{width:100%;height:100%;max-height:1px;background:#000;-moz-transition:max-height .5s;-webkit-transition:max-height .5s;-o-transition:max-height .5s;transition:max-height .5s;display:block}.ytcenter-scrolled-top .ytcenter-scrolled-top-element{max-height:100%}.ytcenter-scrolled-inverse #player-api,.ytcenter-scrolled-inverse #player-api-legacy{margin-top:1px!important}.ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element{padding-bottom:1px}.ytcenter-scrolled-top-noscrollbar{overflow:hidden!important}.ytcenter-scrolled-top #masthead-positioner,.ytcenter-scrolled-top-static #masthead-positioner{position:static!important}.ytcenter-scrolled-top #masthead-positioner-height-offset,.ytcenter-scrolled-top-static #masthead-positioner-height-offset{display:none!important}.ytcenter-scrolled-top #guide,.ytcenter-scrolled-top-static #guide{display:none!important}.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy{-moz-transition:none!important;-webkit-transition:none!important;-o-transition:none!important;transition:none!important}",
+      player: "body.ytcenter-scrolled-top{overflow:hidden}.ytcenter-scrolled-top #page,.ytcenter-scrolled-top-player-pre #page{position:static!important}.ytcenter-scrolled-top #player,.ytcenter-scrolled-top #player-legacy{overflow:visible!important}.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{position:absolute!important;top:-100%!important;left:0!important;width:100%!important;height:100%!important}.ltr.ytcenter-scrolled-top-player-pre #player-api,.ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,.ltr.ytcenter-scrolled-top #player-api,.ltr.ytcenter-scrolled-top #player-api-legacy{left:0!important}.rtl.ytcenter-scrolled-top-player-pre #player-api,.rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,.rtl.ytcenter-scrolled-top #player-api,.rtl.ytcenter-scrolled-top #player-api-legacy{right:0!important}.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top #player-api-legacy{-moz-transition:top .5s;-webkit-transition:top .5s;-o-transition:top .5s;transition:top .5s;position:absolute!important;top:0!important;width:100%!important;height:100%!important}.ltr.ytcenter-scrolled-top #page{padding-left:0!important}.rtl.ytcenter-scrolled-top #page{padding-right:0!important}.ytcenter-scrolled-top-element{display:none}.ytcenter-site-watch .ytcenter-scrolled-top-element{width:100%;height:100%;max-height:0;background:#000;-moz-transition:max-height .5s;-webkit-transition:max-height .5s;-o-transition:max-height .5s;transition:max-height .5s;display:block}.ytcenter-scrolled-top .ytcenter-scrolled-top-element{max-height:100%}.ytcenter-scrolled-inverse #player-api,.ytcenter-scrolled-inverse #player-api-legacy{margin-top:0!important}.ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element{padding-bottom:0}.ytcenter-scrolled-top-noscrollbar{overflow:hidden!important}.ytcenter-scrolled-top #masthead-positioner,.ytcenter-scrolled-top-static #masthead-positioner{position:static!important}.ytcenter-scrolled-top #masthead-positioner-height-offset,.ytcenter-scrolled-top-static #masthead-positioner-height-offset{display:none!important}.ytcenter-scrolled-top #guide,.ytcenter-scrolled-top-static #guide{display:none!important}.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy{-moz-transition:none!important;-webkit-transition:none!important;-o-transition:none!important;transition:none!important}",
       darkside: "@media screen and (min-width:1166px){.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:auto!important;margin-right:auto!important;float:none!important}}@media screen and (max-width:1381px){.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:0!important;margin-right:0!important}}.ytcenter-site-center.ytcenter-player-darkside-bg #page{width:auto!important}.ytcenter-site-center.ytcenter-player-darkside-bg #guide-container{margin-left:0!important;margin-right:0!important}.ytcenter-site-center.ytcenter-player-darkside-bg #player.watch-medium{margin-left:0!important;margin-right:0!important}.ytcenter-player-darkside-bg #player.watch-medium{width:auto!important;background-color:#1b1b1b}.ytcenter-player-darkside-bg.ytcenter-player-darkside-bg-retro #player.watch-medium{background-color:#444;background-image:-moz-linear-gradient(top,#555,#333);background-image:-webkit-gradient(linear,left top,left bottom,from(#555),to(#333));filter:progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr='#555555',endColorStr='#333333')}.ytcenter-player-darkside-bg.ytcenter-non-resize #player.watch-small{background-color:transparent!important}"
     };
     ytcenter.topScrollPlayer = (function(){
-      function scroll(e) {
+      function enterComplete() {
+        ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+        if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+        } else {
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+        }
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
+      }
+      function exitComplete() {
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
+      }
+      function scroll(e, delta, deltaX, deltaY) {
         if (!enabled) return;
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         var pa = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
@@ -3317,83 +3330,104 @@
           document.getElementById("player").style.position = "";
         }
         if (activated) {
-          if ((scrollTop > 0 && !scrollUpExit) || (scrollTop === 0 && scrollUpExit)) {
+          if ((deltaY < 0 && !scrollUpExit) || (deltaY > 0 && scrollUpExit)) {
             if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
               __r.bumpCount();
               count++;
-              ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
+              //ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
             } else {
-              ytcenter.utils.scrollTop(1);
+              //ytcenter.utils.scrollTop(1);
               pa.style.top = "";
               p.style.height = "";
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
-              uw.setTimeout(function(){
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-              }, 500);
               activated = false;
+              onTransitionEnd();
               count = 0;
               __r.stopTimer();
             }
           } else if (scrollUpExit) {
-            ytcenter.utils.scrollTop(1);
+            //ytcenter.utils.scrollTop(1);
           }
         } else {
-          if (scrollTop === 0) {
+          if (scrollTop === 0 && deltaY > 0) {
             if (ytcenter.settings.topScrollPlayerTimesToEnter > count) {
               __r.bumpCount();
               count++;
-              ytcenter.utils.scrollTop(1)
             } else {
               if (ytcenter.settings.topScrollPlayerEnabledOnlyVideoPlaying && (!api || !api.getPlayerState || api.getPlayerState() !== 1)) {
-                ytcenter.utils.scrollTop(1);
                 return;
               }
-              ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
               p.style.height = pa.style.height;
               if (!ytcenter.settings.topScrollPlayerAnimation)
                 ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-player-pre");
               if (scrollUpExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
-              uw.setTimeout(function(){
-                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-                if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-                  ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-                } else {
-                  ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-                }
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
-              }, 0);
               activated = true;
+              onTransitionEnd();
               count = 0;
               __r.stopTimer();
             }
-          } else if (scrollTop === 1 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
+          } else if (scrollTop === 0 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
             __r.bumpCount();
             count++;
           }
         }
       }
-      var __r = {},
-          count = 0,
-          activated,
-          enabled = null,
-          elm = null,
-          timer = null,
-          buffer = null,
-          throttleTimer = 50,
-          throttleFunc = null,
-          prev = null;
-      
-      __r.setEnabled = function(a){
+      function onTransitionEnd() {
+        if (!transitionEndListenerAdded) {
+          if (activated) {
+            uw.setTimeout(function(){ enterComplete(); }, 0);
+          } else {
+            uw.setTimeout(function(){ exitComplete(); }, 500);
+          }
+        }
+      }
+      function onTransitionEndListener() {
+        if (activated) {
+          enterComplete();
+        } else {
+          exitComplete();
+        }
+      }
+      function addEventListeners() {
+        if (throttleFunc) ytcenter.scrollEvent.removeEventListener(window, throttleFunc);
+        throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
+        ytcenter.scrollEvent.addEventListener(window, throttleFunc);
+        
+        /*transitionEndListenerAdded = elm && ytcenter.utils.addEndTransitionListener(elm, onTransitionEndListener);
+        
+        if (document.getElementById("player-api")) {
+          transitionEndListenerAdded = ytcenter.utils.addEndTransitionListener(document.getElementById("player-api"), onTransitionEndListener);
+        }
+        
+        if (document.getElementById("player-api-legacy")) {
+          transitionEndListenerAdded = ytcenter.utils.addEndTransitionListener(document.getElementById("player-api-legacy"), onTransitionEndListener);
+        }*/
+      }
+      function removeEventListener() {
+        if (throttleFunc) ytcenter.scrollEvent.removeEventListener(window, throttleFunc);
+        throttleFunc = null;
+        
+        /*transitionEndListenerAdded = elm && ytcenter.utils.removeEndTransitionListener(elm, onTransitionEndListener);
+        
+        if (document.getElementById("player-api")) {
+          transitionEndListenerAdded = ytcenter.utils.removeEndTransitionListener(document.getElementById("player-api"), onTransitionEndListener);
+        }
+        
+        if (document.getElementById("player-api-legacy")) {
+          transitionEndListenerAdded = ytcenter.utils.removeEndTransitionListener(document.getElementById("player-api-legacy"), onTransitionEndListener);
+        }*/
+      }
+      function setEnabled(a) {
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         enabled = a;
+        
         if (enabled && ytcenter.getPage() !== "watch") enabled = false;
-        if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
-        throttleFunc = null;
+        removeEventListener();
+        
         if (!enabled) {
           if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
@@ -3402,8 +3436,7 @@
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
         } else {
-          throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
-          ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
+          addEventListeners();
           if (elm) {
             if (!elm.parentNode) {
               document.body.insertBefore(elm, document.body.children[0]);
@@ -3413,9 +3446,21 @@
             elm.className = "ytcenter-scrolled-top-element";
             document.body.insertBefore(elm, document.body.children[0]);
           }
-          if (scrollTop === 0) ytcenter.utils.scrollTop(1);
         }
-      };
+      }
+      var __r = {},
+          count = 0,
+          activated = false,
+          enabled = null,
+          elm = null,
+          timer = null,
+          buffer = null,
+          throttleTimer = 50,
+          throttleFunc = null,
+          prev = null,
+          transitionEndListenerAdded = false;
+      
+      __r.setEnabled = setEnabled;
       __r.bumpCount = function(){
         uw.clearTimeout(timer);
         timer = uw.setTimeout(function(){
@@ -3434,7 +3479,8 @@
         }
         enabled = ytcenter.settings.topScrollPlayerEnabled;
         activated = ytcenter.settings.topScrollPlayerActivated;
-        if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
+        removeEventListener();
+        
         if (enabled) {
           if (ytcenter.settings.topScrollPlayerEnabled && ytcenter.getPage() === "watch") {
             if (activated) {
@@ -3447,15 +3493,14 @@
               } else {
                 ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               }
-              ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
+              //ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
             } else {
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-              ytcenter.utils.scrollTop(1);
+              //ytcenter.utils.scrollTop(1);
             }
-            throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
-            ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
+            addEventListeners();
           }
           if (document.getElementById("player")) {
             document.getElementById("player").style.position = "";
@@ -3470,7 +3515,6 @@
             p = document.getElementById("player") || document.getElementById("player-api"),
             api = ytcenter.player.getAPI(),
             scrollUpExit = ytcenter.settings.topScrollPlayerScrollUpToExit;
-          ytcenter.utils.scrollTop(1);
           pa.style.top = "";
           p.style.height = "";
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
@@ -3478,12 +3522,9 @@
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
           ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
           
-          uw.setTimeout(function(){
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-          }, 500);
-          
           activated = false;
+          onTransitionEnd();
+          
           count = 0;
           __r.stopTimer();
         });
@@ -6559,7 +6600,157 @@
       
       return __r;
     })();
-    
+    ytcenter.scrollEvent = (function(){
+      function createHandler(group) {
+        return function(event){
+          var data = handler(event),
+            i;
+          for (i = 0; i < group.listeners.length; i++) {
+            group.listeners[i].apply(group.element, data);
+          }
+        };
+      }
+      function addEventListener(elm, listener) {
+        var group = getEventGroup(elm);
+        
+        if (group === null) {
+          group = {
+            element: elm,
+            listeners: [],
+            handler: null
+          };
+          groups.push(group);
+        }
+        
+        group.listeners.push(listener);
+        
+        if (group.listeners.length > 0 && group.handler === null) {
+          setupGroup(group);
+        }
+      }
+      function removeEventListener(elm, listener) {
+        var group = getEventGroup(elm),
+          i;
+        if (group !== null) {
+          for (i = 0; i < group.listeners.length; i++) {
+            if (group.listeners[i] === listener) {
+              group.listeners.splice(i, 1);
+            }
+          }
+          if (group.listeners.length === 0 && group.handler !== null) {
+            destroyGroup(group);
+          }
+        }
+      }
+      function getEventGroup(elm) {
+        var i;
+        for (i = 0; i < groups.length; i++) {
+          if (groups[i].element === elm) {
+            return groups[i];
+          }
+        }
+        return null;
+      }
+      function setupGroup(group) {
+        var i;
+        if (group.handler === null) {
+          group.handler = createHandler(group);
+          for (i = 0; i < events.length; i++) {
+            ytcenter.utils.addEventListener(group.element, events[i], group.handler, false);
+          }
+        }
+      }
+      function destroyGroup(group) {
+        var i;
+        if (group.handler !== null) {
+          for (i = 0; i < events.length; i++) {
+            ytcenter.utils.removeEventListener(group.element, events[i], group.handler, false);
+          }
+          group.handler = null;
+        }
+      }
+      function setup() {
+        var i;
+        for (i = 0; i < groups.length; i++) {
+          setupGroup(groups[i]);
+        }
+      }
+      function destroy() {
+        var i;
+        for (i = 0; i < groups.length; i++) {
+          destroyGroup(groups[i]);
+        }
+      }
+      function unload() {
+        destroy();
+        groups = [];
+      }
+      
+      function handler(event) {
+        var orgEvent = event || window.event,
+          args = [].slice.call(arguments, 1),
+          delta = 0,
+          deltaX = 0,
+          deltaY = 0,
+          absDelta = 0,
+          absDeltaXY = 0,
+          fn = null;
+
+        // Old school scrollwheel delta
+        if (orgEvent.wheelDelta) {
+          delta = orgEvent.wheelDelta;
+        }
+        if (orgEvent.detail) {
+          delta = orgEvent.detail * -1;
+        }
+
+        // New school wheel delta (wheel event)
+        if (orgEvent.deltaY) {
+          deltaY = orgEvent.deltaY * -1;
+          delta  = deltaY;
+        }
+        if (orgEvent.deltaX) {
+          deltaX = orgEvent.deltaX;
+          delta  = deltaX * -1;
+        }
+
+        // Webkit
+        if (orgEvent.wheelDeltaY !== undefined) {
+          deltaY = orgEvent.wheelDeltaY;
+        }
+        if (orgEvent.wheelDeltaX !== undefined) {
+          deltaX = orgEvent.wheelDeltaX * -1;
+        }
+
+        // Look for lowest delta to normalize the delta values
+        absDelta = Math.abs(delta);
+        if (!lowestDelta || absDelta < lowestDelta) {
+          lowestDelta = absDelta;
+        }
+        absDeltaXY = Math.max(Math.abs(deltaY), Math.abs(deltaX));
+        if (!lowestDeltaXY || absDeltaXY < lowestDeltaXY) {
+          lowestDeltaXY = absDeltaXY;
+        }
+
+        fn = delta > 0 ? "floor" : "ceil";
+        delta  = Math[fn](delta / lowestDelta);
+        deltaX = Math[fn](deltaX / lowestDeltaXY);
+        deltaY = Math[fn](deltaY / lowestDeltaXY);
+        
+        return [event, delta, deltaX, deltaY];
+      }
+      var events = 'onwheel' in document || document.documentMode >= 9 ? ["wheel"] : ["mousewheel", "DomMouseScroll", "MozMousePixelScroll"],
+        lowestDelta = null,
+        lowestDeltaXY = null,
+        groups = [];
+      return {
+        addEventListener: addEventListener,
+        removeEventListener: removeEventListener,
+        destroy: destroy,
+        setup: setup,
+        unload: unload
+      };
+    })();
     ytcenter.events = (function(){
       var db = {},
           __r = {};
@@ -7458,7 +7649,7 @@
       }
       function setStatus(text) { }
       function applyCookieCode(code) {
-        document.cookie = "VISITOR_INFO1_LIVE=" + encodeURIComponent(code) + "; path=/; domain=.youtube.com";
+        ytcenter.utils.setCookie("VISITOR_INFO1_LIVE", code, ".youtube.com", "/", 3600*60*24*30);
         loc.reload();
       }
       function init() {
@@ -10910,6 +11101,56 @@
     };
     
     // @utils
+    ytcenter.utils.addEndTransitionListener = function(elm, listener){
+      function getTransitionEndKey() {
+        var transitions = {
+              "transition": "transitionend",
+              "WebkitTransition": "webkitTransitionEnd",
+              "MozTransition": "transitionend",
+              "OTransition": "oTransitionEnd otransitionend"
+            }, key;
+        for (key in transitions) {
+          if (typeof elm.style[key] !== "undefined") {
+            return transitions[key];
+          }
+        }
+        return null;
+      }
+      var transitionKey = getTransitionEndKey();
+      if (transitionKey === null) return false;
+      transitionKey = transitionKey.split(" ");
+      
+      ytcenter.utils.addEventListener(elm, transitionKey[0], listener, false);
+      if (transitionKey[1]) {
+        ytcenter.utils.addEventListener(elm, transitionKey[1], listener, false);
+      }
+      
+      return true;
+    };
+    ytcenter.utils.removeEndTransitionListener = function(elm, listener){
+      function getTransitionEndKey() {
+        var transitions = {
+              "transition": "transitionend",
+              "WebkitTransition": "webkitTransitionEnd",
+              "MozTransition": "transitionend",
+              "OTransition": "oTransitionEnd otransitionend"
+            }, key;
+        for (key in transitions) {
+          if (typeof elm.style[key] !== "undefined") {
+            return transitions[key];
+          }
+        }
+        return null;
+      }
+      var transitionKey = getTransitionEndKey();
+      if (transitionKey === null) return false;
+      transitionKey = transitionKey.split(" ");
+      ytcenter.utils.removeEventListener(elm, transitionKey[0], listener, false);
+      if (transitionKey[1]) {
+        ytcenter.utils.removeEventListener(elm, transitionKey[1], listener, false);
+      }
+      return true;
+    };
     ytcenter.utils.urlComponentToObject = function(str){
       var parts = str.split("&"),
         hash = {},
@@ -11697,6 +11938,7 @@
         }
       };
       return function(elm, event, callback, useCapture){
+        if (!elm) return;
         listeners.push({elm: elm, event: event, callback: callback, useCapture: useCapture});
         if (elm.addEventListener) {
           elm.addEventListener(event, callback, useCapture || false);
@@ -21770,6 +22012,7 @@
             l.config.align = true;
           }
           ytcenter.saveSettings(false, false);
+          ytcenter.classManagement.updateClassesByGroup("page");
         }
       } else {
         if (ytcenter.experiments.isTopGuide()) {
@@ -21796,6 +22039,7 @@
             l.config.align = false;
           }
           ytcenter.saveSettings(false, false);
+          ytcenter.classManagement.updateClassesByGroup("page");
         }
       }
     };
@@ -22893,7 +23137,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 236, crossUnsafeWindow);
+          main_function(false, 4, true, 239, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -22912,6 +23156,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 4, true, 236, crossUnsafeWindow);
+    main_function(false, 4, true, 239, crossUnsafeWindow);
   }
 })();
