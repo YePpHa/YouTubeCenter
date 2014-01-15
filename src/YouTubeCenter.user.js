@@ -3306,7 +3306,20 @@
       darkside: "@styles-darkside@"
     };
     ytcenter.topScrollPlayer = (function(){
-      function scroll(e) {
+      function enterComplete() {
+        ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+        if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+        } else {
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+        }
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
+      }
+      function exitComplete() {
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
+      }
+      function scroll(e, delta, deltaX, deltaY) {
         if (!enabled) return;
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         var pa = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
@@ -3317,83 +3330,104 @@
           document.getElementById("player").style.position = "";
         }
         if (activated) {
-          if ((scrollTop > 0 && !scrollUpExit) || (scrollTop === 0 && scrollUpExit)) {
+          if ((deltaY < 0 && !scrollUpExit) || (deltaY > 0 && scrollUpExit)) {
             if (ytcenter.settings.topScrollPlayerTimesToExit > count) {
               __r.bumpCount();
               count++;
-              ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
+              //ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
             } else {
-              ytcenter.utils.scrollTop(1);
+              //ytcenter.utils.scrollTop(1);
               pa.style.top = "";
               p.style.height = "";
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
-              uw.setTimeout(function(){
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-              }, 500);
               activated = false;
+              onTransitionEnd();
               count = 0;
               __r.stopTimer();
             }
           } else if (scrollUpExit) {
-            ytcenter.utils.scrollTop(1);
+            //ytcenter.utils.scrollTop(1);
           }
         } else {
-          if (scrollTop === 0) {
+          if (scrollTop === 0 && deltaY > 0) {
             if (ytcenter.settings.topScrollPlayerTimesToEnter > count) {
               __r.bumpCount();
               count++;
-              ytcenter.utils.scrollTop(1)
             } else {
               if (ytcenter.settings.topScrollPlayerEnabledOnlyVideoPlaying && (!api || !api.getPlayerState || api.getPlayerState() !== 1)) {
-                ytcenter.utils.scrollTop(1);
                 return;
               }
-              ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
               p.style.height = pa.style.height;
               if (!ytcenter.settings.topScrollPlayerAnimation)
                 ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
               ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-player-pre");
               if (scrollUpExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
-              uw.setTimeout(function(){
-                ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-                if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-                  ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-                } else {
-                  ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-                }
-                ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
-              }, 0);
               activated = true;
+              onTransitionEnd();
               count = 0;
               __r.stopTimer();
             }
-          } else if (scrollTop === 1 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
+          } else if (scrollTop === 0 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
             __r.bumpCount();
             count++;
           }
         }
       }
-      var __r = {},
-          count = 0,
-          activated,
-          enabled = null,
-          elm = null,
-          timer = null,
-          buffer = null,
-          throttleTimer = 50,
-          throttleFunc = null,
-          prev = null;
-      
-      __r.setEnabled = function(a){
+      function onTransitionEnd() {
+        if (!transitionEndListenerAdded) {
+          if (activated) {
+            uw.setTimeout(function(){ enterComplete(); }, 0);
+          } else {
+            uw.setTimeout(function(){ exitComplete(); }, 500);
+          }
+        }
+      }
+      function onTransitionEndListener() {
+        if (activated) {
+          enterComplete();
+        } else {
+          exitComplete();
+        }
+      }
+      function addEventListeners() {
+        if (throttleFunc) ytcenter.scrollEvent.removeEventListener(window, throttleFunc);
+        throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
+        ytcenter.scrollEvent.addEventListener(window, throttleFunc);
+        
+        /*transitionEndListenerAdded = elm && ytcenter.utils.addEndTransitionListener(elm, onTransitionEndListener);
+        
+        if (document.getElementById("player-api")) {
+          transitionEndListenerAdded = ytcenter.utils.addEndTransitionListener(document.getElementById("player-api"), onTransitionEndListener);
+        }
+        
+        if (document.getElementById("player-api-legacy")) {
+          transitionEndListenerAdded = ytcenter.utils.addEndTransitionListener(document.getElementById("player-api-legacy"), onTransitionEndListener);
+        }*/
+      }
+      function removeEventListener() {
+        if (throttleFunc) ytcenter.scrollEvent.removeEventListener(window, throttleFunc);
+        throttleFunc = null;
+        
+        /*transitionEndListenerAdded = elm && ytcenter.utils.removeEndTransitionListener(elm, onTransitionEndListener);
+        
+        if (document.getElementById("player-api")) {
+          transitionEndListenerAdded = ytcenter.utils.removeEndTransitionListener(document.getElementById("player-api"), onTransitionEndListener);
+        }
+        
+        if (document.getElementById("player-api-legacy")) {
+          transitionEndListenerAdded = ytcenter.utils.removeEndTransitionListener(document.getElementById("player-api-legacy"), onTransitionEndListener);
+        }*/
+      }
+      function setEnabled(a) {
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         enabled = a;
+        
         if (enabled && ytcenter.getPage() !== "watch") enabled = false;
-        if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
-        throttleFunc = null;
+        removeEventListener();
+        
         if (!enabled) {
           if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
@@ -3402,8 +3436,7 @@
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
         } else {
-          throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
-          ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
+          addEventListeners();
           if (elm) {
             if (!elm.parentNode) {
               document.body.insertBefore(elm, document.body.children[0]);
@@ -3413,9 +3446,21 @@
             elm.className = "ytcenter-scrolled-top-element";
             document.body.insertBefore(elm, document.body.children[0]);
           }
-          if (scrollTop === 0) ytcenter.utils.scrollTop(1);
         }
-      };
+      }
+      var __r = {},
+          count = 0,
+          activated = false,
+          enabled = null,
+          elm = null,
+          timer = null,
+          buffer = null,
+          throttleTimer = 50,
+          throttleFunc = null,
+          prev = null,
+          transitionEndListenerAdded = false;
+      
+      __r.setEnabled = setEnabled;
       __r.bumpCount = function(){
         uw.clearTimeout(timer);
         timer = uw.setTimeout(function(){
@@ -3434,7 +3479,8 @@
         }
         enabled = ytcenter.settings.topScrollPlayerEnabled;
         activated = ytcenter.settings.topScrollPlayerActivated;
-        if (throttleFunc) ytcenter.utils.removeEventListener(window, "scroll", throttleFunc, false);
+        removeEventListener();
+        
         if (enabled) {
           if (ytcenter.settings.topScrollPlayerEnabled && ytcenter.getPage() === "watch") {
             if (activated) {
@@ -3447,15 +3493,14 @@
               } else {
                 ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               }
-              ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
+              //ytcenter.utils.scrollTop(ytcenter.settings.topScrollPlayerScrollUpToExit ? 1 : 0);
             } else {
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-              ytcenter.utils.scrollTop(1);
+              //ytcenter.utils.scrollTop(1);
             }
-            throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
-            ytcenter.utils.addEventListener(window, "scroll", throttleFunc, false);
+            addEventListeners();
           }
           if (document.getElementById("player")) {
             document.getElementById("player").style.position = "";
@@ -3470,7 +3515,6 @@
             p = document.getElementById("player") || document.getElementById("player-api"),
             api = ytcenter.player.getAPI(),
             scrollUpExit = ytcenter.settings.topScrollPlayerScrollUpToExit;
-          ytcenter.utils.scrollTop(1);
           pa.style.top = "";
           p.style.height = "";
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
@@ -3478,12 +3522,9 @@
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
           ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
           
-          uw.setTimeout(function(){
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
-          }, 500);
-          
           activated = false;
+          onTransitionEnd();
+          
           count = 0;
           __r.stopTimer();
         });
@@ -6559,7 +6600,157 @@
       
       return __r;
     })();
-    
+    ytcenter.scrollEvent = (function(){
+      function createHandler(group) {
+        return function(event){
+          var data = handler(event),
+            i;
+          for (i = 0; i < group.listeners.length; i++) {
+            group.listeners[i].apply(group.element, data);
+          }
+        };
+      }
+      function addEventListener(elm, listener) {
+        var group = getEventGroup(elm);
+        
+        if (group === null) {
+          group = {
+            element: elm,
+            listeners: [],
+            handler: null
+          };
+          groups.push(group);
+        }
+        
+        group.listeners.push(listener);
+        
+        if (group.listeners.length > 0 && group.handler === null) {
+          setupGroup(group);
+        }
+      }
+      function removeEventListener(elm, listener) {
+        var group = getEventGroup(elm),
+          i;
+        if (group !== null) {
+          for (i = 0; i < group.listeners.length; i++) {
+            if (group.listeners[i] === listener) {
+              group.listeners.splice(i, 1);
+            }
+          }
+          if (group.listeners.length === 0 && group.handler !== null) {
+            destroyGroup(group);
+          }
+        }
+      }
+      function getEventGroup(elm) {
+        var i;
+        for (i = 0; i < groups.length; i++) {
+          if (groups[i].element === elm) {
+            return groups[i];
+          }
+        }
+        return null;
+      }
+      function setupGroup(group) {
+        var i;
+        if (group.handler === null) {
+          group.handler = createHandler(group);
+          for (i = 0; i < events.length; i++) {
+            ytcenter.utils.addEventListener(group.element, events[i], group.handler, false);
+          }
+        }
+      }
+      function destroyGroup(group) {
+        var i;
+        if (group.handler !== null) {
+          for (i = 0; i < events.length; i++) {
+            ytcenter.utils.removeEventListener(group.element, events[i], group.handler, false);
+          }
+          group.handler = null;
+        }
+      }
+      function setup() {
+        var i;
+        for (i = 0; i < groups.length; i++) {
+          setupGroup(groups[i]);
+        }
+      }
+      function destroy() {
+        var i;
+        for (i = 0; i < groups.length; i++) {
+          destroyGroup(groups[i]);
+        }
+      }
+      function unload() {
+        destroy();
+        groups = [];
+      }
+      
+      function handler(event) {
+        var orgEvent = event || window.event,
+          args = [].slice.call(arguments, 1),
+          delta = 0,
+          deltaX = 0,
+          deltaY = 0,
+          absDelta = 0,
+          absDeltaXY = 0,
+          fn = null;
+
+        // Old school scrollwheel delta
+        if (orgEvent.wheelDelta) {
+          delta = orgEvent.wheelDelta;
+        }
+        if (orgEvent.detail) {
+          delta = orgEvent.detail * -1;
+        }
+
+        // New school wheel delta (wheel event)
+        if (orgEvent.deltaY) {
+          deltaY = orgEvent.deltaY * -1;
+          delta  = deltaY;
+        }
+        if (orgEvent.deltaX) {
+          deltaX = orgEvent.deltaX;
+          delta  = deltaX * -1;
+        }
+
+        // Webkit
+        if (orgEvent.wheelDeltaY !== undefined) {
+          deltaY = orgEvent.wheelDeltaY;
+        }
+        if (orgEvent.wheelDeltaX !== undefined) {
+          deltaX = orgEvent.wheelDeltaX * -1;
+        }
+
+        // Look for lowest delta to normalize the delta values
+        absDelta = Math.abs(delta);
+        if (!lowestDelta || absDelta < lowestDelta) {
+          lowestDelta = absDelta;
+        }
+        absDeltaXY = Math.max(Math.abs(deltaY), Math.abs(deltaX));
+        if (!lowestDeltaXY || absDeltaXY < lowestDeltaXY) {
+          lowestDeltaXY = absDeltaXY;
+        }
+
+        fn = delta > 0 ? "floor" : "ceil";
+        delta  = Math[fn](delta / lowestDelta);
+        deltaX = Math[fn](deltaX / lowestDeltaXY);
+        deltaY = Math[fn](deltaY / lowestDeltaXY);
+        
+        return [event, delta, deltaX, deltaY];
+      }
+      var events = 'onwheel' in document || document.documentMode >= 9 ? ["wheel"] : ["mousewheel", "DomMouseScroll", "MozMousePixelScroll"],
+        lowestDelta = null,
+        lowestDeltaXY = null,
+        groups = [];
+      return {
+        addEventListener: addEventListener,
+        removeEventListener: removeEventListener,
+        destroy: destroy,
+        setup: setup,
+        unload: unload
+      };
+    })();
     ytcenter.events = (function(){
       var db = {},
           __r = {};
@@ -7458,7 +7649,7 @@
       }
       function setStatus(text) { }
       function applyCookieCode(code) {
-        document.cookie = "VISITOR_INFO1_LIVE=" + encodeURIComponent(code) + "; path=/; domain=.youtube.com";
+        ytcenter.utils.setCookie("VISITOR_INFO1_LIVE", code, ".youtube.com", "/", 3600*60*24*30);
         loc.reload();
       }
       function init() {
@@ -10910,6 +11101,56 @@
     };
     
     // @utils
+    ytcenter.utils.addEndTransitionListener = function(elm, listener){
+      function getTransitionEndKey() {
+        var transitions = {
+              "transition": "transitionend",
+              "WebkitTransition": "webkitTransitionEnd",
+              "MozTransition": "transitionend",
+              "OTransition": "oTransitionEnd otransitionend"
+            }, key;
+        for (key in transitions) {
+          if (typeof elm.style[key] !== "undefined") {
+            return transitions[key];
+          }
+        }
+        return null;
+      }
+      var transitionKey = getTransitionEndKey();
+      if (transitionKey === null) return false;
+      transitionKey = transitionKey.split(" ");
+      
+      ytcenter.utils.addEventListener(elm, transitionKey[0], listener, false);
+      if (transitionKey[1]) {
+        ytcenter.utils.addEventListener(elm, transitionKey[1], listener, false);
+      }
+      
+      return true;
+    };
+    ytcenter.utils.removeEndTransitionListener = function(elm, listener){
+      function getTransitionEndKey() {
+        var transitions = {
+              "transition": "transitionend",
+              "WebkitTransition": "webkitTransitionEnd",
+              "MozTransition": "transitionend",
+              "OTransition": "oTransitionEnd otransitionend"
+            }, key;
+        for (key in transitions) {
+          if (typeof elm.style[key] !== "undefined") {
+            return transitions[key];
+          }
+        }
+        return null;
+      }
+      var transitionKey = getTransitionEndKey();
+      if (transitionKey === null) return false;
+      transitionKey = transitionKey.split(" ");
+      ytcenter.utils.removeEventListener(elm, transitionKey[0], listener, false);
+      if (transitionKey[1]) {
+        ytcenter.utils.removeEventListener(elm, transitionKey[1], listener, false);
+      }
+      return true;
+    };
     ytcenter.utils.urlComponentToObject = function(str){
       var parts = str.split("&"),
         hash = {},
@@ -11697,6 +11938,7 @@
         }
       };
       return function(elm, event, callback, useCapture){
+        if (!elm) return;
         listeners.push({elm: elm, event: event, callback: callback, useCapture: useCapture});
         if (elm.addEventListener) {
           elm.addEventListener(event, callback, useCapture || false);
@@ -21770,6 +22012,7 @@
             l.config.align = true;
           }
           ytcenter.saveSettings(false, false);
+          ytcenter.classManagement.updateClassesByGroup("page");
         }
       } else {
         if (ytcenter.experiments.isTopGuide()) {
@@ -21796,6 +22039,7 @@
             l.config.align = false;
           }
           ytcenter.saveSettings(false, false);
+          ytcenter.classManagement.updateClassesByGroup("page");
         }
       }
     };
