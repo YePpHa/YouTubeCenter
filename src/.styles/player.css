@@ -14,12 +14,11 @@ body.ytcenter-scrolled-top {
 
 .ytcenter-scrolled-top-player-pre #player-api,
 .ytcenter-scrolled-top-player-pre #player-api-legacy {
-  position: absolute !important;
-  top: -100% !important;
-  left: 0 !important;
-  
   width: 100% !important;
   height: 100% !important;
+  
+  position: absolute !important;
+  top: -100% !important;
 }
 .ltr.ytcenter-scrolled-top-player-pre #player-api,
 .ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,
@@ -36,16 +35,17 @@ body.ytcenter-scrolled-top {
 
 .ytcenter-scrolled-top #player-api,
 .ytcenter-scrolled-top #player-api-legacy {
-  -moz-transition: top 0.5s;
-  -webkit-transition: top 0.5s;
-  -o-transition: top 0.5s;
-  transition: top 0.5s;
-  
-  position: absolute !important;
-  top: 0 !important;
-  
   width: 100% !important;
   height: 100% !important;
+  
+  position: absolute !important;
+  top: 0% !important;
+
+  -moz-transition: top 0.5s linear;
+  -ms-transition: top 0.5s linear;
+  -o-transition: top 0.5s linear;
+  -webkit-transition: top 0.5s linear;
+  transition: top 0.5s linear;
 }
 
 .ltr.ytcenter-scrolled-top #page {
@@ -61,21 +61,21 @@ body.ytcenter-scrolled-top {
 
 .ytcenter-site-watch .ytcenter-scrolled-top-element {
   width: 100%;
-  height: 100%;
-  max-height: 0px;
+  height: 0%;
   
   background: #000;
   
-  -moz-transition: max-height 0.5s;
-  -webkit-transition: max-height 0.5s;
-  -o-transition: max-height 0.5s;
-  transition: max-height 0.5s;
+  -moz-transition: height 0.5s linear;
+  -ms-transition: height 0.5s linear;
+  -o-transition: height 0.5s linear;
+  -webkit-transition: height 0.5s linear;
+  transition: height 0.5s linear;
   
   display: block;
 }
 
 .ytcenter-scrolled-top .ytcenter-scrolled-top-element {
-  max-height: 100%;
+  height: 100%;
 }
 
 .ytcenter-scrolled-inverse #player-api,
@@ -106,9 +106,12 @@ body.ytcenter-scrolled-top {
 
 .ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,
 .ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,
-.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy {
+.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy,
+.ytcenter-scrolled-top-player-pre #player-api,
+.ytcenter-scrolled-top-player-pre #player-api-legacy  {
   -moz-transition: none !important;
-  -webkit-transition: none !important;
+  -ms-transition: none !important;
   -o-transition: none !important;
+  -webkit-transition: none !important;
   transition: none !important;
 }

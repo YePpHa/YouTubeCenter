@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         239
+// @version         241
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -84,7 +84,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 239);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 241);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3302,25 +3302,50 @@
       settings: ".ytcenter-settings-close-button{position:absolute!important;top:0!important;margin:0!important}.ltr .ytcenter-settings-close-button{right:0}.rtl .ytcenter-settings-close-button{left:0}.ytcenter-settings-category-list{width:100%}.ytcenter-settings-category-list .ytcenter-settings-category-item{display:block;position:relative;border:0;height:24px;background:0;color:#555;font-size:11px;text-decoration:none;overflow:hidden}.ytcenter-settings-category-list .ytcenter-settings-category-item:hover{background:#444;color:#fff}.ytcenter-settings-category-list .ytcenter-settings-category-item.ytcenter-selected{background:#cc181e;color:#fff;font-weight:bold;text-shadow:-1px -1px 0 rgba(0,0,0,0.25)}.ytcenter-settings-category-list .ytcenter-settings-category-item .yt-valign-container{padding:0 24px}.ytcenter-settings-content{display:table;min-width:1003px;margin:0 -20px -20px -20px}.ytcenter-settings-panel-left{position:relative;display:table-cell;padding-bottom:30px;min-width:190px;width:190px}.ltr .ytcenter-settings-panel-left{border-right:1px solid #e2e2e2}.rtl .ytcenter-settings-panel-left{border-left:1px solid #e2e2e2}.ytcenter-settings-panel-right-content{width:100%}.ltr .ytcenter-settings-subcat-header li{float:left;margin-left:13px}.rtl .ytcenter-settings-subcat-header li{float:right;margin-right:13px}.ytcenter-settings-subcat-header-wrapper{padding-top:4px}.ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item{border:0;padding:0 .9em 3px;cursor:pointer;background:0;color:#9c9c9c;font-size:11px;font-weight:bold;height:29px;line-height:29px;-moz-box-sizing:content-box;-ms-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box;-moz-border-radius:0;-webkit-border-radius:0;border-radius:0}.ytcenter-settings-subcat-header{border-bottom:1px solid #e6e6e6;height:32px}.ltr .ytcenter-settings-subcat-header li:last-child{margin-right:13px}.rtl .ytcenter-settings-subcat-header li:last-child{margin-left:13px}.ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item.ytcenter-selected,.ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item:hover{height:29px;line-height:29px;vertical-align:bottom;color:#333;border-bottom:3px solid;border-color:#b00;padding-bottom:0;display:inline-block;text-decoration:none}.ytcenter-settings-subcat-content-wrapper{position:relative;padding:8px 8px 31px}.ytcenter-settings-subcat-statusbar-wrapper{position:absolute;bottom:0;padding:9px;color:#999;opacity:0;filter:alpha(opacity=0);-moz-transition:opacity 1s;-webkit-transition:opacity 1s;transition:opacity 1s}.ltr .ytcenter-settings-subcat-statusbar-wrapper{right:0;text-align:right}.rtl .ytcenter-settings-subcat-statusbar-wrapper{left:0;text-align:left}.ytcenter-settings-subcat-statusbar-wrapper.visible{opacity:1;filter:alpha(opacity=100);-moz-transition:opacity .3s;-webkit-transition:opacity .3s;transition:opacity .3s}.ytcenter-settings-option-label{display:inline-block;width:260px;color:#555;vertical-align:middle}.ytcenter-settings-option-label.ytcenter-disabled{color:#b9b9b9}.ytcenter-settings-help{vertical-align:super;font-size:10px}.ytcenter-settings-version{position:absolute;bottom:0;right:0;left:0;color:#bbb;font-size:11px;padding:9px}.ytcenter-settings-subcat-option{padding:4px 0}.ytcenter-settings-table{width:100%}.ytcenter-settings-table tr{border-top:1px solid #ccc;background-color:#fff}.ytcenter-settings-table tr:nth-child(2n){background-color:#f8f8f8}.ytcenter-settings-table thead tr{background-color:#f8f8f8}.ytcenter-settings-table thead tr td{font-weight:bold}.ytcenter-settings-table tr td{border:1px solid #ddd;padding:6px 13px}.ytcenter-theme-dark .ytcenter-dialog-fg{background:#000;border:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-dialog-bg{background:#000}.ytcenter-theme-dark .yt-alert .close:hover{background-color:rgba(255,255,255,.15)}.ytcenter-theme-dark .ytcenter-settings-content,.ytcenter-theme-dark .ytcenter-dialog-base .ytcenter-dialog-header h2,.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item{color:#aaa}.ytcenter-theme-dark .ytcenter-settings-content a{color:#1a6299}.ytcenter-theme-dark .ytcenter-dialog-base .ytcenter-dialog-header,.ytcenter-theme-dark .ytcenter-settings-subcat-header{border-bottom:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-dialog .yt-horizontal-rule{border-top:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-settings-option-label{color:#aaa}.ltr.ytcenter-theme-dark .ytcenter-settings-panel-left{border-right:1px solid #1d1d1d}.rtl.ytcenter-theme-dark .ytcenter-settings-panel-left{border-left:1px solid #1d1d1d}.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item:hover{background:#333}.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item{color:#636363}.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item.ytcenter-selected,.ytcenter-theme-dark .ytcenter-settings-subcat-header .ytcenter-settings-subcat-header-item:hover{color:#ccc;border-color:#400}.ytcenter-theme-dark .ytcenter-settings-table tr{border-top:1px solid #333;background-color:#000}.ytcenter-theme-dark .ytcenter-settings-table tr:nth-child(2n){background-color:#070707}.ytcenter-theme-dark .ytcenter-settings-table thead tr{background-color:#070707}.ytcenter-theme-dark .ytcenter-settings-table thead tr td{font-weight:bold}.ytcenter-theme-dark .ytcenter-settings-table tr td{border:1px solid #222;padding:6px 13px}.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item:hover{color:#ddd}.ytcenter-theme-dark .ytcenter-settings-category-list .ytcenter-settings-category-item.ytcenter-selected{background:#330607;color:#fff}",
       centering: ".ytcenter-site-center #yt-masthead,.ytcenter-site-center #footer-hh{width:1003px!important}#page.search.no-flex .branded-page-v2-container{min-width:0!important}.ytcenter-exp-settings-dialog .ytcenter-settings-content,.ytcenter-exp-settings-dialog .ytcenter-settings-content>div{padding-left:0!important}.ytcenter-exp-settings-dialog .yt-uix-form-textarea{width:100%!important}.ytcenter-site-center #alerts{margin:0 auto!important}.ytcenter-site-center #sb-wrapper{width:1003px!important}body.ytcenter-channelv2 #yt-masthead,body.ytcenter-channelv2 #page-container>#page.channel{width:auto!important;min-width:1003px;max-width:1422px}body.ytcenter-channelv2 #page.channel>#guide+#content{width:auto!important}.ytcenter-site-center #page-container>#page{margin:0 auto!important}.ytcenter-site-center #masthead-subnav>ul{width:1003px;margin:0 auto!important}.ytcenter-site-center #page.channel.page-default{width:100%!important}.ytcenter-site-center #content-container #baseDiv,.ytcenter-site-center #masthead-subnav{margin-left:auto!important;margin-right:auto!important}.ytcenter-site-center #footer-container #footer{width:1003px!important;margin-left:auto!important;margin-right:auto!important}.ytcenter-site-center #yt-masthead-container #yt-masthead,.ytcenter-site-center #header,.ytcenter-site-center #alerts{width:1003px;margin:0 auto!important;padding:0 10px!important}.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #guide+#content{width:823px!important}.ytcenter-site-search.ytcenter-site-center.exp-new-site-width #page{width:1003px!important}.ytcenter-site-not-watch.ytcenter-site-center #page{width:1003px}.ytcenter-site-not-watch.ytcenter-site-center #page-container{padding:0 10px!important}.ytcenter-site-not-watch.ytcenter-site-center.flex-width-enabled #page{padding:0 10px!important}.flex-width-enabled #yt-masthead{width:auto!important;max-width:1422px!important;min-width:1003px!important}.flex-width-enabled.exp-top-guide #yt-masthead,.flex-width-enabled.site-center-aligned #yt-masthead,.flex-width-enabled.site-as-giant-card #yt-masthead{width:auto!important;max-width:none!important;min-width:none!important}.ytcenter-site-center.ytcenter-non-resize #player,.ytcenter-site-center.ytcenter-non-resize #player-legacy,.ytcenter-site-center.ytcenter-non-resize #content,.ytcenter-site-center.ytcenter-non-resize #watch7-main-container{width:1003px!important;padding-left:0!important;padding-right:0!important}@media screen and (max-width:1381px){.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #content{margin:0!important}.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #player,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #player-legacy,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #watch7-main-container{padding-left:190px!important;padding-right:190px!important;margin:0!important}.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #guide-container{left:10px!important}.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible #guide-container{right:10px!important}}@media screen and (max-width:1165px){.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{margin:0!important}.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.ltr.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{padding-left:58px!important}.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player,.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #player-legacy,.rtl.ytcenter-site-center.ytcenter-non-resize.ytcenter-guide-visible.guide-collapsed #watch7-main-container{padding-right:58px!important}.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0!important}.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-right:0!important}}.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.ltr.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0}.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player,.rtl.ytcenter-site-notcenter.ytcenter-resize-disaligned #player-legacy{padding-left:0}",
       embed: "#cued-embed .video-thumbnail{padding-top:30px;height:100%;background-size:100%;background-repeat:no-repeat;background-position:center}",
-      player: "body.ytcenter-scrolled-top{overflow:hidden}.ytcenter-scrolled-top #page,.ytcenter-scrolled-top-player-pre #page{position:static!important}.ytcenter-scrolled-top #player,.ytcenter-scrolled-top #player-legacy{overflow:visible!important}.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{position:absolute!important;top:-100%!important;left:0!important;width:100%!important;height:100%!important}.ltr.ytcenter-scrolled-top-player-pre #player-api,.ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,.ltr.ytcenter-scrolled-top #player-api,.ltr.ytcenter-scrolled-top #player-api-legacy{left:0!important}.rtl.ytcenter-scrolled-top-player-pre #player-api,.rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,.rtl.ytcenter-scrolled-top #player-api,.rtl.ytcenter-scrolled-top #player-api-legacy{right:0!important}.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top #player-api-legacy{-moz-transition:top .5s;-webkit-transition:top .5s;-o-transition:top .5s;transition:top .5s;position:absolute!important;top:0!important;width:100%!important;height:100%!important}.ltr.ytcenter-scrolled-top #page{padding-left:0!important}.rtl.ytcenter-scrolled-top #page{padding-right:0!important}.ytcenter-scrolled-top-element{display:none}.ytcenter-site-watch .ytcenter-scrolled-top-element{width:100%;height:100%;max-height:0;background:#000;-moz-transition:max-height .5s;-webkit-transition:max-height .5s;-o-transition:max-height .5s;transition:max-height .5s;display:block}.ytcenter-scrolled-top .ytcenter-scrolled-top-element{max-height:100%}.ytcenter-scrolled-inverse #player-api,.ytcenter-scrolled-inverse #player-api-legacy{margin-top:0!important}.ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element{padding-bottom:0}.ytcenter-scrolled-top-noscrollbar{overflow:hidden!important}.ytcenter-scrolled-top #masthead-positioner,.ytcenter-scrolled-top-static #masthead-positioner{position:static!important}.ytcenter-scrolled-top #masthead-positioner-height-offset,.ytcenter-scrolled-top-static #masthead-positioner-height-offset{display:none!important}.ytcenter-scrolled-top #guide,.ytcenter-scrolled-top-static #guide{display:none!important}.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy{-moz-transition:none!important;-webkit-transition:none!important;-o-transition:none!important;transition:none!important}",
+      player: "body.ytcenter-scrolled-top{overflow:hidden}.ytcenter-scrolled-top #page,.ytcenter-scrolled-top-player-pre #page{position:static!important}.ytcenter-scrolled-top #player,.ytcenter-scrolled-top #player-legacy{overflow:visible!important}.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{width:100%!important;height:100%!important;position:absolute!important;top:-100%!important}.ltr.ytcenter-scrolled-top-player-pre #player-api,.ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,.ltr.ytcenter-scrolled-top #player-api,.ltr.ytcenter-scrolled-top #player-api-legacy{left:0!important}.rtl.ytcenter-scrolled-top-player-pre #player-api,.rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,.rtl.ytcenter-scrolled-top #player-api,.rtl.ytcenter-scrolled-top #player-api-legacy{right:0!important}.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top #player-api-legacy{width:100%!important;height:100%!important;position:absolute!important;top:0!important;-moz-transition:top .5s linear;-ms-transition:top .5s linear;-o-transition:top .5s linear;-webkit-transition:top .5s linear;transition:top .5s linear}.ltr.ytcenter-scrolled-top #page{padding-left:0!important}.rtl.ytcenter-scrolled-top #page{padding-right:0!important}.ytcenter-scrolled-top-element{display:none}.ytcenter-site-watch .ytcenter-scrolled-top-element{width:100%;height:0;background:#000;-moz-transition:height .5s linear;-ms-transition:height .5s linear;-o-transition:height .5s linear;-webkit-transition:height .5s linear;transition:height .5s linear;display:block}.ytcenter-scrolled-top .ytcenter-scrolled-top-element{height:100%}.ytcenter-scrolled-inverse #player-api,.ytcenter-scrolled-inverse #player-api-legacy{margin-top:0!important}.ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element{padding-bottom:0}.ytcenter-scrolled-top-noscrollbar{overflow:hidden!important}.ytcenter-scrolled-top #masthead-positioner,.ytcenter-scrolled-top-static #masthead-positioner{position:static!important}.ytcenter-scrolled-top #masthead-positioner-height-offset,.ytcenter-scrolled-top-static #masthead-positioner-height-offset{display:none!important}.ytcenter-scrolled-top #guide,.ytcenter-scrolled-top-static #guide{display:none!important}.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy,.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{-moz-transition:none!important;-ms-transition:none!important;-o-transition:none!important;-webkit-transition:none!important;transition:none!important}",
       darkside: "@media screen and (min-width:1166px){.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:auto!important;margin-right:auto!important;float:none!important}}@media screen and (max-width:1381px){.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-unavailable,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #player-api,.ytcenter-site-center.ytcenter-player-darkside-bg.ytcenter-resize-aligned .watch-medium #playlist-tray,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-unavailable,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #player-api,.ytcenter-site-notcenter.ytcenter-resize-disaligned.ytcenter-player-darkside-bg .watch-medium #playlist-tray{margin-left:0!important;margin-right:0!important}}.ytcenter-site-center.ytcenter-player-darkside-bg #page{width:auto!important}.ytcenter-site-center.ytcenter-player-darkside-bg #guide-container{margin-left:0!important;margin-right:0!important}.ytcenter-site-center.ytcenter-player-darkside-bg #player.watch-medium{margin-left:0!important;margin-right:0!important}.ytcenter-player-darkside-bg #player.watch-medium{width:auto!important;background-color:#1b1b1b}.ytcenter-player-darkside-bg.ytcenter-player-darkside-bg-retro #player.watch-medium{background-color:#444;background-image:-moz-linear-gradient(top,#555,#333);background-image:-webkit-gradient(linear,left top,left bottom,from(#555),to(#333));filter:progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr='#555555',endColorStr='#333333')}.ytcenter-player-darkside-bg.ytcenter-non-resize #player.watch-small{background-color:transparent!important}"
     };
     ytcenter.topScrollPlayer = (function(){
       function enterComplete() {
-        ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-        if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-        } else {
-          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+        if (inTransition) {
+          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
+          /*if (ytcenter.settings.topScrollPlayerHideScrollbar) {
+            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+          } else {
+            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+          }*/
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
+          
+          uw.setTimeout(function(){ inTransition = false; }, 500);
         }
-        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
       }
       function exitComplete() {
-        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
-        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
+        if (inTransition) {
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-static");
+          ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
+          
+          inTransition = false;
+        }
+      }
+      function onTransitionEnd() {
+        if (!transitionEndListenerAdded && !inTransition) {
+          inTransition = true;
+          if (activated) {
+            uw.setTimeout(function(){ enterComplete(); }, 50);
+          } else {
+            uw.setTimeout(function(){ exitComplete(); }, 500);
+          }
+        }
+      }
+      function onTransitionEndListener() {
+        if (activated) {
+          enterComplete();
+        } else {
+          exitComplete();
+        }
       }
       function scroll(e, delta, deltaX, deltaY) {
-        if (!enabled) return;
+        if (!enabled || inTransition) return;
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         var pa = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
             p = document.getElementById("player") || document.getElementById("player-api"),
@@ -3337,7 +3362,6 @@
               //ytcenter.utils.scrollTop(scrollUpExit ? 1 : 0);
             } else {
               //ytcenter.utils.scrollTop(1);
-              pa.style.top = "";
               p.style.height = "";
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
               ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
@@ -3376,50 +3400,14 @@
           }
         }
       }
-      function onTransitionEnd() {
-        if (!transitionEndListenerAdded) {
-          if (activated) {
-            uw.setTimeout(function(){ enterComplete(); }, 0);
-          } else {
-            uw.setTimeout(function(){ exitComplete(); }, 500);
-          }
-        }
-      }
-      function onTransitionEndListener() {
-        if (activated) {
-          enterComplete();
-        } else {
-          exitComplete();
-        }
-      }
       function addEventListeners() {
         if (throttleFunc) ytcenter.scrollEvent.removeEventListener(window, throttleFunc);
         throttleFunc = ytcenter.utils.throttle(scroll, throttleTimer);
         ytcenter.scrollEvent.addEventListener(window, throttleFunc);
-        
-        /*transitionEndListenerAdded = elm && ytcenter.utils.addEndTransitionListener(elm, onTransitionEndListener);
-        
-        if (document.getElementById("player-api")) {
-          transitionEndListenerAdded = ytcenter.utils.addEndTransitionListener(document.getElementById("player-api"), onTransitionEndListener);
-        }
-        
-        if (document.getElementById("player-api-legacy")) {
-          transitionEndListenerAdded = ytcenter.utils.addEndTransitionListener(document.getElementById("player-api-legacy"), onTransitionEndListener);
-        }*/
       }
       function removeEventListener() {
         if (throttleFunc) ytcenter.scrollEvent.removeEventListener(window, throttleFunc);
         throttleFunc = null;
-        
-        /*transitionEndListenerAdded = elm && ytcenter.utils.removeEndTransitionListener(elm, onTransitionEndListener);
-        
-        if (document.getElementById("player-api")) {
-          transitionEndListenerAdded = ytcenter.utils.removeEndTransitionListener(document.getElementById("player-api"), onTransitionEndListener);
-        }
-        
-        if (document.getElementById("player-api-legacy")) {
-          transitionEndListenerAdded = ytcenter.utils.removeEndTransitionListener(document.getElementById("player-api-legacy"), onTransitionEndListener);
-        }*/
       }
       function setEnabled(a) {
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -3458,7 +3446,8 @@
           throttleTimer = 50,
           throttleFunc = null,
           prev = null,
-          transitionEndListenerAdded = false;
+          transitionEndListenerAdded = false,
+          inTransition = false;
       
       __r.setEnabled = setEnabled;
       __r.bumpCount = function(){
@@ -3511,11 +3500,9 @@
         ytcenter.player.listeners.addEventListener("onStateChange", function(state){
           if (!enabled || state !== 0 || !ytcenter.settings.topScrollPlayerExitOnVideoEnd || !activated) return;
           var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-          var pa = document.getElementById("player-api") || document.getElementById("player-api-legacy"),
-            p = document.getElementById("player") || document.getElementById("player-api"),
+          var p = document.getElementById("player") || document.getElementById("player-api"),
             api = ytcenter.player.getAPI(),
             scrollUpExit = ytcenter.settings.topScrollPlayerScrollUpToExit;
-          pa.style.top = "";
           p.style.height = "";
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
@@ -11101,6 +11088,26 @@
     };
     
     // @utils
+    ytcenter.utils.setZeroTimeout = (function(){
+      function setZeroTimeout(fn) {
+        timeouts.push(fn);
+        window.postMessage(uniqueMessageName, "*");
+      }
+      function handleMessage(event) {
+        if ((event.source === window || event.source === uw) && event.data === uniqueMessageName) {
+          event && event.stopPropagation && event.stopPropagation();
+          if (timeouts.length > 0) {
+            timeouts.shift()();
+          }
+        }
+      }
+      var timeouts = [],
+        uniqueMessageName = "ytcenter-zero-timeout-message";
+      
+      window.addEventListener("message", handleMessage, true);
+      
+      return setZeroTimeout;
+    })();
     ytcenter.utils.addEndTransitionListener = function(elm, listener){
       function getTransitionEndKey() {
         var transitions = {
@@ -14622,7 +14629,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#multiple-languages" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Multiple_Languages" // help
           );
           subcat.addOption(option);
 
@@ -14631,7 +14638,7 @@
             "bool", // module
             "SETTINGS_USESECUREPROTOCOL_LABEL", // label
             null, // args
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#use-secure-protocol" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Use_Secure_Protocol" // help
           );
           subcat.addOption(option);
 
@@ -14640,7 +14647,7 @@
             "bool", // module
             "SETTINGS_REMOVEADVERTISEMENTS_LABEL", // label
             null, // args
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-advertisements" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Advertisements" // help
           );
           subcat.addOption(option);
 
@@ -14649,21 +14656,25 @@
             "bool", // module
             "SETTINGS_YTSPF", // label
             null, // args
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#spf" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-SPF" // help
           );
           subcat.addOption(option);
 
           option = ytcenter.settingsPanel.createOption(
             "expandDescription", // defaultSetting
             "bool", // module
-            "SETTINGS_AUTOEXPANDDESCRIPTION_LABEL"
+            "SETTINGS_AUTOEXPANDDESCRIPTION_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Expand_Description"
           );
           subcat.addOption(option);
 
           option = ytcenter.settingsPanel.createOption(
             "headlineTitleExpanded", // defaultSetting
             "bool", // module
-            "SETTINGS_AUTOEXPANDTITLE_LABEL"
+            "SETTINGS_AUTOEXPANDTITLE_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Expand_Title"
           );
           subcat.addOption(option);
 
@@ -14687,7 +14698,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-youtube-title-suffix"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_YouTube_Title_Suffix"
           );
           subcat.addOption(option);
 
@@ -14705,7 +14716,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-player-playing-icon-in-title"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Show_Player_Playing_Icon_In_Title"
           );
           subcat.addOption(option);
 
@@ -14714,7 +14725,7 @@
             "bool", // module
             "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#only-one-player-instance-playing"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Only_One_Player_Instance_Playing"
           );
           subcat.addOption(option);
 
@@ -14779,7 +14790,7 @@
             "bool", // module
             "SETTINGS_WATCHEDVIDEOS_INDICATOR",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#watched-videos"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Watched_Videos"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -14796,7 +14807,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#hide-watched-videos"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Hide_Watched_Videos"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -14859,7 +14870,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#centering-page" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Centering_Page" // help
           );
           if (ytcenter.settings['experimentalFeatureTopGuide']) {
             option.setVisibility(false);
@@ -14886,7 +14897,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flex-width-on-page" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Flex_Width_on_Page" // help
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -14903,7 +14914,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flex-width-on-page" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Flex_Width_on_Channel" // help
           );
           subcat.addOption(option);
 
@@ -14925,7 +14936,7 @@
                 }
               ]
             },
-            "set-experimental-topbar-to-static" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Set_Experimental_Topbar_to_Static" // help
           );
           if (!ytcenter.settings['experimentalFeatureTopGuide']) {
             option.setVisibility(false);
@@ -14942,7 +14953,9 @@
           option = ytcenter.settingsPanel.createOption(
             "gridSubscriptionsPage", // defaultSetting
             "bool", // module
-            "SETTINGS_GRIDSUBSCRIPTIONS"
+            "SETTINGS_GRIDSUBSCRIPTIONS",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Grid_Subscriptions"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["gridview"]);
@@ -14953,7 +14966,9 @@
           option = ytcenter.settingsPanel.createOption(
             "gridCollectionPage", // defaultSetting
             "bool", // module
-            "SETTINGS_GRIDCOLLECTIONS"
+            "SETTINGS_GRIDCOLLECTIONS",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Grid_Collections"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["gridview"]);
@@ -14965,7 +14980,7 @@
             "hideTicker", // defaultSetting
             "bool", // module
             "SETTINGS_HIDE_TICKER",
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#hide-ticker"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Hide_Ticker"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["hide-ticker"]);
@@ -14989,13 +15004,15 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-endscreen"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Endscreen"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "enableEndscreenAutoplay", // defaultSetting
             "bool", // module
-            "SETTINGS_ENDSCREEN_AUTOPLAY"
+            "SETTINGS_ENDSCREEN_AUTOPLAY",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Play_First_Video_in_Endscreen"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15010,7 +15027,8 @@
                 { "value": "addto", "label": "SETTINGS_SWITCHTOTAB_ADDTO" },
                 { "value": "stats", "label": "SETTINGS_SWITCHTOTAB_STATS" }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Switch_To_Tab_At_Like_of_Video"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15025,7 +15043,8 @@
                 { "value": "addto", "label": "SETTINGS_SWITCHTOTAB_ADDTO" },
                 { "value": "stats", "label": "SETTINGS_SWITCHTOTAB_STATS" }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Switch_To_Tab_At_End_of_Video"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15033,7 +15052,7 @@
             "bool", // module
             "SETTINGS_DASHPLAYBACK",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-DASH_Playback"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15047,7 +15066,7 @@
                 { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Type"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15081,7 +15100,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-hide-bar"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Hide_Bar"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15109,7 +15128,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-theme"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Theme"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15137,7 +15156,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-color"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Color"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15167,7 +15186,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#flash-wmode"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Flash_WMode"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15175,7 +15194,7 @@
             "bool", // module
             "SETTINGS_ENABLEANNOTATIONS_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#annotations"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Annotations"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15183,7 +15202,7 @@
             "bool", // module
             "SETTINGS_SCROLLTOPLAYER_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-to-player"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Scroll_To_Player"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15205,7 +15224,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_Banner"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15222,7 +15241,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_Background"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15239,7 +15258,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_BannerBackgroundWatermark"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_Watermark"
           );
           subcat.addOption(option);
           
@@ -15265,7 +15284,7 @@
             "bool", // module
             "SETTINGS_PREVENTAUTOPLAY_LABEL", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-play"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_AutoPlay"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15273,7 +15292,7 @@
             "bool", // module
             "SETTINGS_PREVENTAUTOBUFFERING_LABEL", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-auto-buffering"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_AutoBuffering"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15286,7 +15305,7 @@
             "bool", // module
             "SETTINGS_PLAYLIST_PREVENT_AUTOPLAY", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-play"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_Playlist_AutoPlay"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15294,7 +15313,7 @@
             "bool", // module
             "SETTINGS_PLAYLIST_PREVENT_AUTOBUFFERING", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-playlist-auto-buffering"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_Playlist_AutoBuffering"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15307,7 +15326,7 @@
             "bool", // module
             "SETTINGS_PREVENTTABAUTOPLAY_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-auto-play"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_Tab_AutoPlay"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15315,7 +15334,7 @@
             "bool", // module
             "SETTINGS_PREVENTTABAUTOBUFFERING_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-auto-buffering"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_Tab_AutoBuffering"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15328,7 +15347,7 @@
             "bool", // module
             "SETTINGS_PREVENTTABPLAYLISTAUTOPLAY_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-playlist-auto-play"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_Tab_Playlist_AutoPlay"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15336,7 +15355,7 @@
             "bool", // module
             "SETTINGS_PREVENTTABPLAYLISTAUTOBUFFERING_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#prevent-tab-playlist-auto-buffering"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_Tab_Playlist_AutoBuffering"
           );
           subcat.addOption(option);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RESOLUTION"); cat.addSubCategory(subcat);
@@ -15345,7 +15364,7 @@
             "bool", // module
             "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-resolution"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Auto_Resolution"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15380,7 +15399,8 @@
                   "label": "SETTINGS_TINY"
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Resolution"
           );
           subcat.addOption(option);
           
@@ -15389,7 +15409,9 @@
           option = ytcenter.settingsPanel.createOption(
             "enableResize", // defaultSetting
             "bool", // module
-            "SETTINGS_RESIZE_FEATURE_ENABLE"
+            "SETTINGS_RESIZE_FEATURE_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Size"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15399,7 +15421,7 @@
             {
               "bind": "resize-playersizes"
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#default-resize-button"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Default_Player_Size"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15409,7 +15431,7 @@
             {
               "bind": "resize-playersizes"
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#small-resize-button"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Small_Resize_Button"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15419,7 +15441,7 @@
             {
               "bind": "resize-playersizes"
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#large-resize-button"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Large_Resize_Button"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15454,7 +15476,7 @@
                 }
               ]
             },
-            null
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Aspect"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15462,7 +15484,7 @@
             null, // module
             "SETTINGS_RESIZE_LIST",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#player-size-editor"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Size_Editor"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15477,7 +15499,7 @@
             "bool", // module
             "SETTINGS_VOLUME_ENABLE",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#volume-control"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Volume_Control"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15488,13 +15510,16 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Volume-2"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "mute", // defaultSetting
             "bool", // module
-            "SETTINGS_MUTE_LABEL"
+            "SETTINGS_MUTE_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Mute"
           );
           subcat.addOption(option);
         
@@ -15502,14 +15527,18 @@
           option = ytcenter.settingsPanel.createOption(
             "enableYouTubeShortcuts", // defaultSetting
             "bool", // module
-            "SETTINGS_ENABLEYTSHORTCUTS_LABEL" // label
+            "SETTINGS_ENABLEYTSHORTCUTS_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_YouTube_Player_Shortcuts"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "enableShortcuts", // defaultSetting
             "bool", // module
-            "SETTINGS_ENABLESHORTCUTS_LABEL" // label
+            "SETTINGS_ENABLESHORTCUTS_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Shortcuts_on_Page"
           );
           subcat.addOption(option);
           ytcenter.events.addEvent("settings-update", (function(opt){
@@ -15523,7 +15552,7 @@
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_ENABLED",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#fullscreen-top-player"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Fullscreen_Top_Player"
           );
           subcat.addOption(option);
           
@@ -15532,7 +15561,7 @@
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_ACTIVATED",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#activated-by-default"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Activated_by_Default"
           );
           subcat.addOption(option);
           
@@ -15541,14 +15570,16 @@
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_ONLYVIDEOPLAYING",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#only-when-video-is-playing"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Only_when_Video_is_Playing"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "topScrollPlayerExitOnVideoEnd", // defaultSetting
             "bool", // module
-            "SETTINGS_TOPSCROLLPLAYER_EXITONVIDEOEND"
+            "SETTINGS_TOPSCROLLPLAYER_EXITONVIDEOEND",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Exit_On_Video_End"
           );
           subcat.addOption(option);
           
@@ -15557,7 +15588,7 @@
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_SCROLLUPEXIT",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#scroll-up-to-exit-mode"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Scroll_Up_To_Exit_Mode"
           );
           subcat.addOption(option);
           
@@ -15566,7 +15597,7 @@
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_ANIMATION",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#enable-animations"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Animations"
           );
           subcat.addOption(option);
           
@@ -15584,7 +15615,7 @@
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_COUNTINCREASEBEFORE",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#increase-counter-by-scrolling-to-the-top-of-the-page"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Increase_Counter_by_Scrolling_To_The_Top_of_The_Page"
           );
           subcat.addOption(option);
           
@@ -15596,7 +15627,7 @@
               "min": 0,
               "max": 20
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#amount-to-enter"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Amount_To_Enter"
           );
           subcat.addOption(option);
           
@@ -15608,7 +15639,7 @@
               "min": 0,
               "max": 20
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#amount-to-exit"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Amount_To_Exit"
           );
           subcat.addOption(option);
           
@@ -15621,7 +15652,7 @@
               "max": 10000,
               "suffix": " ms"
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#counter-reset-after"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Counter_Reset_After"
           );
           subcat.addOption(option);
 
@@ -15631,7 +15662,9 @@
           option = ytcenter.settingsPanel.createOption(
             "embed_enabled",
             "bool",
-            "SETTINGS_EMBEDS_ENABLE"
+            "SETTINGS_EMBEDS_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Embeds"
           );
           subcat.addOption(option);
           
@@ -15707,7 +15740,7 @@
             "bool",
             "SETTINGS_DASHPLAYBACK",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-DASH_Playback-2"
           );
           subcat.addOption(option);
           
@@ -15721,7 +15754,8 @@
                 { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
                 { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Type-2"
           );
           subcat.addOption(option);
           
@@ -15755,7 +15789,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Hide_Bar-2"
           );
           subcat.addOption(option);
           
@@ -15783,7 +15818,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Theme-2"
           );
           subcat.addOption(option);
           
@@ -15811,7 +15847,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Color-2"
           );
           subcat.addOption(option);
           
@@ -15841,14 +15878,17 @@
                   "label": "SETTINGS_WMODE_GPU"
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Flash_WMode-2"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "embed_enableAnnotations",
             "bool",
-            "SETTINGS_ENABLEANNOTATIONS_LABEL"
+            "SETTINGS_ENABLEANNOTATIONS_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Annotations-2"
           );
           subcat.addOption(option);
           
@@ -15861,7 +15901,9 @@
           option = ytcenter.settingsPanel.createOption(
             "embed_enableAutoVideoQuality",
             "bool",
-            "SETTINGS_ENABLEAUTORESOLUTION_LABEL"
+            "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Auto_Resolution-2"
           );
           subcat.addOption(option);
           
@@ -15897,7 +15939,8 @@
                   "label": "SETTINGS_TINY"
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Resolution-2"
           );
           subcat.addOption(option);
           
@@ -15910,14 +15953,18 @@
           option = ytcenter.settingsPanel.createOption(
             "embed_defaultAutoplay",
             "bool",
-            "SETTINGS_DEFAULT_AUTOPLAY"
+            "SETTINGS_DEFAULT_AUTOPLAY",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Use_Default_AutoPlay"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "embed_preventAutoPlay",
             "bool",
-            "SETTINGS_PREVENTAUTOPLAY_LABEL"
+            "SETTINGS_PREVENTAUTOPLAY_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_AutoPlay-2"
           );
           option.setVisibility(!ytcenter.settings.embed_defaultAutoplay);
           ytcenter.events.addEvent("settings-update", (function(opt){
@@ -15928,7 +15975,9 @@
           option = ytcenter.settingsPanel.createOption(
             "embed_preventAutoBuffer",
             "bool",
-            "SETTINGS_PREVENTAUTOBUFFERING_LABEL"
+            "SETTINGS_PREVENTAUTOBUFFERING_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_AutoBuffering-2"
           );
           option.setVisibility(!ytcenter.settings.embed_defaultAutoplay);
           ytcenter.events.addEvent("settings-update", (function(opt){
@@ -15945,7 +15994,9 @@
           option = ytcenter.settingsPanel.createOption(
             "embed_enableVolume",
             "bool",
-            "SETTINGS_VOLUME_ENABLE"
+            "SETTINGS_VOLUME_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Volume_Control-2"
           );
           subcat.addOption(option);
           
@@ -15957,14 +16008,17 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Volume-3"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "embed_mute",
             "bool",
-            "SETTINGS_MUTE_LABEL"
+            "SETTINGS_MUTE_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Mute-2"
           );
           subcat.addOption(option);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_CHANNEL"); cat.addSubCategory(subcat);
@@ -15973,7 +16027,7 @@
             "bool",
             "SETTINGS_DASHPLAYBACK",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#dash-playback"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-DASH_Playback-3"
           );
           subcat.addOption(option);
           
@@ -15987,7 +16041,8 @@
                 { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
                 { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Type-3"
           );
           subcat.addOption(option);
           
@@ -16021,7 +16076,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Hide_Bar-3"
           );
           subcat.addOption(option);
           
@@ -16049,7 +16105,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Theme-3"
           );
           subcat.addOption(option);
           
@@ -16077,7 +16134,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Color-3"
           );
           subcat.addOption(option);
           
@@ -16107,14 +16165,17 @@
                   "label": "SETTINGS_WMODE_GPU"
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Flash_WMode-3"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "channel_enableAnnotations",
             "bool",
-            "SETTINGS_ENABLEANNOTATIONS_LABEL"
+            "SETTINGS_ENABLEANNOTATIONS_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Annotations-3"
           );
           subcat.addOption(option);
           
@@ -16127,7 +16188,9 @@
           option = ytcenter.settingsPanel.createOption(
             "channel_enableAutoVideoQuality",
             "bool",
-            "SETTINGS_ENABLEAUTORESOLUTION_LABEL"
+            "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Auto_Resolution-3"
           );
           subcat.addOption(option);
           
@@ -16163,7 +16226,8 @@
                   "label": "SETTINGS_TINY"
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Resolution-3"
           );
           subcat.addOption(option);
           
@@ -16176,14 +16240,18 @@
           option = ytcenter.settingsPanel.createOption(
             "channel_preventAutoPlay",
             "bool",
-            "SETTINGS_PREVENTAUTOPLAY_LABEL"
+            "SETTINGS_PREVENTAUTOPLAY_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_AutoPlay-3"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "channel_preventAutoBuffer",
             "bool",
-            "SETTINGS_PREVENTAUTOBUFFERING_LABEL"
+            "SETTINGS_PREVENTAUTOBUFFERING_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_AutoBuffering-3"
           );
           subcat.addOption(option);
           
@@ -16196,7 +16264,9 @@
           option = ytcenter.settingsPanel.createOption(
             "channel_enableVolume",
             "bool",
-            "SETTINGS_VOLUME_ENABLE"
+            "SETTINGS_VOLUME_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Volume_Control-3"
           );
           subcat.addOption(option);
           
@@ -16208,14 +16278,17 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Volume-4"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "channel_mute",
             "bool",
-            "SETTINGS_MUTE_LABEL"
+            "SETTINGS_MUTE_LABEL",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Mute-3"
           );
           subcat.addOption(option);
 
@@ -16260,7 +16333,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality-1"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Quality"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16292,7 +16365,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#format"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Format"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16309,7 +16382,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#download-as-links"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Download_as_links"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16326,7 +16399,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-3d-in-download-menu"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Show_3D_in_Download_Menu"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16343,7 +16416,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#filename"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Filename"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16360,7 +16433,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#remove-non-alphanumeric-characters"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_NonAlphanumeric_Characters"
           );
           subcat.addOption(option);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_MP3SERVICES"); cat.addSubCategory(subcat);
@@ -16379,7 +16452,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#mp3-services"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-MP3_Services"
           );
           option.setModuleStyle("display", "block");
           subcat.addOption(option);
@@ -16392,7 +16465,7 @@
             "bool",
             "SETTINGS_AUTOACTIVATEREPEAT_LABEL",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#auto-activate-repeat"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Activate_Repeat"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16409,7 +16482,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#show-icon"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Show_Icon"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16425,7 +16498,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Show_Text"
           );
           subcat.addOption(option);
 
@@ -16451,7 +16525,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#guide-mode"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Guide_Mode"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16472,7 +16546,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#guide-mode"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Always_Hide_The_Guide"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16488,7 +16562,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Hide_Guide_When_Resizing"
           );
           subcat.addOption(option);
           
@@ -16505,7 +16580,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Hide_Guide_Count"
           );
           subcat.addOption(option);
           
@@ -16529,7 +16605,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-YouTube_Logo_Link"
           );
           subcat.addOption(option);
           
@@ -16546,7 +16623,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Hide_Feed_Item_Action_Menu_Button"
           );
           subcat.addOption(option);
           
@@ -16563,7 +16641,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Hide_Recommended_Channels"
           );
           subcat.addOption(option);
           
@@ -16587,7 +16666,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Dark_Player_Background"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16604,7 +16684,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Dark_Player_Background_Color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["darkside"]);
@@ -16621,21 +16702,27 @@
           option = ytcenter.settingsPanel.createOption(
             "uploaderCountryEnabled", // defaultSetting
             "bool", // module
-            "SETTINGS_UPLOADER_COUNTRY_FLAG_ENABLE"
+            "SETTINGS_UPLOADER_COUNTRY_FLAG_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Country_Flag_for_Uploader"
           );
           subcat.addOption(option);
 
           option = ytcenter.settingsPanel.createOption(
             "uploaderCountryShowFlag", // defaultSetting
             "bool", // module
-            "SETTINGS_UPLOADER_COUNTRY_FLAG_SHOW_FLAG" // label
+            "SETTINGS_UPLOADER_COUNTRY_FLAG_SHOW_FLAG",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Show_Country_Flag"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "uploaderCountryUseNames", // defaultSetting
             "bool", // module
-            "SETTINGS_UPLOADER_COUNTRY_FLAG_USE_NAME" // label
+            "SETTINGS_UPLOADER_COUNTRY_FLAG_USE_NAME",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Use_Country_Names"
           );
           subcat.addOption(option);
           
@@ -16656,7 +16743,8 @@
                   "label": "SETTINGS_UPLOADER_COUNTRY_FLAG_POSITION_LAST"
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Flag_Country_Position"
           );
           subcat.addOption(option);
           
@@ -16667,7 +16755,8 @@
             "SETTINGS_SPARKBAR_LIKES_COLOR",
             {
               "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Rating_Bar_Likes_Color"
           );
           option.addEventListener("update", function(){
             var wvi = document.getElementById("watch7-views-info"),
@@ -16684,7 +16773,8 @@
             "SETTINGS_SPARKBAR_DISLIKES_COLOR",
             {
               "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Rating_Bar_Dislikes_Color"
           );
           option.addEventListener("update", function(){
             var wvi = document.getElementById("watch7-views-info"),
@@ -16703,7 +16793,8 @@
               "min": 1,
               "max": 100,
               "suffix": "px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Height"
           );
           option.addEventListener("update", function(){
             var wvi = document.getElementById("watch7-views-info"),
@@ -16733,7 +16824,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Placement"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16750,7 +16841,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Placement"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16767,7 +16858,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Placement"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16784,7 +16875,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Placement"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16801,7 +16892,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#placement"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Placement"
           );
           subcat.addOption(option);
           
@@ -16862,7 +16953,7 @@
             "bool", // module
             "SETTINGS_LIGHTBULB_AUTO", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#lights-off"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Lights_Off"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16870,7 +16961,7 @@
             "bool", // module
             "SETTINGS_LIGHTBULB_CLICK_THROUGH", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#click-through"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Click_Through"
           );
           option.addEventListener("update", function(){
             ytcenter.tmp.lightoffwarning();
@@ -16882,7 +16973,8 @@
             "SETTINGS_LIGHTBULB_COLOR",
             {
               "presetColors": ["#000", "#fff", "#590", "#ccc", "#f00", "#2793e6", "#ff8f00"]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Light_Off_Color"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -16893,7 +16985,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Light_Off_Opacity"
           );
           subcat.addOption(option);
           
@@ -16935,7 +17028,7 @@
             "textContent", // module
             "SETTINGS_THUMBNAIL_ANIMATION", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#animated-thumbnails"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Animation"
           );
           option.setStyle("font-weight", "bold");
           subcat.addOption(option);
@@ -16943,7 +17036,9 @@
           option = ytcenter.settingsPanel.createOption(
             "videoThumbnailAnimationEnabled", // defaultSetting
             "bool", // module
-            "SETTINGS_THUMBNAIL_ANIMATION_ENABLE" // label
+            "SETTINGS_THUMBNAIL_ANIMATION_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Animation"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -16953,7 +17048,7 @@
             "bool", // module
             "SETTINGS_THUMBNAIL_ANIMATION_SHUFFLE", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#shuffle"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Shuffle"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -16967,7 +17062,7 @@
               "max": 5250,
               "suffix": " ms"
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#delay"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Delay"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -16981,7 +17076,7 @@
               "max": 5000,
               "suffix": " ms"
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#interval"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Interval"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -16995,7 +17090,7 @@
               "max": 5000,
               "suffix": " ms"
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#fallback-interval"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Fallback_Interval"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -17006,7 +17101,7 @@
             "textContent", // module
             "SETTINGS_THUMBVIDEO_QUALITY", // label
             null, // args
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#quality" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Quality-2" // help
           );
           option.setStyle("font-weight", "bold");
           subcat.addOption(option);
@@ -17022,7 +17117,9 @@
           option = ytcenter.settingsPanel.createOption(
             "videoThumbnailQualitySeparated", // defaultSetting
             "bool", // module
-            "SETTINGS_THUMBVIDEO_QUALITY_DASHNONDASHSEPARATED" // label
+            "SETTINGS_THUMBVIDEO_QUALITY_DASHNONDASHSEPARATED",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Separate_DASH_and_nonDASH_formats"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -17134,7 +17231,9 @@
           option = ytcenter.settingsPanel.createOption(
             "videoThumbnailRatingsBar", // defaultSetting
             "bool", // module
-            "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE" // label
+            "SETTINGS_THUMBVIDEO_RATING_BAR_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Rating_Bar-2"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -17238,7 +17337,8 @@
             "SETTINGS_THUMBNAIL_SPARKBAR_LIKES_COLOR",
             {
               "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Likes_Color"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -17249,7 +17349,8 @@
             "SETTINGS_THUMBNAIL_SPARKBAR_DISLIKES_COLOR",
             {
               "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Disikes_Color"
           );
           option.setStyle("margin-left", "12px");
           subcat.addOption(option);
@@ -17262,7 +17363,8 @@
               "min": 1,
               "max": 100,
               "suffix": "px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Height-2"
           );
           option.setStyle("margin-left", "12px");
           
@@ -17274,7 +17376,7 @@
             "textContent", // module
             "SETTINGS_THUMBVIDEO_RATING_COUNT", // label
             null, // args
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#rating-count" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Rating_Count" // help
           );
           option.setStyle("font-weight", "bold");
           subcat.addOption(option);
@@ -17384,7 +17486,9 @@
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
-            "SETTINGS_THUMBVIDEO_WATCH_LATER" // label
+            "SETTINGS_THUMBVIDEO_WATCH_LATER",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Watch_Later_Button"
           );
           option.setStyle("font-weight", "bold");
           subcat.addOption(option);
@@ -17458,7 +17562,9 @@
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "textContent", // module
-            "SETTINGS_THUMBVIDEO_TIME_CODE" // label
+            "SETTINGS_THUMBVIDEO_TIME_CODE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Time_Code"
           );
           option.setStyle("font-weight", "bold");
           subcat.addOption(option);
@@ -17535,33 +17641,35 @@
             "bool", // module
             "SETTINGS_COMMENTS_COUNTRY_ENABLE", // label
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#country-for-comments" // help
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Country_For_Comments" // help
           );
           subcat.addOption(option);
 
           option = ytcenter.settingsPanel.createOption(
             "commentCountryShowFlag", // defaultSetting
             "bool", // module
-            "SETTINGS_COMMENTS_COUNTRY_SHOW_FLAG" // label
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Show_Country_Flag-2" // label
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "commentCountryUseNames", // defaultSetting
             "bool", // module
-            "SETTINGS_COMMENTS_COUNTRY_USE_NAME" // label
+            "SETTINGS_COMMENTS_COUNTRY_USE_NAME",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Use_Country_Names-2"
           );
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
             "commentCountryLazyLoad", // defaultSetting
             "bool", // module
-            "SETTINGS_COMMENTS_COUNTRY_LAZY_LOAD" // label
+            "SETTINGS_COMMENTS_COUNTRY_LAZY_LOAD",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Lazy_Load"
           );
           subcat.addOption(option);
           
-          
-
           option = ytcenter.settingsPanel.createOption(
             "commentCountryPosition", // defaultSetting
             "list", // module
@@ -17579,7 +17687,8 @@
                   "label": "SETTINGS_COMMENTS_COUNTRY_POSITION_LAST"
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Comment_Country_Position"
           );
           subcat.addOption(option);
 
@@ -17607,7 +17716,7 @@
             "bool",
             "SETTINGS_UPDATE_ENABLE",
             null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#enable-update-checker"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Update_Checker"
           );
           subcat.addOption(option);
           
@@ -17647,7 +17756,7 @@
                 }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#update-interval"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Update_Interval"
           );
           subcat.addOption(option);
           
@@ -23137,7 +23246,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 239, crossUnsafeWindow);
+          main_function(false, 0, true, 241, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -23156,6 +23265,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 0, true, 239, crossUnsafeWindow);
+    main_function(false, 0, true, 241, crossUnsafeWindow);
   }
 })();
