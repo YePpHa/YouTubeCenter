@@ -5,7 +5,7 @@
       <rdf:Seq>
         <rdf:li>
           <rdf:Description>
-            <em:version>241</em:version>
+            <em:version>242</em:version>
             <em:targetApplication>
               <rdf:Description>
                 <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>

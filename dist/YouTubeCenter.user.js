@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         241
+// @version         242
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -84,7 +84,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 241);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 242);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3460,8 +3460,8 @@
         uw.clearTimeout(timer);
       };
       __r.setup = function(){
-        if (!elm || elm.parentNode !== document.body) {
-          if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
+        if (elm && elm.parentNode) elm.parentNode.removeChild(elm);
+        if (!elm) {
           elm = document.createElement("div");
           elm.className = "ytcenter-scrolled-top-element";
           if (ytcenter.settings.topScrollPlayerEnabled) document.body.insertBefore(elm, document.body.children[0]);
@@ -20078,8 +20078,8 @@
       var updatescrollToPlayerButtonPosition = function(){
         if (!ytcenter.settings.enableResize) return;
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (document.getElementById("appbar-menu") && !scrollToPlayerButton.parentNode)
-            document.getElementById("appbar-menu").insertBefore(scrollToPlayerButton, document.getElementById("appbar-menu").children[0]);
+          if (document.getElementById("appbar-secondary-container") && !scrollToPlayerButton.parentNode)
+            document.getElementById("appbar-secondary-container").insertBefore(scrollToPlayerButton, document.getElementById("appbar-secondary-container").children[0]);
         } else if (ytcenter.settings['ytExperimentFixedTopbar']) {
           if (document.getElementById("yt-masthead-container") && !scrollToPlayerButton.parentNode)
             document.getElementById("yt-masthead-container").appendChild(scrollToPlayerButton);
@@ -20109,8 +20109,8 @@
             scrollToPlayerButton.style.top = (document.getElementById("watch7-playlist-data") ? "-13" : "-28") + "px";
           }
           if (ytcenter.settings['experimentalFeatureTopGuide']) {
-            if (document.getElementById("appbar-menu") && !scrollToPlayerButton.parentNode)
-              document.getElementById("appbar-menu").insertBefore(scrollToPlayerButton, document.getElementById("appbar-menu").children[0]);
+            if (document.getElementById("appbar-secondary-container") && !scrollToPlayerButton.parentNode)
+              document.getElementById("appbar-secondary-container").insertBefore(scrollToPlayerButton, document.getElementById("appbar-secondary-container").children[0]);
             var _s = getSizeById(ytcenter.player.currentResizeId);
             if (_s.config.scrollToPlayerButton) {
               scrollToPlayerButton.style.display = "";
@@ -20153,7 +20153,7 @@
       scrollToPlayerButtonArrow.style.display = "inline-block";
       scrollToPlayerButton = ytcenter.gui.createYouTubeDefaultButton("SCROLL_TOOLTIP", [scrollToPlayerButtonArrow]);
       if (ytcenter.settings.experimentalFeatureTopGuide) {
-        scrollToPlayerButton.className = "yt-uix-button yt-uix-button-appbar yt-uix-button-size-default yt-uix-button-empty yt-uix-tooltip";
+        scrollToPlayerButton.className = "appbar-action-button flip yt-uix-button yt-uix-button-appbar yt-uix-button-size-default yt-uix-button-has-icon yt-uix-button-empty yt-uix-tooltip";
       }
       scrollToPlayerButton.style.display = "block";
       scrollToPlayerButton.style.position = "absolute";
@@ -23246,7 +23246,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 241, crossUnsafeWindow);
+          main_function(false, 0, true, 242, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -23265,6 +23265,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 0, true, 241, crossUnsafeWindow);
+    main_function(false, 0, true, 242, crossUnsafeWindow);
   }
 })();
