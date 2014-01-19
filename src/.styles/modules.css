@@ -8,6 +8,7 @@
 .ytcenter-modules-rangetext {
   width: 65px;
   vertical-align: middle;
+  border: 1px solid #ccc;
 }
 .ltr .ytcenter-modules-rangetext {
   margin-left: 4px;
