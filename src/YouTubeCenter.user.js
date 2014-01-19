@@ -1158,7 +1158,30 @@
         textIcon = document.createElement("img"),
         text = null;
       
-      if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
+      if (ytcenter.feather) {
+        var wrapper = document.getElementById("us"),
+          aLink = document.createElement("a"),
+          gearicon = document.createElement("img");
+        gearicon.src = ytcenter.icon.gear;
+        gearicon.setAttribute("alt", "");
+        
+        aLink.appendChild(gearicon);
+        
+        aLink.className = "ml";
+        aLink.setAttribute("href", "javascript:void(0);");
+        ytcenter.utils.addEventListener(aLink, "click", function(e){
+          if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
+          ytcenter.settingsPanelDialog.setVisibility(true);
+          
+          e && e.preventDefault && e.preventDefault();
+          return false;
+        }, false);
+        
+        aLink.title = ytcenter.language.getLocale("BUTTON_SETTINGS_TITLE");
+        ytcenter.language.addLocaleElement(aLink, "BUTTON_SETTINGS_TITLE", "title");
+        
+        wrapper.appendChild(aLink);
+      } else if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
         liSettings.setAttribute("id", "ytcenter-settings-toggler");
         liSettings.setAttribute("role", "menuitem");
         liSettings.className = "yt-uix-button-menu-new-section-separator";
@@ -2529,6 +2552,7 @@
     
     ytcenter.actionPanel = (function(){
       function getEventListener(options) {
+        if (ytcenter.feather) return null;
         if (typeof uw.yt === "undefined" || typeof uw.yt.events === "undefined" || typeof uw.yt.events.listeners_ === "undefined") return null;
         var i, item = null;
         con.log("[ActionPanel] Amount of YouTube listeners: " + uw.yt.events.counter_.count);
@@ -2543,24 +2567,28 @@
         return null;
       }
       function tabClickedEventListener() {
+        if (ytcenter.feather) return;
         removeOnceLock();
         clearDelaySwitchTab();
         enableActionPanel();
         uw.setTimeout(disableActionPanel, 0);
       }
       function initActionPanel() {
+        if (ytcenter.feather) return;
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
           secondaryActions.children[i].children[0].addEventListener("click", tabClickedEventListener, false);
         }
       }
       function enableActionPanel() {
+        if (ytcenter.feather) return;
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
           ytcenter.utils.addClass(secondaryActions.children[i].children[0], "action-panel-trigger");
         }
       }
       function disableActionPanel() {
+        if (ytcenter.feather) return;
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
           ytcenter.utils.removeClass(secondaryActions.children[i].children[0], "action-panel-trigger");
@@ -2574,6 +2602,7 @@
             con.error(e);
           }
         }
+        if (ytcenter.feather) return;
         try {
           con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to preferred tab (" + ytcenter.settings.likeSwitchToTab + ").");
           
@@ -2592,6 +2621,7 @@
         }
       }
       function clearDelaySwitchTab() {
+        if (ytcenter.feather) return;
         if (delayedSwitchTabTimer) {
           delayedSwitchTabTimer = null;
           uw.clearTimeout(delayedSwitchTabTimer);
@@ -2602,18 +2632,22 @@
           delayedSwitchTabTimer = null;
           ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
         }
+        if (ytcenter.feather) return;
         clearDelaySwitchTab();
         delayedSwitchTabTimer = uw.setTimeout(delayedSwitchTabCallback, 1000);
       }
       function removeOnceLock() {
+        if (ytcenter.feather) return;
         if (observer) observer.disconnect();
         observer = null;
       }
       function setSwitchTab(elm) {
+        if (ytcenter.feather) return;
         switchToElm = elm;
         onceLock();
       }
       function onceLock() {
+        if (ytcenter.feather) return;
         var oldClassName = null;
         if (observer) observer.disconnect();
         
@@ -2631,6 +2665,7 @@
         });
       }
       function switchTo(tab) {
+        if (ytcenter.feather) return;
         if (tab === "none" || !tab) return;
         con.log("[ActionPanel:switchTo] Switching to " + tab);
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
@@ -2644,6 +2679,7 @@
         }
       }
       function setEnabled(aEnabled) {
+        if (ytcenter.feather) return;
         if (aEnabled) {
           enabled = true;
           disableActionPanel();
@@ -2653,10 +2689,12 @@
         }
       }
       function setThreadEnabled() {
+        if (ytcenter.feather) return;
         enableActionPanel();
         uw.setTimeout(disableActionPanel, 0);
       }
       function getLikeButton() {
+        if (ytcenter.feather) return null;
         var elm = document.getElementById("watch-like");
         if (elm) return elm;
         
@@ -2670,6 +2708,7 @@
         return null;
       }
       function setup() {
+        if (ytcenter.feather) return;
         try {
           if (observer) observer.disconnect();
           if (likeButton && listenerDisabler && likeButtonEvent) {
@@ -2961,10 +3000,11 @@
     con.log("Initializing Functions");
     try {
       ytcenter.embed = {};
-      ytcenter.embed._writeEmbed = uw.writeEmbed;
       ytcenter.embed.isYouTubeReady = false;
       ytcenter.embed.isYouTubeCenterReady = false;
       ytcenter.embed.failsafe = false;
+      
+      ytcenter.embed._writeEmbed = uw.writeEmbed;
       defineLockedProperty(uw, "writeEmbed", function(func){
         con.log("[Embed] writeEmbed has been leaked to YouTube Center.");
         ytcenter.embed._writeEmbed = func;
@@ -3303,7 +3343,8 @@
       centering: "@styles-centering@",
       embed: "@styles-embed@",
       player: "@styles-player@",
-      darkside: "@styles-darkside@"
+      darkside: "@styles-darkside@",
+      ytinputs: "@styles-ytinputs@"
     };
     ytcenter.topScrollPlayer = (function(){
       function enterComplete() {
@@ -4444,8 +4485,8 @@
         
         ytcenter.cache.putCategory("profile_country", ytcenter.settings.commentCacheSize);
         
-        var userHeader = document.getElementById("watch7-user-header"),
-            user = userHeader.getElementsByTagName("a")[1],
+        var userHeader = (ytcenter.feather ? document.getElementById("ud") : document.getElementById("watch7-user-header")),
+            user = (ytcenter.feather ? userHeader.getElementsByTagName("a")[0] : userHeader.getElementsByTagName("a")[1]),
             id = user.getAttribute("data-ytid");
         
         var country = ytcenter.cache.getItem("profile_country", id);
@@ -4480,10 +4521,10 @@
         });
       }
       function addFlag(country) {
-        var userHeader = document.getElementById("watch7-user-header"),
-            separator = userHeader.children[2],
-            user = userHeader.getElementsByTagName("a")[1],
-            linebreak = userHeader.getElementsByTagName("br")[0],
+        var userHeader = (ytcenter.feather ? document.getElementById("ud") : document.getElementById("watch7-user-header")),
+            separator = (ytcenter.feather ? userHeader.children[1] : userHeader.children[2]),
+            user = (ytcenter.feather ? userHeader.getElementsByTagName("a")[0] : userHeader.getElementsByTagName("a")[1]),
+            linebreak = (ytcenter.feather ? userHeader.lastChild : userHeader.getElementsByTagName("br")[0]),
             countryContainer = document.createElement("span"),
             countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
         if (userHeader.getElementsByClassName("country").length > 0) return;
@@ -4527,12 +4568,16 @@
         } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
           countryContainer.style.marginLeft = "5px";
           if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified")) {
-            separator = userHeader.children[3];
+            separator = (ytcenter.feather ? userHeader.children[2] : userHeader.children[3]);
           }
           userHeader.insertBefore(countryContainer, separator);
         } else if (ytcenter.settings.uploaderCountryPosition === "last") {
           countryContainer.style.marginLeft = "5px";
-          userHeader.insertBefore(countryContainer, linebreak);
+          if (ytcenter.feather) {
+            userHeader.appendChild(countryContainer);
+          } else {
+            userHeader.insertBefore(countryContainer, linebreak);
+          }
         }
       }
       
@@ -5183,7 +5228,7 @@
             }, {
               event: "bodyInitialized",
               test: function(){
-                if (document && document.body && document.body.className !== "")
+                if (document && document.body && (document.body.className !== "" || ytcenter.feather))
                   return true;
                 return false;
               },
@@ -5234,7 +5279,7 @@
         }
       };
       __r.update = function(){
-        var i, j;
+        var i, j, page = ytcenter.getPage();
         if (ytcenter.pageReadinessListener.waitfor) {
           if (!ytcenter.pageReadinessListener.waitfor()) return;
         }
@@ -5254,16 +5299,16 @@
               __r.update();
             }, preTesterInterval);
           } else {
-            //try {
-              con.log("[PageReadinessListener] At event => " + events[i].event);
+            try {
+              con.log("[PageReadinessListener] At event => " + events[i].event, page);
               events[i].called = true;
               for (j = 0; j < events[i].callbacks.length; j++) {
-                events[i].callbacks[j]();
+                events[i].callbacks[j](page);
               }
-            /*} catch (e) {
-              con.error("[PageReadinessListener] " + events[i].event);
+            } catch (e) {
+              con.error("[PageReadinessListener] " + events[i]);
               con.error(e);
-            }*/
+            }
           }
         }
       };
@@ -12820,6 +12865,9 @@
       var rd = {
         init: function(whitelist, blacklist){
           try {
+            if (ytcenter.feather) {
+              setting = "buttonPlacementFeather";
+            }
             settings = ytcenter.settings[setting];
             updateList();
             
@@ -13246,6 +13294,10 @@
       enableUpdateChecker: true,
       updateCheckerInterval: "0",
       updateCheckerLastUpdate: 0,
+      buttonPlacementFeather: {
+        "watch7-ytcenter-buttons": ['@downloadgroup', '@repeatbtn', '@lightbtn', '@resizebtn', '@aspectbtn'],
+        'watch7-sentiment-actions': ['vo&@&//*[@id="rl"]', 'vo&@&//*[@id="rd"]', 'vo&@&//*[@id="fl"]']
+      },
       buttonPlacementWatch7: {
         'watch7-ytcenter-buttons': ['@downloadgroup', '@repeatbtn', '@lightbtn', '@resizebtn', '@aspectbtn'],
         'watch7-sentiment-actions': ['watch7-sentiment-actions&@&//*[@id="watch-like-dislike-buttons"]']
@@ -13298,7 +13350,7 @@
       "resize-default-playersize": 'default',
       "resize-small-button": "default_fit_to_content",
       "resize-large-button": "default_720",
-      playerSizeAspect: "default", // default, 4:3, 16:9, 16:10, 24:10
+      "playerSizeAspect": "default", // default, 4:3, 16:9, 16:10, 24:10
       "resize-playersizes": [
         {
           id: "default_small",
@@ -14575,7 +14627,7 @@
             closeIcon = document.createElement("img");
         closeIcon.className = "close";
         closeIcon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
-        closeButton.className = "yt-alert ytcenter-settings-close-button";
+        closeButton.className = "ytcenter-alert ytcenter-settings-close-button";
         closeButton.appendChild(closeIcon);
         ytcenter.utils.addEventListener(closeButton, "click", function(){
           dialog.setVisibility(false);
@@ -18731,16 +18783,37 @@
           return null;
         }
       }
+      function loadMethod3() {
+        var a;
+        try {
+          a = document.body.innerHTML;
+          a = a.split("var videoPlayer = new yt.player.Application('p', ");
+          if (!a || !a[1]) return null;
+          a = a[1];
+          a = a.split(");");
+          if (!a || !a[0]) return null;
+          a = a[0];
+          a = JSON.parse(a);
+          return a;
+        } catch (e) {
+          con.error(e, a);
+          return null;
+        }
+      }
       
       var _a = null;
-      if (!_a && uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG)
-        _a = uw.yt.config_.PLAYER_CONFIG;
-      if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1)
-        _a = loadMethod1();
-      if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1)
-        _a = loadMethod2();
-      if (_a) return _a;
-      
+      if (ytcenter.feather) {
+        _a = loadMethod3();
+        if (_a) return _a;
+      } else {
+        if (!_a && uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG)
+          _a = uw.yt.config_.PLAYER_CONFIG;
+        if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1)
+          _a = loadMethod1();
+        if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1)
+          _a = loadMethod2();
+        if (_a) return _a;
+      }
       return {};
     };
     ytcenter.player.parseRVS = function(rvs){
@@ -22042,63 +22115,123 @@
       var ytcd = document.createElement("div");
       ytcd.id = "watch7-ytcenter-buttons";
       ytcenter.placementsystem.ytcd = ytcd;
-      document.getElementById("watch7-sentiment-actions").parentNode.insertBefore(ytcd, document.getElementById("watch7-sentiment-actions"));
+      if (ytcenter.feather) {
+        ytcd.style.marginBottom = "10px";
+        document.getElementById("vc").parentNode.insertBefore(ytcd, document.getElementById("vc"));
+        ytcenter.placementsystem.init([
+          {
+            id: 'vo',
+            elements: [
+              {
+                tagname: 'button',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "b") && elm == e;
+                },
+                style: {
+                  margin: '0px 2px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'span',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
+                },
+                style: {
+                  margin: '0px 4px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'button',
+                classNames: ['yt-uix-tooltip-reverse']
+              }
+            ]
+          }, {
+            id: 'watch7-ytcenter-buttons',
+            elements: [
+              {
+                tagname: 'button',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
+                },
+                style: {
+                  margin: '0px 2px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'span',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
+                },
+                style: {
+                  margin: '0px 4px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'button',
+                classNames: ['yt-uix-tooltip-reverse']
+              }
+            ]
+          }
+        ], []);
+      } else {
+        document.getElementById("watch7-sentiment-actions").parentNode.insertBefore(ytcd, document.getElementById("watch7-sentiment-actions"));
+        ytcenter.placementsystem.init([
+          {
+            id: 'watch7-sentiment-actions',
+            elements: [
+              {
+                tagname: 'button',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
+                },
+                style: {
+                  margin: '0px 2px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'span',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
+                },
+                style: {
+                  margin: '0px 4px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'button',
+                classNames: ['yt-uix-tooltip-reverse']
+              }
+            ]
+          }, {
+            id: 'watch7-ytcenter-buttons',
+            elements: [
+              {
+                tagname: 'button',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
+                },
+                style: {
+                  margin: '0px 2px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'span',
+                condition: function(elm, e){
+                  return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
+                },
+                style: {
+                  margin: '0px 4px 0px 0px'
+                },
+                classNames: ['yt-uix-tooltip-reverse']
+              }, {
+                tagname: 'button',
+                classNames: ['yt-uix-tooltip-reverse']
+              }
+            ]
+          }
+        ], []);
+      }
       
-      ytcenter.placementsystem.init([
-        {
-          id: 'watch7-sentiment-actions',
-          elements: [
-            {
-              tagname: 'button',
-              condition: function(elm, e){
-                return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
-              },
-              style: {
-                margin: '0px 2px 0px 0px'
-              },
-              classNames: ['yt-uix-tooltip-reverse']
-            }, {
-              tagname: 'span',
-              condition: function(elm, e){
-                return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
-              },
-              style: {
-                margin: '0px 4px 0px 0px'
-              },
-              classNames: ['yt-uix-tooltip-reverse']
-            }, {
-              tagname: 'button',
-              classNames: ['yt-uix-tooltip-reverse']
-            }
-          ]
-        }, {
-          id: 'watch7-ytcenter-buttons',
-          elements: [
-            {
-              tagname: 'button',
-              condition: function(elm, e){
-                return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
-              },
-              style: {
-                margin: '0px 2px 0px 0px'
-              },
-              classNames: ['yt-uix-tooltip-reverse']
-            }, {
-              tagname: 'span',
-              condition: function(elm, e){
-                return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
-              },
-              style: {
-                margin: '0px 4px 0px 0px'
-              },
-              classNames: ['yt-uix-tooltip-reverse']
-            }, {
-              tagname: 'button',
-              classNames: ['yt-uix-tooltip-reverse']
-            }
-          ]
-        }
-      ], []);
       ytcenter.placementsystem.registerNativeElements();
       ytcenter.placementsystem.arrangeElements();
     };
@@ -22200,6 +22333,28 @@
           type: "loadSettings"
         }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
       }, ytcenter.unsafe.settings);
+      
+      uw.addEventListener("message", function(e){
+        if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
+          return;
+        if (e.data.indexOf("YouTubeCenter") !== 0)
+          return;
+        var d = JSON.parse(e.data.substring(13));
+        if (d.type === "saveSettings") {
+          ytcenter.saveSettings();
+        } else if (d.type === "loadSettings") {
+          ytcenter.loadSettings();
+        } else if (d.type === "updateSignatureDecipher") {
+          ytcenter.utils.updateSignatureDecipher();
+        }
+        if (typeof d.callback === "function") {
+          var n = d.callback.split("."), a = uw, i;
+          for (i = 0; o < n.length; i++) {
+            a = a[n[i]];
+          }
+          a();
+        }
+      }, false);
     };
     
     (function(){
@@ -22277,8 +22432,7 @@
         return ytcenter.__settingsLoaded;
       };
       
-      ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(){
-        var page = ytcenter.getPage();
+      ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(page){
         if (ytcenter.settings.useSecureProtocol && page !== "comments") {
           if (loc.href.indexOf("http://") === 0) {
             loc.href = loc.href.replace(/^http/, "https");
@@ -22302,35 +22456,54 @@
         if (page === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
           loc.search = loc.search.replace("autoplay=1", "ytcenter-autoplay=1");
         }
-        
-        uw.addEventListener("message", function(e){
-          if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
-            return;
-          if (e.data.indexOf("YouTubeCenter") !== 0)
-            return;
-          var d = JSON.parse(e.data.substring(13));
-          if (d.type === "saveSettings") {
-            ytcenter.saveSettings();
-          } else if (d.type === "loadSettings") {
-            ytcenter.loadSettings();
-          } else if (d.type === "updateSignatureDecipher") {
-            ytcenter.utils.updateSignatureDecipher();
-          }
-          if (typeof d.callback === "function") {
-            var n = d.callback.split("."), a = uw, i;
-            for (i = 0; o < n.length; i++) {
-              a = a[n[i]];
-            }
-            a();
-          }
-        }, false);
-        
-        try {
+        if (page === "watch" && document && document.head && document.head.getElementsByTagName) {
           var links = document.head.getElementsByTagName("link");
-          if (links[0] && links[0].className === "www-feather")
+          if (links && links.length > 0 && links[0] && links[0].className && links[0].className.indexOf("www-feather") === 0) {
+            con.log("[Feather] Feather layout detected!");
             ytcenter.feather = true;
-        } catch (e) {
-          con.error(e);
+          }
+        }
+        
+        if (ytcenter.feather) {
+          var obj = uw && uw.yt || {},
+            pobj = uw && uw.yt && uw.yt.player || {},
+            app = ytcenter.utils.bind(function(id, config){
+              ytcenter.player.setConfig(ytcenter.player.modifyConfig("watch", config));
+              
+              return oApp(id, ytcenter.player.getConfig());
+            }),
+            oApp = uw && uw.yt && uw.yt.player && uw.yt.player.Application || null;
+          defineLockedProperty(pobj, "Application", ytcenter.utils.bind(function(o){
+            con.log("[Feather] Setting Application.");
+            oApp = o;
+          }), ytcenter.utils.bind(function(){
+            con.log("[Feather] Application has been requested.");
+            return app;
+          }));
+          
+          defineLockedProperty(obj, "player", ytcenter.utils.bind(function(o){
+            var key;
+            for (key in o) {
+              if (o.hasOwnProperty(key)) {
+                pobj[key] = o[key];
+              }
+            }
+          }), ytcenter.utils.bind(function(){
+            return pobj;
+          }));
+          
+          defineLockedProperty(uw, "yt", ytcenter.utils.bind(function(o){
+            var key;
+            for (key in o) {
+              if (o.hasOwnProperty(key)) {
+                obj[key] = o[key];
+              }
+            }
+          }), ytcenter.utils.bind(function(){
+            return obj;
+          }));
+          
+          ytcenter.cssElements.ytinputs = ytcenter.utils.addCSS("ytinputs", ytcenter.css.ytinputs);
         }
         
         if (ytcenter.getPage() !== "embed") {
@@ -22414,11 +22587,18 @@
         ytcenter.inject("eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[function(e){return d[e]}];e=function(){return'\\\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c])}}return p}('v=v||{};v.R=v.R||{};(4(I,v){o{v.R.B=B}q(e){}8(J B!==\"4\"||J k===\"2c\")8(J B===\"4\"&&J K!==\"2c\")I.k=K;j v.R.B=(4(6){\"1W 2l\";d Z=(4(){d a=t;o{a=6.Z||6.2d||6.1A||6.17}q(e){o{a=6.2d||6.1A||6.17}q(e){o{a=6.1A||6.17}q(e){o{a=6.17}q(e){}}}}f a})()||(4(6){d 1l=4(P){f 2P.S.1r.T(P).2Q(/^\\\\[P\\\\s(.*)\\\\]$/)[1]},1n=4 Z(){g.7=[]},A=4(7,c,w){g.7=7;g.1F=7.p;g.c=c;g.w=w},1f=1n.S,19=A.S,1d=6.1d,1s=4(c){g.1I=g[g.l=c]},1v=(\"2m 2V 22 2n 2W \"+\"31 30 2Z\").1M(\" \"),1h=1v.p,H=6.k||6.K||6,1k=H.11,1i=H.1u,k=H,1a=6.1a,1b=6.1b,1z=6.1z,Y=6.Y;A.2b=19.2b=14;1C(1h--){1s.S[1v[1h]]=1h+1}8(!H.11){k=6.k={}}k.11=4(b){d c=b.c,N;8(c===Q){c=\"2q/2z-2t\"}8(b 1c A){N=\"7:\"+c;8(b.w===\"1g\"){f N+\";1g,\"+b.7}j 8(b.w===\"2h\"){f N+\",\"+2i(b.7)}8(1a){f N+\";1g,\"+1a(b.7)}j{f N+\",\"+2o(b.7)}}j 8(1k){f 1k.T(H,b)}};k.1u=4(1m){8(1m.2D(0,5)!==\"7:\"&&1i){1i.T(H,1m)}};1f.1X=4(7){d E=g.7;8(Y&&(7 1c 1z||7 1c Y)){d 1q=\"\",1o=C Y(7),i=0,29=1o.p;20(;i<29;i++){1q+=2H.2M(1o[i])}E.x(1q)}j 8(1l(7)===\"B\"||1l(7)===\"2K\"){8(1d){d 2g=C 1d;E.x(2g.32(7))}j{2r C 1s(\"2n\")}}j 8(7 1c A){8(7.w===\"1g\"&&1b){E.x(1b(7.7))}j 8(7.w===\"2h\"){E.x(2i(7.7))}j 8(7.w===\"21\"){E.x(7.7)}}j{8(J 7!==\"2u\"){7+=\"\"}E.x(3r(2o(7)))}};1f.1U=4(c){8(!1w.p){c=Q}f C A(g.7.3i(\"\"),c,\"21\")};1f.1r=4(){f\"[P Z]\"};19.L=4(1Y,1T,c){d 1t=1w.p;8(1t<3){c=Q}f C A(g.7.L(1Y,1t>1?1T:g.7.p),c,g.w)};19.1r=4(){f\"[P B]\"};f 1n}(6));f 4(12,1x){d c=1x?(1x.c||\"\"):\"\";d 1y=C Z();8(12){20(d i=0,23=12.p;i<23;i++){1y.1X(12[i])}}f 1y.1U(c)}}(I));v.R.13=(I&&I.13)||(18&&18.1V&&18.1V.2B(18))||(4(6){\"1W 2l\";d 1B=6.3n,1p=4(){d a;o{a=6.k||6.K||6}q(e){o{a=6.k||6.K||6}q(e){o{a=6.K||6}q(e){o{a=6}q(e){}}}}f a},k=1p(),10=1B.3m(\"3k://3a.2I.3d/3e/3h\",\"a\"),2w=!6.3g&&\"V\"3b 10,1Q=4(2s){d n=1B.34(\"36\");n.37(\"1Q\",14,t,6,0,0,0,0,0,t,t,t,t,0,Q);2s.38(n)},16=6.3j,1E=6.3s||16||6.3p,2x=4(F){(6.3q||6.3l)(4(){2r F},0)},15=\"2q/2z-2t\",1H=0,M=[],2e=4(){d i=M.p;1C(i--){d r=M[i];8(J r===\"2u\"){k.1u(r)}j{r.26()}}M.p=0},1e=4(9,U,n){U=[].33(U);d i=U.p;1C(i--){d 1j=9[\"1L\"+U[i]];8(J 1j===\"4\"){o{1j.T(9,n||9)}q(F){2x(F)}}}},1G=4(b,l){d 9=g,c=b.c,1O=t,m,W,1P=4(){d m=1p().11(b);M.x(m);f m},1S=4(){1e(9,\"1Z 25 1K 24\".1M(\" \"))},y=4(){8(1O||!m){m=1P(b)}8(W){W.2p.1N=m}j{2O.2X(m,\"2S\")}9.u=9.G;1S()},z=4(2v){f 4(){8(9.u!==9.G){f 2v.2T(g,1w)}}},1R={2k:14,3c:t},L;9.u=9.2f;8(!l){l=\"V\"}8(2w){m=1P(b);10.1N=m;10.V=l;1Q(10);9.u=9.G;1S();f}8(6.2G&&c&&c!==15){L=b.L||b.2L;b=L.T(b,0,b.1F,15);1O=14}8(16&&l!==\"V\"){l+=\".V\"}8(c===15||16){W=6}8(!1E){y();f}1H+=b.1F;1E(6.2J,1H,z(4(2y){2y.2U.2N(\"3o\",1R,z(4(1J){d 1D=4(){1J.2j(l,1R,z(4(r){r.39(z(4(D){D.2a=4(n){W.2p.1N=r.3f();M.x(r);9.u=9.G;1e(9,\"24\",n)};D.27=4(){d X=D.X;8(X.1I!==X.22){y()}};\"1Z 25 1K O\".1M(\" \").35(4(n){D[\"1L\"+n]=9[\"1L\"+n]});D.1K(b);9.O=4(){D.O();9.u=9.G};9.u=9.28}),y)}),y)};1J.2j(l,{2k:t},z(4(r){r.26();1D()}),z(4(F){8(F.1I===F.2m){1D()}j{y()}}))}),y)}),y)},h=1G.S,13=4(b,l){f C 1G(b,l)};h.O=4(){d 9=g;9.u=9.G;1e(9,\"O\")};h.u=h.2f=0;h.28=1;h.G=2;h.X=h.2A=h.2C=h.2F=h.2E=h.27=h.2a=Q;6.2Y(\"2R\",2e,t);f 13}(I))})(I,v);',62,215,'||||function||view|data|if|filesaver||blob|type|var||return|this|FS_proto||else|URL|name|object_url|event|try|length|catch|file||false|readyState|ytcenter|encoding|push|fs_error|abortable|FakeBlob|Blob|new|writer|bb|ex|DONE|real_URL|self|typeof|webkitURL|slice|deletion_queue|data_URI_header|abort|object|null|io|prototype|call|event_types|download|target_view|error|Uint8Array|BlobBuilder|save_link|createObjectURL|blobParts|saveAs|true|force_saveable_type|webkit_req_fs|MSBlobBuilder|navigator|FB_proto|btoa|atob|instanceof|FileReaderSync|dispatch|FBB_proto|base64|file_ex_code|real_revoke_object_URL|listener|real_create_object_URL|get_class|object_URL|FakeBlobBuilder|buf|get_URL|str|toString|FileException|args|revokeObjectURL|file_ex_codes|arguments|options|builder|ArrayBuffer|MozBlobBuilder|doc|while|save|req_fs|size|FileSaver|fs_min_size|code|dir|write|on|split|href|blob_changed|get_object_url|click|create_if_not_found|dispatch_all|end|getBlob|msSaveOrOpenBlob|use|append|start|writestart|for|raw|ABORT_ERR|len|writeend|progress|remove|onerror|WRITING|buf_len|onwriteend|fake|undefined|WebKitBlobBuilder|process_deletion_queue|INIT|fr|URI|decodeURIComponent|getFile|create|strict|NOT_FOUND_ERR|NOT_READABLE_ERR|encodeURIComponent|location|application|throw|node|stream|string|func|can_use_save_link|throw_outside|fs|octet|onwritestart|bind|onprogress|substring|onabort|onwrite|chrome|String|w3|TEMPORARY|File|webkitSlice|fromCharCode|getDirectory|window|Object|match|unload|_blank|apply|root|SECURITY_ERR|ENCODING_ERR|open|addEventListener|SYNTAX_ERR|INVALID_STATE_ERR|NO_MODIFICATION_ALLOWED_ERR|readAsBinaryString|concat|createEvent|forEach|MouseEvents|initMouseEvent|dispatchEvent|createWriter|www|in|exclusive|org|1999|toURL|externalHost|xhtml|join|webkitRequestFileSystem|http|setTimeout|createElementNS|document|saved|mozRequestFileSystem|setImmediate|unescape|requestFileSystem'.split('|'),0,{}))");
         /*****END OF SAVEAS AND BLOB IMPLEMENTATION*****/
       });
-      ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(){
-        if (!ytcenter.utils.hasClass(document.body, "ltr")) ytcenter.ltr = false;
-        var page = ytcenter.getPage();
+      ytcenter.pageReadinessListener.addEventListener("bodyInitialized", function(page){
+        if (ytcenter.feather) {
+          var dir = document.body.getAttribute("dir");
+          ytcenter.utils.addClass(document.body, dir);
+          
+          ytcenter.ltr = (dir === "ltr");
+        } else if (!ytcenter.utils.hasClass(document.body, "ltr")) {
+          ytcenter.ltr = false;
+        }
         if (page === "comments") return; // We don't need to do anything here.
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+        
         ytcenter.topbarInit();
         
         ytcenter.classManagement.applyClassesForElement(document.body);
@@ -22453,6 +22633,7 @@
           ytcenter.commentsPlus.setup();
           return;
         }
+        
         ytcenter.gridview.update();
         // Checking if the correct settings were applied and if not correct them and forcing a refresh of the page.
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
@@ -22949,8 +23130,7 @@
           ytcenter.unsafe.openSettings();
         }
       });
-      ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
-        var page = ytcenter.getPage();
+      ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(page){
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
         if (page === "comments") {
           ytcenter.domEvents.ready();
