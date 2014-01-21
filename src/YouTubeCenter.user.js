@@ -3348,7 +3348,7 @@
       embed: "@styles-embed@",
       player: "@styles-player@",
       darkside: "@styles-darkside@",
-      ytinputs: "@styles-ytinputs@"
+      feather: "@styles-feather@"
     };
     ytcenter.topScrollPlayer = (function(){
       function enterComplete() {
@@ -18809,20 +18809,38 @@
         }
       }
       
+      function loadMethod4() {
+        var a;
+        try {
+          a = document.body.innerHTML;
+          a = a.split("flashvars=\"");
+          if (!a || !a[1]) return null;
+          a = a[1];
+          a = a.split("\" ");
+          if (!a || !a[0]) return null;
+          a = a[0].replace(/&amp;/g, "&");
+          a = {args: ytcenter.utils.urlComponentToObject(a)};
+          return a;
+        } catch (e) {
+          con.error(e, a);
+          return null;
+        }
+      }
+      
       var _a = null,
         page = ytcenter.getPage();
-      if (ytcenter.feather && page === "watch") {
+      if (!_a && ytcenter.feather && page === "watch")
         _a = loadMethod3();
-        if (_a) return _a;
-      } else {
-        if (!_a && uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG)
-          _a = uw.yt.config_.PLAYER_CONFIG;
-        if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1)
-          _a = loadMethod1();
-        if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1)
-          _a = loadMethod2();
-        if (_a) return _a;
-      }
+      if (!_a && ytcenter.feather && page === "watch")
+        _a = loadMethod4();
+      if (!_a && uw.yt && uw.yt.config_ && uw.yt.config_.PLAYER_CONFIG)
+        _a = uw.yt.config_.PLAYER_CONFIG;
+      if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("<script>var ytplayer = ytplayer || {};ytplayer.config = ") !== -1)
+        _a = loadMethod1();
+      if (!_a && document && document.body && document.body.innerHTML && document.body.innerHTML.indexOf("'PLAYER_CONFIG': ") !== -1)
+        _a = loadMethod2();
+      if (_a) return _a;
+      
       return {};
     };
     ytcenter.player.parseRVS = function(rvs){
@@ -22398,7 +22416,10 @@
             } else {
               ytcenter.player.setConfig(config);
             }
-          }, function(){
+          }, function(){            
+            if (ytcenter.feather) {
+              ytcenter.player.config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
+            }
             return ytcenter.player.config;
           });
         }/* else if (ytcenter.utils.setterGetterObjectCompatible()) {
@@ -22470,7 +22491,7 @@
         }
         
         if (ytcenter.feather) {
-          var obj = uw && uw.yt || {},
+          /*var obj = uw && uw.yt || {},
             pobj = uw && uw.yt && uw.yt.player || {},
             app = ytcenter.utils.bind(function(id, config){
               ytcenter.player.setConfig(ytcenter.player.modifyConfig("watch", config));
@@ -22506,9 +22527,9 @@
             }
           }), ytcenter.utils.bind(function(){
             return obj;
-          }));
+          }));*/
           
-          ytcenter.cssElements.ytinputs = ytcenter.utils.addCSS("ytinputs", ytcenter.css.ytinputs);
+          ytcenter.cssElements.feather = ytcenter.utils.addCSS("feather", ytcenter.css.feather);
         }
         
         if (ytcenter.getPage() !== "embed") {
