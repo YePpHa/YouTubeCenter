@@ -328,10 +328,11 @@ body.ytcenter-branding-remove-background #guide-container.branded {
 }
 
 .ytcenter-lights-off #watch7-video, 
+.ytcenter-lights-off #p, 
 .ytcenter-lights-off #player-api,
 .ytcenter-lights-off #player-api-legacy,
 .ytcenter-lights-off #movie_player {
-  z-index: 5!important;
+  z-index: 50!important;
 }
 
 .ytcenter-lights-off #page-container {
@@ -347,7 +348,7 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   top: 0;
   width: 100%;
   height: 100%;
-  z-index: 3;
+  z-index: 49;
 }
 .ltr.ytcenter-lights-off .ytcenter-lights-off-overlay {
   left: 0;
