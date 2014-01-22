@@ -15670,7 +15670,8 @@
             "topScrollPlayerEnterOnVideoPlay", // defaultSetting
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_ENTERONVIDEOPLAY",
-            null
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enter_On_Video_Play"
           );
           subcat.addOption(option);
           
@@ -15678,7 +15679,8 @@
             "topScrollPlayerExitOnVideoPause", // defaultSetting
             "bool", // module
             "SETTINGS_TOPSCROLLPLAYER_EXITONVIDEOPAUSE",
-            null
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Exit_On_Video_Pause"
           );
           subcat.addOption(option);
           
