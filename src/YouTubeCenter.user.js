@@ -18658,6 +18658,8 @@
           } else if (state === 1 && step === 2) {
             step = -1;
             api.setPlaybackQuality(vq);
+            
+            removeStateListener();
           }
         }
       }
