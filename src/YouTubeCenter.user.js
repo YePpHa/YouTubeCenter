@@ -17773,6 +17773,8 @@
           option = ytcenter.settingsPanel.createOption(
             "commentCountryShowFlag", // defaultSetting
             "bool", // module
+            "SETTINGS_COMMENTS_COUNTRY_SHOW_FLAG",
+            null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Show_Country_Flag-2" // label
           );
           subcat.addOption(option);
