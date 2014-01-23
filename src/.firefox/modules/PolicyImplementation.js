@@ -45,7 +45,7 @@ PolicyImplementation.prototype.init = function(){
     Services.tm.currentThread.dispatch(function(){
       registrar.unregisterFactory(this.classID, this);
     }.bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
-  };
+  }.bind(this);
 };
 PolicyImplementation.prototype.shutdown = function(){
   if (this._shutdown !== null) {

@@ -9,18 +9,7 @@ let addonData = null;
 let sandbox = null;
 let policy = null;
 
-function startup(data, reason) {
-  addonData = data;
-  
-  let resource = Services.io.getProtocolHandler("resource").QueryInterface(Ci.nsIResProtocolHandler);
-  let alias = Services.io.newFileURI(data.installPath);
-  if (!data.installPath.isDirectory())
-    alias = Services.io.newURI("jar:" + alias.spec + "!/", null, null);
-  resource.setSubstitution("ytcenter", alias);
-  
-  Cu.import("resource://ytcenter/modules/PolicyImplementation.js");
-  Cu.import("resource://ytcenter/modules/Sandbox.js");
-
+function initPolicy() {
   sandbox = new Sandbox(
     [
       /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/,
@@ -33,6 +22,22 @@ function startup(data, reason) {
   );
   
   policy.init();
+}
+
+function startup(data, reason) {
+  addonData = data;
+  
+  let resource = Services.io.getProtocolHandler("resource").QueryInterface(Ci.nsIResProtocolHandler);
+  let alias = Services.io.newFileURI(data.installPath);
+  if (!data.installPath.isDirectory())
+    alias = Services.io.newURI("jar:" + alias.spec + "!/", null, null);
+  resource.setSubstitution("ytcenter", alias);
+  
+  Cu.import("resource://ytcenter/modules/PolicyImplementation.js");
+  Cu.import("resource://ytcenter/modules/Sandbox.js");
+  Services.tm.currentThread.dispatch(function(){
+    initPolicy();
+  }, Ci.nsIEventTarget.DISPATCH_NORMAL);
 }
 
 function shutdown(data, reason) {
