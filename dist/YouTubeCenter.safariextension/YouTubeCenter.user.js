@@ -65,7 +65,7 @@
 // @grant           unsafeWindow
 // @updateURL       https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.meta.js
 // @downloadURL     https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.user.js
-// @updateVersion   148
+// @updateVersion   150
 // @run-at          document-start
 // @priority        9001
 // @contributionURL https://github.com/YePpHa/YouTubeCenter/wiki/Donate
@@ -3328,7 +3328,7 @@
       };
     })();
     ytcenter.version = "2.1.0";
-    ytcenter.revision = 148;
+    ytcenter.revision = 150;
     ytcenter.icon = {};
     ytcenter.page = "none";
     ytcenter.feather = false;
@@ -18658,6 +18658,8 @@
           } else if (state === 1 && step === 2) {
             step = -1;
             api.setPlaybackQuality(vq);
+            
+            removeStateListener();
           }
         }
       }
