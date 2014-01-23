@@ -1,6 +1,6 @@
 const EXPORTED_SYMBOLS = ["Session"];
-Components.utils.import("resource://ytcenter/utils/isWindowClosed.js");
-Components.utils.import("resource://ytcenter/utils/bind.js");
+Components.utils.import("resource://ytcenter/modules/utils/isWindowClosed.js");
+Components.utils.import("resource://ytcenter/modules/utils/bind.js");
 
 function Session() {
   this.data = {};

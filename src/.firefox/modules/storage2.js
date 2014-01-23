@@ -1,7 +1,7 @@
 const EXPORTED_SYMBOLS = ["Storage"];
-Components.utils.import("resource://ytcenter/storage_file.js");
-Components.utils.import("resource://ytcenter/utils/isWindowClosed.js");
-Components.utils.import("resource://ytcenter/utils/bind.js");
+Components.utils.import("resource://ytcenter/modules/storage_file.js");
+Components.utils.import("resource://ytcenter/modules/utils/isWindowClosed.js");
+Components.utils.import("resource://ytcenter/modules/utils/bind.js");
 
 function Storage() {
   this.file = new StorageFile();

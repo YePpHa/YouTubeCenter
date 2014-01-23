@@ -1,8 +1,8 @@
 var EXPORTED_SYMBOLS = ['Request'];
 const Cu = Components.utils;
 
-Cu.import("resource://ytcenter/utils/isWindowClosed.js");
-Cu.import("resource://ytcenter/utils/bind.js");
+Cu.import("resource://ytcenter/modules/utils/isWindowClosed.js");
+Cu.import("resource://ytcenter/modules/utils/bind.js");
 
 function Request(wrappedContentWin, chromeWindow) {
   this.wrappedContentWin = wrappedContentWin;
