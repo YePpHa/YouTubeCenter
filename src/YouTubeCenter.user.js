@@ -3381,12 +3381,15 @@
         }
       }
       function onTransitionEnd() {
-        if (!transitionEndListenerAdded && !inTransition) {
+        if (!transitionEndListenerAdded) {
           inTransition = true;
+          if (inTransitionTimer !== null) {
+            uw.clearTimeout(inTransitionTimer);
+          }
           if (activated) {
-            uw.setTimeout(function(){ enterComplete(); }, 50);
+            inTransitionTimer = uw.setTimeout(function(){ enterComplete(); inTransitionTimer = null; }, 50);
           } else {
-            uw.setTimeout(function(){ exitComplete(); }, 500);
+            inTransitionTimer = uw.setTimeout(function(){ exitComplete(); inTransitionTimer = null; }, 500);
           }
         }
       }
@@ -3489,6 +3492,34 @@
           }
         }
       }
+      function enter() {
+        p.style.height = pa.style.height;
+        
+        if (!ytcenter.settings.topScrollPlayerAnimation)
+          ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
+        ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-player-pre");
+        
+        if (scrollUpExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
+        
+        activated = true;
+        onTransitionEnd();
+        
+        count = 0;
+        __r.stopTimer();
+      }
+      function exit() {
+        p.style.height = "";
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
+        ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
+        ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
+        
+        activated = false;
+        onTransitionEnd();
+        
+        count = 0;
+        __r.stopTimer();
+      }
       var __r = {},
           count = 0,
           activated = false,
@@ -3500,7 +3531,8 @@
           throttleFunc = null,
           prev = null,
           transitionEndListenerAdded = false,
-          inTransition = false;
+          inTransition = false,
+          inTransitionTimer = null;
       
       __r.setEnabled = setEnabled;
       __r.bumpCount = function(){
@@ -3571,31 +3603,9 @@
             count = 0;
             __r.stopTimer();
           } else if (state === 1 && ytcenter.settings.topScrollPlayerEnterOnVideoPlay && !activated) {
-            p.style.height = pa.style.height;
-            
-            if (!ytcenter.settings.topScrollPlayerAnimation)
-              ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-disable-animation");
-            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-player-pre");
-            
-            if (scrollUpExit) ytcenter.utils.addClass(document.body, "ytcenter-scrolled-inverse");
-            
-            activated = true;
-            onTransitionEnd();
-            
-            count = 0;
-            __r.stopTimer();
+            enter();
           } else if (state === 2 && ytcenter.settings.topScrollPlayerExitOnVideoPause && activated) {
-            p.style.height = "";
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-inverse");
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top");
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-static");
-            
-            activated = false;
-            onTransitionEnd();
-            
-            count = 0;
-            __r.stopTimer();
+            exit();
           }
         });
         ytcenter.events.addEvent("settings-update", function(){
@@ -18631,6 +18641,56 @@
     })();
     
     ytcenter.player = {};
+    ytcenter.player.setQuality = (function(){
+      function stateChange(state) {
+        var api = ytcenter.player.getAPI();
+        if (api) {
+          if (state === 1 && step === 0) {
+            step = 1;
+            api.setPlaybackQuality(vq);
+            api.pauseVideo();
+          } else if (state === 2 && step === 1) {
+            step = 2;
+            api.setPlaybackQuality(vq);
+            api.playVideo();
+          } else if (state === 1 && step === 2) {
+            step = -1;
+            api.setPlaybackQuality(vq);
+          }
+        }
+      }
+      function addStateListener() {
+        ytcenter.player.listeners.addEventListener("onStateChange", stateChange);
+        addedListener = true;
+      }
+      function removeStateListener() {
+        ytcenter.player.listeners.removeEventListener("onStateChange", stateChange);
+        addedListener = false;
+      }
+      function reloadQuality() {
+        /* Forcing the quality */
+        step = 0; /* Starting the hack */
+        if (!addedListener) {
+          addStateListener();
+        }
+        /* Checking if the player is already playing the video. If that's the case then execute the stateChange with state set to 1 */
+        if (api.getPlayerState() === 1) {
+          stateChange(1);
+        }
+      }
+      var addedListener = false,
+        step = -1;
+      
+      return function(vq) {
+        var api = ytcenter.player.getAPI();
+        if (api) {
+          api.setPlaybackQuality(vq); /* Setting the preferred quality. */
+          reloadQuality();
+        } else {
+          con.log("[Player:SetQuality] API not ready!");
+        }
+      }
+    });
     ytcenter.player.isPreventAutoPlay = function(){
       var notFocused = document && document.hasFocus && typeof document.hasFocus === "function" && !document.hasFocus(),
         preventAutoPlay = false,
@@ -18725,7 +18785,7 @@
       } else {
         /*if (api.getPlaybackQuality() === preferredQuality && preferredQuality !== "small") api.setPlaybackQuality("small");
         else if (api.getPlaybackQuality() === preferredQuality && preferredQuality !== "medium") api.setPlaybackQuality("medium");*/
-        api.setPlaybackQuality(preferredQuality);
+        ytcenter.player.setQuality(preferredQuality);
       }
     };
     ytcenter.player.config = {};
@@ -19075,7 +19135,7 @@
               config.args.vq = ytcenter.settings.autoVideoQuality;
             }
             con.log("[Quality Playback] Setting quality " + api.getPlaybackQuality() + " to " + config.args.vq);
-            api.setPlaybackQuality(config.args.vq);
+            ytcenter.player.setQuality(config.args.vq);
           }
         }
         
@@ -19219,7 +19279,7 @@
             config.args.vq = ytcenter.settings.channel_autoVideoQuality;
           }
           con.log("[Player Update] Quality => " + config.args.vq);
-          api.setPlaybackQuality(config.args.vq);
+          ytcenter.player.setQuality(config.args.vq);
         }
       } else if (page === "embed") {
         if (ytcenter.settings.embed_enableVolume) {
@@ -20201,7 +20261,7 @@
           api.mute(muted);
         }
         api.setPlaybackRate(rate);
-        api.setPlaybackQuality(quality);
+        ytcenter.player.setQuality(quality);
         
         con.log("Made a live refresh");
       };
@@ -21300,7 +21360,7 @@
         if (api.getPlaybackQuality() !== ytcenter.player.config.args.vq) {
           if (priorityIndex < priority.length) {
             priorityIndex = priorityIndex + 1;
-            api.setPlaybackQuality(priority[priorityIndex]);
+            ytcenter.player.setQuality(priority[priorityIndex]);
           } else {
             ytcenter.player.fixPreferredQualityUpdate();
           }
@@ -21865,8 +21925,6 @@
       {groups: ["gridview", "page"], element: function(){return document.body;}, className: "ytcenter-gridview", condition: function(loc){return ytcenter.gridview.isEnabled();}},
       {groups: ["flex"], element: function(){return document.getElementById("page");}, className: "no-flex", condition: function(loc){return !ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch";}},
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off", condition: function(loc){return ytcenter.player.isLightOff;}},
-      {groups: ["description"], element: function(){return document.getElementById("watch-description");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.expandDescription;}},
-      {groups: ["headline"], element: function(){return document.getElementById("watch7-headline");}, className: "yt-uix-expander-collapsed", condition: function(loc){return !ytcenter.settings.headlineTitleExpanded;}},
       {groups: ["ads"], element: function(){return document.getElementById("watch-video-extra");}, className: "hid", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
       {groups: ["flex", "page"], element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){var p = ytcenter.getPage();return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch" && p !== "channel") || (ytcenter.settings.flexWidthOnChannelPage && p === "channel")}},
       {groups: ["player-branding"], element: function(){return document.body;}, className: "ytcenter-branding-remove-banner", condition: function(loc){return ytcenter.settings.removeBrandingBanner;}},
@@ -22719,7 +22777,19 @@
           return;
         }
         
+        if (page === "watch") {
+          var description = document.getElementById("watch-description"),
+            headline = document.getElementById("watch7-headline");
+          if (description && ytcenter.settings.expandDescription) {
+            ytcenter.utils.removeClass(description, "yt-uix-expander-collapsed");
+          }
+          if (headline && ytcenter.settings.headlineTitleExpanded) {
+            ytcenter.utils.removeClass(headline, "yt-uix-expander-collapsed");
+          }
+        }
+        
         ytcenter.gridview.update();
+        
         // Checking if the correct settings were applied and if not correct them and forcing a refresh of the page.
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         if (page !== "embed") {
@@ -23377,6 +23447,15 @@
           if (ytcenter.settings.lightbulbAutoOff)
             ytcenter.player.turnLightOff();
           ytcenter.guideMode.setup();
+          
+          var description = document.getElementById("watch-description"),
+            headline = document.getElementById("watch7-headline");
+          if (description && ytcenter.settings.expandDescription) {
+            ytcenter.utils.removeClass(description, "yt-uix-expander-collapsed");
+          }
+          if (headline && ytcenter.settings.headlineTitleExpanded) {
+            ytcenter.utils.removeClass(headline, "yt-uix-expander-collapsed");
+          }
           
           ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": false });
           if (ytcenter.settings["resize-default-playersize"] === "default") {
