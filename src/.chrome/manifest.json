@@ -9,14 +9,10 @@
       "matches": [
         "http://*.youtube.com/*",
         "https://*.youtube.com/*",
-        "http://userscripts.org/scripts/source/114002.meta.js",
-        "http://s.ytimg.com/yts/jsbin/*",
-        "https://s.ytimg.com/yts/jsbin/*",
         "http://apis.google.com/*/widget/render/comments?*",
         "https://apis.google.com/*/widget/render/comments?*",
         "http://plus.googleapis.com/*/widget/render/comments?*",
-        "https://plus.googleapis.com/*/widget/render/comments?*",
-        "https://github.com/YePpHa/YouTubeCenter/blob/master/devbuild.number"
+        "https://plus.googleapis.com/*/widget/render/comments?*"
       ],
       "exclude_matches": [
         "http://apiblog.youtube.com/*",
@@ -37,10 +33,8 @@
     "unlimited_storage",
     "http://*.youtube.com/*",
     "https://*.youtube.com/*",
-    "http://apis.google.com/*/widget/render/comments?*",
-    "https://apis.google.com/*/widget/render/comments?*",
-    "http://plus.googleapis.com/*/widget/render/comments?*",
-    "https://plus.googleapis.com/*/widget/render/comments?*",
+    "http://s.ytimg.com/yts/jsbin/*",
+    "https://s.ytimg.com/yts/jsbin/*",
     "https://raw.github.com/YePpHa/YouTubeCenter/master/*"
   ],
   "icons": {"16": "assets/icon16.png",
