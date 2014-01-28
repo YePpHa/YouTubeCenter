@@ -22691,7 +22691,7 @@
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(page){
         if (ytcenter.settings.useSecureProtocol && page !== "comments") {
           if (loc.href.indexOf("http://") === 0) {
-            loc.href = loc.href.replace(/^http/, "https");
+            loc.replace(loc.href.replace(/^http/, "https"));
             return;
           }
         }
