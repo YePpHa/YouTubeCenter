@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         252
+// @version         253
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -65,7 +65,7 @@
 // @grant           unsafeWindow
 // @updateURL       https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.meta.js
 // @downloadURL     https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.user.js
-// @updateVersion   150
+// @updateVersion   151
 // @run-at          document-start
 // @priority        9001
 // @contributionURL https://github.com/YePpHa/YouTubeCenter/wiki/Donate
@@ -84,7 +84,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 252);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 253);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -3332,7 +3332,7 @@
       };
     })();
     ytcenter.version = "2.1.0";
-    ytcenter.revision = 150;
+    ytcenter.revision = 151;
     ytcenter.icon = {};
     ytcenter.page = "none";
     ytcenter.feather = false;
@@ -23721,7 +23721,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 252, crossUnsafeWindow);
+          main_function(false, 0, true, 253, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -23740,6 +23740,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 0, true, 252, crossUnsafeWindow);
+    main_function(false, 0, true, 253, crossUnsafeWindow);
   }
 })();
