@@ -2557,7 +2557,7 @@
       };
     }
     
-    if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*)|(dl\.dropbox\.com\/u/13162258/YouTube%20Center/(.*))|(userscripts\.org/scripts/source/114002\.meta\.js))$", "")).test(loc.href)
+    if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*))$", "")).test(loc.href)
       && !(new RegExp("http(s)?://apis\.google\.com/.*", "")).test(loc.href)
       && !(new RegExp("http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
       || (new RegExp("http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
@@ -2774,7 +2774,8 @@
       var __r = {},
         M = null,
         setup = false,
-        disconnects = [];
+        disconnects = [],
+        disconnected = false;
       __r.fallbackObserve = function(target, options, callback){
         function MutationRecord(record) {
           this.addedNodes = record.addedNodes || null;
@@ -2852,7 +2853,7 @@
           characterDataModified = null;
           subtreeModified = false;
           
-          if (failsafe) {
+          if (failsafe && !disconnected) {
             addListeners();
           }
         }
@@ -2902,6 +2903,7 @@
           }
         }
         function removeListeners() {
+          disconnected = true;
           if (options.childList) {
             ytcenter.utils.removeEventListener(target, "DOMNodeInserted", DOMNodeInserted, false);
             ytcenter.utils.removeEventListener(target, "DOMNodeRemoved", DOMNodeRemoved, false);
@@ -2961,7 +2963,7 @@
           
           callback(mutations);
           
-          if (failsafe) {
+          if (failsafe && !disconnected) {
             observer.observe(target, options);
           }
         }
@@ -2978,13 +2980,15 @@
         if (!setup) __r.setup();
         
         if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
-        var observer = new M(mutationCallback);
+        var observer = new M(mutationCallback),
+          disconnected = false;
         observer.observe(target, options);
         return disconnects[disconnects.push({
           target: target,
           options: options,
           callback: callback,
           disconnect: function(){
+            disconnected = true;
             if (observer) observer.disconnect();
           }
         }) - 1];
@@ -4586,7 +4590,7 @@
         if (ytcenter.settings.uploaderCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
           var img = document.createElement("img");
           img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
-          img.className = ytcenter.flags[country.toLowerCase()];
+          img.className = ytcenter.flags[country.toLowerCase()] + " yt-uix-tooltip";
           if (ytcenter.settings.uploaderCountryUseNames) {
             img.setAttribute("alt", countryName || country);
             img.setAttribute("title", countryName || country);
@@ -11187,6 +11191,99 @@
     };
     
     // @utils
+    ytcenter.utils.live = (function(){
+      function getElements(query) {
+        return document.querySelectorAll(query);
+      }
+      function isElementParent(el, parent) {
+        var found = false;
+        while (el && !(found = el === parent)) el = el.parentElement;
+        return found;
+      }
+      function handleElements(elements, e, listener) {
+        var i;
+        for (i = 0; i < elements.length; i++) {
+          if (isElementParent(e.target, elements[i]) && typeof listener.listener === "function") {
+            listener.listener.call(e.target, e);
+          }
+        }
+      }
+      function onListener(e) {
+        var i;
+        e = e || win.event;
+        
+        for (i = 0; i < listeners.length; i++) {
+          if (listeners[i].type === e.type) {
+            handleElements(getElements(listeners[i].query), e, listeners[i]);
+          }
+        }
+      }
+      function shutdown() {
+        listeners = [];
+        var i;
+        for (i = 0; i < events.length; i++) {
+          shutdownEvent(events[i]);
+        }
+        events = [];
+      }
+      function shutdownEvent(event) {
+        document.removeEventListener(event, onListener, false);
+      }
+      function setupEvent(event) {
+        if (!isEventInitialized(event)) {
+          document.addEventListener(event, onListener, false);
+        }
+      }
+      function clean(event) {
+        var i;
+        for (i = 0; i < listeners.length; i++) {
+          if (listeners[i].type === event) {
+            return;
+          }
+        }
+        
+        shutdownEvent(event);
+        for (i = 0; i < events.length; i++) {
+          if (events[i] === event) {
+            events.splice(i, 1);
+            break;
+          }
+        }
+      }
+      function isEventInitialized(event) {
+        var i;
+        for (i = 0; i < events.length; i++) {
+          if (events[i] === event)
+            return true;
+        }
+        return false;
+      }
+      function addEventListener(type, query, listener) {
+        setupEvent(type);
+        listeners.push({
+          type: type,
+          query: query,
+          listener: listener
+        });
+      }
+      function removeEventListener(type, query, listener) {
+        var i;
+        for (i = 0; i < listeners.length; i++) {
+          if (type === listeners[i].type && query === listeners[i].query && listener === listeners[i].listener) {
+            listeners.splice(i, 1);
+            return;
+          }
+        }
+      }
+      var listeners = [],
+        events = [];
+      
+      return {
+        add: addEventListener,
+        rem: removeEventListener,
+        unload: shutdown
+      };
+    })();
     ytcenter.utils.setZeroTimeout = (function(){
       function setZeroTimeout(fn) {
         timeouts.push(fn);
@@ -18599,6 +18696,17 @@
         feed = feed || getFeed();
         return (loc.pathname.indexOf("/feed/subscriptions") === 0 && ytcenter.settings.gridSubscriptionsPage) || (getFeedType(feed) === "collection" && ytcenter.settings.gridCollectionPage);
       }
+      function delayedUpdate() {
+        con.log("[GridView] delayedUpdate called...");
+        if (loc.pathname.indexOf("/feed/") === 0) {
+          var feed = getFeed(),
+          observer = ytcenter.mutation.observe(feed, { childList: true, subtree: true }, function(){
+            con.log("[GridView] Mutation Observed... disconnecting!");
+            update();
+            observer.disconnect();
+          });
+        }
+      }
       function update() {
         if (loc.pathname.indexOf("/feed/") === 0) {
           var feed = getFeed();
@@ -18638,6 +18746,7 @@
         
       return {
         update: update,
+        delayedUpdate: delayedUpdate,
         isEnabled: isEnabled
       };
     })();
@@ -22740,6 +22849,19 @@
           ytcenter.utils.addClass(document.body, dir);
           
           ytcenter.ltr = (dir === "ltr");
+          
+          /*** Add a separate section for this!
+          ytcenter.utils.live.add("click", "button.yt-uix-button", function(e){
+            var el = null,
+              i;
+            for (i = 0; i < this.children.length; i++) {
+              if (this.children[i].className.indexOf("yt-uix-button-menu") !== -1) {
+                el = this.children[i];
+                break;
+              }
+            }
+            
+          });*/
         } else if (!ytcenter.utils.hasClass(document.body, "ltr")) {
           ytcenter.ltr = false;
         }
@@ -22751,6 +22873,7 @@
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         if (loc.href.indexOf(".youtube.com/embed/") === -1) {
+          ytcenter.utils.live.add("click", "body.ytcenter-gridview #feed .feed-container button.feed-load-more", ytcenter.gridview.delayedUpdate);
           if (!ytcenter.welcome.hasBeenLaunched())
             ytcenter.welcome.setVisibility(true);
         }
@@ -23440,7 +23563,7 @@
           }
         }
         
-        ytcenter.thumbnail.update();
+        ytcenter.thumbnail.setup();
         
         if (url.pathname !== "/watch") {
           if (ytcenter.getPage(url.href) === "feed_what_to_watch") {
@@ -23580,7 +23703,7 @@
     }
   })();
   
-  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && @identifier@ !== 2) {
+  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && @identifier@ !== 2 && @identifier@ !== 4) {
     try {
       if (crossUnsafeWindow === window) {
         window.addEventListener("message", function(e){
