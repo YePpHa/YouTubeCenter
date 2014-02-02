@@ -37,6 +37,7 @@
 // @domain          plus.googleapis.com
 // @domain          googleapis.com
 // @domain          raw.github.com
+// @domain          raw2.github.com
 // @domain          s.ytimg.com
 // @match           http://*.youtube.com/*
 // @match           https://*.youtube.com/*
@@ -44,7 +45,6 @@
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @match           https://raw.github.com/YePpHa/YouTubeCenter/master/*
-// @match           https://raw.github.com/YePpHa/YouTubeCenter/master/devbuild.number
 // @match           http://apis.google.com/*/widget/render/comments?*
 // @match           https://apis.google.com/*/widget/render/comments?*
 // @match           http://plus.googleapis.com/*/widget/render/comments?*
