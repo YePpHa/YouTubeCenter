@@ -33,7 +33,7 @@
       }
     ]
   }, {
-    "codes": ["LlWIQlLwL_Y"],
+    "codes": [ "LlWIQlLwL_Y" ],
     "screenshots": [
       "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/experimental_layout2/screenshot1.jpg",
       "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/experimental_layout2/screenshot2.jpg",
@@ -57,7 +57,7 @@
       }, {
         "raw": "The YouTube configuration button is now located beside the upload button."
       }, {
-        raw: "The header for the watch page is now smaller."
+        "raw": "The header for the watch page is now smaller."
       }
     ]
   }
