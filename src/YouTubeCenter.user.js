@@ -8374,7 +8374,7 @@
         }
         return false;
       }
-      function mousedownListener() {
+      function mousedownListener(e) {
         if (mousedown) return;
         mousedown = true;
         
@@ -8431,8 +8431,10 @@
       
       ytcenter.utils.addEventListener(wrapper, "mousedown", mousedownListener);
       ytcenter.utils.addEventListener(document, "mouseup", mouseupListener);
+      
       ytcenter.utils.addEventListener(wrapper, "touchstart", mousedownListener);
       ytcenter.utils.addEventListener(document, "touchend", mouseupListener);
+      
       /*throttleFunc = ytcenter.utils.throttle(mousemove, 50);
       ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);*/
       ytcenter.events.addEvent("settings-update", function(){
@@ -9373,6 +9375,7 @@
         mousedown = false;
         if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
         if (throttleFunc) ytcenter.utils.removeEventListener(document, "touchmove", throttleFunc, false);
+        
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
