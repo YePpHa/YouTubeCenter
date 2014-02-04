@@ -9265,6 +9265,11 @@
         var offset = ytcenter.utils.getOffset(wrapper),
             scrollOffset = ytcenter.utils.getScrollOffset(),
             v, l;
+        
+        if (e && e.type.indexOf("touch") !== -1 && e.changedTouches && e.changedTouches.length > 0 && e.changedTouches[0]) {
+          e = e.changedTouches[0];
+        }
+        
         if (options.method === "vertical") {
           offset.top += options.offset;
           v = e.pageY - scrollOffset.top - offset.top;
@@ -9298,6 +9303,57 @@
         }
         return false;
       }
+      function initListeners() {
+        /* Mouse */
+        ytcenter.utils.addEventListener(wrapper, "mousedown", mousedownListener);
+        ytcenter.utils.addEventListener(document, "mouseup", mouseupListener);
+        
+        /* Touch */
+        ytcenter.utils.addEventListener(wrapper, "touchstart", mousedownListener);
+        ytcenter.utils.addEventListener(document, "touchend", mouseupListener);
+      }
+      function unloadListeners() {
+        /* Mouse */
+        ytcenter.utils.removeEventListener(wrapper, "mousedown", mousedownListener);
+        ytcenter.utils.removeEventListener(document, "mouseup", mouseupListener);
+        
+        /* Touch */
+        ytcenter.utils.removeEventListener(wrapper, "touchstart", mousedownListener);
+        ytcenter.utils.removeEventListener(document, "touchend", mouseupListener);
+      }
+      
+      function mouseupListener(e) {
+        if (!mousedown) return;
+        mousedown = false;
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "touchmove", throttleFunc, false);
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
+      
+      function mousedownListener(e) {
+        if (mousedown) return;
+        mousedown = true;
+        
+        eventToValue(e);
+        if (bCallback) bCallback(options.value);
+        
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
+        ytcenter.utils.addEventListener(document, "touchmove", throttleFunc, false);
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
+      
       var options = ytcenter.utils.mergeObjects({
                       value: 0,
                       min: 0,
@@ -9341,34 +9397,8 @@
       setValue(options.value);
       update();
       
-      ytcenter.utils.addEventListener(wrapper, "mousedown", function(e){
-        if (mousedown) return;
-        mousedown = true;
-        
-        eventToValue(e);
-        if (bCallback) bCallback(options.value);
-        
-        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
-        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
-        
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      ytcenter.utils.addEventListener(document, "mouseup", function(e){
-        if (!mousedown) return;
-        mousedown = false;
-        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
+      initListeners();
+      
       return {
         element: wrapper,
         bind: function(callback){
