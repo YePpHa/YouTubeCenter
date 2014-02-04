@@ -1332,6 +1332,11 @@
     function $SlideRange(elm, handle, min, max, defaultValue) {
       function mousemove(e){
         if (range.mouse.down) {
+          e.preventDefault();
+          
+          if (e && e.type.indexOf("touch") !== -1 && e.changedTouches && e.changedTouches.length > 0 && e.changedTouches[0]) {
+            e = e.changedTouches[0];
+          }
           var pos = e.clientX - $AbsoluteOffset(range.elm)[0] - range.handle.offsetWidth/2;
           var max = range.elm.clientWidth - range.handle.offsetWidth;
           if (pos > max) {
@@ -1348,8 +1353,54 @@
               range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
             }
           }
+        }
+      }
+      function mousedownListener(e){
+        range.mouse.down = true;
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
+        ytcenter.utils.addEventListener(document, "touchmove", throttleFunc, false);
+        e.preventDefault();
+      }
+      function mouseupListener(e){
+        if (range.mouse.down) {
+          range.mouse.down = false;
+          e.stopPropagation();
+          for (var i = 0; i < range.listeners.length; i++) {
+            if (range.listeners[i].e === 'change') {
+              var max = range.elm.clientWidth - range.handle.offsetWidth;
+              var a = range.max - range.min;
+              range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
+            }
+          }
+          if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
+          if (throttleFunc) ytcenter.utils.removeEventListener(document, "touchmove", throttleFunc, false);
           e.preventDefault();
         }
+      }
+      function clickListener(e) {
+        var a;
+        var pos = e.clientX - $AbsoluteOffset(range.elm)[0] - range.handle.offsetWidth/2;
+        var max = range.elm.clientWidth - range.handle.offsetWidth;
+        if (pos > max) {
+          pos = max;
+        } else if (pos < 0) {
+          pos = 0;
+        }
+        range.handle.style.left = pos + "px";
+        
+        for (var i = 0; i < range.listeners.length; i++) {
+          if (range.listeners[i].e === 'valuechange') {
+            max = range.elm.clientWidth - range.handle.offsetWidth;
+            a = range.max - range.min;
+            range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
+          } else if (range.listeners[i].e === 'change') {
+            max = range.elm.clientWidth - range.handle.offsetWidth;
+            a = range.max - range.min;
+            range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
+          }
+        }
+        e.preventDefault();
       }
       var range = {
         elm: elm,
@@ -1408,51 +1459,14 @@
       
       returnKit.setValue(range.defaultValue);
       
-      elm.addEventListener("click", function(e){
-        var a;
-        var pos = e.clientX - $AbsoluteOffset(range.elm)[0] - range.handle.offsetWidth/2;
-        var max = range.elm.clientWidth - range.handle.offsetWidth;
-        if (pos > max) {
-          pos = max;
-        } else if (pos < 0) {
-          pos = 0;
-        }
-        range.handle.style.left = pos + "px";
-        
-        for (var i = 0; i < range.listeners.length; i++) {
-          if (range.listeners[i].e === 'valuechange') {
-            max = range.elm.clientWidth - range.handle.offsetWidth;
-            a = range.max - range.min;
-            range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
-          } else if (range.listeners[i].e === 'change') {
-            max = range.elm.clientWidth - range.handle.offsetWidth;
-            a = range.max - range.min;
-            range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
-          }
-        }
-        e.preventDefault();
-      }, false);
-      ytcenter.utils.addEventListener(elm, "mousedown", function(e){
-        range.mouse.down = true;
-        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
-        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
-        e.preventDefault();
-      }, false);
-      ytcenter.utils.addEventListener(document, "mouseup", function(e){
-        if (range.mouse.down) {
-          range.mouse.down = false;
-          e.stopPropagation();
-          for (var i = 0; i < range.listeners.length; i++) {
-            if (range.listeners[i].e === 'change') {
-              var max = range.elm.clientWidth - range.handle.offsetWidth;
-              var a = range.max - range.min;
-              range.listeners[i].c(parseFloat(range.handle.style.left)/max*a+range.min);
-            }
-          }
-          if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
-          e.preventDefault();
-        }
-      }, false);
+      elm.addEventListener("click", clickListener, false);
+      /* Mouse */
+      ytcenter.utils.addEventListener(elm, "mousedown", mousedownListener, false);
+      ytcenter.utils.addEventListener(document, "mouseup", mouseupListener, false);
+      
+      /* Touch */
+      ytcenter.utils.addEventListener(elm, "touchstart", mousedownListener, false);
+      ytcenter.utils.addEventListener(document, "touchend", mouseupListener, false);
       
       return returnKit;
     }
@@ -1460,7 +1474,15 @@
     function $DragList(elements, ignore) {
       function mousemove(e) {
         if (!dragging || disabled) return;
-        e.preventDefault();
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        
+        if (e && e.type.indexOf("touch") !== -1 && e.changedTouches && e.changedTouches.length > 0 && e.changedTouches[0]) {
+          e = e.changedTouches[0];
+        }
         
         var newX = e.pageX;
         var newY = e.pageY;
@@ -1508,42 +1530,9 @@
             listeners['mousemove'][i](et, holderElement, lastLegalRegion);
           }
         }
-        
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
         return false;
       }
-      
-      var dragging = false;
-      var holderElement;
-      var secureHeightElement = [];
-      var defaultVisibility = "";
-      var et;
-      var disabled = true;
-      var lastLegalRegion;
-      var lastItem;
-      var allowedRegions = elements;
-      var curRelative;
-      var disabler;
-      var throttleFunc = null;
-      
-      var listeners = {};
-      
-      var doIgnore = function(elm) {
-        if (elm == null) return true;
-        if (ignore != null) {
-          for (var i = 0; i < ignore.length; i++) {
-            if (elm == ignore[i])
-              return true;
-          }
-        }
-        return false;
-      };
-      
-      ytcenter.utils.addEventListener(document, "mousedown", function(e){
+      function mousedownListener(e){
         if (disabled || e.button != 0) return;
         var pass = false;
         var reg;
@@ -1614,6 +1603,7 @@
         }
         throttleFunc = ytcenter.utils.throttle(mousemove, 50);
         ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
+        ytcenter.utils.addEventListener(document, "touchmove", throttleFunc, false);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -1621,10 +1611,10 @@
           window.event.returnValue = false;
         }
         return false;
-      }, false);
-      ytcenter.utils.addEventListener(document, "mouseup", function(e){
+      }
+      
+      function mouseupListener(e){
         if (!dragging) return;
-        e.preventDefault();
         dragging = false;
         
         et.style.visibility = defaultVisibility;
@@ -1644,6 +1634,7 @@
           }
         }
         if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "touchmove", throttleFunc, false);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -1651,7 +1642,40 @@
           window.event.returnValue = false;
         }
         return false;
-      }, false);
+      }
+      
+      var dragging = false;
+      var holderElement;
+      var secureHeightElement = [];
+      var defaultVisibility = "";
+      var et;
+      var disabled = true;
+      var lastLegalRegion;
+      var lastItem;
+      var allowedRegions = elements;
+      var curRelative;
+      var disabler;
+      var throttleFunc = null;
+      
+      var listeners = {};
+      
+      var doIgnore = function(elm) {
+        if (elm == null) return true;
+        if (ignore != null) {
+          for (var i = 0; i < ignore.length; i++) {
+            if (elm == ignore[i])
+              return true;
+          }
+        }
+        return false;
+      };
+      
+      ytcenter.utils.addEventListener(document, "mousedown", mousedownListener, false);
+      ytcenter.utils.addEventListener(document, "mouseup", mouseupListener, false);
+      
+      ytcenter.utils.addEventListener(document, "touchstart", mousedownListener, false);
+      ytcenter.utils.addEventListener(document, "touchend", mouseupListener, false);
+      
       return {
         setEnable: function(enable){
           disabled = enable ? false : true;
@@ -7198,10 +7222,21 @@
     ytcenter.dragdrop = function(list){
       function mousemove(e) {
         if (!dragging) return;
-        var t = ytcenter.utils.toParent(e.target, "ytcenter-dragdrop-item");
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        
+        var target = e.target;
+        if (e && e.type.indexOf("touched") !== -1 && e.changedTouches && e.changedTouches.length > 0 && e.changedTouches[0]) {
+          e = e.changedTouches[0];
+        }
+        
+        var t = ytcenter.utils.toParent(target, "ytcenter-dragdrop-item");
         if (t === draggingElement || t === document.body || typeof t === "undefined") return;
         
-        var offset = ytcenter.utils.getOffset(e.target, t);
+        var offset = ytcenter.utils.getOffset(target, t);
         var top = (typeof e.offsetY === "undefined" ? e.layerY : e.offsetY) + offset.top;
         
         if (top > t.clientHeight/2) {
@@ -7215,6 +7250,51 @@
         ytcenter.utils.each(listeners.onDragging, function(i, callback){
           callback(getItemIndex(draggingElement) /* Current Index */, draggingIndex, draggingElement);
         });
+        return false;
+      }
+      function mousedownListener(e) {
+        if (!ytcenter.utils.hasClass(e.target, "ytcenter-dragdrop-handle")) return;
+        if (!ytcenter.utils.hasChild(list, e.target)) return;
+        draggingElement = ytcenter.utils.toParent(e.target, "ytcenter-dragdrop-item");
+        if (typeof draggingElement === "undefined") return;
+        
+        dragging = true;
+        
+        ytcenter.utils.addClass(draggingElement, "ytcenter-dragdrop-dragging");
+        ytcenter.utils.addClass(list, "ytcenter-dragdrop-indragging");
+        ytcenter.utils.removeClass(list, "ytcenter-dragdrop-notdragging");
+        
+        draggingIndex = getItemIndex(draggingElement);
+        
+        ytcenter.utils.each(listeners.onDrag, function(i, callback){
+          callback(draggingIndex, draggingElement);
+        });
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
+        ytcenter.utils.addEventListener(document, "touchmove", throttleFunc, false);
+        
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
+      function mouseupListener(e) {
+        if (!dragging) return;
+        
+        dragging = false;
+        
+        ytcenter.utils.removeClass(draggingElement, "ytcenter-dragdrop-dragging");
+        ytcenter.utils.removeClass(list, "ytcenter-dragdrop-indragging");
+        ytcenter.utils.addClass(list, "ytcenter-dragdrop-notdragging");
+        
+        ytcenter.utils.each(listeners.onDrop, function(i, callback){
+          callback(getItemIndex(draggingElement) /* Drop Index */, draggingIndex, draggingElement);
+        });
+        
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "touchmove", throttleFunc);
         
         if (e && e.preventDefault) {
           e.preventDefault();
@@ -7243,55 +7323,11 @@
       
       ytcenter.utils.addClass(list, "ytcenter-dragdrop-notdragging");
       
-      ytcenter.utils.addEventListener(list, "mousedown", function(e){
-        if (!ytcenter.utils.hasClass(e.target, "ytcenter-dragdrop-handle")) return;
-        if (!ytcenter.utils.hasChild(list, e.target)) return;
-        draggingElement = ytcenter.utils.toParent(e.target, "ytcenter-dragdrop-item");
-        if (typeof draggingElement === "undefined") return;
-        
-        dragging = true;
-        
-        ytcenter.utils.addClass(draggingElement, "ytcenter-dragdrop-dragging");
-        ytcenter.utils.addClass(list, "ytcenter-dragdrop-indragging");
-        ytcenter.utils.removeClass(list, "ytcenter-dragdrop-notdragging");
-        
-        draggingIndex = getItemIndex(draggingElement);
-        
-        ytcenter.utils.each(listeners.onDrag, function(i, callback){
-          callback(draggingIndex, draggingElement);
-        });
-        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
-        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
-        
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      ytcenter.utils.addEventListener(document, "mouseup", function(e){
-        if (!dragging) return;
-        
-        dragging = false;
-        
-        ytcenter.utils.removeClass(draggingElement, "ytcenter-dragdrop-dragging");
-        ytcenter.utils.removeClass(list, "ytcenter-dragdrop-indragging");
-        ytcenter.utils.addClass(list, "ytcenter-dragdrop-notdragging");
-        
-        ytcenter.utils.each(listeners.onDrop, function(i, callback){
-          callback(getItemIndex(draggingElement) /* Drop Index */, draggingIndex, draggingElement);
-        });
-        
-        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc);
-        
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
+      ytcenter.utils.addEventListener(list, "mousedown", mousedownListener);
+      ytcenter.utils.addEventListener(document, "mouseup", mouseupListener);
+      
+      ytcenter.utils.addEventListener(list, "touchstart", mousedownListener);
+      ytcenter.utils.addEventListener(document, "touchend", mouseupListener);
       
       return {
         addEventListener: function(event, callback){
@@ -8310,6 +8346,10 @@
         wrapper.style.background = ytcenter.utils.hsvToHex(hue, 100, 100);
       }
       function eventToValue(e) {
+        if (e && e.type.indexOf("touched") !== -1 && e.changedTouches && e.changedTouches.length > 0 && e.changedTouches[0]) {
+          e = e.changedTouches[0];
+        }
+        
         var offset = ytcenter.utils.getOffset(wrapper),
             scrollOffset = ytcenter.utils.getScrollOffset(),
             x = Math.max(0, Math.min(e.pageX - offset.left - scrollOffset.left, wrapper.clientWidth)),
@@ -8327,6 +8367,36 @@
         update();
         if (bCallback) bCallback(sat, val);
         
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
+      function mousedownListener() {
+        if (mousedown) return;
+        mousedown = true;
+        
+        eventToValue(e);
+        update();
+        if (bCallback) bCallback(sat, val);
+        
+        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
+        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
+        ytcenter.utils.addEventListener(document, "touchmove", throttleFunc, false);
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        } else {
+          window.event.returnValue = false;
+        }
+        return false;
+      }
+      function mouseupListener(e) {
+        if (!mousedown) return;
+        mousedown = false;
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
+        if (throttleFunc) ytcenter.utils.removeEventListener(document, "touchmove", throttleFunc, false);
         if (e && e.preventDefault) {
           e.preventDefault();
         } else {
@@ -8359,34 +8429,10 @@
       
       wrapper.appendChild(handler);
       
-      ytcenter.utils.addEventListener(wrapper, "mousedown", function(e){
-        if (mousedown) return;
-        mousedown = true;
-        
-        eventToValue(e);
-        update();
-        if (bCallback) bCallback(sat, val);
-        
-        throttleFunc = ytcenter.utils.throttle(mousemove, 50);
-        ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
-      ytcenter.utils.addEventListener(document, "mouseup", function(e){
-        if (!mousedown) return;
-        mousedown = false;
-        if (throttleFunc) ytcenter.utils.removeEventListener(document, "mousemove", throttleFunc, false);
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        } else {
-          window.event.returnValue = false;
-        }
-        return false;
-      });
+      ytcenter.utils.addEventListener(wrapper, "mousedown", mousedownListener);
+      ytcenter.utils.addEventListener(document, "mouseup", mouseupListener);
+      ytcenter.utils.addEventListener(wrapper, "touchstart", mousedownListener);
+      ytcenter.utils.addEventListener(document, "touchend", mouseupListener);
       /*throttleFunc = ytcenter.utils.throttle(mousemove, 50);
       ytcenter.utils.addEventListener(document, "mousemove", throttleFunc, false);*/
       ytcenter.events.addEvent("settings-update", function(){
