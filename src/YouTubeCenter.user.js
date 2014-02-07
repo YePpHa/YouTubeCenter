@@ -18309,7 +18309,8 @@
                   { name: "Petr Vostřel", url: "http://petr.vostrel.cz/" }
                 ],
                 "da": [
-                  { name: "Jeppe Rune Mortensen", url: "https://github.com/YePpHa/YouTubeCenter/wiki" }
+                  { name: "Lasse Olsen" },
+                  { name: "Jeppe Rune Mortensen", url: "https://github.com/YePpHa/" }
                 ],
                 "de": [
                   { name: "Simon Artmann" },
