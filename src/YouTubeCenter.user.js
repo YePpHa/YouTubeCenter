@@ -2740,8 +2740,6 @@
         elm = document.getElementById("watch7-sentiment-actions");
         if (elm && elm.firstChild && elm.firstChild.firstChild && elm.firstChild.firstChild.firstChild)
           return elm.firstChild.firstChild.firstChild;
-        con.log("[ActionPanel:getLikeButton] Could not for some really unexplained reason get a reference to the like button.", elm);
-        
         elm = null;
         
         return null;
@@ -3003,7 +3001,8 @@
         }
         if (!setup) __r.setup();
         
-        if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
+        //if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
+        if (!M) throw "MutationObserver not supported.";
         var observer = new M(mutationCallback),
           disconnected = false;
         observer.observe(target, options);
@@ -19630,6 +19629,8 @@
                 value += parseInt(matches[i], 10);
               } else if (matches[i].indexOf("m") === matches[i].length - 1) {
                 value += parseInt(matches[i], 10) * 60;
+              } else if (matches[i].indexOf("h") === matches[i].length - 1) {
+                value += parseInt(matches[i], 10) * 60 * 60;
               }
             }
           } else {
@@ -20784,7 +20785,7 @@
         if (ytcenter.getPage() !== "watch") return;
         
         if (ytcenter.settings['experimentalFeatureTopGuide']) {
-          maxInsidePlayerWidth = 1003;
+          maxInsidePlayerWidth = 1040;
           ytcenter.player._mastheadHeightListener && ytcenter.player._mastheadHeightListener();
         }
         
@@ -20934,13 +20935,28 @@
         
         if (playlist_el) {
           playlist_el.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
+          if (ytcenter.settings['experimentalFeatureTopGuide'] && large) {
+            playlist_el.style.width = "auto";
+            playlist_el.style.minWidth = "1003px";
+            playlist_el.style.maxWidth = "1040px";
+          } else {
+            playlist_el.style.minWidth = "";
+            playlist_el.style.maxWidth = "";
+          }
         }
         if (player) {
           player.style.position = "";
           player.style.left = "";
           player.style.marginBottom = "";
           if (ytcenter.settings['experimentalFeatureTopGuide']) {
-            player.style.width = (large ? playerWidth : maxInsidePlayerWidth) + "px";
+            player.style.width = (large ? playerWidth + "px" : "auto");
+            if (large) {
+              player.style.maxWidth = "";
+              player.style.minWidth = "";
+            } else {
+              player.style.maxWidth = "1040px";
+              player.style.minWidth = "1003px";
+            }
             if (large && align && playerWidth < maxInsidePlayerWidth) {
               player.style.setProperty("position", "relative", "important");
               player.style.setProperty("left", (-(maxInsidePlayerWidth - playerWidth)/2) + "px", "important");
@@ -23051,7 +23067,7 @@
         
         yt = uw.yt;
         ytcenter.player.onYouTubePlayerReady = function(api){
-          if (ytcenter.spf.inProgress() && ytcenter.player.config) return;
+          if (!ytcenter.player.config) return;
           
           /* Running other onYouTubePlayerReady callbacks */
           if (ytcenter.onYouTubePlayerReady) {
