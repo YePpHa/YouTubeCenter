@@ -305,6 +305,9 @@
     <antcall target="copy" />
     <move todir="${buildDir}/data">
       <fileset dir="${buildDir}" />
+      <mapper>
+        <globmapper from="*.user.js" to="*.js" /> 
+      </mapper>
     </move>
     <copy todir="${buildDir}">
       <fileset dir="${src.firefox}/" />

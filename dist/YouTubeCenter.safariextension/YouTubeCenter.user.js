@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         256
+// @version         257
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -84,7 +84,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 256);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 257);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -2582,9 +2582,9 @@
     }
     
     if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*))$", "")).test(loc.href)
-      && !(new RegExp("http(s)?://apis\.google\.com/.*", "")).test(loc.href)
-      && !(new RegExp("http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
-      || (new RegExp("http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
+      && !(new RegExp("^http(s)?://apis\.google\.com/.*", "")).test(loc.href)
+      && !(new RegExp("^http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
+      || (new RegExp("^http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
       con.log(loc.href + " doesn't match!");
       return;
     }
@@ -22597,13 +22597,13 @@
       if (ftc && ftc.config) {
         if (ytcenter.settings["experimentalFeatureTopGuide"]) {
           if (ftc.config.width === "985px" && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "584px")) {
-            ftc.config.width = "1003px";
+            ftc.config.width = "1040px"; // A size between 1003px and 1040px
             ftc.config.height = "";
           } else {
             con.error("[PlayerSize:Fix] Couldn't change the fit to content to fit the new experimental layout.");
           }
         } else {
-          if (ftc.config.width === "1003px" && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "594px")) {
+          if ((ftc.config.width === "1003px" || ftc.config.width === "1040px") && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "594px")) {
             ftc.config.width = "985px";
             ftc.config.height = "";
           } else {
@@ -23817,7 +23817,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 256, crossUnsafeWindow);
+          main_function(false, 4, true, 257, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -23836,6 +23836,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 4, true, 256, crossUnsafeWindow);
+    main_function(false, 4, true, 257, crossUnsafeWindow);
   }
 })();

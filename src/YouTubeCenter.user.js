@@ -2582,9 +2582,9 @@
     }
     
     if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*))$", "")).test(loc.href)
-      && !(new RegExp("http(s)?://apis\.google\.com/.*", "")).test(loc.href)
-      && !(new RegExp("http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
-      || (new RegExp("http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
+      && !(new RegExp("^http(s)?://apis\.google\.com/.*", "")).test(loc.href)
+      && !(new RegExp("^http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
+      || (new RegExp("^http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
       con.log(loc.href + " doesn't match!");
       return;
     }
@@ -22597,13 +22597,13 @@
       if (ftc && ftc.config) {
         if (ytcenter.settings["experimentalFeatureTopGuide"]) {
           if (ftc.config.width === "985px" && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "584px")) {
-            ftc.config.width = "1003px";
+            ftc.config.width = "1040px"; // A size between 1003px and 1040px
             ftc.config.height = "";
           } else {
             con.error("[PlayerSize:Fix] Couldn't change the fit to content to fit the new experimental layout.");
           }
         } else {
-          if (ftc.config.width === "1003px" && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "594px")) {
+          if ((ftc.config.width === "1003px" || ftc.config.width === "1040px") && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "594px")) {
             ftc.config.width = "985px";
             ftc.config.height = "";
           } else {
