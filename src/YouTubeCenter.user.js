@@ -98,10 +98,19 @@
   }
   function injected_loadSettings(id, key) {
     var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
-    chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "getLocalStorage", "key": key }), function(response) {
-      if (typeof response === "string") response = JSON.parse(response);
-      inject("window.ytcenter.storage.onloaded(" + id + ", " + (response ? (response.data ? (typeof response.data === "string" ? response.data : JSON.stringify(response.data)) : "{}") : {}) + ")");
-    });
+    if (chrome[runtimeOrExtension]) {
+      try {
+        chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "getLocalStorage", "key": key }), function(response) {
+          if (typeof response === "string") response = JSON.parse(response);
+          inject("window.ytcenter.storage.onloaded(" + id + ", " + (response ? (response.data ? (typeof response.data === "string" ? response.data : JSON.stringify(response.data)) : "{}") : {}) + ")");
+        });
+      } catch (e) {
+        console.log(chrome);
+        console.error(e);
+      }
+    } else {
+      console.log(chrome, runtimeOrExtension);
+    }
   }
   function injected_xhr(id, details) {
     var xmlhttp, prop;
@@ -2361,16 +2370,21 @@
       
       
       // Locking "_spf_state".
-      defineLockedProperty(uw, "_spf_state", function(s){
-        var key;
-        for (key in s) {
-          if (s.hasOwnProperty(key)) {
-            state[key] = s[key];
+      try {
+        uw._spf_state = state;
+        defineLockedProperty(uw, "_spf_state", function(s){
+          var key;
+          for (key in s) {
+            if (s.hasOwnProperty(key)) {
+              state[key] = s[key];
+            }
           }
-        }
-      }, function(){
-        return state;
-      });
+        }, function(){
+          return state;
+        });
+      } catch (e) {
+        con.error(e);
+      }
       
       // Making sure that SPF is enabled.
       uw.ytspf = new SPFEnabled(uw.ytspf);
@@ -18916,7 +18930,7 @@
       var api = ytcenter.player.getAPI();
       con.log("[Config Update] Updating as page " + page);
       
-      if (loc.hash.indexOf("t=") !== -1 && typeof config.args.start !== "undefined") {
+      /*if (loc.hash.indexOf("t=") !== -1 && typeof config.args.start !== "undefined") {
         var preventAutoBuffering = ytcenter.player.isPreventAutoBuffering(),
           preventAutoPlay = ytcenter.player.isPreventAutoPlay(),
           onStateChangeCallback = function(state){
@@ -18935,11 +18949,11 @@
         if ((preventAutoBuffering && !ytcenter.html5) || (!preventAutoBuffering && preventAutoPlay)) {
           api.mute();
           ytcenter.player.listeners.addEventListener("onStateChange", onStateChangeCallback);
-          /*if (!preventAutoBuffering && preventAutoPlay) {
+          if (!preventAutoBuffering && preventAutoPlay) {
             api.pauseVideo();
-          }*/
+          }
         }
-      }
+      }*/
       
       if (page === "watch") {
         ytcenter.player.updateResize();
@@ -20017,7 +20031,7 @@
       con.log("[HTML5 Player] Setting player theme to " + theme);
       var light = "light-theme",
           dark = "dark-theme",
-          target = ytcenter.player.getReference().target;
+          target = document.getElementById("movie_player");
       if (target) {
         if (theme === "dark") {
           ytcenter.utils.removeClass(target, light);
