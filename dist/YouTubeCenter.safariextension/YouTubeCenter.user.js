@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         259
+// @version         260
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -84,7 +84,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 259);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 260);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -5983,18 +5983,16 @@
         }
       };
       __r.setupObserver = function(){
-        
-        // Old comment thingy
-        /*if (document.getElementById("content")) {
+        if (document.getElementById("content")) {
           observer = ytcenter.mutation.observe(document.getElementById("content"), { childList: true, subtree: true }, function(){
-            __r.update();
+            ytcenter.gridview.update();
           });
-        }*/
-        if (document.getElementById("guide")) {
+        }
+        /*if (document.getElementById("guide")) {
           observer2 = ytcenter.mutation.observe(document.getElementById("guide"), { childList: true, subtree: true }, function(){
             __r.update();
           });
-        }
+        }*/
       };
       __r.dispose = function(){
         if (observer) {
@@ -23452,7 +23450,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 259, crossUnsafeWindow);
+          main_function(false, 4, true, 260, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -23471,6 +23469,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 4, true, 259, crossUnsafeWindow);
+    main_function(false, 4, true, 260, crossUnsafeWindow);
   }
 })();

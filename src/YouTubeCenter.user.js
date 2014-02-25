@@ -5983,18 +5983,16 @@
         }
       };
       __r.setupObserver = function(){
-        
-        // Old comment thingy
-        /*if (document.getElementById("content")) {
+        if (document.getElementById("content")) {
           observer = ytcenter.mutation.observe(document.getElementById("content"), { childList: true, subtree: true }, function(){
-            __r.update();
+            ytcenter.gridview.update();
           });
-        }*/
-        if (document.getElementById("guide")) {
+        }
+        /*if (document.getElementById("guide")) {
           observer2 = ytcenter.mutation.observe(document.getElementById("guide"), { childList: true, subtree: true }, function(){
             __r.update();
           });
-        }
+        }*/
       };
       __r.dispose = function(){
         if (observer) {
