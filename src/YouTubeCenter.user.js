@@ -5206,7 +5206,11 @@
                 } catch (e) {
                   con.error(e);
                 }
-                callback(item.stream, item.storyboard);
+                if (item.stream) {
+                  callback(item.stream, item.storyboard);
+                } else {
+                  callback("error", null, "Error!");
+                }
               } catch (e) {
                 var msg = "";
                 if (e === "unavailable") {
@@ -5567,7 +5571,11 @@
               "highres": "#fff"
             },
             text, background, color, wrapper = document.createElement("span");
-        if (stream === "error") {
+        if (stream === null) {
+          text = tableQuality["error"];
+          background = tableBackground["error"];
+          color = tableColor["error"];
+        } else if (stream === "error") {
           text = tableQuality[stream];
           background = tableBackground[stream];
           color = tableColor[stream];
@@ -6213,7 +6221,6 @@
       };
       
       __r.broadcast = function(win, origin, token, data){
-        //con.log("[Message:" + loc.href + "] Sent@" + token, data);
         win.postMessage(token + JSON.stringify(data), origin);
       };
       return __r;
@@ -13498,8 +13505,11 @@
             name: ytcenter.storageName
           });
         } else if (identifier === 6) {
+          var data = {};
           con.log("Loading storage_getValue");
-          var data = storage_getValue(ytcenter.storageName) || "{}";
+          if (storage_getValue) {
+            data = storage_getValue(ytcenter.storageName) || "{}";
+          }
           if (data && data !== null) {
             try {
               var loaded = JSON.parse(data);
@@ -13509,6 +13519,7 @@
                 }
               }
             } catch (e) {
+              con.log(data);
               con.error(e);
             }
           }
@@ -22164,7 +22175,10 @@
           }
         ], []);
       } else {
-        document.getElementById("watch7-sentiment-actions").parentNode.insertBefore(ytcd, document.getElementById("watch7-sentiment-actions"));
+        var sentimentActions = document.getElementById("watch7-sentiment-actions");
+        if (sentimentActions && sentimentActions.parentNode && ytcd) {
+          sentimentActions.parentNode.insertBefore(ytcd, sentimentActions);
+        }
         ytcenter.placementsystem.init([
           {
             id: 'watch7-sentiment-actions',
