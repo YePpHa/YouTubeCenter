@@ -85,9 +85,15 @@ function getFirebugConsole(wrappedContentWindow, chromeWindow) {
   }
 }
 
+function callUnsafeJSObject(wrappedContentWindow, callback, rv){
+  if (isWindowClosed(wrappedContentWindow)) return;
+  (new XPCNativeWrapper(wrappedContentWindow, "setTimeout")).setTimeout(function(){ callback(rv); }, 0);
+};
+
 exports["bind"] = bind;
 exports["bindCache"] = bindCache;
 exports["console"] = console;
 exports["isWindowClosed"] = isWindowClosed;
 exports["runAsync"] = runAsync;
 exports["getFirebugConsole"] = getFirebugConsole;
+exports["callUnsafeJSObject"] = callUnsafeJSObject;

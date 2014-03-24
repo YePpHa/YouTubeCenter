@@ -73,8 +73,6 @@ Sandbox.prototype.createSandbox = function(wrappedContentWin, chromeWin, firebug
   sandbox.session_addEventListener = bind(session, "addEventListener", wrappedContentWin);
   sandbox.session_removeEventListener = bind(session, "removeEventListener", wrappedContentWin);
   
-  wrappedContentWin.addEventListener("beforeunload", bind(session, "detachWindowSession", wrappedContentWin));
-  
   return sandbox;
 }
 
