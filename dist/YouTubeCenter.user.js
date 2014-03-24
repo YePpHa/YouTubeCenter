@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         262
+// @version         263
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 262);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 263);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -10609,9 +10609,6 @@
         };
         if (identifier === 6) {
           session_addEventListener("storage", storageHandler);
-          ytcenter.unload(function(){
-            session_removeEventListener("storage", storageHandler);
-          });
         } else if (window.attachEvent) {
           document.attachEvent('onstorage', storageHandler);
           ytcenter.unload(function(){
@@ -23466,7 +23463,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 0, true, 262, crossUnsafeWindow);
+          main_function(false, 0, true, 263, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -23485,6 +23482,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 0, true, 262, crossUnsafeWindow);
+    main_function(false, 0, true, 263, crossUnsafeWindow);
   }
 })();

@@ -10609,9 +10609,6 @@
         };
         if (identifier === 6) {
           session_addEventListener("storage", storageHandler);
-          ytcenter.unload(function(){
-            session_removeEventListener("storage", storageHandler);
-          });
         } else if (window.attachEvent) {
           document.attachEvent('onstorage', storageHandler);
           ytcenter.unload(function(){
