@@ -510,6 +510,11 @@
   text-align: left;
 }
 
+.ytcenter-modules-layoutExperiments ul.layoutExperimentList > li.empty {
+  border-bottom: 0!important;
+  min-height: 0px!important;
+}
+
 .ytcenter-modules-layoutExperiments ul.layoutExperimentList {
   margin-top: 10px;
 }

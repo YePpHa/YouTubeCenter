@@ -27,6 +27,8 @@
 		<array>
 			<string>http://apiblog.youtube.com/*</string>
 			<string>https://apiblog.youtube.com/*</string>
+			<string>http://*.youtube.com/subscribe_embed?*</string>
+			<string>https://*.youtube.com/subscribe_embed?*</string>
 		</array>
 		<key>Scripts</key>
 		<dict>

@@ -6,13 +6,19 @@ var {storage} = require("storage");
 var {session} = require("session");
 var {Request} = require("request");
 
-function Sandbox(urls) {
-  this.regexUrls = urls;
+function Sandbox(whitelist, blacklist) {
+  this.whitelist = whitelist;
+  this.blacklist = blacklist;
 }
 
 Sandbox.prototype.isRunnable = function(url) {
-  for (var i = 0; i < this.regexUrls.length; i++) {
-    if (this.regexUrls[i].test(url + "/")) {
+  for (var i = 0; i < this.blacklist.length; i++) {
+    if (this.blacklist[i].test(url + "/")) {
+      return false;
+    }
+  }
+  for (var i = 0; i < this.whitelist.length; i++) {
+    if (this.whitelist[i].test(url + "/")) {
       return true;
     }
   }
