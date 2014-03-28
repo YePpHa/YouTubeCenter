@@ -4663,9 +4663,10 @@
           user.style.marginLeft = "5px";
           userHeader.insertBefore(countryContainer, user);
         } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
-          countryContainer.style.marginLeft = "5px";
-          if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified")) {
+          if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified") || ytcenter.utils.hasClass(separator, "yt-channel-title-icon-verified")) {
             separator = (ytcenter.feather ? userHeader.children[2] : userHeader.children[3]);
+          } else {
+            countryContainer.style.marginLeft = "5px";
           }
           userHeader.insertBefore(countryContainer, separator);
         } else if (ytcenter.settings.uploaderCountryPosition === "last") {
@@ -7402,7 +7403,13 @@
         unloadEvents(); // Unloading events
         list.innerHTML = ""; // Clearing the list
         if (ytcenter.settings[option.defaultSetting].length === 0) {
-          // Empty
+          var listItem = document.createElement("li");
+          listItem.className = "empty";
+          listItem.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_EMPTY"); // Raw: Description
+          unloadEventList.push(ytcenter.events.addEvent("language-refresh", function(){
+            listItem.textContent = ytcenter.language.getLocale("MODULES_YTEXPERIMENTS_EMPTY");
+          }));
+          list.appendChild(listItem);
         } else {
           for (i = 0; i < ytcenter.settings[option.defaultSetting].length; i++) {
             list.appendChild(createListItem(ytcenter.settings[option.defaultSetting][i]));

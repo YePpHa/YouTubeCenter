@@ -29,6 +29,8 @@
 // @include         https://plus.googleapis.com/*/widget/render/comments?*
 // @exclude         http://apiblog.youtube.com/*
 // @exclude         https://apiblog.youtube.com/*
+// @exclude         http://*.youtube.com/subscribe_embed?*
+// @exclude         https://*.youtube.com/subscribe_embed?*
 // @grant           GM_getValue
 // @grant           GM_setValue
 // @grant           GM_xmlhttpRequest

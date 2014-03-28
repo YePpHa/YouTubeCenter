@@ -61,6 +61,9 @@ function init() {
       [
         /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/,
         /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/
+      ], [
+        /^http(s)?:\/\/apiblog\.youtube\.com\//,
+        /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)subscribe_embed\?/
       ]
     );
     let policy = new PolicyImplementation(filename, e.target.responseText, sandbox.loadScript.bind(sandbox));
