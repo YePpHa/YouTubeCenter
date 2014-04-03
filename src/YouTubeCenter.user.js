@@ -594,7 +594,6 @@
     function $CreateCheckbox(_checked) {
       var checked = _checked || false;
       var cont = document.createElement("span");
-      con.log("Is checked: " + checked + " (" + (checked ? " checked" : "") + ")");
       cont.className = "yt-uix-form-input-checkbox-container" + (checked ? " checked" : "");
       
       var inp = document.createElement("input");
@@ -18495,7 +18494,7 @@
     ytcenter.player = {};
     ytcenter.player.setPlaybackState = (function(){
       function updateState(state, s) {
-        con.log(arguments);
+        con.log("[Player:setPlaybackState] Preferred state: " + state + ", current state: " + s);
         var api = ytcenter.player.getAPI();
         if (s === 1) {
           if (state === 0) {
@@ -18510,6 +18509,15 @@
             !ytcenter.settings.mute && api.isMuted && api.unMute();
           }
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
+        } else if (s <= 0 && state === 2) {
+          api.mute();
+          
+          api.playVideo();
+          api.pauseVideo();
+          
+          !ytcenter.settings.mute && api.isMuted && api.unMute();
+          
+          ytcenter.player.listeners.removeEventListener("onStateChange", listener);
         }
       }
       function setState(state) {
@@ -18517,6 +18525,9 @@
         
         con.log("[Player:setPlaybackState] State is changed to " + state);
         
+        if (listener !== null) {
+          ytcenter.player.listeners.removeEventListener("onStateChange", listener);
+        }
         listener = ytcenter.utils.bindArgument(updateState, state);
         ytcenter.player.listeners.addEventListener("onStateChange", listener);
         
