@@ -6215,7 +6215,9 @@
       __r.listen = function(win, origin, token, callback){
         ytcenter.utils.addEventListener(win || uw, "message", function(e){
           if (origin && e.origin !== origin) return;
-          if (!e || !e.data || e.data.indexOf(token) !== 0) return; // Checking if the token is correct
+          if (!e || !e.data) return; // Checking if data is present
+          if (typeof e.data !== "string") return; // Checking if the object is a string.
+          if (!e.data.indexOf || e.data.indexOf(token) !== 0) return; // Checking if the token is present at the start of the string
           
           var data = JSON.parse(e.data.substring(token.length));
           //con.log("[Message:" + loc.href + "] Listen@" + token, data);
@@ -22347,8 +22349,9 @@
       uw.addEventListener("message", function(e){
         if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
           return;
-        if (e.data.indexOf("YouTubeCenter") !== 0)
-          return;
+        if (!e || !e.data) return; // Checking if data is present
+        if (typeof e.data !== "string") return; // Checking if the object is a string.
+        if (!e.data.indexOf || e.data.indexOf("YouTubeCenter") !== 0) return; // Checking if the token is present at the start of the string
         var d = JSON.parse(e.data.substring(13));
         if (d.type === "saveSettings") {
           ytcenter.saveSettings();
@@ -23456,7 +23459,10 @@
     try {
       if (crossUnsafeWindow === window) {
         window.addEventListener("message", function(e){
-          if (!e.data || e.data.indexOf("{") !== 0) return;
+          if (!e || !e.data) return; // Checking if data is present
+          if (typeof e.data !== "string") return; // Checking if the object is a string.
+          if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
+          
           var d = JSON.parse(e.data);
           if (d.method === "CrossOriginXHR") {
             injected_xhr(d.id, d.arguments[0]); // id, details
