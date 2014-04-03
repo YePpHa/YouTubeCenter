@@ -12135,6 +12135,14 @@
       }
       return [calcWidth, calcHeight];
     };
+    ytcenter.utils.bindArgument = function(a, b) {
+      var sargs = Array.prototype.splice.call(arguments, 2, arguments.length);
+      return function() {
+        var args = Array.prototype.slice.call(sargs);
+        Array.prototype.push.apply(args, arguments);
+        return a.call.apply(a.bind, args);
+      };
+    };
     ytcenter.utils.bind = function(a, b){
       return a.call.apply(a.bind, arguments);
     };
@@ -18486,8 +18494,8 @@
     
     ytcenter.player = {};
     ytcenter.player.setQuality = (function(){
-      function stateChange(state) {
-        var api = ytcenter.player.getAPI();
+      function stateChange(vq, state) {
+        api = ytcenter.player.getAPI();
         if (api) {
           if (state === 1 && step === 0) {
             step = 1;
@@ -18505,15 +18513,17 @@
           }
         }
       }
-      function addStateListener() {
-        ytcenter.player.listeners.addEventListener("onStateChange", stateChange);
+      function addStateListener(vq) {
+        ytcenter.player.listeners.addEventListener("onStateChange", ytcenter.utils.bind(stateChange, vq));
         addedListener = true;
       }
-      function removeStateListener() {
-        ytcenter.player.listeners.removeEventListener("onStateChange", stateChange);
+      function removeStateListener(vq) {
+        ytcenter.player.listeners.removeEventListener("onStateChange", ytcenter.utils.bind(stateChange, vq));
         addedListener = false;
       }
-      function reloadQuality() {
+      function reloadQuality(vq) {
+        api = ytcenter.player.getAPI();
+        
         /* Forcing the quality */
         step = 0; /* Starting the hack */
         if (!addedListener) {
@@ -18521,23 +18531,27 @@
         }
         /* Checking if the player is already playing the video. If that's the case then execute the stateChange with state set to 1 */
         if (api.getPlayerState() === 1) {
-          stateChange(1);
+          stateChange(vq, 1);
         }
       }
-      var addedListener = false,
-        step = -1;
-      
-      return function(vq) {
-        var api = ytcenter.player.getAPI();
+      function setQuality(vq) {
+        api = ytcenter.player.getAPI();
         if (api) {
-          con.log("[Player] Setting quality to " + vq);
+          con.log("[Player:SetQuality] Setting quality to " + vq);
+          
           api.setPlaybackQuality(vq); /* Setting the preferred quality. */
-          reloadQuality();
+          //reloadQuality(vq);
         } else {
           con.log("[Player:SetQuality] API not ready!");
         }
       }
-    });
+      
+      var addedListener = false;
+      var step = -1;
+      var api = null;
+      
+      return setQuality;
+    })();
     ytcenter.player.isPreventAutoPlay = function(){
       var notFocused = document && document.hasFocus && typeof document.hasFocus === "function" && !document.hasFocus(),
         preventAutoPlay = false,
@@ -18975,15 +18989,8 @@
       
       if (page === "watch") {
         ytcenter.player.updateResize();
-        
         if (ytcenter.settings.enableAutoVideoQuality) {
-          if (api.getPlaybackQuality && api.getPlaybackQuality() !== config.args.vq || config.args.vq === "auto") {
-            if (config.args.vq === "auto") {
-              config.args.vq = ytcenter.settings.autoVideoQuality;
-            }
-            con.log("[Quality Playback] Setting quality " + api.getPlaybackQuality() + " to " + config.args.vq);
-            ytcenter.player.setQuality(config.args.vq);
-          }
+          ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false)));
         }
         
         if (api.getVolume && api.getVolume() !== ytcenter.settings.volume && ytcenter.settings.enableVolume) {
@@ -19413,10 +19420,8 @@
           config.args.dashmpd = "";
         }
         if (ytcenter.settings.enableAutoVideoQuality) {
-          var vq = ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
-          con.log("[Player Quality] => " + ytcenter.settings.autoVideoQuality + " => " + vq);
-          config.args.vq = vq;
-          config.args.suggestedQuality = vq;
+          // This does not work with the HTML5 player anymore.
+          config.args.vq = ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
         }
         if (config.args.dash === "1" && config.args.adaptive_fmts) {
           ytcenter.player.setRatio(ytcenter.player.calculateRatio(true));
@@ -19537,7 +19542,6 @@
         if (ytcenter.settings.embed_enableAutoVideoQuality) {
           var vq = ytcenter.player.getQuality(ytcenter.settings.embed_autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
           config.args.vq = vq;
-          config.args.suggestedQuality = vq;
         }
         if (!ytcenter.settings.embed_enableAnnotations) {
           config.args.iv_load_policy = 3;
@@ -19579,7 +19583,6 @@
         if (ytcenter.settings.channel_enableAutoVideoQuality) {
           var vq = ytcenter.player.getQuality(ytcenter.settings.channel_autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
           config.args.vq = vq;
-          config.args.suggestedQuality = vq;
         }
         
         if (ytcenter.settings.removeAdvertisements) {
@@ -21182,65 +21185,6 @@
       return ytcenter.player.getQualityByDimensionHTML5(size[0], size[1]);
     };
     ytcenter.player.qualities = ["highres", "hd1440", "hd1080", "hd720", "large", "medium", "small", "tiny", "auto"];
-    /*ytcenter.player.convertDimensionToQuality = function(size){
-      if (!size) return "auto";
-      var tabel = {
-            auto: [0, 0],
-            tiny: [256, 144],
-            light: [426, 240],
-            small: [426, 240],
-            medium: [640, 360],
-            large: [854, 480],
-            hd720: [1280, 720],
-            hd1080: [1920, 1080],
-            hd1440: [2560, 1440],
-            highres: [3840, 2160]
-          },
-          i, tabelEntry, width, height;
-      
-      size = size.split("x");
-      width = size[0];
-      height = size[1];
-      
-      for (i = 0; i < ytcenter.player.qualities.length; i++) {
-        tabelEntry = tabel[ytcenter.player.qualities[i]];
-        if (width > tabelEntry[0] && height >= tabelEntry[1] || width >= tabelEntry[0] && height > tabelEntry[1]) {
-          return ytcenter.player.qualities[i - 1];
-        }
-      }
-      return "auto";
-    };*/
-    
-    ytcenter.player.fixPreferredQuality_timer = null;
-    ytcenter.player.fixPreferredQualityUpdate = function(){
-      if (ytcenter.player.fixPreferredQuality_timer !== null) {
-        uw.clearInterval(ytcenter.player.fixPreferredQuality_timer);
-        ytcenter.player.fixPreferredQuality_timer = null;
-      }
-    };
-    ytcenter.player.fixPreferredQuality = function(){
-      function updateQuality(){
-        if (ytcenter.player.fixPreferredQuality_timer === null) return;
-        if (api.getPlaybackQuality() !== ytcenter.player.config.args.vq) {
-          if (priorityIndex < priority.length) {
-            priorityIndex = priorityIndex + 1;
-            ytcenter.player.setQuality(priority[priorityIndex]);
-          } else {
-            ytcenter.player.fixPreferredQualityUpdate();
-          }
-        } else {
-          ytcenter.player.fixPreferredQualityUpdate();
-        }
-      }
-      var api = ytcenter.player.getAPI(),
-        priority = ["highres", "hd1440", "hd1080", "hd720", "large", "medium", "small", "tiny", "auto"],
-        i = 0,
-        priorityIndex = $ArrayIndexOf(priority, ytcenter.player.config.args.vq);
-      if (ytcenter.html5) {
-        ytcenter.player.fixPreferredQuality_timer = uw.setInterval(updateQuality, 100);
-        updateQuality();
-      }
-    };
     ytcenter.player.getQuality = function(vq, streams, dash){
       var _vq = "auto", priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'],
           a = document.createElement("video"), cpt = a && a.canPlayType,
@@ -21284,8 +21228,7 @@
         }
       }
       
-      con.log("[getQuality] => " + _vq);
-      
+      con.log("[Player:getQuality] Most preferred available quality: " + _vq);
       return _vq;
     };
     ytcenter.player.parseThumbnailStream = function(specs){
@@ -22823,22 +22766,13 @@
             }
           }
         };
-        ytcenter.player.listeners.addEventListener("onPlaybackQualityChange", function(quality){
+        /*ytcenter.player.listeners.addEventListener("onPlaybackQualityChange", function(quality){
           ytcenter.player.fixPreferredQualityUpdate(quality);
-        });
+        });*/
         ytcenter.player.listeners.addEventListener("onReady", function(api){
-          var config = ytcenter.player.getConfig();
-          
-          if (config && config.args && api && api.getPlaybackQuality && api.setPlaybackQuality) {
-            if (ytcenter.settings.enableAutoVideoQuality) {
-              if (api.getPlaybackQuality && api.getPlaybackQuality() !== config.args.vq || config.args.vq === "auto") {
-                if (config.args.vq === "auto") {
-                  config.args.vq = ytcenter.settings.autoVideoQuality;
-                }
-                con.log("[Quality Playback] Setting quality " + api.getPlaybackQuality() + " to " + config.args.vq);
-                ytcenter.player.fixPreferredQuality();
-              }
-            }
+          var config = ytcenter.player.getConfig();          
+          if (ytcenter.settings.enableAutoVideoQuality) {
+            ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false)));
           }
         });
         ytcenter.unsafe.player = ytcenter.unsafe.player || {};
