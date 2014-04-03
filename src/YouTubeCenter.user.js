@@ -18530,6 +18530,7 @@
       return function(vq) {
         var api = ytcenter.player.getAPI();
         if (api) {
+          con.log("[Player] Setting quality to " + vq);
           api.setPlaybackQuality(vq); /* Setting the preferred quality. */
           reloadQuality();
         } else {
