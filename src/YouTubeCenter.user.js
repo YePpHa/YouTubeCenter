@@ -10908,9 +10908,10 @@
     })();
     ytcenter.experiments = {};
     ytcenter.experiments.isTopGuide = function(){
-      if (ytcenter.utils.hasClass(document.body, "site-as-giant-card") || ytcenter.utils.hasClass(document.body, "guide-pinning-enabled"))
+      return true;
+      /*if (ytcenter.utils.hasClass(document.body, "site-as-giant-card") || ytcenter.utils.hasClass(document.body, "guide-pinning-enabled"))
         return true;
-      return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");
+      return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");*/
     };
     ytcenter.experiments.isFixedTopbar = function(){
       return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
@@ -13803,7 +13804,7 @@
           return;
         }
         // If it's the Chrome/Opera addon and the browser is Opera, or if it's the Firefox addon it will not check for updates!
-        if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
+        if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6 || identifier === 8) {
           con.log("[UpdateChecker] UpdateChecker has been disabled!");
           if (typeof disabled == "function")
             disabled();
@@ -16786,6 +16787,7 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Placement"
           );
+          if (identifier === 8) option.setVisibility(false);
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "enableRepeat",
@@ -17661,11 +17663,11 @@
       /* Category:Update */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_UPDATE");
         if (!devbuild) {
-          if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
+          if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6 || identifier === 8) {
             cat.setVisibility(false);
           }
           ytcenter.events.addEvent("ui-refresh", function(){
-            if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6) {
+            if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6 || identifier === 8) {
               this.setVisibility(false);
             } else {
               this.setVisibility(true);
