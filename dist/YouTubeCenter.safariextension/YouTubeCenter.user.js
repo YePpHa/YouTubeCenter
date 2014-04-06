@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         265
+// @version         266
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 265);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 266);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -743,6 +743,7 @@
       return stream;
     }
     function $CreateDownloadButton() {
+      if (identifier === 8) return; // The Chrome Webstore version of YouTube Center has the download feature disabled.
       var g = document.createElement("span");
       g.style.margin = "0 2px 0 0";
       ytcenter.events.addEvent("ui-refresh", function(){
@@ -1911,10 +1912,8 @@
     }
     function PlayerConfig(configSetter, configGetter) {
       defineLockedProperty(this, "config", function(value){
-        con.log("[PlayerConfig] Setting config!", value);
         configSetter(value);
       }, function(){
-        con.log("[PlayerConfig] Getting config!");
         return configGetter();
       });
     }
@@ -13264,7 +13263,7 @@
           id: "default_fit_to_content",
           config: {
             customName: "Fit to Content",
-            width: "985px",
+            width: "1040px",
             height: "",
             large: true,
             align: true,
@@ -16255,6 +16254,7 @@
 
       /* Category:Download */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_DOWNLOAD");
+      if (identifier === 8) cat.setVisibility(false);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
             "downloadQuality",
@@ -16417,7 +16417,6 @@
           );
           option.setModuleStyle("display", "block");
           subcat.addOption(option);
-
       /* Category:Repeat */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_REPEAT");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
@@ -21304,24 +21303,24 @@
     ytcenter.player.setPlayerType = function(type){
       try {
         if (type !== "html5" && type !== "flash") {
-          con.error("[Player setPlayerType] Invalid type: " + type);
+          con.error("[Player:setPlayerType] Invalid type: " + type);
           return;
         }
         if (ytcenter.player.isLiveStream()) {
-          con.log("[Player setPlayerType] Is disabled on live streams!");
+          con.log("[Player:setPlayerType] Is disabled on live streams!");
           return;
         }
         if (ytcenter.player.isOnDemandStream()) {
-          con.log("[Player setPlayerType] Is disabled on live streams!");
+          con.log("[Player:setPlayerType] Is disabled on live streams!");
           return;
         }
         var api = ytcenter.player.getAPI();
         if (api) {
           if (api.getPlayerType() === type) {
-            con.log("[Player setPlayerType] Type is already " + type + "!");
+            con.log("[Player:setPlayerType] Type is already " + type + "!");
             return;
           }
-          con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
+          con.log("[Player:setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
           if (api.writePlayer)
             api.writePlayer(type);
         } else {
@@ -21331,14 +21330,14 @@
             called = true;
             if (type === "flash") ytcenter.player.disableHTML5Tick();
             if (api.getPlayerType() === type) {
-              con.log("[Player setPlayerType] Type is already " + type + "!");
+              con.log("[Player:setPlayerType] Type is already " + type + "!");
               return;
             }
-            con.log("[Player setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
+            con.log("[Player:setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
             
             api.writePlayer(type);
           };
-          con.log("[Player setPlayerType] API isn't ready!");
+          con.log("[Player:setPlayerType] API isn't ready!");
           if (type === "flash") ytcenter.player.disableHTML5();
           //ytcenter.utils.addClass(document.body, "ytcenter-disable-html5");
           ytcenter.player.listeners.addEventListener("onReady", cb);
@@ -22192,7 +22191,9 @@
     
     ytcenter.cssElements = {};
     ytcenter.playerSizeFitToContentFix = function(){
+      /* YouTube does now use the new layout. Therefore this is probably not required anymore.
       var ftc = ytcenter.player.getPlayerSize("default_fit_to_content");
+      
       if (ftc && ftc.config) {
         if (ytcenter.settings["experimentalFeatureTopGuide"]) {
           if (ftc.config.width === "985px" && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "584px")) {
@@ -22212,7 +22213,7 @@
         ytcenter.player.setPlayerSize(ftc);
       } else {
         con.error("[PlayerSize:Fix] Fit To Content player size doesn't exist!");
-      }
+      }*/
     };
     ytcenter.topbarInit = function(){
       var page = ytcenter.getPage();
@@ -23409,7 +23410,7 @@
         inject(main_function);
       } else {
         //try {
-          main_function(false, 4, true, 265, crossUnsafeWindow);
+          main_function(false, 4, true, 266, crossUnsafeWindow);
         /*} catch (e) {
         }*/
       }
@@ -23428,6 +23429,6 @@
       inject(main_function);
     }
   } else {
-    main_function(false, 4, true, 265, crossUnsafeWindow);
+    main_function(false, 4, true, 266, crossUnsafeWindow);
   }
 })();
