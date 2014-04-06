@@ -60,8 +60,9 @@
   <property name="indentifier.opera" value="5" />
   <property name="indentifier.firefox" value="6" />
   <property name="indentifier.scriptish" value="7" />
+  <property name="indentifier.chrome-webstore" value="8" />
   
-  <target name="all" depends="preinit, userscript, userscript-meta, chrome, maxthon, firefox, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
@@ -153,6 +154,7 @@
   </target>
   
   <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx" />
+  <target name="chrome-webstore" depends="preinit, copy-chrome-webstore, chrome-zip, chrome-webstore-crx" />
   <target name="chrome-zip" depends="preinit, copy-chrome">
     <zip destfile="${buildDir}/chrome.zip" basedir="${buildDir}" />
   </target>
@@ -162,6 +164,24 @@
       <arg value="${buildDir}/chrome.zip" />
       <arg value="${cert.chrome}" />
       <arg value="${dist}/${name}.crx" />
+    </exec>
+    <antcall target="clean" />
+    
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <antcall target="chrome-update" />
+      </then>
+    </if>
+  </target>
+  
+  <target name="chrome-webstore-crx" depends="chrome-keycheck, build-chrome-key">
+    <exec executable="${sdk.buildcrx}">
+      <arg value="-crx" />
+      <arg value="${buildDir}/chrome.zip" />
+      <arg value="${cert.chrome}" />
+      <arg value="${dist}/${name}-webstore.crx" />
     </exec>
     <antcall target="clean" />
     
@@ -289,6 +309,24 @@
     <antcall target="tokenreplace" />
     <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.chrome}" token="@identifier@" encoding="${encoding}" />
+  </target>
+  
+  <target name="copy-chrome-webstore">
+    <copy todir="${buildDir}">
+      <fileset dir="${src.chrome}/" />
+    </copy>
+    <copy todir="${buildDir}">
+      <fileset dir="${src}">
+        <include name="*.*" />
+        <exclude name=".*" />
+      </fileset>
+      <mapper>
+        <globmapper from="*.user.js" to="*.js" /> 
+      </mapper>
+    </copy>
+    <antcall target="tokenreplace" />
+    <antcall target="apply-styles" />
+    <replace dir="${buildDir}" value="${indentifier.chrome-webstore}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-maxthon">
