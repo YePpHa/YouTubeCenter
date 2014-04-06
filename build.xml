@@ -154,34 +154,21 @@
   </target>
   
   <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx" />
-  <target name="chrome-webstore" depends="preinit, copy-chrome-webstore, chrome-zip, chrome-webstore-crx" />
-  <target name="chrome-zip" depends="preinit, copy-chrome">
+  <target name="chrome-webstore" depends="preinit, copy-chrome-webstore, chrome-webstore-zip" />
+  <target name="chrome-zip">
     <zip destfile="${buildDir}/chrome.zip" basedir="${buildDir}" />
   </target>
+  <target name="chrome-webstore-zip">
+    <zip destfile="${dist}/${name}-webstore.zip" basedir="${buildDir}" />
+    <antcall target="clean" />
+  </target>
+  
   <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
     <exec executable="${sdk.buildcrx}">
       <arg value="-crx" />
       <arg value="${buildDir}/chrome.zip" />
       <arg value="${cert.chrome}" />
       <arg value="${dist}/${name}.crx" />
-    </exec>
-    <antcall target="clean" />
-    
-    <loadproperties srcFile="${build.prop}"/>
-    <if>
-      <equals arg1="${@devbuild@}" arg2="true" />
-      <then>
-        <antcall target="chrome-update" />
-      </then>
-    </if>
-  </target>
-  
-  <target name="chrome-webstore-crx" depends="chrome-keycheck, build-chrome-key">
-    <exec executable="${sdk.buildcrx}">
-      <arg value="-crx" />
-      <arg value="${buildDir}/chrome.zip" />
-      <arg value="${cert.chrome}" />
-      <arg value="${dist}/${name}-webstore.crx" />
     </exec>
     <antcall target="clean" />
     
