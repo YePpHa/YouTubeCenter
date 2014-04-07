@@ -15140,14 +15140,16 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Annotations"
           );
           subcat.addOption(option);
-          option = ytcenter.settingsPanel.createOption(
-            "scrollToPlayer", // defaultSetting
-            "bool", // module
-            "SETTINGS_SCROLLTOPLAYER_LABEL",
-            null,
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Scroll_To_Player"
-          );
-          subcat.addOption(option);
+          if (!ytcenter.experiments.isTopGuide()) {
+            option = ytcenter.settingsPanel.createOption(
+              "scrollToPlayer", // defaultSetting
+              "bool", // module
+              "SETTINGS_SCROLLTOPLAYER_LABEL",
+              null,
+              "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Scroll_To_Player"
+            );
+            subcat.addOption(option);
+          }
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "line"
@@ -22916,7 +22918,7 @@
           }
           
           if (ytcenter.page === "watch") {
-            if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
+            if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && !ytcenter.experiments.isTopGuide() && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
               if ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic) {
                 ytcenter.utils.scrollTop(90);
               } else if (document.getElementById("watch-headline-container") || document.getElementById("page-container")) {
@@ -23308,7 +23310,7 @@
             
             sd[0].parentNode.style.height = ytcenter.settings.sparkbarHeight + "px";
           }
-          if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
+          if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && !ytcenter.experiments.isTopGuide() && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
             if ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic) {
               ytcenter.utils.scrollTop(90);
             } else if (document.getElementById("watch-headline-container") || document.getElementById("page-container")) {
