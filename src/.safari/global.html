@@ -46,30 +46,25 @@
       function xhrListener(e) {
         var a = JSON.parse(e.message),
             details = a.details;
+        var onreadystatechange = details.onreadystatechange; // the id
         if (details.onreadystatechange) {
           details.onreadystatechange = function(response){
-            e.target.page.dispatchMessage("xhr onreadystatechange", JSON.stringify({
-              id: a.id,
-              response: response
-            }));
+            call(e, onreadystatechange, [response]);
           };
         }
+        var onload = details.onload; // the id
         if (details.onload) {
           details.onload = function(response){
-            e.target.page.dispatchMessage("xhr onload", JSON.stringify({
-              id: a.id,
-              response: response
-            }));
+            call(e, onload, [response]);
           };
         }
+        var onerror = details.onerror; // the id
         if (details.onerror) {
           details.onerror = function(response){
-            e.target.page.dispatchMessage("xhr onerror", JSON.stringify({
-              id: a.id,
-              response: response
-            }));
+            call(e, onerror, [response]);
           };
         }
+        
         xhr(details);
       }
       
@@ -90,14 +85,20 @@
         return this[name];
       }
       
-      function functionListener(e) {
-        var data = JSON.parse(e.message);
-        var returnData = nameToFunction(e.name).apply(this, data.arguments);
-        
-        e.target.page.dispatchMessage(e.name, JSON.stringify({ id: data.id, returnData: returnData }));
+      function call(e, id, args) {
+        if (id !== null) {
+          e.target.page.dispatchMessage("call", JSON.stringify({ id: id, arguments: args }));
+        }
       }
       
-      safari.application.addEventListener("message", functionListener, false);
+      function functionListener(e) {
+        if (e.name !== "call") return;
+        
+        var data = JSON.parse(e.message);
+        call(e, data.id, [nameToFunction(data.method).apply(this, data.arguments)]);
+      }
+      
+      safari.application.addEventListener("message", functionListener, false); // Attaching a listener
     </script>
   </head>
   <body></body>

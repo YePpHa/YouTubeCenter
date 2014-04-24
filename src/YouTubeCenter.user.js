@@ -93,9 +93,13 @@
   }
   function injected_saveSettings(id, key, data) {
     var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
+    if (typeof data !== "string") data = JSON.stringify(data);
     chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "setLocalStorage", "key": key, "data": data }), function(response) {
       if (typeof response === "string") response = JSON.parse(response);
-      inject("window.ytcenter.storage.onsaved(" + id + ")");
+      window.postMessage(JSON.stringify({
+        id: id,
+        arguments: []
+      }), "*");
     });
   }
   function injected_loadSettings(id, key) {
@@ -104,7 +108,10 @@
       try {
         chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "getLocalStorage", "key": key }), function(response) {
           if (typeof response === "string") response = JSON.parse(response);
-          inject("window.ytcenter.storage.onloaded(" + id + ", " + (response ? (response.data ? (typeof response.data === "string" ? response.data : JSON.stringify(response.data)) : "{}") : {}) + ")");
+          window.postMessage(JSON.stringify({
+            id: id,
+            arguments: [response.data]
+          }), "*");
         });
       } catch (e) {
         console.log(chrome);
@@ -127,7 +134,10 @@
       } else if (typeof uw !== "undefined" && typeof uw.XMLHttpRequest !== "undefined") {
         xmlhttp = new uw.XMLHttpRequest();
       } else {
-        inject("window.ytcenter.xhr.onerror(" + id + ", {})");
+        window.postMessage(JSON.stringify({
+          id: details.onerror,
+          arguments: [{}]
+        }), "*");
         return false;
       }
       xmlhttp.onreadystatechange = function(){
@@ -140,20 +150,32 @@
           statusText: (xmlhttp.readyState === 4 ? xmlhttp.statusText : ''),
           finalUrl: (xmlhttp.readyState === 4 ? xmlhttp.finalUrl : '')
         };
-        inject("window.ytcenter.xhr.onreadystatechange(" + id + ", " + JSON.stringify(responseState) + ")");
+        window.postMessage(JSON.stringify({
+          id: details.onreadystatechange,
+          arguments: [responseState]
+        }), "*");
         if (xmlhttp.readyState === 4) {
           if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
-            inject("window.ytcenter.xhr.onload(" + id + ", " + JSON.stringify(responseState) + ")");
+            window.postMessage(JSON.stringify({
+              id: details.onload,
+              arguments: [responseState]
+            }), "*");
           }
           if (xmlhttp.status < 200 || xmlhttp.status >= 300) {
-            inject("window.ytcenter.xhr.onerror(" + id + ", " + JSON.stringify(responseState) + ")");
+            window.postMessage(JSON.stringify({
+              id: details.onerror,
+              arguments: [responseState]
+            }), "*");
           }
         }
       };
       try {
         xmlhttp.open(details.method, details.url);
       } catch(e) {
-        inject("window.ytcenter.xhr.onerror(" + id + ", {responseXML:'',responseText:'',readyState:4,responseHeaders:'',status:403,statusText:'Forbidden'})");
+        window.postMessage(JSON.stringify({
+          id: details.onerror,
+          arguments: [{responseXML:'',responseText:'',readyState:4,responseHeaders:'',status:403,statusText:'Forbidden'}]
+        }), "*");
         return false;
       }
       if (details.headers) {
@@ -1729,33 +1751,8 @@
     }
     
     function $XMLHTTPRequest(details) {
-      if (injected) {
-        if (!window.ytcenter || !window.ytcenter.xhr) {
-          //window.ytcenter = ytcenter.unsafe || {};
-          window.ytcenter.xhr = window.ytcenter.xhr || {};
-          window.ytcenter.xhr.onload = ytcenter.utils.bind(function(id, _args){
-            if (ytcenter.callback_db[id].onload)
-              ytcenter.callback_db[id].onload(_args);
-          }, window.ytcenter.xhr);
-          window.ytcenter.xhr.onerror = ytcenter.utils.bind(function(id, _args){
-            if (ytcenter.callback_db[id].onerror)
-              ytcenter.callback_db[id].onerror(_args);
-          }, window.ytcenter.xhr);
-          window.ytcenter.xhr.onreadystatechange = ytcenter.utils.bind(function(id, _args){
-            if (ytcenter.callback_db[id].onreadystatechange)
-              ytcenter.callback_db[id].onreadystatechange(_args);
-          }, window.ytcenter.xhr);
-        }
-        var id = ytcenter.callback_db.push({
-          onload: details.onload,
-          onerror: details.onerror,
-          onreadystatechange: details.onreadystatechange
-        }) - 1;
-        window.postMessage(JSON.stringify({
-          id: id,
-          method: "CrossOriginXHR",
-          arguments: [details]
-        }), "*");
+      if (injected || identifier === 4) {
+        ytcenter.unsafeCall("xhr", [details], null);
       } else {
         if (identifier === 3) { // Firefox Extension
           var entry = {};
@@ -1782,28 +1779,6 @@
             id: id,
             details: details
           }));
-        } else if (identifier === 4) { // Safari Extension
-          var entry = {};
-          if (details.onreadystatechange) {
-            entry.onreadystatechange = details.onreadystatechange;
-            details.onreadystatechange = true;
-          } else {
-            details.onreadystatechange = false;
-          }
-          if (details.onload) {
-            entry.onload = details.onload;
-            details.onload = true;
-          } else {
-            details.onload = false;
-          }
-          if (details.onerror) {
-            entry.onerror = details.onerror;
-            details.onerror = true;
-          } else {
-            details.onerror = false;
-          }
-          var id = ytcenter.callback_db.push(entry) - 1;
-          safari.self.tab.dispatchMessage("xhr", JSON.stringify({ id: id, details: details }));
         } else if (identifier === 5) { // Opera Legacy Extension
           var entry = {};
           if (details.onreadystatechange) {
@@ -3013,10 +2988,11 @@
         if (!setup) __r.setup();
         
         //if (!M) return __r.fallbackObserve(target, options, callback); // fallback if MutationObserver isn't supported
-        if (!M) throw "MutationObserver not supported.";
-        var observer = new M(mutationCallback),
-          disconnected = false;
-        observer.observe(target, options);
+        //if (!M) throw "MutationObserver not supported.";
+        var observer = null;
+        if (M) observer = new M(mutationCallback);
+        var disconnected = false;
+        if (observer) observer.observe(target, options);
         return disconnects[disconnects.push({
           target: target,
           options: options,
@@ -3231,15 +3207,6 @@
     
     ytcenter.unsafe.io = ytcenter.io;
     ytcenter.unsafe.spf = {};
-    ytcenter.unsafe.storage = {};
-    ytcenter.unsafe.storage.onloaded = function(id, data){
-      ytcenter.unsafe.storage.onloaded_db[id](data);
-    };
-    ytcenter.unsafe.storage.onloaded_db = [];
-    ytcenter.unsafe.storage.onsaved = function(id){
-      ytcenter.unsafe.storage.onsaved_db[id]();
-    };
-    ytcenter.unsafe.storage.onsaved_db = [];
     
     ytcenter.title = {};
     ytcenter.title.originalTitle = "";
@@ -11019,6 +10986,50 @@
         unload: shutdown
       };
     })();
+    ytcenter.unsafeCall = (function(){
+      function storeFunctions(obj) {
+        if (ytcenter.utils.isArray(obj)) {
+          var i;
+          for (i = 0; i < obj.length; i++) {
+            obj[i] = storeFunctions(obj[i]);
+          }
+        } else if (typeof obj === "function") {
+          return comm.push(obj) - 1;
+        } else if (obj === Object(obj)) {
+          var key;
+          for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              obj[key] = storeFunctions(obj[key]);
+            }
+          }
+        }
+        return obj;
+      }
+      function call(method, args, callback) {
+        var id = null;
+        if (callback !== null) {
+          id = comm.push(callback) - 1;
+        }
+        var data = JSON.stringify({ level: "unsafe", id: id, method: method, arguments: storeFunctions(args) });
+        
+        window.postMessage(data, "*");
+      }
+      function resp(e) {
+        if (!e || !e.data) return; // Checking if data is present
+        if (typeof e.data !== "string") return; // Checking if the object is a string.
+        if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
+        
+        var data = JSON.parse(e.data);
+        if (data.level === "unsafe") return;
+        if (typeof comm[data.id] === "function") {
+          comm[data.id].apply(null, data.arguments);
+        }
+      }
+      var comm = [];
+      window.addEventListener("message", resp, false);
+      
+      return call;
+    })();
     ytcenter.utils.setZeroTimeout = (function(){
       function setZeroTimeout(fn) {
         timeouts.push(fn);
@@ -13368,24 +13379,6 @@
         data = JSON.parse(data);
         ytcenter.callback_db[data.id]();
       });
-    } else if (identifier === 4) { // Safari Extension
-      safari.self.addEventListener("message", function(e){
-        var data = JSON.parse(e.message);
-        if (e.name === "xhr onreadystatechange") {
-          if (ytcenter.callback_db[data.id].onreadystatechange)
-            ytcenter.callback_db[data.id].onreadystatechange(data.response);
-        } else if (e.name === "xhr onload") {
-          if (ytcenter.callback_db[data.id].onload)
-            ytcenter.callback_db[data.id].onload(data.response);
-        } else if (e.name === "xhr onerror") {
-          if (ytcenter.callback_db[data.id].onerror)
-            ytcenter.callback_db[data.id].onerror(data.response);
-        } else if (e.name === "load callback") {
-          ytcenter.callback_db[data.id](data.response);
-        } else if (e.name === "save callback") {
-          ytcenter.callback_db[data.id]();
-        }
-      }, false);
     } else if (identifier === 5) { // Opera Legacy Extnesion
       opera.extension.onmessage = function(e){
         if (e.data.action === "xhr onreadystatechange") {
@@ -13407,8 +13400,9 @@
     ytcenter.storageName = "YouTubeCenterSettings";
     ytcenter.loadSettings = function(callback){
       try {
-        if (identifier === 1 && injected) {
-          ytcenter.unsafe.storage.onloaded_db.push(function(storage){
+        if ((identifier === 1 && injected) || identifier === 4) {
+          ytcenter.unsafeCall("load", [ytcenter.storageName], function(storage){
+            if (storage === "[object Object]") storage = {};
             if (typeof storage === "string")
               storage = JSON.parse(storage);
             for (var key in storage) {
@@ -13418,11 +13412,6 @@
             }
             if (callback) callback();
           });
-          uw.postMessage(JSON.stringify({
-            id: ytcenter.unsafe.storage.onloaded_db.length - 1,
-            method: "loadSettings",
-            arguments: [ytcenter.storageName]
-          }), "*");
         } else if (identifier === 3) {
           var id = ytcenter.callback_db.push(function(storage){
             if (typeof storage === "string")
@@ -13435,18 +13424,6 @@
             if (callback) callback();
           }) - 1;
           self.port.emit("load", JSON.stringify({id: id, name: ytcenter.storageName}));
-        } else if (identifier === 4) {
-          var id = ytcenter.callback_db.push(function(storage){
-            if (typeof storage === "string")
-              storage = JSON.parse(storage);
-            for (var key in storage) {
-              if (storage.hasOwnProperty(key)) {
-                ytcenter.settings[key] = storage[key];
-              }
-            }
-            if (callback) callback();
-          }) - 1;
-          safari.self.tab.dispatchMessage("load", JSON.stringify({ id: id, name: ytcenter.storageName }));
         } else if (identifier === 5) {
           var id = ytcenter.callback_db.push(function(storage){
             if (typeof storage === "string")
@@ -13550,30 +13527,13 @@
       if (typeof timeout !== "boolean") timeout = false;
       var __ss = function(){
         con.log("[Storage] Saving Settings");
-        if (identifier === 1 && injected) {
-          ytcenter.unsafe.storage.onsaved_db.push(function(){
-            con.log("Saved Settings!");
-            callback();
-          });
-          uw.postMessage(JSON.stringify({
-            id: ytcenter.unsafe.storage.onsaved_db.length - 1,
-            method: "saveSettings",
-            arguments: [ytcenter.storageName, JSON.stringify(ytcenter.settings)]
-          }), "*");
+        if ((identifier === 1 && injected) || identifier === 4) {
+          ytcenter.unsafeCall("save", [ytcenter.storageName, ytcenter.settings], callback);
         } else if (identifier === 3) {
           var id = ytcenter.callback_db.push(function(){
             callback();
           }) - 1;
           self.port.emit("save", JSON.stringify({id: id, name: ytcenter.storageName, value: ytcenter.settings}));
-        } else if (identifier === 4) {
-          var id = ytcenter.callback_db.push(function(){
-            callback();
-          }) - 1;
-          safari.self.tab.dispatchMessage("save", JSON.stringify({
-            id: id,
-            name: ytcenter.storageName,
-            value: ytcenter.settings
-          }));
         } else if (identifier === 5) {
           var id = ytcenter.callback_db.push(function(){
             callback();
@@ -22991,11 +22951,11 @@
           if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
           
           var d = JSON.parse(e.data);
-          if (d.method === "CrossOriginXHR") {
+          if (d.method === "xhr") {
             injected_xhr(d.id, d.arguments[0]); // id, details
-          } else if (d.method === "saveSettings") {
+          } else if (d.method === "save") {
             injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
-          } else if (d.method === "loadSettings") {
+          } else if (d.method === "load") {
             injected_loadSettings(d.id, d.arguments[0]); // id, key
           }
         }, false);
@@ -23007,11 +22967,11 @@
     } catch (e) {
       window.addEventListener("message", function(e){
         var d = JSON.parse(e.data);
-        if (d.method === "CrossOriginXHR") {
+        if (d.method === "xhr") {
           injected_xhr(d.id, d.arguments[0]); // id, details
-        } else if (d.method === "saveSettings") {
+        } else if (d.method === "save") {
           injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
-        } else if (d.method === "loadSettings") {
+        } else if (d.method === "load") {
           injected_loadSettings(d.id, d.arguments[0]); // id, key
         }
       }, false);
@@ -23019,34 +22979,30 @@
       inject(main_function);
     }
   } else if (@identifier@ === 4) {
-    /*var comm = [];
-    
-    window.addEventListener("message", function(e){
+    var unsafeWindowMessageListener = function(e) {
       if (!e || !e.data) return; // Checking if data is present
       if (typeof e.data !== "string") return; // Checking if the object is a string.
       if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
+
+      safari.self.tab.dispatchMessage("call", e.data);
+    }
+    var safeWindowMessageListener = function(e){
+      if (!e || !e.message) return; // Checking if data is present
+      if (typeof e.message !== "string") return; // Checking if the object is a string.
+      if (!e.message.indexOf || e.message.indexOf("{") !== 0) return;
       
-      var d = JSON.parse(e.data);
-      var id = comm.push(function(returnData){
+      var d = JSON.parse(e.message);
+      if (e.name === "call") {
         window.postMessage(JSON.stringify({
+          level: "safe",
           id: d.id,
-          method: d.method,
-          returnData: returnData
+          arguments: d.arguments
         }), "*");
-      }) - 1;
-      
-      safari.self.tab.dispatchMessage(d.method, JSON.stringify({ id: id, arguments: d.arguments }));
-    }, false);
+      }
+    }
     
-    
-    safari.self.addEventListener("message", function(e){
-      if (!e || !e.data) return; // Checking if data is present
-      if (typeof e.data !== "string") return; // Checking if the object is a string.
-      if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
-      
-      var d = JSON.parse(e.data);
-      comm[d.id](d.returnData);
-    }, false);*/
+    window.addEventListener("message", unsafeWindowMessageListener, false);
+    safari.self.addEventListener("message", safeWindowMessageListener, false);
     
     inject(main_function);
   } else {
