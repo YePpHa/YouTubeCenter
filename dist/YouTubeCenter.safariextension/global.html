@@ -2,7 +2,7 @@
 <html>
   <head>
     <script type="text/javascript">
-      function xhr(details){
+      function xhr(details) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function(){
           var responseState = {
@@ -42,51 +42,62 @@
         xmlhttp.send((typeof(details.data) != 'undefined') ? details.data : null);
         return true
       }
-      safari.application.addEventListener("message", function(e){
-        if (e.name === "xhr") {
-          var a = JSON.parse(e.message),
-              details = a.details;
-          if (details.onreadystatechange) {
-            details.onreadystatechange = function(response){
-              e.target.page.dispatchMessage("xhr onreadystatechange", JSON.stringify({
-                id: a.id,
-                response: response
-              }));
-            };
-          }
-          if (details.onload) {
-            details.onload = function(response){
-              e.target.page.dispatchMessage("xhr onload", JSON.stringify({
-                id: a.id,
-                response: response
-              }));
-            };
-          }
-          if (details.onerror) {
-            details.onerror = function(response){
-              e.target.page.dispatchMessage("xhr onerror", JSON.stringify({
-                id: a.id,
-                response: response
-              }));
-            };
-          }
-          xhr(details);
-        } else if (e.name === "save") {
-          var a = JSON.parse(e.message);
-          if (typeof a.value === "object")
-            a.value = JSON.stringify(a.value);
-          localStorage[a.name] = a.value;
-          e.target.page.dispatchMessage("save callback", JSON.stringify({
-            id: a.id
-          }));
-        } else if (e.name === "load") {
-          var a = JSON.parse(e.message);
-          e.target.page.dispatchMessage("load callback", JSON.stringify({
-            id: a.id,
-            response: (!localStorage[a.name] || localStorage[a.name] === "[object Object]" ? {} : localStorage[a.name])
-          }));
+      
+      function xhrListener(e) {
+        var a = JSON.parse(e.message),
+            details = a.details;
+        if (details.onreadystatechange) {
+          details.onreadystatechange = function(response){
+            e.target.page.dispatchMessage("xhr onreadystatechange", JSON.stringify({
+              id: a.id,
+              response: response
+            }));
+          };
         }
-      }, false);
+        if (details.onload) {
+          details.onload = function(response){
+            e.target.page.dispatchMessage("xhr onload", JSON.stringify({
+              id: a.id,
+              response: response
+            }));
+          };
+        }
+        if (details.onerror) {
+          details.onerror = function(response){
+            e.target.page.dispatchMessage("xhr onerror", JSON.stringify({
+              id: a.id,
+              response: response
+            }));
+          };
+        }
+        xhr(details);
+      }
+      
+      function save(name, value) {
+        if (typeof value === "object")
+          value = JSON.stringify(value);
+        return localStorage[name] = value;
+      }
+      
+      function load(name) {
+        return (!localStorage[name] || localStorage[name] === "[object Object]" ? {} : localStorage[name]);
+      }
+      
+      function nameToFunction(name) {
+        if (name === "xhr") return xhr;
+        if (name === "save") return save;
+        if (name === "load") return load;
+        return this[name];
+      }
+      
+      function functionListener(e) {
+        var data = JSON.parse(e.message);
+        var returnData = nameToFunction(e.name).apply(this, data.arguments);
+        
+        e.target.page.dispatchMessage(e.name, JSON.stringify({ id: data.id, returnData: returnData }));
+      }
+      
+      safari.application.addEventListener("message", functionListener, false);
     </script>
   </head>
   <body></body>

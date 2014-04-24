@@ -1192,7 +1192,7 @@
         ytcenter.language.addLocaleElement(aLink, "BUTTON_SETTINGS_TITLE", "title");
         
         wrapper.appendChild(aLink);
-      } else if (ytcenter.settings['experimentalFeatureTopGuide'] && appbar) {
+      } else if (appbar) {
         liSettings.setAttribute("id", "ytcenter-settings-toggler");
         liSettings.setAttribute("role", "menuitem");
         liSettings.className = "yt-uix-button-menu-new-section-separator";
@@ -1217,7 +1217,7 @@
         
         liSettings.appendChild(spanText);
         appbar.appendChild(liSettings);
-      } else if (ytcenter.settings['experimentalFeatureTopGuide'] && appSecondaryContainer) {
+      } else if (appSecondaryContainer) {
         var btn = document.createElement("button"),
           iconWrapper = document.createElement("span"),
           icon = document.createElement("img");
@@ -1803,10 +1803,7 @@
             details.onerror = false;
           }
           var id = ytcenter.callback_db.push(entry) - 1;
-          safari.self.tab.dispatchMessage("xhr", JSON.stringify({
-            id: id,
-            details: details
-          }));
+          safari.self.tab.dispatchMessage("xhr", JSON.stringify({ id: id, details: details }));
         } else if (identifier === 5) { // Opera Legacy Extension
           var entry = {};
           if (details.onreadystatechange) {
@@ -10914,7 +10911,8 @@
       return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");*/
     };
     ytcenter.experiments.isFixedTopbar = function(){
-      return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
+      //return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
+      return false;
     };
     
     // @utils
@@ -12568,67 +12566,6 @@
       }
       return a;
     };
-    ytcenter.guide = {
-      element: null,
-      observer: null,
-      hidden: false,
-      top: null,
-      left: null,
-      update: function() {
-        if (ytcenter.settings['experimentalFeatureTopGuide']) return;
-        var guideContainer = document.getElementById("guide-container");
-        if (guideContainer) {
-          if (loc.pathname === "/watch") {
-            if (!ytcenter.guide.hidden) {
-              ytcenter.utils.removeClass(guideContainer, "hid");
-              if (ytcenter.guide.top !== null) {
-                guideContainer.style.setProperty("top", ytcenter.guide.top + "px", "important");
-              } else {
-                guideContainer.style.setProperty("top", "");
-              }
-              if (ytcenter.guide.left !== null) {
-                guideContainer.style.setProperty("left", ytcenter.guide.left + "px", "important");
-              } else {
-                guideContainer.style.setProperty("left", "");
-              }
-            } else {
-              ytcenter.utils.addClass(guideContainer, "hid");
-            }
-          } else {
-            ytcenter.utils.removeClass(guideContainer, "hid");
-            guideContainer.style.setProperty("left", "");
-            guideContainer.style.setProperty("top", "");
-          }
-        }
-      },
-      checkMutations: function(mutations) {
-        mutations.forEach(function(mutation) {
-          var addedNodes = mutation.addedNodes,
-              addedNode;
-          for (var i = 0; i < addedNodes.length; i++) {
-            addedNode = addedNodes[i];
-            if (addedNode.id === "guide-container") {
-              ytcenter.guide.update();
-              break;
-            }
-          }
-        });
-      },
-      setup: function() {
-        if (ytcenter.settings['experimentalFeatureTopGuide']) return;
-        if (ytcenter.guide.element === null || ytcenter.guide.element.id !== "guide") {
-          ytcenter.guide.element = document.getElementById("guide");
-          ytcenter.guide.update();
-        }
-        if (ytcenter.guide.observer) {
-          ytcenter.guide.observer.disconnect();
-          ytcenter.guide.observer = null;
-        }
-        if (ytcenter.guide.element) {
-          ytcenter.guide.observer = ytcenter.mutation.observe(ytcenter.guide.element, { childList: true }, ytcenter.guide.checkMutations);
-        }
-      }
-    };
     ytcenter.placementsystem = (function(){
       function setParentData(elm, parent) {
         var new_sandbox,
@@ -13101,7 +13038,6 @@
       removeRelatedVideosEndscreen: false,
       enableResize: true,
       guideMode: "default", // [default, always_open, always_closed]
-      ytExperimentalLayotTopbarStatic: false,
       
       uploaderCountryEnabled: true,
       uploaderCountryShowFlag: true,
@@ -13137,7 +13073,6 @@
       dashPlayback: true,
       embed_dashPlayback: true,
       channel_dashPlayback: true,
-      experimentalFeatureTopGuide: false,
       language: 'auto',
       filename: '{title}',
       fixfilename: false,
@@ -13499,10 +13434,7 @@
             }
             if (callback) callback();
           }) - 1;
-          safari.self.tab.dispatchMessage("load", JSON.stringify({
-            id: id,
-            name: ytcenter.storageName
-          }));
+          safari.self.tab.dispatchMessage("load", JSON.stringify({ id: id, name: ytcenter.storageName }));
         } else if (identifier === 5) {
           var id = ytcenter.callback_db.push(function(storage){
             if (typeof storage === "string")
@@ -13567,12 +13499,10 @@
           if (data.origin === intercom.origin) return;
           if (data.action === "loadSettings") {
             con.log("[Intercom] Received order to loadSettings!");
-            var _player_wide = ytcenter.settings.player_wide, // We don't want this to be updated.
-                _experimentalFeatureTopGuide = ytcenter.settings.experimentalFeatureTopGuide; // We don't want this to be updated.
+            var _player_wide = ytcenter.settings.player_wide; // We don't want this to be updated.
             ytcenter.loadSettings(function(){
               // Restores the settings we don't want changed
               ytcenter.settings.player_wide = _player_wide;
-              ytcenter.settings.experimentalFeatureTopGuide = _experimentalFeatureTopGuide;
               
               ytcenter.events.performEvent("settings-update");
               ytcenter.language.update();
@@ -14799,34 +14729,6 @@
 
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LAYOUT"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
-            "watch7centerpage", // defaultSetting
-            "bool", // module
-            "SETTINGS_WATCH7_CENTERPAGE", // label
-            { // args
-              "listeners": [
-                {
-                  "event": "click",
-                  "callback": function(){
-                    ytcenter.events.performEvent("ui-refresh");
-                    ytcenter.classManagement.updateClassesByGroup(["page-center"]);
-                  }
-                }
-              ]
-            },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Centering_Page" // help
-          );
-          if (ytcenter.settings['experimentalFeatureTopGuide']) {
-            option.setVisibility(false);
-          }
-          ytcenter.events.addEvent("ui-refresh", function(){
-            if (ytcenter.settings['experimentalFeatureTopGuide']) {
-              this.setVisibility(false);
-            } else {
-              this.setVisibility(true);
-            }
-          }.bind(option));
-          subcat.addOption(option);
-          option = ytcenter.settingsPanel.createOption(
             "flexWidthOnPage", // defaultSetting
             "bool", // module
             "SETTINGS_FLEXWIDTHONPAGE_LABEL", // label
@@ -14859,38 +14761,6 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Flex_Width_on_Channel" // help
           );
-          subcat.addOption(option);
-
-          option = ytcenter.settingsPanel.createOption(
-            "ytExperimentalLayotTopbarStatic", // defaultSetting
-            "bool", // module
-            "SETTINGS_YTEXPERIMENTALLAYOUT_TOPBAR_STATIC", // label
-            { // args
-              "listeners": [
-                {
-                  "event": "click",
-                  "callback": function(){
-                    if (ytcenter.settings.ytExperimentalLayotTopbarStatic) {
-                      ytcenter.utils.addClass(document.body, "ytcenter-exp-topbar-static");
-                    } else {
-                      ytcenter.utils.removeClass(document.body, "ytcenter-exp-topbar-static");
-                    }
-                  }
-                }
-              ]
-            },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Set_Experimental_Topbar_to_Static" // help
-          );
-          if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-            option.setVisibility(false);
-          }
-          ytcenter.events.addEvent("ui-refresh", function(){
-            if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-              this.setVisibility(false);
-            } else {
-              this.setVisibility(true);
-            }
-          }.bind(option));
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
@@ -16500,8 +16370,8 @@
                 {
                   "event": "click",
                   "callback": function(){
-                    ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
-                    ytcenter.guide.update();
+                    /*ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
+                    ytcenter.guide.update();*/
                     ytcenter.player._updateResize();
                     
                     ytcenter.classManagement.updateClassesByGroup(["hide-guide"]);
@@ -18021,7 +17891,8 @@
                   { name: "Igor Rückert" }
                 ],
                 "pt-PT": [
-                  { name: "Rafael Damasceno", url: "http://userscripts.org/users/264457" }
+                  { name: "Rafael Damasceno", url: "http://userscripts.org/users/264457" },
+                  { name: "João P. Moutinho Barbosa" }
                 ],
                 "ro": [
                   { name: "BlueMe", url: "http://www.itinerary.ro/" }
@@ -20133,19 +20004,15 @@
     ytcenter.player.updateResize = (function(){
       function scrollToPlayer() {
         if (!ytcenter.settings.enableResize) return;
-        if ((ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
-          var posY = 0,
-              scrollElm = (document.getElementById("player-api-legacy") || document.getElementById("player-api")),
-              t = ytcenter.utils.getOffset((document.getElementById("player-api-legacy") || document.getElementById("player-api"))).top,
-              mp = document.getElementById("masthead-positioner");
-          while (scrollElm != null) {
-            posY += scrollElm.offsetTop;
-            scrollElm = scrollElm.offsetParent;
-          }
-          ytcenter.utils.scrollTop(posY - mp.offsetHeight);
-        } else {
-          ytcenter.utils.scrollTop(document.getElementById("player-api-legacy") || document.getElementById("player-api"));
+        var posY = 0,
+            scrollElm = (document.getElementById("player-api-legacy") || document.getElementById("player-api")),
+            t = ytcenter.utils.getOffset((document.getElementById("player-api-legacy") || document.getElementById("player-api"))).top,
+            mp = document.getElementById("masthead-positioner");
+        while (scrollElm != null) {
+          posY += scrollElm.offsetTop;
+          scrollElm = scrollElm.offsetParent;
         }
+        ytcenter.utils.scrollTop(posY - mp.offsetHeight);
       }
       
       var scrollToPlayerButtonArrow, scrollToPlayerButton = null;
@@ -20174,19 +20041,6 @@
         if (appbar && !scrollToPlayerButton.parentNode) {
           appbar.insertBefore(scrollToPlayerButton, appbar.children[0]);
         }
-        /*if (ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (document.getElementById("appbar-secondary-container") && !scrollToPlayerButton.parentNode)
-            document.getElementById("appbar-secondary-container").insertBefore(scrollToPlayerButton, document.getElementById("appbar-secondary-container").children[0]);
-        } else if (ytcenter.settings['ytExperimentFixedTopbar']) {
-          if (document.getElementById("yt-masthead-container") && !scrollToPlayerButton.parentNode)
-            document.getElementById("yt-masthead-container").appendChild(scrollToPlayerButton);
-        } else {
-          if ((document.getElementById("player-legacy") || document.getElementById("player")) && !scrollToPlayerButton.parentNode)
-            (document.getElementById("player-legacy") || document.getElementById("player")).appendChild(scrollToPlayerButton);
-          if (scrollToPlayerButton && (document.getElementById("player-api-legacy") || document.getElementById("player-api")))
-            scrollToPlayerButton.style.right = "10px";
-          scrollToPlayerButton.style.top = (document.getElementById("watch7-playlist-data") ? "-13" : "-28") + "px";
-        }*/
       };
       var updatescrollToPlayerButtonVisibility = function(){
         if (!ytcenter.settings.enableResize) {
@@ -20194,17 +20048,9 @@
           return;
         }
         try {
-          if (ytcenter.settings['experimentalFeatureTopGuide']) {
-            scrollToPlayerButton.style.bottom = "";
-            scrollToPlayerButton.style.right = "";
-            scrollToPlayerButton.style.position = "";
-          } else if (ytcenter.settings['ytExperimentFixedTopbar']) {
-            scrollToPlayerButton.style.bottom = "0px";
-            scrollToPlayerButton.style.right = "0px";
-          } else {
-            scrollToPlayerButton.style.borderBottom = "0px";
-            scrollToPlayerButton.style.top = (document.getElementById("watch7-playlist-data") ? "-13" : "-28") + "px";
-          }
+          scrollToPlayerButton.style.bottom = "";
+          scrollToPlayerButton.style.right = "";
+          scrollToPlayerButton.style.position = "";
           var _s = getSizeById(ytcenter.player.currentResizeId);
           if (_s.config.scrollToPlayerButton) {
             scrollToPlayerButton.style.display = "inline-block";
@@ -20216,17 +20062,6 @@
           if (appbar && !scrollToPlayerButton.parentNode) {
             appbar.insertBefore(scrollToPlayerButton, appbar.children[0]);
           }
-          
-          /*if (ytcenter.settings['experimentalFeatureTopGuide']) {
-            if (document.getElementById("appbar-secondary-container") && !scrollToPlayerButton.parentNode)
-              document.getElementById("appbar-secondary-container").insertBefore(scrollToPlayerButton, document.getElementById("appbar-secondary-container").children[0]);
-          } else if (ytcenter.settings['ytExperimentFixedTopbar']) {
-            if (document.getElementById("yt-masthead-container") && !scrollToPlayerButton.parentNode)
-              document.getElementById("yt-masthead-container").appendChild(scrollToPlayerButton);
-          } else {
-            if ((document.getElementById("player-legacy") || document.getElementById("player")) && !scrollToPlayerButton.parentNode)
-              (document.getElementById("player-legacy") || document.getElementById("player")).appendChild(scrollToPlayerButton);
-          }*/
         } catch (e) {
           con.error(e);
         }
@@ -20370,7 +20205,7 @@
       var playerBarHeightNone = 0;
       var playerBarHeightProgress = 3;
       var playerBarHeightBoth = 35;
-      var maxInsidePlayerWidth = 985; // Is 1003px for the experimental design
+      var maxInsidePlayerWidth = 1040;
       
       ytcenter.player._updateResize = function(){
         if (!ytcenter.settings.enableResize) return;
@@ -20408,10 +20243,6 @@
       return function(width, height, large, align){
         if (!ytcenter.settings.enableResize) return;
         if (ytcenter.getPage() !== "watch") return;
-        
-        if (ytcenter.settings['experimentalFeatureTopGuide']) {
-          maxInsidePlayerWidth = 1040;
-        }
         
         width = width || "";
         height = height || "";
@@ -20519,7 +20350,7 @@
         if (height.match(/%$/) && height.length > 1) {
           var mp = document.getElementById("masthead-positioner");
           calcHeight = parseInt(height)/100*clientHeight;
-          if (mp && (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) && !ytcenter.settings.ytExperimentalLayotTopbarStatic) {
+          if (mp) {
             calcHeight -= mp.offsetHeight || mp.clientHeight;
           }
           pbh = 0;
@@ -20559,7 +20390,7 @@
         
         if (playlist_el) {
           playlist_el.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
-          if (ytcenter.settings['experimentalFeatureTopGuide'] && large) {
+          if (large) {
             playlist_el.style.width = "auto";
             playlist_el.style.minWidth = "1003px";
             playlist_el.style.maxWidth = "1040px";
@@ -20572,34 +20403,26 @@
           player.style.position = "";
           player.style.left = "";
           player.style.marginBottom = "";
-          if (ytcenter.settings['experimentalFeatureTopGuide']) {
-            player.style.width = (large ? playerWidth + "px" : "auto");
-            if (large) {
-              player.style.maxWidth = "";
-              player.style.minWidth = "";
-            } else {
-              player.style.maxWidth = "1040px";
-              player.style.minWidth = "1003px";
-            }
-            if (large && align && playerWidth < maxInsidePlayerWidth) {
-              player.style.setProperty("position", "relative", "important");
-              player.style.setProperty("left", (-(maxInsidePlayerWidth - playerWidth)/2) + "px", "important");
-            }
-            if (large) {
-              player.style.setProperty("margin-bottom", "28px", "important");
-            }
+          player.style.width = (large ? playerWidth + "px" : "auto");
+          if (large) {
+            player.style.maxWidth = "";
+            player.style.minWidth = "";
           } else {
-            player.style.setProperty("margin-bottom", "", "");
-            player.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
+            player.style.maxWidth = "1040px";
+            player.style.minWidth = "1003px";
+          }
+          if (large && align && playerWidth < maxInsidePlayerWidth) {
+            player.style.setProperty("position", "relative", "important");
+            player.style.setProperty("left", (-(maxInsidePlayerWidth - playerWidth)/2) + "px", "important");
+          }
+          if (large) {
+            player.style.setProperty("margin-bottom", "28px", "important");
           }
           
           if (playerAPI) {
             playerAPI.style.width = playerWidth + "px";
             playerAPI.style.height = playerHeight + "px";
             _playerHeight = playerHeight;
-          }
-          if (!ytcenter.settings['experimentalFeatureTopGuide'] && content) {
-            content.style.width = maxInsidePlayerWidth + "px";
           }
         }
         
@@ -20615,43 +20438,6 @@
           }
         }
         
-        // Content
-        if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (ytcenter.settings.watch7centerpage && contentMain) {
-            if (clientWidth < calcWidth) {
-              var __w = Math.floor(clientWidth/2 - maxInsidePlayerWidth/2);
-              if (__w < 180) __w = 180;
-              if (clientWidth > 1165 && __w > 180) {
-                contentMain.style.setProperty("margin-left", __w + "px", "important");
-                if (document.getElementById("watch7-main-container"))
-                  document.getElementById("watch7-main-container").style.margin = "0";
-              } else {
-                contentMain.style.setProperty("margin-left", "", "important");
-              
-                if (document.getElementById("watch7-main-container"))
-                  document.getElementById("watch7-main-container").style.margin = "";
-              }
-              contentMain.style.setProperty("margin-right", "", "important");
-              
-              ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
-            } else if (!align) {
-              ytcenter.utils.addClass(document.body, "ytcenter-content-margin");
-              contentMain.style.setProperty("margin-left", "", "important");
-              if (document.getElementById("watch7-main-container"))
-                document.getElementById("watch7-main-container").style.margin = "";
-            } else {
-              ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
-              contentMain.style.setProperty("margin-left", "", "important");
-              if (document.getElementById("watch7-main-container"))
-                document.getElementById("watch7-main-container").style.margin = "";
-            }
-          } else {
-            ytcenter.utils.removeClass(document.body, "ytcenter-content-margin");
-            if (contentMain) contentMain.style.setProperty("margin-left", "", "important");
-            if (document.getElementById("watch7-main-container"))
-              document.getElementById("watch7-main-container").style.margin = "";
-          }
-        }
         // Playlist
         if (playlist) {
           var playlistElement = document.getElementById("watch7-playlist-data"),
@@ -20680,63 +20466,6 @@
           playlist.style.left = "auto";
         }
         
-        var creatorBar = document.getElementById("watch7-creator-bar");
-        if (creatorBar && !ytcenter.settings['experimentalFeatureTopGuide']) {
-          creatorBar.style.width = Math.round(calcWidth - 40) + "px";
-        }
-        
-        if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          // Guide
-          if (!align) {
-            if (document.getElementById("guide-container")) {
-              var gct = playerHeight;
-              if (document.getElementById("watch7-playlist-data")) {
-                gct += 35;
-              }
-              if (document.getElementById("watch7-creator-bar")) {
-                gct += 48;
-              }
-              ytcenter.guide.top = gct;
-            }
-          } else {
-            ytcenter.guide.top = null;
-          }
-          if (ytcenter.settings.watch7playerguidehide && !align) {
-            ytcenter.guide.hidden = true;
-          } else if (!ytcenter.settings.watch7playerguidealwayshide && ytcenter.settings.watch7playerguidehide && align) {
-            ytcenter.guide.hidden = false;
-          } else if (!ytcenter.settings.watch7playerguidealwayshide && !ytcenter.settings.watch7playerguidehide) {
-            ytcenter.guide.hidden = false;
-          }
-        }
-        
-        // Guide + Main Center
-        if (!ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (!align && ytcenter.settings.watch7centerpage) {
-            var cl = clientWidth/2 - maxInsidePlayerWidth/2;
-            var clg = cl - 180;
-            if (cl < 190) cl = 190;
-            if (clg < 10) clg = 10;
-            if (clientWidth <= 1165) {
-              cl = 0;
-              clg = 10;
-            }
-            ytcenter.guide.left = clg;
-            if (document.getElementById("page-container")) {
-              if (clientWidth <= 1325) {
-                document.getElementById("page-container").style.width = "100%";
-              } else {
-                document.getElementById("page-container").style.width = "";
-              }
-            }
-          } else {
-            ytcenter.guide.left = null;
-            if (document.getElementById("page-container"))
-              document.getElementById("page-container").style.width = "";
-          }
-          ytcenter.guide.update();
-        }
-        
         // Player
         var wp = document.getElementById("player-api-legacy") || document.getElementById("player-api");
         if (wp) {
@@ -20761,11 +20490,7 @@
             }
           } else {
             wp.style.marginLeft = "";
-            if (align || ytcenter.settings['experimentalFeatureTopGuide']) {
-              wp.style.margin = "";
-            } else {
-              wp.style.margin = "0 auto";
-            }
+            wp.style.margin = "";
           }
         
           if (width === "100%") {
@@ -20777,65 +20502,59 @@
           }
         }
         
-        if (ytcenter.settings['experimentalFeatureTopGuide']) {
-          var playlistElement = document.getElementById("watch7-playlist-data"),
-              playlistBar;
-          if (playlistElement) playlistBar = playlistElement.children[0];
-          if (playlistBar && playlistBar.children[0] && playlistBar.children[1]) {
-            playlistBar.style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
-            playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
-            playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
+        var playlistElement = document.getElementById("watch7-playlist-data"),
+            playlistBar;
+        if (playlistElement) playlistBar = playlistElement.children[0];
+        if (playlistBar && playlistBar.children[0] && playlistBar.children[1]) {
+          playlistBar.style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
+          playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
+          playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
+          
+          var playlistTrayContainer = document.getElementById("watch7-playlist-tray-container");
+          if (playlistTrayContainer) {
+            var __h = Math.round(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh));
+            playlistTrayContainer.style.height = __h + "px";
+            var playlistTray = document.getElementById("watch7-playlist-tray");
+            if (playlistTray) {
+              playlistTray.style.height = Math.round(__h - (large ? 0 : 27)) + "px";
+            }
+            playlistTrayContainer.style.width = (large ? __playlistRealWidth : maxInsidePlayerWidth - __playlistWidth) + "px";
             
-            var playlistTrayContainer = document.getElementById("watch7-playlist-tray-container");
-            if (playlistTrayContainer) {
-              var __h = Math.round(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh));
-              playlistTrayContainer.style.height = __h + "px";
-              var playlistTray = document.getElementById("watch7-playlist-tray");
-              if (playlistTray) {
-                playlistTray.style.height = Math.round(__h - (large ? 0 : 27)) + "px";
-              }
-              playlistTrayContainer.style.width = (large ? __playlistRealWidth : maxInsidePlayerWidth - __playlistWidth) + "px";
-              
-              if (large) {
-                playlistTrayContainer.style.left = (large ? __playlistWidth - __playlistRealWidth : __playlistWidth) + "px";
+            if (large) {
+              playlistTrayContainer.style.left = (large ? __playlistWidth - __playlistRealWidth : __playlistWidth) + "px";
+            } else {
+              playlistTrayContainer.style.left = "";
+            }
+            
+            var playlistTrayPositioning = document.getElementById("watch7-playlist-tray-positioning");
+            if (playlistTrayPositioning) {
+              playlistTrayPositioning.style.width = __playlistWidth + "px";
+              if (align) {
+                playlistTrayPositioning.style.margin = "";
               } else {
-                playlistTrayContainer.style.left = "";
-              }
-              
-              var playlistTrayPositioning = document.getElementById("watch7-playlist-tray-positioning");
-              if (playlistTrayPositioning) {
-                playlistTrayPositioning.style.width = __playlistWidth + "px";
-                if (align) {
-                  playlistTrayPositioning.style.margin = "";
-                } else {
-                  playlistTrayPositioning.style.margin = "0 auto";
-                }
+                playlistTrayPositioning.style.margin = "0 auto";
               }
             }
           }
-          
-          var p = document.getElementById("player-legacy") || document.getElementById("player");
-          if (p) {
-            if (calcWidth > maxInsidePlayerWidth) {
-              p.style.margin = "";
-              if (align) {
-                p.style.marginLeft = "";
-              } else {
-                var ml = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
-                if (document.getElementById("watch7-container")) {
-                  var off = ytcenter.utils.getOffset(document.getElementById("watch7-container"));
-                  if (-ml > off.left) ml = -off.left;
-                }
-                p.style.marginLeft = ml + "px";
-              }
-            } else {
+        }
+        
+        var p = document.getElementById("player-legacy") || document.getElementById("player");
+        if (p) {
+          if (calcWidth > maxInsidePlayerWidth) {
+            p.style.margin = "";
+            if (align) {
               p.style.marginLeft = "";
-              if (align || ytcenter.settings['experimentalFeatureTopGuide']) {
-                p.style.margin = "";
-              } else {
-                p.style.margin = "0 auto";
+            } else {
+              var ml = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
+              if (document.getElementById("watch7-container")) {
+                var off = ytcenter.utils.getOffset(document.getElementById("watch7-container"));
+                if (-ml > off.left) ml = -off.left;
               }
+              p.style.marginLeft = ml + "px";
             }
+          } else {
+            p.style.marginLeft = "";
+            p.style.margin = "";
           }
         }
         
@@ -21642,11 +21361,7 @@
         return false;
       }, groups: ["page-center", "page"]},
       {element: function(){return document.getElementById("page");}, className: "", condition: function(loc){
-        if (ytcenter.settings["watch7centerpage"] && !ytcenter.settings.experimentalFeatureTopGuide) {
-          document.getElementById("page").style.setProperty("padding-left", "0", "important");
-        } else {
-          document.getElementById("page").style.setProperty("padding-left", "");
-        }
+        document.getElementById("page").style.setProperty("padding-left", "");
       }, groups: ["page-center", "page"]},
       {element: function(){return document.body;}, className: "white", condition: function(loc){
         var p = ytcenter.getPage();
@@ -21690,8 +21405,6 @@
           return false;
         }
       }},
-      {groups: ["hide-guide"], element: function(){return document.body;}, className: "ytcenter-guide-hidden", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["watch7playerguidealwayshide"] && !ytcenter.settings['experimentalFeatureTopGuide'];}},
-      {groups: ["hide-guide"], element: function(){return document.body;}, className: "ytcenter-guide-visible", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings["watch7playerguidealwayshide"] && !ytcenter.settings['experimentalFeatureTopGuide'];}},
       {groups: ["player-endscreen"], element: function(){return document.body;}, className: "ytcenter-disable-endscreen", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["removeRelatedVideosEndscreen"];}},
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
       {groups: ["hide-watched-videos", "page"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.gridview.isEnabled() && loc.pathname.indexOf("/feed/watch_later") !== 0 && ytcenter.settings.hideWatchedVideos;}},
@@ -21702,9 +21415,6 @@
       {groups: ["flex", "page"], element: function(){return document.body;}, className: "flex-width-enabled", condition: function(loc){var p = ytcenter.getPage();return (ytcenter.settings.flexWidthOnPage && loc.pathname !== "/watch" && p !== "channel") || (ytcenter.settings.flexWidthOnChannelPage && p === "channel")}},
       {groups: ["player-branding"], element: function(){return document.body;}, className: "ytcenter-branding-remove-banner", condition: function(loc){return ytcenter.settings.removeBrandingBanner;}},
       {groups: ["player-branding"], element: function(){return document.body;}, className: "ytcenter-branding-remove-background", condition: function(loc){return ytcenter.settings.removeBrandingBackground;}},
-      {groups: ["page-center", "page"], element: function(){return document.body;}, className: "ytcenter-site-notcenter", condition: function(loc){return !ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
-      {groups: ["page-center", "page"], element: function(){return document.body;}, className: "ytcenter-site-center", condition: function(loc){return ytcenter.settings.watch7centerpage && !ytcenter.settings['experimentalFeatureTopGuide'];}},
-      {groups: ["topbar", "page"], element: function(){return document.body;}, className: "ytcenter-exp-topbar-static", condition: function(loc){return ytcenter.settings.ytExperimentalLayotTopbarStatic;}},
       {groups: ["ads"], element: function(){return document.body;}, className: "ytcenter-remove-ads-page", condition: function(loc){return ytcenter.settings.removeAdvertisements;}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-not-watch", condition: function(loc){return loc.pathname !== "/watch";}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-search", condition: function(loc){return loc.pathname === "/results";}},
@@ -22159,60 +21869,6 @@
     };
     
     ytcenter.cssElements = {};
-    ytcenter.playerSizeFitToContentFix = function(){
-      /* YouTube does now use the new layout. Therefore this is probably not required anymore.
-      var ftc = ytcenter.player.getPlayerSize("default_fit_to_content");
-      
-      if (ftc && ftc.config) {
-        if (ytcenter.settings["experimentalFeatureTopGuide"]) {
-          if (ftc.config.width === "985px" && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "584px")) {
-            ftc.config.width = "1040px"; // A size between 1003px and 1040px
-            ftc.config.height = "";
-          } else {
-            con.error("[PlayerSize:Fix] Couldn't change the fit to content to fit the new experimental layout.");
-          }
-        } else {
-          if ((ftc.config.width === "1003px" || ftc.config.width === "1040px") && (ftc.config.height === "" || ftc.config.height === "px" || ftc.config.height === "%" || ftc.config.height === "594px")) {
-            ftc.config.width = "985px";
-            ftc.config.height = "";
-          } else {
-            con.error("[PlayerSize:Fix] Couldn't change the fit to content to fit the new experimental layout.");
-          }
-        }
-        ytcenter.player.setPlayerSize(ftc);
-      } else {
-        con.error("[PlayerSize:Fix] Fit To Content player size doesn't exist!");
-      }*/
-    };
-    ytcenter.topbarInit = function(){
-      var page = ytcenter.getPage();
-      if (page !== "embed" && page !== "comments") {
-        if (ytcenter.settings['experimentalFeatureTopGuide']) {
-          if (!ytcenter.experiments.isTopGuide()) {
-            ytcenter.settings['experimentalFeatureTopGuide'] = false;
-            
-            ytcenter.cssElements.topbar.remove();
-            if (!ytcenter.settings['experimentalFeatureTopGuide'] && ytcenter.settings.enableResize) {
-              ytcenter.cssElements.resize.add();
-            }
-            
-            ytcenter.saveSettings(false, false);
-            ytcenter.classManagement.updateClassesByGroup("page");
-          }
-        } else {
-          if (ytcenter.experiments.isTopGuide()) {
-            ytcenter.settings['experimentalFeatureTopGuide'] = true;
-            
-            ytcenter.cssElements.topbar.add();
-            ytcenter.cssElements.resize.remove();
-            
-            ytcenter.saveSettings(false, false);
-            ytcenter.classManagement.updateClassesByGroup("page");
-          }
-        }
-        ytcenter.playerSizeFitToContentFix();
-      }
-    };
     ytcenter.unsafeInit = function(){
       // Settings made public
       ytcenter.unsafe.injected = injected;
@@ -22444,14 +22100,7 @@
           ytcenter.cssElements.settings = ytcenter.utils.addCSS("settings", ytcenter.css.settings);
           ytcenter.cssElements.centering = ytcenter.utils.addCSS("centering", ytcenter.css.centering);
           
-          ytcenter.cssElements.topbar = ytcenter.utils.addCSS("topbar", ytcenter.css.topbar, false);
-          if (ytcenter.settings['experimentalFeatureTopGuide'] || ytcenter.settings['ytExperimentFixedTopbar']) {
-            ytcenter.cssElements.topbar.add();
-          }
-          ytcenter.cssElements.resize = ytcenter.utils.addCSS("resize", ytcenter.css.resize, false);
-          if (!ytcenter.settings['experimentalFeatureTopGuide'] && ytcenter.settings.enableResize) {
-            ytcenter.cssElements.resize.add();
-          }
+          ytcenter.cssElements.topbar = ytcenter.utils.addCSS("topbar", ytcenter.css.topbar);
           
           ytcenter.cssElements.player = ytcenter.utils.addCSS("player", ytcenter.css.player);
           
@@ -22534,8 +22183,6 @@
         if (page === "comments") return; // We don't need to do anything here.
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
         
-        ytcenter.topbarInit();
-        
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         if (loc.href.indexOf(".youtube.com/embed/") === -1) {
@@ -22589,26 +22236,10 @@
           ytcenter.title.init();
           ytcenter.topScrollPlayer.setup();
           ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch" && ytcenter.settings.topScrollPlayerEnabled);
-          
-          if (ytcenter.settings['ytExperimentFixedTopbar']) {
-            if (!ytcenter.experiments.isFixedTopbar()) {
-              ytcenter.settings['ytExperimentFixedTopbar'] = false;
-              ytcenter.saveSettings(false, false);
-              loc.reload();
-              return;
-            }
-          } else {
-            if (ytcenter.experiments.isFixedTopbar()) {
-              ytcenter.settings['ytExperimentFixedTopbar'] = true;
-              ytcenter.saveSettings(false, false);
-              loc.reload();
-              return;
-            }
-          }
         }
         
         /* A simple Webkit hack, which will fix the horizontal scroll bar from appearing */
-        if (ytcenter.settings['experimentalFeatureTopGuide'] && document.body.className.indexOf("webkit") !== -1) {
+        if (document.body.className.indexOf("webkit") !== -1) {
           var guideButton = document.getElementById("appbar-guide-button"),
             _timer = null;
           ytcenter.utils.addEventListener(guideButton, "click", function(){
@@ -22665,14 +22296,6 @@
               }
             } else {
               if (ytcenter.getPage() === "watch") {
-                /*if (ytcenter.settings.forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
-                  ytcenter.player.setPlayerType("flash");
-                  return;
-                } else if (ytcenter.settings.forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
-                  ytcenter.player.setPlayerType("html5");
-                  return;
-                }*/
-                
                 if (ytcenter.player.config) {
                   try {
                     ytcenter.player.updateConfig(loc.href, ytcenter.player.modifyConfig(ytcenter.getPage(loc.href), ytcenter.player.config));
@@ -22701,13 +22324,6 @@
                 };
                 ytcenter.player.listeners.addEventListener("onStateChange", lis);
                 ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
-                /*if (ytcenter.settings.embed_forcePlayerType === "flash" && api.getPlayerType() !== "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
-                  ytcenter.player.setPlayerType("flash");
-                  return;
-                } else if (ytcenter.settings.embed_forcePlayerType === "html5" && api.getPlayerType() !== "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
-                  ytcenter.player.setPlayerType("html5");
-                  return;
-                }*/
               }
               if (!ytcenter._intercomOnPlayer) {
                 ytcenter._intercomOnPlayer = true;
@@ -22734,9 +22350,6 @@
             }
           }
         };
-        /*ytcenter.player.listeners.addEventListener("onPlaybackQualityChange", function(quality){
-          ytcenter.player.fixPreferredQualityUpdate(quality);
-        });*/
         ytcenter.player.listeners.addEventListener("onReady", function(api){
           var config = ytcenter.player.getConfig();          
           if (ytcenter.settings.enableAutoVideoQuality) {
@@ -22845,12 +22458,6 @@
           ytcenter.uploaderFlag.init();
           
           ytcenter.page = "watch";
-          try {
-            ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
-            ytcenter.guide.setup();
-          } catch (e) {
-            con.error(e);
-          }
           
           var wvi = document.getElementById("watch7-views-info"),
               sl = document.getElementsByClassName("video-extras-sparkbar-likes"),
@@ -22880,16 +22487,6 @@
             });
           } catch (e) {
             con.error(e);
-          }
-          
-          if (ytcenter.page === "watch") {
-            if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && !ytcenter.experiments.isTopGuide() && ((!ytcenter.settings.experimentalFeatureTopGuide && !ytcenter.settings.ytExperimentFixedTopbar) || ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
-              if ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic) {
-                ytcenter.utils.scrollTop(90);
-              } else if (document.getElementById("watch-headline-container") || document.getElementById("page-container")) {
-                ytcenter.utils.scrollTop(document.getElementById("watch-headline-container") || document.getElementById("page-container"));
-              }
-            }
           }
         } else if (page === "channel") {
           ytcenter.page = "channel";
@@ -23038,8 +22635,6 @@
               ytcenter.player.currentResizeId = ytcenter.settings['resize-small-button'];
               ytcenter.player.updateResize();
             }
-            
-            //ytcenter.events.performEvent("ui-refresh");
           } else {
             this.getOriginalListener()(large);
           }
@@ -23129,7 +22724,7 @@
         if (data.hasType("page")) {
           d = data.getData("page");
           
-          if (ytcenter.settings.experimentalFeatureTopGuide && url.indexOf("youtube.com/watch?") !== -1) {
+          if (url.indexOf("youtube.com/watch?") !== -1) {
             var cc = d.getAttribute("content", "class");
             if (!cc) cc = "";
             d.setAttribute("content", "class", cc + " yt-card");
@@ -23171,7 +22766,7 @@
         if (data.hasType("page")) {
           d = data.getData("page");
           
-          if (ytcenter.settings.experimentalFeatureTopGuide && url.indexOf("youtube.com/watch?") !== -1) {
+          if (url.indexOf("youtube.com/watch?") !== -1) {
             var cc = d.getAttribute("content", "class");
             if (!cc) cc = "";
             d.setAttribute("content", "class", cc + " yt-card");
@@ -23248,12 +22843,6 @@
             ytcenter.player.currentResizeId = ytcenter.settings['resize-default-playersize'];
             ytcenter.player.updateResize();
           }
-          try {
-            ytcenter.guide.hidden = ytcenter.settings.watch7playerguidealwayshide;
-            ytcenter.guide.setup();
-          } catch (e) {
-            con.error(e);
-          }
           if (ytcenter.settings.autoActivateRepeat) {
             ytcenter.doRepeat = true;
           } else {
@@ -23274,13 +22863,6 @@
             sd[0].style.height = ytcenter.settings.sparkbarHeight + "px";
             
             sd[0].parentNode.style.height = ytcenter.settings.sparkbarHeight + "px";
-          }
-          if (((ytcenter.settings.topScrollPlayerEnabled && !ytcenter.settings.topScrollPlayerActivated) || !ytcenter.settings.topScrollPlayerEnabled) && ytcenter.settings.scrollToPlayer && !ytcenter.experiments.isTopGuide() && (!ytcenter.settings.experimentalFeatureTopGuide || (ytcenter.settings.experimentalFeatureTopGuide && ytcenter.settings.ytExperimentalLayotTopbarStatic))) {
-            if ((ytcenter.settings.experimentalFeatureTopGuide || ytcenter.settings.ytExperimentFixedTopbar) && ytcenter.settings.ytExperimentalLayotTopbarStatic) {
-              ytcenter.utils.scrollTop(90);
-            } else if (document.getElementById("watch-headline-container") || document.getElementById("page-container")) {
-              ytcenter.utils.scrollTop(document.getElementById("watch-headline-container") || document.getElementById("page-container"));
-            }
           }
           
           ytcenter.playlist = false;
@@ -23336,16 +22918,6 @@
       ytcenter.spf.addEventListener("processed", "after", ytcenter.unsafe.spf.processed);
       
       ytcenter.pageReadinessListener.setup();
-      
-      try {
-        ytcenter.unload(function(){
-          if (ytcenter.guide.observer) {
-            ytcenter.guide.observer.disconnect();
-          }
-        });
-      } catch (e) {
-        con.error(e);
-      }
     })();
   };
   var crossUnsafeWindow = (function(){
@@ -23378,10 +22950,7 @@
         
         inject(main_function);
       } else {
-        //try {
-          main_function(false, @identifier@, @devbuild@, @devnumber@, crossUnsafeWindow);
-        /*} catch (e) {
-        }*/
+        main_function(false, @identifier@, @devbuild@, @devnumber@, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23397,6 +22966,37 @@
       
       inject(main_function);
     }
+  } else if (@identifier@ === 4) {
+    var comm = [];
+    
+    window.addEventListener("message", function(e){
+      if (!e || !e.data) return; // Checking if data is present
+      if (typeof e.data !== "string") return; // Checking if the object is a string.
+      if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
+      
+      var d = JSON.parse(e.data);
+      var id = comm.push(function(returnData){
+        window.postMessage(JSON.stringify({
+          id: d.id,
+          method: d.method,
+          returnData: returnData
+        }), "*");
+      }) - 1;
+      
+      safari.self.tab.dispatchMessage(d.method, JSON.stringify({ id: id, arguments: d.arguments }));
+    }, false);
+    
+    
+    safari.self.addEventListener("message", function(e){
+      if (!e || !e.data) return; // Checking if data is present
+      if (typeof e.data !== "string") return; // Checking if the object is a string.
+      if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
+      
+      var d = JSON.parse(e.data);
+      comm[d.id](d.returnData);
+    }, false);
+    
+    inject(main_function);
   } else {
     main_function(false, @identifier@, @devbuild@, @devnumber@, crossUnsafeWindow);
   }
