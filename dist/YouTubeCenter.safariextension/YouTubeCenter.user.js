@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         272
+// @version         273
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 272);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 273);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -13505,6 +13505,7 @@
     ytcenter.__settingsLoaded = false;
     ytcenter.loadSettings(function(){
       ytcenter.__settingsLoaded = true;
+      settingsInit();
       if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
         var intercom = ytcenter.Intercom.getInstance();
         intercom.on("settings", function(data){
@@ -13524,7 +13525,6 @@
           }
         });
       }
-      ytcenter.settingsPanel.settingsInit();
     });
     
     ytcenter.saveSettings_timeout_obj = null;
@@ -14475,8 +14475,12 @@
       };
       return a;
     })();
-    ytcenter.settingsPanel.settingsInit = function(){
+    var _settingsInit = false;
+    function settingsInit(){
       var cat, subcat, option;
+      
+      if (_settingsInit || !ytcenter.settingsPanel || !ytcenter.__settingsLoaded) return;
+      _settingsInit = true;
 
       /* Category:General */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_TAB_GENERAL");
@@ -14829,7 +14833,6 @@
             "SETTINGS_SCROLLTOPLAYER_LABEL"
           );
           ytcenter.events.addEvent("settings-update", (function(opt){ return function(){ opt.setVisibility(ytcenter.settings.staticHeader); }; })(option));
-          con.log("staticHeader_scrollToPlayer, option.setVisibility(" + ytcenter.settings.staticHeader + ")");
           option.setVisibility(ytcenter.settings.staticHeader);
           subcat.addOption(option);
 
@@ -17916,7 +17919,8 @@
                 ],
                 "pl": [
                   { name: "Piotr" },
-                  { name: "kasper93" }
+                  { name: "kasper93" },
+                  { name: "Piter432" }
                 ],
                 "pt-BR": [
                   { name: "Thiago R. M. Pereira" },
@@ -17961,6 +17965,7 @@
           );
           subcat.addOption(option);
     };
+    settingsInit();
     
     ytcenter.video = {};
     ytcenter.video.format = [
@@ -22997,7 +23002,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 272, crossUnsafeWindow);
+        main_function(false, 4, true, 273, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23014,7 +23019,7 @@
       inject(main_function);
     }
   } else if (4 === 4) {
-    var comm = [];
+    /*var comm = [];
     
     window.addEventListener("message", function(e){
       if (!e || !e.data) return; // Checking if data is present
@@ -23041,10 +23046,10 @@
       
       var d = JSON.parse(e.data);
       comm[d.id](d.returnData);
-    }, false);
+    }, false);*/
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 272, crossUnsafeWindow);
+    main_function(false, 4, true, 273, crossUnsafeWindow);
   }
 })();

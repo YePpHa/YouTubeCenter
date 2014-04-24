@@ -13505,6 +13505,7 @@
     ytcenter.__settingsLoaded = false;
     ytcenter.loadSettings(function(){
       ytcenter.__settingsLoaded = true;
+      settingsInit();
       if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
         var intercom = ytcenter.Intercom.getInstance();
         intercom.on("settings", function(data){
@@ -13524,7 +13525,6 @@
           }
         });
       }
-      ytcenter.settingsPanel.settingsInit();
     });
     
     ytcenter.saveSettings_timeout_obj = null;
@@ -14475,8 +14475,12 @@
       };
       return a;
     })();
-    ytcenter.settingsPanel.settingsInit = function(){
+    var _settingsInit = false;
+    function settingsInit(){
       var cat, subcat, option;
+      
+      if (_settingsInit || !ytcenter.settingsPanel || !ytcenter.__settingsLoaded) return;
+      _settingsInit = true;
 
       /* Category:General */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_TAB_GENERAL");
@@ -14829,7 +14833,6 @@
             "SETTINGS_SCROLLTOPLAYER_LABEL"
           );
           ytcenter.events.addEvent("settings-update", (function(opt){ return function(){ opt.setVisibility(ytcenter.settings.staticHeader); }; })(option));
-          con.log("staticHeader_scrollToPlayer, option.setVisibility(" + ytcenter.settings.staticHeader + ")");
           option.setVisibility(ytcenter.settings.staticHeader);
           subcat.addOption(option);
 
@@ -17962,6 +17965,7 @@
           );
           subcat.addOption(option);
     };
+    settingsInit();
     
     ytcenter.video = {};
     ytcenter.video.format = [
@@ -23015,7 +23019,7 @@
       inject(main_function);
     }
   } else if (@identifier@ === 4) {
-    var comm = [];
+    /*var comm = [];
     
     window.addEventListener("message", function(e){
       if (!e || !e.data) return; // Checking if data is present
@@ -23042,7 +23046,7 @@
       
       var d = JSON.parse(e.data);
       comm[d.id](d.returnData);
-    }, false);
+    }, false);*/
     
     inject(main_function);
   } else {
