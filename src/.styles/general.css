@@ -1,3 +1,11 @@
+.static-header #masthead-positioner {
+  position: static !important;
+}
+
+.static-header #masthead-positioner-height-offset {
+  display: none !important;
+}
+
 a .ytcenter-video-thumb-show-hover {
   display: none;
 }

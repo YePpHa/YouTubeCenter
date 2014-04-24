@@ -10916,6 +10916,16 @@
     };
     
     // @utils
+    ytcenter.utils.getScrollPosition = function(scrollElm){
+      var posX = 0;
+      var posY = 0;
+      while (scrollElm != null) {
+        posX += scrollElm.offsetLeft;
+        posY += scrollElm.offsetTop;
+        scrollElm = scrollElm.offsetParent;
+      }
+      return { x: posX, y: posY };
+    };
     ytcenter.utils.live = (function(){
       function getElements(query) {
         return document.querySelectorAll(query);
@@ -12946,6 +12956,8 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      staticHeader_scrollToPlayer: false,
+      staticHeader: false,
       debugConsole: true, // Saves the content of the console for the debug log.
       gridCollectionPage: true,
       logoLink: "/",
@@ -13512,6 +13524,7 @@
           }
         });
       }
+      ytcenter.settingsPanel.settingsInit();
     });
     
     ytcenter.saveSettings_timeout_obj = null;
@@ -14462,7 +14475,7 @@
       };
       return a;
     })();
-    (function(){
+    ytcenter.settingsPanel.settingsInit = function(){
       var cat, subcat, option;
 
       /* Category:General */
@@ -14798,6 +14811,26 @@
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["hide-ticker"]);
           });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "staticHeader", // defaultSetting
+            "bool", // module
+            "SETTINGS_STATIC_HEADER"
+          );
+          option.addEventListener("update", function(){
+            ytcenter.classManagement.updateClassesByGroup(["header"]);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "staticHeader_scrollToPlayer", // defaultSetting
+            "bool", // module
+            "SETTINGS_SCROLLTOPLAYER_LABEL"
+          );
+          ytcenter.events.addEvent("settings-update", (function(opt){ return function(){ opt.setVisibility(ytcenter.settings.staticHeader); }; })(option));
+          con.log("staticHeader_scrollToPlayer, option.setVisibility(" + ytcenter.settings.staticHeader + ")");
+          option.setVisibility(ytcenter.settings.staticHeader);
           subcat.addOption(option);
 
       /* Category:Player */
@@ -17927,7 +17960,7 @@
             }
           );
           subcat.addOption(option);
-    })();
+    };
     
     ytcenter.video = {};
     ytcenter.video.format = [
@@ -20004,15 +20037,18 @@
     ytcenter.player.updateResize = (function(){
       function scrollToPlayer() {
         if (!ytcenter.settings.enableResize) return;
-        var posY = 0,
-            scrollElm = (document.getElementById("player-api-legacy") || document.getElementById("player-api")),
-            t = ytcenter.utils.getOffset((document.getElementById("player-api-legacy") || document.getElementById("player-api"))).top,
-            mp = document.getElementById("masthead-positioner");
-        while (scrollElm != null) {
-          posY += scrollElm.offsetTop;
-          scrollElm = scrollElm.offsetParent;
+        var scrollElm = (document.getElementById("player-api-legacy") || document.getElementById("player-api"));
+        if (ytcenter.settings.staticHeader) {
+          scrollElm.scrollIntoView(true);
+        } else {
+          var posY = 0,
+              mp = document.getElementById("masthead-positioner");
+          while (scrollElm != null) {
+            posY += scrollElm.offsetTop;
+            scrollElm = scrollElm.offsetParent;
+          }
+          ytcenter.utils.scrollTop(posY - mp.offsetHeight);
         }
-        ytcenter.utils.scrollTop(posY - mp.offsetHeight);
       }
       
       var scrollToPlayerButtonArrow, scrollToPlayerButton = null;
@@ -20350,7 +20386,7 @@
         if (height.match(/%$/) && height.length > 1) {
           var mp = document.getElementById("masthead-positioner");
           calcHeight = parseInt(height)/100*clientHeight;
-          if (mp) {
+          if (mp && !ytcenter.settings.staticHeader) {
             calcHeight -= mp.offsetHeight || mp.clientHeight;
           }
           pbh = 0;
@@ -21419,6 +21455,7 @@
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-not-watch", condition: function(loc){return loc.pathname !== "/watch";}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-search", condition: function(loc){return loc.pathname === "/results";}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-watch", condition: function(loc){return loc.pathname === "/watch";}},
+      {groups: ["header", "page"], element: function(){return document.body;}, className: "static-header", condition: function(){return ytcenter.settings.staticHeader;}},
       {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
     ytcenter.intelligentFeed = (function(){
@@ -22238,6 +22275,11 @@
           ytcenter.topScrollPlayer.setEnabled(ytcenter.getPage() === "watch" && ytcenter.settings.topScrollPlayerEnabled);
         }
         
+        var page_element = document.getElementById("page");
+        if (page_element && page === "watch" && ytcenter.settings.staticHeader_scrollToPlayer && ytcenter.settings.staticHeader) {
+          ytcenter.utils.scrollTop(ytcenter.utils.getScrollPosition(page_element).y/2);
+        }
+        
         /* A simple Webkit hack, which will fix the horizontal scroll bar from appearing */
         if (document.body.className.indexOf("webkit") !== -1) {
           var guideButton = document.getElementById("appbar-guide-button"),
@@ -22886,6 +22928,11 @@
           ytcenter.actionPanel.setup();
           
           ytcenter.topScrollPlayer.setEnabled(ytcenter.settings.topScrollPlayerEnabled);
+          
+          var page_element = document.getElementById("page");
+          if (page_element && ytcenter.settings.staticHeader_scrollToPlayer && ytcenter.settings.staticHeader) {
+            ytcenter.utils.scrollTop(ytcenter.utils.getScrollPosition(page_element).y/2);
+          }
         }
         
         if (config) {
