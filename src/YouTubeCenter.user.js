@@ -20389,6 +20389,16 @@
           playerHeight = playerHeight + 80;
         }
         
+        if (player) {
+          if (large) {
+            ytcenter.utils.addClass(player, "watch-large");
+            ytcenter.utils.removeClass(player, "watch-small");
+          } else {
+            ytcenter.utils.addClass(player, "watch-small");
+            ytcenter.utils.removeClass(player, "watch-large");
+          }
+        }
+        
         if (playlist_el) {
           playlist_el.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
           if (large) {
@@ -20404,6 +20414,7 @@
           player.style.position = "";
           player.style.left = "";
           player.style.marginBottom = "";
+          
           player.style.width = (large ? playerWidth + "px" : "auto");
           if (large) {
             player.style.maxWidth = "";
@@ -20415,8 +20426,6 @@
           if (large && align && playerWidth < maxInsidePlayerWidth) {
             player.style.setProperty("position", "relative", "important");
             player.style.setProperty("left", (-(maxInsidePlayerWidth - playerWidth)/2) + "px", "important");
-          } else {
-            player.style.setProperty("left", "0px", "important");
           }
           if (large) {
             player.style.setProperty("margin-bottom", "28px", "important");
