@@ -21096,10 +21096,6 @@
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
-      /*if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
-        con.error("[Player update] Not enough data to refresh the player!");
-        return;
-      }*/
       if (config.html5) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
@@ -21128,6 +21124,8 @@
           player.parentNode.replaceChild(clone, player);
           player = clone;
           con.log("[Player Update] Player has been cloned and replaced!");
+        } else {
+          uw.setTimeout(function(){ ytcenter.player.update(config) }, 100);
         }
       } catch (e) {
         con.error(e);
