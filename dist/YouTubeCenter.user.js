@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         278
+// @version         279
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 278);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 279);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21096,10 +21096,6 @@
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
-      /*if (!config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
-        con.error("[Player update] Not enough data to refresh the player!");
-        return;
-      }*/
       if (config.html5) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
@@ -21128,6 +21124,8 @@
           player.parentNode.replaceChild(clone, player);
           player = clone;
           con.log("[Player Update] Player has been cloned and replaced!");
+        } else {
+          uw.setTimeout(function(){ ytcenter.player.update(config) }, 100);
         }
       } catch (e) {
         con.error(e);
@@ -22985,7 +22983,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 278, crossUnsafeWindow);
+        main_function(false, 0, true, 279, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23029,6 +23027,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 278, crossUnsafeWindow);
+    main_function(false, 0, true, 279, crossUnsafeWindow);
   }
 })();
