@@ -1,3 +1,7 @@
+.hide-lang-alert #alerts #yt-lang-alert-container {
+  display: none !important;
+}
+
 .static-header #masthead-positioner {
   position: static !important;
 }

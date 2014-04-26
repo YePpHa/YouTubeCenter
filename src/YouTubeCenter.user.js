@@ -12967,6 +12967,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      hideLangAlert: true,
       staticHeader_scrollToPlayer: false,
       staticHeader: false,
       debugConsole: true, // Saves the content of the console for the debug log.
@@ -14774,6 +14775,16 @@
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["hide-ticker"]);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "hideLangAlert", // defaultSetting
+            "bool", // module
+            "SETTINGS_HIDE_LANG_ALERT"
+          );
+          option.addEventListener("update", function(){
+            ytcenter.classManagement.updateClassesByGroup(["hide-lang"]);
           });
           subcat.addOption(option);
           
@@ -21417,6 +21428,7 @@
           return false;
         }
       }},
+      {groups: ["hide-lang", "page"], element: function(){return document.body;}, className: "hide-lang-alert", condition: function(loc){ return ytcenter.settings["hideLangAlert"]; }},
       {groups: ["player-endscreen"], element: function(){return document.body;}, className: "ytcenter-disable-endscreen", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings["removeRelatedVideosEndscreen"];}},
       {groups: ["lightsoff"], element: function(){return document.body;}, className: "ytcenter-lights-off-click-through", condition: function(loc){return ytcenter.settings["lightbulbClickThrough"];}},
       {groups: ["hide-watched-videos", "page"], element: function(){return document.body;}, className: "ytcenter-hide-watched-videos", condition: function(loc){return ytcenter.gridview.isEnabled() && loc.pathname.indexOf("/feed/watch_later") !== 0 && ytcenter.settings.hideWatchedVideos;}},
