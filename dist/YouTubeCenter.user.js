@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         280
+// @version         281
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 280);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 281);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -22996,7 +22996,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 280, crossUnsafeWindow);
+        main_function(false, 0, true, 281, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23017,7 +23017,7 @@
       if (!e || !e.data) return; // Checking if data is present
       if (typeof e.data !== "string") return; // Checking if the object is a string.
       if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
-
+      
       safari.self.tab.dispatchMessage("call", e.data);
     }
     var safeWindowMessageListener = function(e){
@@ -23059,6 +23059,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 280, crossUnsafeWindow);
+    main_function(false, 0, true, 281, crossUnsafeWindow);
   }
 })();

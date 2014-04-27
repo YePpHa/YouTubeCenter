@@ -2,7 +2,7 @@
 <html>
   <head>
     <script type="text/javascript">
-      function xhr(details) {
+      function crossxhr(details) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function(){
           var responseState = {
@@ -43,9 +43,7 @@
         return true
       }
       
-      function xhrListener(e) {
-        var a = JSON.parse(e.message),
-            details = a.details;
+      function xhr(e, details) {
         var onreadystatechange = details.onreadystatechange; // the id
         if (details.onreadystatechange) {
           details.onreadystatechange = function(response){
@@ -65,16 +63,16 @@
           };
         }
         
-        xhr(details);
+        crossxhr(details);
       }
       
-      function save(name, value) {
+      function save(e, name, value) {
         if (typeof value === "object")
           value = JSON.stringify(value);
         return localStorage[name] = value;
       }
       
-      function load(name) {
+      function load(e, name) {
         return (!localStorage[name] || localStorage[name] === "[object Object]" ? {} : localStorage[name]);
       }
       
@@ -93,9 +91,13 @@
       
       function functionListener(e) {
         if (e.name !== "call") return;
-        
         var data = JSON.parse(e.message);
-        call(e, data.id, [nameToFunction(data.method).apply(this, data.arguments)]);
+        if (data.level === "safe") return;
+        
+        var func = nameToFunction(data.method);
+        if (typeof func === "function") {
+          call(e, data.id, [func.apply(this, [e].concat(data.arguments))]);
+        }
       }
       
       safari.application.addEventListener("message", functionListener, false); // Attaching a listener
