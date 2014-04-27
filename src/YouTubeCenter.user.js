@@ -23017,7 +23017,7 @@
       if (!e || !e.data) return; // Checking if data is present
       if (typeof e.data !== "string") return; // Checking if the object is a string.
       if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
-
+      
       safari.self.tab.dispatchMessage("call", e.data);
     }
     var safeWindowMessageListener = function(e){
