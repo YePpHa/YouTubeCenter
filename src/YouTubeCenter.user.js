@@ -91,7 +91,8 @@
       p.removeChild(script);
     } catch (e) {}
   }
-  function injected_saveSettings(id, key, data) {
+  function chrome_saveSettings(id, key, data) {
+    console.log("[Chrome] Save Settings [" + key + "]");
     var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
     if (typeof data !== "string") data = JSON.stringify(data);
     chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "setLocalStorage", "key": key, "data": data }), function(response) {
@@ -102,7 +103,8 @@
       }), "*");
     });
   }
-  function injected_loadSettings(id, key) {
+  function chrome_loadSettings(id, key) {
+    console.log("[Chrome] Load Settings [" + key + "]");
     var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
     if (chrome[runtimeOrExtension]) {
       try {
@@ -113,15 +115,25 @@
             arguments: [response.data]
           }), "*");
         });
-      } catch (e) {
-        console.log(chrome);
-        console.error(e);
-      }
-    } else {
-      console.log(chrome, runtimeOrExtension);
-    }
+      } catch (e) { console.error(e); }
+    } else { console.error("[Chrome] Load Settings failed!"); }
   }
-  function injected_xhr(id, details) {
+  function maxthon_saveSettings(id, key, data) {
+    if (typeof data !== "string") data = JSON.stringify(data);
+    
+    window.external.mxGetRuntime().storage.setConfig(key, data);
+    window.postMessage(JSON.stringify({
+      id: id,
+      arguments: []
+    }), "*");
+  }
+  function maxthon_loadSettings(id, key) {
+    window.postMessage(JSON.stringify({
+      id: id,
+      arguments: [window.external.mxGetRuntime().storage.getConfig(key)]
+    }), "*");
+  }
+  function cross_xhr(id, details) {
     var xmlhttp, prop;
     if (typeof GM_xmlhttpRequest !== "undefined") {
       GM_xmlhttpRequest(details);
@@ -1751,7 +1763,7 @@
     }
     
     function $XMLHTTPRequest(details) {
-      if (injected || identifier === 4) {
+      if ((identifier === 1 || identifier === 4 || identifier === 2) && injected) {
         ytcenter.unsafeCall("xhr", [details], null);
       } else {
         if (identifier === 3) { // Firefox Extension
@@ -11026,7 +11038,7 @@
         }
       }
       var comm = [];
-      window.addEventListener("message", resp, false);
+      if (injected) window.addEventListener("message", resp, false);
       
       return call;
     })();
@@ -13401,7 +13413,7 @@
     ytcenter.storageName = "YouTubeCenterSettings";
     ytcenter.loadSettings = function(callback){
       try {
-        if ((identifier === 1 && injected) || identifier === 4) {
+        if ((identifier === 1 || identifier === 4 || identifier === 2) && injected) {
           ytcenter.unsafeCall("load", [ytcenter.storageName], function(storage){
             if (storage === "[object Object]") storage = {};
             if (typeof storage === "string")
@@ -13471,6 +13483,7 @@
               }
             }
           } catch (e) {
+            con.log(data);
             con.error(e);
           }
           if (callback) callback();
@@ -13528,7 +13541,7 @@
       if (typeof timeout !== "boolean") timeout = false;
       var __ss = function(){
         con.log("[Storage] Saving Settings");
-        if ((identifier === 1 && injected) || identifier === 4) {
+        if ((identifier === 1 || identifier === 4 || identifier === 2) && injected) {
           ytcenter.unsafeCall("save", [ytcenter.storageName, ytcenter.settings], callback);
         } else if (identifier === 3) {
           var id = ytcenter.callback_db.push(function(){
@@ -22973,11 +22986,11 @@
           
           var d = JSON.parse(e.data);
           if (d.method === "xhr") {
-            injected_xhr(d.id, d.arguments[0]); // id, details
+            cross_xhr(d.id, d.arguments[0]); // id, details
           } else if (d.method === "save") {
-            injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
+            chrome_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
           } else if (d.method === "load") {
-            injected_loadSettings(d.id, d.arguments[0]); // id, key
+            chrome_loadSettings(d.id, d.arguments[0]); // id, key
           }
         }, false);
         
@@ -22989,11 +23002,11 @@
       window.addEventListener("message", function(e){
         var d = JSON.parse(e.data);
         if (d.method === "xhr") {
-          injected_xhr(d.id, d.arguments[0]); // id, details
+          cross_xhr(d.id, d.arguments[0]); // id, details
         } else if (d.method === "save") {
-          injected_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
+          chrome_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
         } else if (d.method === "load") {
-          injected_loadSettings(d.id, d.arguments[0]); // id, key
+          chrome_loadSettings(d.id, d.arguments[0]); // id, key
         }
       }, false);
       
@@ -23020,10 +23033,29 @@
           arguments: d.arguments
         }), "*");
       }
-    }
+    };
     
     window.addEventListener("message", unsafeWindowMessageListener, false);
     safari.self.addEventListener("message", safeWindowMessageListener, false);
+    
+    inject(main_function);
+  } else if (@identifier@ === 2) {
+    var unsafeWindowMessageListener = function(e) {
+      if (!e || !e.data) return; // Checking if data is present
+      if (typeof e.data !== "string") return; // Checking if the object is a string.
+      if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
+      
+      var d = JSON.parse(e.data);
+      if (d.method === "xhr") {
+        cross_xhr(d.id, d.arguments[0]); // id, details
+      } else if (d.method === "save") {
+        maxthon_saveSettings(d.id, d.arguments[0], d.arguments[1]); // id, key, data
+      } else if (d.method === "load") {
+        maxthon_loadSettings(d.id, d.arguments[0]); // id, key
+      }
+    };
+    
+    window.addEventListener("message", unsafeWindowMessageListener, false);
     
     inject(main_function);
   } else {

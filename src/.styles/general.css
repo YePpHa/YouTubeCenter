@@ -843,9 +843,15 @@ body > #page {
 .ytcenter-ticker-hidden #ticker {
   display: none!important;
 }
-
-.exp-top-guide.sitewide-ticker-visible.ytcenter-ticker-hidden #masthead-positioner-height-offset {
+.sitewide-ticker-visible.ytcenter-ticker-hidden #masthead-positioner-height-offset {
   height: 90px!important;
+}
+.appbar-hidden.ytcenter-ticker-hidden #masthead-positioner-height-offset {
+  height: 50px!important;
+}
+
+.sitewide-ticker-visible.ytcenter-ticker-hidden #appbar-guide-menu {
+  margin-top: 50px!important;
 }
 
 .watched-badge {
