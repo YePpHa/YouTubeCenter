@@ -48,7 +48,10 @@
 			<string>https://apis.google.com/*/widget/render/comments?*</string>
 			<string>http://plus.googleapis.com/*/widget/render/comments?*</string>
 			<string>https://plus.googleapis.com/*/widget/render/comments?*</string>
-      <string>https://github.com/YePpHa/YouTubeCenter/blob/master/devbuild.number</string>
+      <string>http://github.com/YePpHa/YouTubeCenter/blob/master/*</string>
+      <string>https://github.com/YePpHa/YouTubeCenter/blob/master/*</string>
+      <string>http://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*</string>
+      <string>https://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*</string>
 		</array>
 	</dict>
 	<key>Description</key>

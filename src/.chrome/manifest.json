@@ -35,8 +35,10 @@
     "https://*.youtube.com/*",
     "http://s.ytimg.com/yts/jsbin/*",
     "https://s.ytimg.com/yts/jsbin/*",
+    "http://raw.github.com/YePpHa/YouTubeCenter/master/*",
     "https://raw.github.com/YePpHa/YouTubeCenter/master/*",
-    "https://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/devbuild.number"
+    "http://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*",
+    "https://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*"
   ],
   "icons": {"16": "assets/icon16.png",
             "48": "assets/icon48.png",
