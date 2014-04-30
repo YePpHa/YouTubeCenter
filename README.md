@@ -6,7 +6,7 @@ Build
 YouTube Center is using the build system [Ant](http://ant.apache.org/).
 
 ### Base requirements
- * Computer (You probably already have a computer if you are reading this README)
+ * Desktop Computer
  * [Java SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
  * [Ant](http://ant.apache.org/)
 
