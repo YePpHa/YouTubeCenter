@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         282
+// @version         283
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 282);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 283);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -19163,6 +19163,43 @@
         return 16/9;
       }
     };
+    ytcenter.player.experiments = (function(){
+      function add(exp, config) {
+        var cfg = getConfig(config);
+        if (!has(exp, config)) {
+          cfg.args.fexp += "," + exp;
+        }
+      }
+      function remove(exp, config) {
+        var cfg = getConfig(config);
+        if (cfg && cfg.args && cfg.args.fexp) {
+          var e = cfg.args.fexp.split(","), i, a = [];
+          for (i = 0; i < e.length; i++) {
+            if (exp !== e[i]) {
+              a.push(e[i]);
+            }
+          }
+          cfg.args.fexp = a.join(",");
+        }
+      }
+      function has(exp, config) {
+        var cfg = getConfig(config);
+        if (cfg && cfg.args && typeof cfg.fexp === "string") {
+          var e = cfg.args.fexp.split(","), i, a = [];
+          for (i = 0; i < e.length; i++) {
+            if (exp === e[i]) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      function getConfig(config) {
+        return config || ytcenter.player.config.args;
+      }
+      
+      return { add: add, remove: remove, has: has };
+    })();
     ytcenter.player.modifyConfig = function(page, config){
       if (page !== "watch" && page !== "embed" && page !== "channel") return config;
       if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return config;
@@ -19223,6 +19260,8 @@
       
       
       if (ytcenter.getPage() === "watch") {
+        ytcenter.player.experiments.add("931959", config);
+        ytcenter.player.experiments.remove("931972", config);
         if (ytcenter.settings.enableYouTubeShortcuts) {
           config.args.disablekb = 0;
         } else {
@@ -22999,7 +23038,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 282, crossUnsafeWindow);
+        main_function(false, 4, true, 283, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23062,6 +23101,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 282, crossUnsafeWindow);
+    main_function(false, 4, true, 283, crossUnsafeWindow);
   }
 })();

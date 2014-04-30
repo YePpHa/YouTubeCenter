@@ -19163,6 +19163,43 @@
         return 16/9;
       }
     };
+    ytcenter.player.experiments = (function(){
+      function add(exp, config) {
+        var cfg = getConfig(config);
+        if (!has(exp, config)) {
+          cfg.args.fexp += "," + exp;
+        }
+      }
+      function remove(exp, config) {
+        var cfg = getConfig(config);
+        if (cfg && cfg.args && cfg.args.fexp) {
+          var e = cfg.args.fexp.split(","), i, a = [];
+          for (i = 0; i < e.length; i++) {
+            if (exp !== e[i]) {
+              a.push(e[i]);
+            }
+          }
+          cfg.args.fexp = a.join(",");
+        }
+      }
+      function has(exp, config) {
+        var cfg = getConfig(config);
+        if (cfg && cfg.args && typeof cfg.fexp === "string") {
+          var e = cfg.args.fexp.split(","), i, a = [];
+          for (i = 0; i < e.length; i++) {
+            if (exp === e[i]) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      function getConfig(config) {
+        return config || ytcenter.player.config.args;
+      }
+      
+      return { add: add, remove: remove, has: has };
+    })();
     ytcenter.player.modifyConfig = function(page, config){
       if (page !== "watch" && page !== "embed" && page !== "channel") return config;
       if (loc.href.indexOf(".youtube.com/embed/") !== -1 && !ytcenter.settings.embed_enabled) return config;
@@ -19223,6 +19260,10 @@
       
       
       if (ytcenter.getPage() === "watch") {
+        // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
+        ytcenter.player.experiments.add("931959", config);
+        ytcenter.player.experiments.remove("931972", config);
+        
         if (ytcenter.settings.enableYouTubeShortcuts) {
           config.args.disablekb = 0;
         } else {
