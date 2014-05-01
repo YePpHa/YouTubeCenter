@@ -10882,19 +10882,13 @@
       Intercom.bindings.push(SocketBinding);
       return Intercom;
     })();
-    ytcenter.experiments = {};
-    ytcenter.experiments.isTopGuide = function(){
-      return true;
-      /*if (ytcenter.utils.hasClass(document.body, "site-as-giant-card") || ytcenter.utils.hasClass(document.body, "guide-pinning-enabled"))
-        return true;
-      return ytcenter.utils.hasClass(document.body, "exp-top-guide") && !ytcenter.utils.hasClass(document.body, "ytg-old-clearfix");*/
-    };
-    ytcenter.experiments.isFixedTopbar = function(){
-      //return ytcenter.utils.hasClass(document.body, "exp-fixed-masthead");
-      return false;
-    };
     
     // @utils
+    ytcenter.utils.asyncCall = function(func){
+      var args = Array.prototype.splice.call(arguments, 1, arguments.length);
+      var proxy = ytcenter.utils.bind(func);
+      setTimeout(function(){ proxy.apply(null, args); }, 0);
+    };
     ytcenter.utils.getScrollPosition = function(scrollElm){
       var posX = 0;
       var posY = 0;
@@ -12173,7 +12167,7 @@
         return func.apply(null, args);
       };
     };
-    ytcenter.utils.bind = function(func, b){
+    ytcenter.utils.bind = function(func){
       return func.call.apply(func.bind, arguments);
     };
     ytcenter.utils.query = function(key){
@@ -15033,16 +15027,6 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Annotations"
           );
           subcat.addOption(option);
-          if (!ytcenter.experiments.isTopGuide()) {
-            option = ytcenter.settingsPanel.createOption(
-              "scrollToPlayer", // defaultSetting
-              "bool", // module
-              "SETTINGS_SCROLLTOPLAYER_LABEL",
-              null,
-              "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Scroll_To_Player"
-            );
-            subcat.addOption(option);
-          }
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "line"
@@ -18395,17 +18379,18 @@
       function updateState(state, s) {
         con.log("[Player:setPlaybackState] Preferred state: " + state + ", current state: " + s);
         var api = ytcenter.player.getAPI();
+        var muted = false;
         if (s === 1) {
           if (state === 0) {
             api.mute();
             api.stopVideo();
-            !ytcenter.settings.mute && api.isMuted && api.unMute();
+            muted = true;
           } else if (state === 1) {
             api.playVideo();
           } else if (state === 2) {
             api.mute();
             api.pauseVideo();
-            !ytcenter.settings.mute && api.isMuted && api.unMute();
+            muted = true;
           }
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
         } else if (s <= 0 && state === 2) {
@@ -18414,10 +18399,19 @@
           api.playVideo();
           api.pauseVideo();
           
-          !ytcenter.settings.mute && api.isMuted && api.unMute();
+          muted = true;
           
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
         }
+        
+        ytcenter.utils.asyncCall(function(){
+          var newState = api.getPlayerState();
+          if (newState !== state && (newState !== -1 || !ytcenter.html5) && typeof newState === "number") {
+            updateState(state, newState);
+          } else if (muted) {
+            !ytcenter.settings.mute && api.isMuted && api.unMute();
+          }
+        });
       }
       function setState(state) {
         var api = ytcenter.player.getAPI();
