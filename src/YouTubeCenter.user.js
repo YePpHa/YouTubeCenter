@@ -5700,37 +5700,6 @@
         
         return false;
       }
-      function subscriptionGrid(item) {
-        var username = null,
-            metadata = null,
-            actionMenu = null,
-            usernameWrapper = null, i, am, li, s,
-            primaryCol = null;
-        if (isInSubscription(item)) {
-          metadata = item.content.parentNode.parentNode.getElementsByClassName("yt-lockup-meta")[0];
-          actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling;
-          usernameWrapper = document.createElement("div");
-          primaryCol = document.getElementsByClassName("branded-page-v2-primary-col");
-          
-          if (!metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username")
-              || metadata.parentNode.getElementsByClassName("ytcenter-grid-subscriptions-username").length === 0) {
-            if (primaryCol && primaryCol.length > 0 && primaryCol[0]) {
-              primaryCol[0].style.overflow = "visible";
-              ytcenter.utils.addClass(primaryCol[0], "clearfix");
-              primaryCol[0].getElementsByClassName("feed-header")[0].style.height = "32px";
-            }
-            username = convertChannelBubble(getChannelBubble(item));
-            usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
-            usernameWrapper.className = "ytcenter-grid-subscriptions-username";
-            metadata.parentNode.insertBefore(usernameWrapper, metadata);
-            
-            ytcenter.events.addEvent("language-refresh", function(){
-              usernameWrapper.innerHTML = "";
-              usernameWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": username}));
-            });
-          }
-        }
-      }
       function processItemHeavyLoad(item) {
         if (!ytcenter.settings.videoThumbnailQualityBar && !ytcenter.settings.videoThumbnailAnimationEnabled) return;
         if (ytcenter.settings.videoThumbnailQualityDownloadAt === "scroll_into_view") {
@@ -5950,7 +5919,7 @@
         ytcenter.settings.videoThumbnailData = nData;
         ytcenter.saveSettings(false, true);
       }
-      var __r = {}, videoThumbs, observer = null, observer2 = null;
+      var __r = {}, videoThumbs = [], observer = null, observer2 = null;
       __r.update = function(){
         ytcenter.gridview.update();
         ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
@@ -5976,16 +5945,12 @@
         }
       };
       __r.setupObserver = function(){
+        __r.dispose(); // We don't want multiple observers
         if (document.getElementById("content")) {
           observer = ytcenter.mutation.observe(document.getElementById("content"), { childList: true, subtree: true }, function(){
-            ytcenter.gridview.update();
-          });
-        }
-        /*if (document.getElementById("guide")) {
-          observer2 = ytcenter.mutation.observe(document.getElementById("guide"), { childList: true, subtree: true }, function(){
             __r.update();
           });
-        }*/
+        }
       };
       __r.dispose = function(){
         if (observer) {
@@ -18392,13 +18357,13 @@
           if (state === 0) {
             api.mute();
             api.stopVideo();
-            muted = true;
+            !ytcenter.settings.mute && api.isMuted && api.unMute();
           } else if (state === 1) {
             api.playVideo();
           } else if (state === 2) {
             api.mute();
             api.pauseVideo();
-            muted = true;
+            !ytcenter.settings.mute && api.isMuted && api.unMute();
           }
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
         } else if (s <= 0 && state === 2) {
@@ -18407,7 +18372,7 @@
           api.playVideo();
           api.pauseVideo();
           
-          muted = true;
+          !ytcenter.settings.mute && api.isMuted && api.unMute();
           
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
         }
@@ -18416,8 +18381,6 @@
           var newState = api.getPlayerState();
           if (newState !== state && ((newState !== -1 && newState !== 5) || !ytcenter.html5) && typeof newState === "number") {
             updateState(state, newState);
-          } else if (muted) {
-            !ytcenter.settings.mute && api.isMuted && api.unMute();
           }
         });
       }
