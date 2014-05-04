@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         285
+// @version         286
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 285);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 286);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -130,7 +130,7 @@
   function maxthon_loadSettings(id, key) {
     window.postMessage(JSON.stringify({
       id: id,
-      arguments: [window.external.mxGetRuntime().storage.getConfig(key)]
+      arguments: [window.external.mxGetRuntime().storage.getConfig(key) || {}]
     }), "*");
   }
   function cross_xhr(id, details) {
@@ -1763,7 +1763,7 @@
     }
     
     function $XMLHTTPRequest(details) {
-      if ((identifier === 1 || identifier === 4 || identifier === 2) && injected) {
+      if (((identifier === 1 || identifier === 4 || identifier === 2) && injected) || identifier === 5) {
         ytcenter.unsafeCall("xhr", [details], null);
       } else {
         if (identifier === 3) { // Firefox Extension
@@ -1791,32 +1791,6 @@
             id: id,
             details: details
           }));
-        } else if (identifier === 5) { // Opera Legacy Extension
-          var entry = {};
-          if (details.onreadystatechange) {
-            entry.onreadystatechange = details.onreadystatechange;
-            details.onreadystatechange = true;
-          } else {
-            details.onreadystatechange = false;
-          }
-          if (details.onload) {
-            entry.onload = details.onload;
-            details.onload = true;
-          } else {
-            details.onload = false;
-          }
-          if (details.onerror) {
-            entry.onerror = details.onerror;
-            details.onerror = true;
-          } else {
-            details.onerror = false;
-          }
-          var id = ytcenter.callback_db.push(entry) - 1;
-          opera.extension.postMessage({
-            action: 'xhr',
-            id: id,
-            details: details
-          });
         } else if (identifier === 6) {
           request(details);
         } else if (typeof GM_xmlhttpRequest !== "undefined") {
@@ -3267,7 +3241,7 @@
         ytcenter.mutation.observe(document.head, { attributes: true, childList: true, characterData: true, subtree: true, failsafe: false }, ytcenter.title.modified);
         ytcenter.title.update();
       } else {
-        if (ytcenter.title._init_count > 20) {
+        if (ytcenter.title._init_count > 5) {
           ytcenter.title._init_count = 0;
           return;
         }
@@ -10991,7 +10965,7 @@
         }
         var data = JSON.stringify({ level: "unsafe", id: id, method: method, arguments: storeFunctions(args) });
         
-        window.postMessage(data, "*");
+        postMessage(data);
       }
       function resp(e) {
         if (!e || !e.data) return; // Checking if data is present
@@ -11004,8 +10978,23 @@
           comm[data.id].apply(null, data.arguments);
         }
       }
+      function postMessage(data) {
+        if (identifier === 5) {
+          opera.extension.postMessage(data);
+        } else if (injected) {
+          window.postMessage(data, "*");
+        }
+      }
+      function initListeners() {
+        if (identifier === 5) {
+          opera.extension.onmessage = resp;
+        } else if (injected) {
+          window.addEventListener("message", resp, false);
+        }
+      }
+      
       var comm = [];
-      if (injected) window.addEventListener("message", resp, false);
+      initListeners();
       
       return call;
     })();
@@ -13359,28 +13348,11 @@
         data = JSON.parse(data);
         ytcenter.callback_db[data.id]();
       });
-    } else if (identifier === 5) { // Opera Legacy Extnesion
-      opera.extension.onmessage = function(e){
-        if (e.data.action === "xhr onreadystatechange") {
-          if (ytcenter.callback_db[e.data.id].onreadystatechange)
-            ytcenter.callback_db[e.data.id].onreadystatechange(e.data.response);
-        } else if (e.data.action === "xhr onload") {
-          if (ytcenter.callback_db[e.data.id].onload)
-            ytcenter.callback_db[e.data.id].onload(e.data.response);
-        } else if (e.data.action === "xhr onerror") {
-          if (ytcenter.callback_db[e.data.id].onerror)
-            ytcenter.callback_db[e.data.id].onerror(e.data.response);
-        } else if (e.data.action === "load callback") {
-          ytcenter.callback_db[e.data.id](e.data.storage);
-        } else if (e.data.action === "save callback") {
-          ytcenter.callback_db[e.data.id]();
-        }
-      };
     }
     ytcenter.storageName = "YouTubeCenterSettings";
     ytcenter.loadSettings = function(callback){
       try {
-        if ((identifier === 1 || identifier === 4 || identifier === 2) && injected) {
+        if (((identifier === 1 || identifier === 4 || identifier === 2) && injected) || identifier === 5) {
           ytcenter.unsafeCall("load", [ytcenter.storageName], function(storage){
             if (storage === "[object Object]") storage = {};
             if (typeof storage === "string")
@@ -13404,22 +13376,6 @@
             if (callback) callback();
           }) - 1;
           self.port.emit("load", JSON.stringify({id: id, name: ytcenter.storageName}));
-        } else if (identifier === 5) {
-          var id = ytcenter.callback_db.push(function(storage){
-            if (typeof storage === "string")
-              storage = JSON.parse(storage);
-            for (var key in storage) {
-              if (storage.hasOwnProperty(key)) {
-                ytcenter.settings[key] = storage[key];
-              }
-            }
-            if (callback) callback();
-          }) - 1;
-          opera.extension.postMessage({
-            action: 'load',
-            id: id,
-            name: ytcenter.storageName
-          });
         } else if (identifier === 6) {
           var data = {};
           con.log("Loading storage_getValue");
@@ -13508,23 +13464,13 @@
       if (typeof timeout !== "boolean") timeout = false;
       var __ss = function(){
         con.log("[Storage] Saving Settings");
-        if ((identifier === 1 || identifier === 4 || identifier === 2) && injected) {
+        if (((identifier === 1 || identifier === 4 || identifier === 2) && injected) || identifier === 5) {
           ytcenter.unsafeCall("save", [ytcenter.storageName, ytcenter.settings], callback);
         } else if (identifier === 3) {
           var id = ytcenter.callback_db.push(function(){
             callback();
           }) - 1;
           self.port.emit("save", JSON.stringify({id: id, name: ytcenter.storageName, value: ytcenter.settings}));
-        } else if (identifier === 5) {
-          var id = ytcenter.callback_db.push(function(){
-            callback();
-          }) - 1;
-          opera.extension.postMessage({
-            action: 'save',
-            id: id,
-            name: ytcenter.storageName,
-            value: JSON.stringify(ytcenter.settings)
-          });
         } else if (identifier === 6) {
           storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
           callback();
@@ -22948,7 +22894,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 285, crossUnsafeWindow);
+        main_function(false, 0, true, 286, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23011,6 +22957,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 285, crossUnsafeWindow);
+    main_function(false, 0, true, 286, crossUnsafeWindow);
   }
 })();

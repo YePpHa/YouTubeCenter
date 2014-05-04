@@ -39,55 +39,57 @@ function xhr(details) {
   return true;
 }
 
+function getXHRCaller(e, action, id){
+  return function(response){ sendMessage(e, { id: id, arguments: [response] }); };
+}
+
+function handleXHR(e, details) {
+  if (details.onreadystatechange) {
+    details.onreadystatechange = getXHRCaller(e, "xhr onreadystatechange", details.onreadystatechange);
+  }
+  if (details.onload) {
+    details.onload = getXHRCaller(e, "xhr onload", details.onload);
+  }
+  if (details.onerror) {
+    details.onerror = getXHRCaller(e, "xhr onerror", details.onerror);
+  }
+  xhr(details);
+}
+
+function save(e, id, key, value) {
+  widget.preferences.setItem(key, JSON.stringify(value));
+  sendMessage(e, {
+    id: id,
+    arguments: []
+  });
+}
+
+function load(e, id, key) {
+  var value = JSON.parse(widget.preferences.getItem(key) || "{}");
+  
+  sendMessage(e, {
+    id: id,
+    arguments: [value]
+  });
+}
+
+function sendMessage(e, msg) {
+  if (typeof msg !== "string") msg = JSON.stringify(msg);
+  e.source.postMessage(msg);
+}
+
 opera.extension.onmessage = function(e) {
-  if (e.data.action === "xhr") {
-    var id = e.data.id,
-        details = e.data.details;
-    if (details.onreadystatechange) {
-      details.onreadystatechange = function(response){
-        e.source.postMessage({
-          action: 'xhr onreadystatechange',
-          id: id,
-          response: response
-        });
-      };
-    }
-    if (details.onload) {
-      details.onload = function(response){
-        e.source.postMessage({
-          action: 'xhr onload',
-          id: id,
-          response: response
-        });
-      };
-    }
-    if (details.onerror) {
-      details.onerror = function(response){
-        e.source.postMessage({
-          action: 'xhr onerror',
-          id: id,
-          response: response
-        });
-      };
-    }
-    xhr(details);
-  } else if (e.data.action === "save") {
-    console.log("[Opera] Save Storage => " + e.data.name);
-    widget.preferences.setItem(e.data.name, e.data.value);
-    e.source.postMessage({
-      action: 'save callback',
-      id: e.data.id
-    });
-  } else if (e.data.action === "load") {
-    console.log("[Opera] Load Storage => " + e.data.name);
-    var s = widget.preferences.getItem(e.data.name);
-    if (!s) s = "{}";
-    e.source.postMessage({
-      action: 'load callback',
-      id: e.data.id,
-      storage: s
-    });
-  } else {
-    console.error("[Opera background.js] Unknown action (" + e.data.action + ")");
+  if (!e || !e.data) return; // Checking if data is present
+  if (typeof e.data !== "string") return; // Checking if the object is a string.
+  if (!e.data.indexOf || e.data.indexOf("{") !== 0) return;
+  
+  var d = JSON.parse(e.data);
+  
+  if (d.method === "xhr") {
+    handleXHR(e, d.arguments[0]); // event, details
+  } else if (d.method === "save") {
+    save(e, d.id, d.arguments[0], d.arguments[1]); // event, id, key, data
+  } else if (d.method === "load") {
+    load(e, d.id, d.arguments[0]); // event, id, key
   }
 };
