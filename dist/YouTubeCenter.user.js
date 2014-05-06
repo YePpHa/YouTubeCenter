@@ -20245,6 +20245,9 @@
           } else if (ytcenter.settings.autohide === "3") {
             pbh = playerBarHeightProgress;
             _pbh = playerBarHeightProgress;
+          } else {
+            pbh = playerBarHeight;
+            _pbh = playerBarHeight;
           }
         } else if (ytcenter.player.config && ytcenter.player.config.args) {
           if (ytcenter.player.config.args.autohide === "0") {
@@ -20259,6 +20262,9 @@
           } else if (ytcenter.player.config.args.autohide === "3") {
             pbh = playerBarHeightProgress;
             _pbh = playerBarHeightProgress;
+          } else {
+            pbh = playerBarHeight;
+            _pbh = playerBarHeight;
           }
         }
         
