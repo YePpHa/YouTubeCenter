@@ -10854,7 +10854,7 @@
     ytcenter.utils.asyncCall = function(func){
       var args = Array.prototype.splice.call(arguments, 1, arguments.length);
       var proxy = ytcenter.utils.bind(func);
-      setTimeout(function(){ proxy.apply(null, args); }, 0);
+      uw.setTimeout(function(){ proxy.apply(null, args); }, 0);
     };
     ytcenter.utils.getScrollPosition = function(scrollElm){
       var posX = 0;
@@ -18352,12 +18352,14 @@
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
         }
         
-        ytcenter.utils.asyncCall(function(){
-          var newState = api.getPlayerState();
-          if (newState !== state && ((newState !== -1 && newState !== 5) || !ytcenter.html5) && typeof newState === "number") {
-            updateState(state, newState);
-          }
-        });
+        if (ytcenter.html5) {
+          ytcenter.utils.asyncCall(function(){
+            var newState = api.getPlayerState();
+            if (newState !== state && ((newState !== -1 && newState !== 5) || !ytcenter.html5) && typeof newState === "number") {
+              updateState(state, newState);
+            }
+          });
+        }
       }
       function setState(state) {
         var api = ytcenter.player.getAPI();
