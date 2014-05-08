@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         287
+// @version         288
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 287);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 288);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -5030,68 +5030,88 @@
         }
         return a;
       }
+      function handleVideoThumbs(videoThumb, videoElement) {
+        var maxIterations = 10;
+        var linkRegex = /v=([a-zA-Z0-9-_]+)/;
+        var linkRegex2 = /index=([0-9]+)/;
+        var linkRegex3 = /video_ids=([0-9a-zA-Z-_%]+)/;
+        var i = null;
+        var a = null;
+        var id = null;
+        var data = null;
+        var cacheData = null;
+        var wrapper = null;
+        var rgx = null;
+        var index = null;
+        
+        if (videoElement.tagName === "A") {
+          wrapper = videoElement;
+        } else if (videoElement.parentNode.tagName === "A") {
+          wrapper = videoElement.parentNode;
+        } else {
+          wrapper = null;
+        }
+        if (wrapper) {
+          if (wrapper.href.match(linkRegex)) {
+            rgx = linkRegex.exec(wrapper.href);
+            if (rgx && rgx[1]) id = rgx[1];
+            else return null;
+            cacheData = getDataCacheById(id);
+            data = {id: id, content: videoElement, wrapper: wrapper, videoThumb: videoThumb};
+            if (cacheData) {
+              if (cacheData.stream) data.stream = cacheData.stream;
+              if (cacheData.likes) data.likes = cacheData.likes;
+              if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
+            }
+          } else if (wrapper.href.match(linkRegex3)) {
+            rgx = linkRegex2.exec(wrapper.href);
+            if (rgx && rgx[1]) index = parseInt(rgx[1]);
+            else index = 0;
+            rgx = linkRegex3.exec(wrapper.href);
+            if (rgx && rgx[1]) id = rgx[1];
+            else return null;
+            if (id.split("%2C").length > 0 && id.split("%2C")[index]) id = id.split("%2C")[index];
+            else return null;
+            cacheData = getDataCacheById(id);
+            data = {id: id, content: videoElement, wrapper: wrapper, videoThumb: videoThumb};
+            if (cacheData) {
+              if (cacheData.stream) data.stream = cacheData.stream;
+              if (cacheData.likes) data.likes = cacheData.likes;
+              if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
+            }
+          }
+          if (data) {
+            a = wrapper;
+            for (i = 0; i < maxIterations; i++) {
+              a = a.parentNode;
+              if (!a) break; // At the top of the tree
+              if (a.tagName === "LI") { // We found it guys. Great job.
+                data.itemWrapper = a;
+                break;
+              }
+            }
+            if (ytcenter.utils.hasClass(videoThumb, "yt-uix-simple-thumb-wrap")) {
+              data.content = videoThumb;
+            }
+            return data;
+          }
+        }
+        return null;
+      }
       function getVideoThumbs() {
-        var linkRegex = /v=([a-zA-Z0-9-_]+)/,
-            linkRegex2 = /index=([0-9]+)/,
-            linkRegex3 = /video_ids=([0-9a-zA-Z-_%]+)/,
-            vt = document.getElementsByClassName("video-thumb"),
+        var vt = document.getElementsByClassName("video-thumb"),
+            vtw = document.getElementsByClassName("yt-uix-simple-thumb-wrap"),
             videos = [],
-            i, j, id, videoElement, cacheData, data, index, rgx, wrapper,
-            playlistVideoThumbs = getPlaylistVideoThumbs(), maxIterations = 10, a;
+            playlistVideoThumbs = getPlaylistVideoThumbs(), a, i, data;
         for (i = 0; i < vt.length; i++) {
           if (ytcenter.utils.inArray(playlistVideoThumbs, vt[i])) continue;
-          videoElement = vt[i].parentNode;
-          data = null;
-          cacheData = null;
-          if (videoElement.tagName === "A") {
-            wrapper = videoElement;
-          } else if (videoElement.parentNode.tagName === "A") {
-            wrapper = videoElement.parentNode;
-          } else {
-            wrapper = null;
-          }
-          if (wrapper) {
-            if (wrapper.href.match(linkRegex)) {
-              rgx = linkRegex.exec(wrapper.href);
-              if (rgx && rgx[1]) id = rgx[1];
-              else continue;
-              cacheData = getDataCacheById(id);
-              data = {id: id, content: videoElement, wrapper: wrapper, videoThumb: vt[i]};
-              if (cacheData) {
-                if (cacheData.stream) data.stream = cacheData.stream;
-                if (cacheData.likes) data.likes = cacheData.likes;
-                if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
-              }
-            } else if (wrapper.href.match(linkRegex3)) {
-              rgx = linkRegex2.exec(wrapper.href);
-              if (rgx && rgx[1]) index = parseInt(rgx[1]);
-              else index = 0;
-              rgx = linkRegex3.exec(wrapper.href);
-              if (rgx && rgx[1]) id = rgx[1];
-              else continue;
-              if (id.split("%2C").length > 0 && id.split("%2C")[index]) id = id.split("%2C")[index];
-              else continue;
-              cacheData = getDataCacheById(id);
-              data = {id: id, content: videoElement, wrapper: wrapper, videoThumb: vt[i]};
-              if (cacheData) {
-                if (cacheData.stream) data.stream = cacheData.stream;
-                if (cacheData.likes) data.likes = cacheData.likes;
-                if (cacheData.dislikes) data.dislikes = cacheData.dislikes;
-              }
-            }
-            if (data) {
-              a = wrapper;
-              for (j = 0; j < maxIterations; j++) {
-                a = a.parentNode;
-                if (!a) break; // At the top of the tree
-                if (a.tagName === "LI") { // We found it guys. Great job.
-                  data.itemWrapper = a;
-                  break;
-                }
-              }
-              videos.push(data);
-            }
-          }
+          data = handleVideoThumbs(vt[i], vt[i].parentNode);
+          if (data) videos.push(data);
+        }
+        for (i = 0; i < vtw.length; i++) {
+          if (ytcenter.utils.inArray(playlistVideoThumbs, vtw[i])) continue;
+          data = handleVideoThumbs(vtw[i], vtw[i].parentNode);
+          if (data) videos.push(data);
         }
         return videos;
       }
@@ -22909,7 +22929,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 287, crossUnsafeWindow);
+        main_function(false, 0, true, 288, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -22972,6 +22992,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 287, crossUnsafeWindow);
+    main_function(false, 0, true, 288, crossUnsafeWindow);
   }
 })();
