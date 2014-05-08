@@ -698,6 +698,8 @@ body > #page {
 }
 
 
+.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-success,
+.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-loading,
 .ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
 .ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-topleft .video-time,
@@ -707,7 +709,8 @@ body > #page {
   left: 2px!important;
   right: auto!important;
 }
-
+.ltr .watched.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-success,
+.ltr .watched.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-loading,
 .ltr .watched.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button,
 .ltr .watched.ytcenter-thumbnail-watchlater-pos-topleft .addto-watch-later-button-sign-in,
 .ltr .watched.ytcenter-thumbnail-timecode-pos-topleft .video-time,
@@ -717,7 +720,8 @@ body > #page {
   left: 2px!important;
   right: auto!important;
 }
-
+.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button-success,
+.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button-loading,
 .ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button,
 .ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-topright .video-time,
@@ -727,6 +731,8 @@ body > #page {
   right: 2px!important;
   left: auto!important;
 }
+.rtl .watched.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button-success,
+.rtl .watched.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button-loading,
 .rtl .watched.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button,
 .rtl .watched.ytcenter-thumbnail-watchlater-pos-topright .addto-watch-later-button-sign-in,
 .rtl .watched.ytcenter-thumbnail-timecode-pos-topright .video-time,
@@ -736,6 +742,8 @@ body > #page {
   right: 2px!important;
   left: auto!important;
 }
+.ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button-success,
+.ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button-loading,
 .ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button,
 .ytcenter-thumbnail-watchlater-pos-bottomleft .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-bottomleft .video-time,
@@ -745,6 +753,8 @@ body > #page {
   left: 2px!important;
   right: auto!important;
 }
+.ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button-success,
+.ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button-loading,
 .ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button,
 .ytcenter-thumbnail-watchlater-pos-bottomright .addto-watch-later-button-sign-in,
 .ytcenter-thumbnail-timecode-pos-bottomright .video-time,
