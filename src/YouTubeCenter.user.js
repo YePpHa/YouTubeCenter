@@ -235,8 +235,7 @@
       } else {
         if (ytcenter.storageType === 3) {
           con.log("[Storage] Using GM_getValue");
-          var d = GM_getValue(key, null);
-          if (d !== null) return d;
+          return GM_getValue(key, def);
         } else if (ytcenter.storageType === 2) {
           if (localStorage[key]) return localStorage[key];
         } else if (ytcenter.storageType === 1) {
@@ -12955,6 +12954,8 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      enable_custom_fexp: false,
+      custom_fexp: "",
       hideLangAlert: true,
       staticHeader_scrollToPlayer: false,
       staticHeader: false,
@@ -13417,7 +13418,7 @@
           }
           if (callback) callback();
         } else {
-          var data = $LoadData(ytcenter.storageName, "{}");
+          var data = $LoadData(ytcenter.storageName, "{}") || "{}";
           try {
             var loaded = JSON.parse(data);
             for (var key in loaded) {
@@ -15025,22 +15026,25 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_Watermark"
           );
           subcat.addOption(option);
-          
-          // Will only be visible in the developer build.
-          /*if (devbuild) {
+          if (devbuild) {
             option = ytcenter.settingsPanel.createOption(
               null, // defaultSetting
               "line"
             );
             subcat.addOption(option);
-            
             option = ytcenter.settingsPanel.createOption(
-              "fixHTML5Annotations", // defaultSetting
+              "enable_custom_fexp", // defaultSetting
               "bool", // module
-              "SETTINGS_HTML_ANNOTATION_FIX"
+              "SETTINGS_ENABLE_CUSTOM_FEXP"
             );
             subcat.addOption(option);
-          }*/
+            option = ytcenter.settingsPanel.createOption(
+              "custom_fexp", // defaultSetting
+              "textfield", // module
+              "SETTINGS_CUSTOM_FEXP"
+            );
+            subcat.addOption(option);
+          }
         
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_AUTOPLAY"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
@@ -19144,9 +19148,12 @@
       
       
       if (ytcenter.getPage() === "watch") {
-        // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
-        ytcenter.player.experiments.add("931959", config);
-        ytcenter.player.experiments.remove("931972", config);
+        if (ytcenter.settings.enable_custom_fexp) {
+          config.args.fexp = ytcenter.settings.custom_fexp;
+        } else {
+          // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
+          ytcenter.player.experiments.add("931959", config);
+        }
         
         if (ytcenter.settings.enableYouTubeShortcuts) {
           config.args.disablekb = 0;
@@ -21035,8 +21042,9 @@
       player.setAttribute("flashvars", flashvars);
     };
     ytcenter.player.isHTML5 = function(){
-      var movie_player = document.getElementById("movie_player"), cfg = ytcenter.player.getConfig();
-      return (movie_player && movie_player.tagName === "DIV") || cfg.html5;
+      var movie_player = document.getElementById("movie_player"), cfg = ytcenter.player.getConfig(), api = ytcenter.player.getAPI();
+      var isHTML5 = (movie_player && movie_player.tagName === "DIV") || cfg.html5 || (api && api.getPlayerType && api.getPlayerType() === "html5");
+      return isHTML5;
     };
     ytcenter.player.update = function(config){
       if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
@@ -22244,6 +22252,7 @@
         yt = uw.yt;
         ytcenter.player.onYouTubePlayerReady = function(api){
           if (!ytcenter.player.config) return;
+          con.log("[onYouTubePlayerReady] Player is ready.");
           
           /* Running other onYouTubePlayerReady callbacks */
           if (ytcenter.onYouTubePlayerReady) {
