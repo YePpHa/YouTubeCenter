@@ -2,13 +2,13 @@ function xhr(details) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function(){
     var responseState = {
-      responseXML:(xmlhttp.readyState == 4 ? xmlhttp.responseXML : ''),
-      responseText:(xmlhttp.readyState == 4 ? xmlhttp.responseText : ''),
-      readyState:xmlhttp.readyState,
-      responseHeaders:(xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
-      status:(xmlhttp.readyState == 4 ? xmlhttp.status : 0),
-      statusText:(xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
-      finalUrl:(xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
+      responseXML: (xmlhttp.readyState == 4 ? xmlhttp.responseXML : ''),
+      responseText: (xmlhttp.readyState == 4 ? xmlhttp.responseText : ''),
+      readyState: xmlhttp.readyState,
+      responseHeaders: (xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
+      status: (xmlhttp.readyState == 4 ? xmlhttp.status : 0),
+      statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
+      finalUrl: (xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
     };
     if (details["onreadystatechange"]) {
       details["onreadystatechange"](responseState);
@@ -74,7 +74,11 @@ function load(e, id, key) {
 }
 
 function sendMessage(e, msg) {
-  if (typeof msg !== "string") msg = JSON.stringify(msg);
+  try {
+    if (typeof msg !== "string") msg = JSON.stringify(msg);
+  } catch (e) {
+    console.error(e);
+  }
   e.source.postMessage(msg);
 }
 
