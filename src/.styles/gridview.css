@@ -32,17 +32,6 @@
   margin-top: -3px;
 }
 
-/*.ytcenter-gridview ul.feed-list:before,
-.ytcenter-gridview ul.feed-list:after {
-  content: '.';
-  display: block;
-  height: 0;
-  visibility: hidden;
-}
-.ytcenter-gridview ul.feed-list:after {
-  clear: both;
-}*/
-
 /* Removes padding from the list items */
 .ytcenter-gridview .feed-item-container {
   padding: 0!important;
@@ -122,4 +111,8 @@
   display: block;
   height: 0;
   visibility: hidden;
+}
+
+.ytcenter-gridview .ytcenter-grid-subscriptions-username .yt-channel-title-icon-verified {
+  margin-left: 3px;
 }
