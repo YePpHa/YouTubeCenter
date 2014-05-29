@@ -18253,9 +18253,15 @@
         if (item.getElementsByClassName("yt-user-name").length > 0) {
           details.usernameElement = item.getElementsByClassName("yt-user-name")[0];
           details.ownerElement = details.usernameElement.parentNode;
+          details.ownerElementListItem = (details.ownerElement.tagName === "LI");
+          details.usernamePrefixNode = null;
+          if (details.usernameElement.previousSibling && details.usernameElement.previousSibling.nodeType === 3) {
+            details.usernamePrefixNode = details.usernameElement.previousSibling;
+          }
         } else {
           details.usernameElement = null;
           details.ownerElement = null;
+          details.usernamePrefixNode = null;
         }
         
         return details;
@@ -18298,18 +18304,45 @@
                 
                 if (details.ownerElement) {
                   ownerElm = details.ownerElement.cloneNode(true);
+                  if (details.ownerElementListItem) {
+                    details.ownerElement.parentNode.removeChild(details.ownerElement);
+                  }
+                  if (details.usernamePrefixNode) {
+                    ownerElm.removeChild(ownerElm.firstChild);
+                  }
                 } else {
                   ownerElm = createOwnerElement(items[i]);
                 }
                 ownerWrapper = document.createElement("div");
-                ownerWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": ownerElm}));
                 ownerWrapper.className = "ytcenter-grid-subscriptions-username";
-                ytcenter.events.addEvent("language-refresh", (function(oW, oE){
+                var ownerElmChildren = null;
+                if (details.ownerElementListItem) {
+                  var frag = document.createDocumentFragment();
+                  ownerElmChildren = ytcenter.utils.toArray(ownerElm.children);
+                  
+                  var j;
+                  for (j = 0; j < ownerElmChildren.length; j++) {
+                    frag.appendChild(ownerElmChildren[j]);
+                  }
+                  
+                  ownerElm = frag;
+                }
+                ownerWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": ownerElm}));
+                ytcenter.events.addEvent("language-refresh", (function(oW, oE, oEC){
                   return function(){
+                    if (oEC) {
+                      var frag = document.createDocumentFragment();
+                      var j;
+                      for (j = 0; j < oEC.length; j++) {
+                        frag.appendChild(oEC[j]);
+                      }
+                      oE = frag;
+                    }
                     oW.innerHTML = "";
                     oW.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": oE}));
                   };
-                })(ownerWrapper, ownerElm));
+                })(ownerWrapper, ownerElm, ownerElmChildren));
+                
                 details.ownerWrapper = ownerWrapper;
                 details.metadata.parentNode.insertBefore(ownerWrapper, details.metadata);
               }
