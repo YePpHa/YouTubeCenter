@@ -5434,6 +5434,34 @@
         }
       }
       function appendAnimatedThumbnail(item, storyboard, errorMessage){
+        function preload(images) {
+          var i, img;
+          for (i = 0; i < images.length; i++) {
+            img = new Image();
+            img.src = images[i];
+          }
+        }
+        function preloadNextMosaic(frame) {
+          if (level) {
+            var nextMosaic = level.getMosaic(frame) + 1;
+            if (preloadURLS.length <= nextMosaic || nextMosaic < 0) {
+              nextMosaic = 0;
+            }
+            if (!preloaded[nextMosaic]) {
+              preload([preloadURLS[nextMosaic]]);
+              con.log("[Animated Thumbnail] Preloaded " + preloadURLS[nextMosaic]);
+              preloaded[nextMosaic] = true;
+            }
+          } else {
+            frame += 1;
+            if (frame > 3 || frame < 1) frame = 1;
+            if (!preloadedDefaultImgs[frame - 1]) {
+              preload([urlTemplate.replace("$N", frame)]);
+              con.log("[Animated Thumbnail] Preloaded " + urlTemplate.replace("$N", frame));
+              preloadedDefaultImgs[frame - 1] = true;
+            }
+          }
+        }
         function mouseover() {
           function moi() {
             if (level) {
@@ -5444,13 +5472,17 @@
               rect = level.getRect(frame, box);
               a.style.width = rect.width + "px";
               a.style.height = rect.height + "px";
+              a.style.top = "0px";
               a.style.backgroundSize = rect.imageWidth + "px " + rect.imageHeight + "px";
               a.style.backgroundImage = "URL(" + level.getURL(frame) + ")";
               a.style.backgroundPosition = -rect.x + "px " + -rect.y + "px";
+              
+              preloadNextMosaic(frame);
             } else {
-              if (frame > 3) frame = 1;
-              if (frame < 1) frame = 1;
+              if (frame > 3 || frame < 1) frame = 1;
               a.src = urlTemplate.replace("$N", frame);
+              
+              preloadNextMosaic(frame);
             }
             if (ytcenter.settings.videoThumbnailAnimationShuffle) {
               if (level) {
@@ -5462,6 +5494,7 @@
               frame++;
             }
           }
+          preloadNextMosaic(frame - 1);
           timer2 = uw.setTimeout(function(){
             if (level) {
               timer = uw.setInterval(moi, ytcenter.settings.videoThumbnailAnimationInterval);
@@ -5481,6 +5514,7 @@
           a.style.backgroundPosition = "";
           a.style.width = "";
           a.style.height = "";
+          a.style.top = "";
           a.parentNode.style.backgroundColor = "";
           frame = 0;
         }
@@ -5489,13 +5523,22 @@
               b = ytcenter.player.parseThumbnailStream(storyboard || ""),
               originalImage = a.getAttribute("data-thumb") || a.src,
               timer, timer2, frame = 0, level, i, urlTemplate,
-              box = { width: a.offsetWidth, height: 0 }, rect;
+              box = { width: a.offsetWidth, height: 0 }, rect,
+              preloaded = [], preloadURLS = null, preloadedDefaultImgs = [false, false, false];
           if (b.levels.length > 0) {
             for (i = 0; i < b.levels.length; i++) {
               if (!level) level = b.levels[i];
               else if (b.levels[i].width > level.width)
                 level = b.levels[i];
             }
+          }
+          if (level) {
+            preloadURLS = level.getURLS();
+            for (i = 0; i < preloadURLS.length; i++) {
+              preloaded.push(false);
+            }
+          } else {
+            urlTemplate = originalImage.replace(/\/(mq)?default\.jpg$/, "/$N.jpg");
           }
           if (item.mouseover) {
             mouseover();
@@ -12165,11 +12208,11 @@
       return +new Date;
     };
     ytcenter.utils.setCookie = function(name, value, domain, path, expires){
-      domain = domain ? ";domain=" + domain : "";
-      path = path ? ";path=" + path : "";
+      domain = domain ? ";domain=" + encodeURIComponent(domain) : "";
+      path = path ? ";path=" + encodeURIComponent(path) : "";
       expires = 0 > expires ? "" : 0 == expires ? ";expires=" + (new Date(1970, 1, 1)).toUTCString() : ";expires=" + (new Date(ytcenter.utils.now() + 1E3 * expires)).toUTCString();
       
-      document.cookie = name + "=" + value + domain + path + expires;
+      document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + domain + path + expires;
     };
     ytcenter.utils.getCookie = function(key){
       return ytcenter.utils.getCookies()[key];
@@ -20942,6 +20985,15 @@
             return Math.floor(frame/(c.rows*c.columns));
           };
         })(b);
+        b.getURLS = (function(c, index){
+          return function(){
+            var arr = [], j;
+            for (j = 0; j < c.numMosaics; j++) {
+              arr.push(baseURL.replace("$L", index).replace("$N", c.urlPattern).replace("$M", j) + "?sigh=" + c.signature);
+            }
+            return arr;
+          };
+        })(b, i - 1);
         b.getRect = (function(c){
           return function(frame, maxDim){
             if (frame < 0 || (c.frames && frame >= c.frames))
