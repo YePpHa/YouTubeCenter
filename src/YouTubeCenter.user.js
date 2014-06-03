@@ -4361,6 +4361,8 @@
         var countryContainer = document.createElement("span"),
             metadata = comment.headerUserDataElement,
             countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+        
+        comment && comment.unloadLoadButton && comment.unloadLoadButton();
         countryContainer.className = "country";
         if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
           var img = document.createElement("img");
@@ -4430,6 +4432,93 @@
           }
         }
       };
+      __r.addLoadButton = function(comment){
+        function onLanguageRefresh(){
+          btn.element.setAttribute("alt", ytcenter.language.getLocale(btn_text));
+          btn.element.setAttribute("title", ytcenter.language.getLocale(btn_text));
+          btn.element.setAttribute("data-tooltip-text", ytcenter.language.getLocale(btn_text));
+        }
+        var countryContainer = document.createElement("span"),
+            metadata = comment.headerUserDataElement, btn = null,
+            btn_text = "COMMENTS_COUNTRY_BUTTON_LOAD";
+        countryContainer.className = "country";
+        btn = ytcenter.modules.button({
+          args: {
+            listeners: [
+              {
+                event: "click",
+                callback: function(){
+                  if (countryContainer && countryContainer.parentNode) {
+                    btn_text = "COMMENTS_COUNTRY_BUTTON_LOAD_LOADING";
+                    onLanguageRefresh();
+                    
+                    btn.element.className += " ytcenter-flag-button-loading";
+                    
+                    btn.setEnabled(false);
+                    
+                    comment.unloadLoadButton = function(){
+                      countryContainer && countryContainer.parentNode && countryContainer.parentNode.removeChild && countryContainer.parentNode.removeChild(countryContainer);
+                      ytcenter.events.removeEvent("language-refresh", onLanguageRefresh);
+                      
+                      comment.unloadLoadButton = null;
+                      btn = null;
+                      btn_text = null;
+                      countryContainer = null;
+                      metadata = null;
+                    };
+                    __r.handleFlagWorker(comment);
+                  }
+                }
+              }
+            ]
+          }
+        });
+        
+        onLanguageRefresh();
+        ytcenter.events.addEvent("language-refresh", onLanguageRefresh);
+        
+        btn.element.className += " ytcenter-flag-button yt-uix-tooltip";
+        countryContainer.appendChild(btn.element);
+        
+        if (ytcenter.settings.commentCountryPosition === "before_username") {
+          countryContainer.style.marginRight = "10px";
+          if (comment.isOrignalSharedReference) {
+            metadata.insertBefore(countryContainer, metadata.children[1]);
+          } else {
+            metadata.insertBefore(countryContainer, metadata.children[0]);
+          }
+        } else if (ytcenter.settings.commentCountryPosition === "after_username") {
+          if (comment.isOrignalSharedReference) {
+            countryContainer.style.marginLeft = "4px";
+          } else if (!comment.isReply) {
+            countryContainer.style.marginLeft = "10px";
+          } else {
+            countryContainer.style.marginRight = "8px";
+          }
+          if (comment.isOrignalSharedReference) {
+            metadata.insertBefore(countryContainer, metadata.childNodes[2]);
+          } else {
+            metadata.insertBefore(countryContainer, metadata.children[1]);
+          }
+        } else if (ytcenter.settings.commentCountryPosition === "last") {
+          countryContainer.style.marginLeft = "10px";
+          if (comment.isOrignalSharedReference) {
+            metadata.insertBefore(countryContainer, metadata.lastChild);
+          } else if (!comment.isReply) {
+            if (metadata.children.length > 2) {
+              metadata.insertBefore(countryContainer, metadata.children[2]);
+            } else {
+              metadata.appendChild(countryContainer);
+            }
+          } else {
+            if (metadata.children.length > 3) {
+              metadata.insertBefore(countryContainer, metadata.children[3]);
+            } else {
+              metadata.appendChild(countryContainer);
+            }
+          }
+        }
+      };
       __r.handleFlagWorker = function(comment){
         ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId || comment.googlePlusRedirectId, function(args){
           try {
@@ -4438,6 +4527,7 @@
                 if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
                   comment.country = data.entry.yt$location.$t;
                 } else {
+                  comment && comment.unloadLoadButton && comment.unloadLoadButton();
                   con.error("[Comment Country] Unknown Location", data);
                 }
                 args.complete(comment.country || null);
@@ -4447,12 +4537,14 @@
                 if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
                   comment.country = data.entry.yt$location.$t;
                 } else {
+                  comment && comment.unloadLoadButton && comment.unloadLoadButton();
                   con.error("[Comment Country] Unknown Location", data);
                 }
                 args.complete(comment.country || null);
               });
             }
           } catch (e) {
+            comment && comment.unloadLoadButton && comment.unloadLoadButton();
             con.error(e);
             args.complete(null);
           }          
@@ -4472,6 +4564,8 @@
         
         if (comment.country) {
           __r.completeFlag(comment, comment.country);
+        } else if (ytcenter.settings.commentCountryButtonLoad) {
+          __r.addLoadButton(comment);
         } else {
           if (ytcenter.settings.commentCountryLazyLoad) {
             ytcenter.domEvents.addEvent(comment.wrapper, "enterview", function(){
@@ -7627,6 +7721,9 @@
               c.textContent = ytcenter.language.getLocale(localeText);
             })
           }
+        },
+        setStyle: function(key, value){
+          elm.style[key] = value;
         },
         setEnabled: function(enabled){
           elm.disabled = !enabled;
@@ -13105,6 +13202,7 @@
       commentCountryShowFlag: true,
       commentCountryUseNames: true,
       commentCountryLazyLoad: true,
+      commentCountryButtonLoad: false,
       commentCountryPosition: "after_username", // ["before_username", "after_username", "last"]
       
       videoThumbnailData: [],
@@ -17505,6 +17603,13 @@
             "SETTINGS_COMMENTS_COUNTRY_LAZY_LOAD",
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Lazy_Load"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "commentCountryButtonLoad", // defaultSetting
+            "bool", // module
+            "SETTINGS_COMMENTS_COUNTRY_BUTTON_LOAD"
           );
           subcat.addOption(option);
           
