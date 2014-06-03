@@ -22091,7 +22091,7 @@
           return;
         }
         if (page === "embed" && !ytcenter.settings.embed_enabled) {
-          ytcenter.writeEmbed();
+          ytcenter.embed._writeEmbed();
           return;
         }
         if (page === "embed" && ytcenter.utils.inArray(loc.search.substring(1).split("&"), "autoplay=1")) {
