@@ -19930,18 +19930,16 @@
       con.log("[HTML5 Player] Setting autohide to " + autohide);
       var target = ytcenter.player.getReference().target;
       if (target) {
-        if (autohide === "0") {
-          ytcenter.utils.addClass(target, "autohide-off");
-          ytcenter.utils.removeClass(target, "autohide-on autohide-fade autohide-auto");
-        } else if (autohide === "1") {
-          ytcenter.utils.addClass(target, "autohide-on");
-          ytcenter.utils.removeClass(target, "autohide-off autohide-fade autohide-auto");
-        } else if (autohide === "2") {
-          ytcenter.utils.addClass(target, "autohide-fade");
-          ytcenter.utils.removeClass(target, "autohide-on autohide-off autohide-auto");
-        } else if (autohide === "3") {
-          ytcenter.utils.addClass(target, "autohide-auto");
-          ytcenter.utils.removeClass(target, "autohide-on autohide-fade autohide-off");
+        ytcenter.utils.removeClass(target, "ytcenter-autohide-both ytcenter-autohide-controlbar ytcenter-autohide-progressbar ytcenter-autohide-none autohide-controlbar autominimize-controls-aspect autohide-controls-fullscreenonly autohide-controls hide-controls-when-cued autominimize-progress-bar autominimize-progress-bar-fullscreenonly autohide-controlbar-fullscreenonly");
+        
+        if (autohide === "0") { // None
+          ytcenter.utils.addClass(target, "ytcenter-autohide-none autohide-controls-fullscreenonly autominimize-progress-bar-fullscreenonly");
+        } else if (autohide === "1") { // Both
+          ytcenter.utils.addClass(target, "ytcenter-autohide-both autominimize-progress-bar autohide-controls hide-controls-when-cued");
+        } else if (autohide === "2") { // Progressbar
+          ytcenter.utils.addClass(target, "ytcenter-autohide-progressbar autominimize-progress-bar autominimize-controls-aspect autohide-controls-fullscreenonly");
+        } else if (autohide === "3") { // Controlbar
+          ytcenter.utils.addClass(target, "ytcenter-autohide-controlbar autohide-controlbar autohide-controls-fullscreenonly autominimize-progress-bar");
         }
         ytcenter.events.performEvent("resize-update");
       }
