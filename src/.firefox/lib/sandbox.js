@@ -1,7 +1,7 @@
 Cu.import("resource://gre/modules/Services.jsm");
 
 var {getChromeWinForContentWin} = require("getChromeWinForContentWin");
-var {getFirebugConsole, bind, bindCache} = require("utils");
+var {getFirebugConsole, bind, bindCache, runAsync} = require("utils");
 var {storage} = require("storage");
 var {session} = require("session");
 var {Request} = require("request");
@@ -40,8 +40,15 @@ Sandbox.prototype.loadScript = function(filename, content, wrappedContentWin, do
     let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
     let sandbox = this.createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
     
-    wrappedContentWin.addEventListener("unload", function(){ if (sandbox) { unloadSandbox(sandbox); sandbox = null; } }, false);
-    unload(function(){ sandbox = null; });
+    wrappedContentWin.addEventListener("unload", function(){
+      runAsync(null, function(){
+        if (sandbox) {
+          unloadSandbox(sandbox);
+          sandbox = null;
+        }
+      });
+    }, false);
+    unload(function(){ if (sandbox) { unloadSandbox(sandbox); } sandbox = null; });
     
     Cu.evalInSandbox(content, sandbox, "1.8", filename, 0);
     

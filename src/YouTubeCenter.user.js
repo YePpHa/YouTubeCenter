@@ -2328,7 +2328,6 @@
         "navigate-requested-callback"
       ], configFunctions = {}, listeners = {}, _ytconfig = {}, config = new SPFConfig(), state = new SPFState(), inProgress = false;
       
-      
       // Locking "_spf_state".
       try {
         uw._spf_state = state;
@@ -20365,11 +20364,11 @@
         for (event in events) {
           if (events.hasOwnProperty(event)) {
             if (events[event].override) override = true;
-            api.addEventListener(event, events[event].masterListener);
+            api && api.addEventListener && api.addEventListener(event, events[event].masterListener);
           }
         }
         ytcenter.unsafe.listeners = {};
-        if (override) {
+        if (api && api.addEventListener && override) {
           api.addEventListener("onReady", function(){
             i = __r.getNewestPlayerId();
             for (event in events) {
@@ -21552,12 +21551,12 @@
     ytcenter.player._onPlayerLoadedBefore = false;
     ytcenter.player.setPlayerType = function(type){
       function setType(api, type) {
-        if (api.getPlayerType() === type) {
+        if (api && api.getPlayerType && api.getPlayerType() === type) {
           con.log("[Player:setPlayerType] Type is already " + type + "!");
           return;
         }
         con.log("[Player:setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
-        if (api.writePlayer) {
+        if (api && api.getPlayerType && api.writePlayer) {
           api.writePlayer(type);
         } else if (uw && uw.yt && uw.yt.player && uw.yt.player.embed) {
           //uw.yt.player.embed("player-api", ytcenter.player.getConfig()); // this causes an infinite loop on certain browsers due to YouTube forcing the flash player.
@@ -23006,7 +23005,7 @@
           con.log("[onYouTubePlayerReady]", arguments);
           if (typeof api !== "string") {
             ytcenter.player.__getAPI = api;
-            ytcenter.html5 = (api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
+            ytcenter.html5 = (api && api.getPlayerType && api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
             ytcenter.player.listeners.dispose();
             ytcenter.player.listeners.setup();
             
