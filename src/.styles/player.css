@@ -7,6 +7,11 @@ body.ytcenter-scrolled-top {
   position: static !important;
 }
 
+.ytcenter-scrolled-top #player-mole-container,
+.ytcenter-scrolled-top-player-pre #player-mole-container {
+  position: static !important;
+}
+
 .ytcenter-scrolled-top #player,
 .ytcenter-scrolled-top #player-legacy {
   overflow: visible !important;
