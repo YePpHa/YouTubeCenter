@@ -1,8 +1,6 @@
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
-var {runAsync} = require("utils");
-
 function PolicyImplementation(filename, content, sandbox) {
   this.sandbox = sandbox;
   this.classDescription = "YouTube Center Policy Implementation";

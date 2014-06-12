@@ -64,7 +64,7 @@ function isWindowClosed(aWin) {
   return false;
 }
 
-function runAsync(callback) {
+function runAsync(thisPtr, callback) {
   let params = Array.prototype.slice.call(arguments, 2);
   let runnable = {
     run: function() {
@@ -85,10 +85,16 @@ function getFirebugConsole(wrappedContentWindow, chromeWindow) {
   }
 }
 
-function callUnsafeJSObject(wrappedContentWindow, callback, rv){
+function callUnsafeJSObject(wrappedContentWindow, callback, rv) {
   if (isWindowClosed(wrappedContentWindow)) return;
   (new XPCNativeWrapper(wrappedContentWindow, "setTimeout")).setTimeout(function(){ callback(rv); }, 0);
-};
+}
+
+function setTimeout(callback, delay) {
+  let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+  timer.initWithCallback({ notify: callback }, delay, Ci.nsITimer.TYPE_ONE_SHOT);
+  return timer;
+}
 
 exports["bind"] = bind;
 exports["bindCache"] = bindCache;
@@ -97,3 +103,4 @@ exports["isWindowClosed"] = isWindowClosed;
 exports["runAsync"] = runAsync;
 exports["getFirebugConsole"] = getFirebugConsole;
 exports["callUnsafeJSObject"] = callUnsafeJSObject;
+exports["setTimeout"] = setTimeout;

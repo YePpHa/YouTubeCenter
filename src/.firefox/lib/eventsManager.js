@@ -15,14 +15,14 @@ function addEventListener(wrappedContentWindow, event, callback) {
     unloadListener = null;
   }
   
-  if (!listeners[event]) listeners[event] = [];
+  if (!listeners || !listeners[event]) listeners[event] = [];
   listeners[event].push({wrappedContentWindow: wrappedContentWindow, callback: callback});
   
   wrappedContentWindow.addEventListener("unload", unloadListener, true);
 }
 
 function removeEventListener(wrappedContentWindow, event, callback) {
-  if (!listeners[event]) return;
+  if (!listeners || !listeners[event]) return;
   
   for (let i = 0; i < listeners[event].length; i++) {
     if (listeners[event][i].wrappedContentWindow == wrappedContentWindow && listeners[event][i].callback == callback) {
@@ -37,7 +37,7 @@ function removeEventListener(wrappedContentWindow, event, callback) {
 }
 
 function fireEvent(event, key, value) {
-  if (listeners[event] && listeners[event].length > 0) {
+  if (listeners && listeners[event] && listeners[event].length > 0) {
     let rv = {
       __exposedProps__: {
         key: "r",
@@ -62,17 +62,19 @@ function fireEvent(event, key, value) {
 }
 
 unload(function(){
-  for (let key in listeners) {
-    if (listeners.hasOwnProperty(key)) {
-      for (let i = 0; i < listeners[key].length; i++) {
-        listeners[key][i].wrappedContentWindow = null;
-        listeners[key][i].callback = null;
-        listeners[key][i] = null;
+  if (listeners) {
+    for (let key in listeners) {
+      if (listeners.hasOwnProperty(key)) {
+        for (let i = 0; i < listeners[key].length; i++) {
+          listeners[key][i].wrappedContentWindow = null;
+          listeners[key][i].callback = null;
+          listeners[key][i] = null;
+        }
+        listeners[key] = null;
       }
-      listeners[key] = null;
     }
+    listeners = null;
   }
-  listeners = null;
 });
 
 exports["addEventListener"] = addEventListener;
