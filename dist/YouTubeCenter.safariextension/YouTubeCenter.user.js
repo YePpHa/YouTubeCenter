@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         299
+// @version         301
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 299);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 301);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -508,10 +508,8 @@
           return item.config.customName;
         } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
           return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
-          subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         } else {
           return dim[0] + "×" + dim[1];
-          subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
         }
       }
       function getItemSubText(item) {
@@ -4644,13 +4642,19 @@
         });
       }
       function addFlag(country) {
-        var userHeader = (ytcenter.feather ? document.getElementById("ud") : document.getElementById("watch7-user-header")),
-            separator = (ytcenter.feather ? userHeader.children[1] : userHeader.children[2]),
-            user = (ytcenter.feather ? userHeader.getElementsByTagName("a")[0] : userHeader.getElementsByTagName("a")[1]),
-            linebreak = (ytcenter.feather ? userHeader.lastChild : userHeader.getElementsByTagName("br")[0]),
-            countryContainer = document.createElement("span"),
-            countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
-        if (userHeader.getElementsByClassName("country").length > 0) return;
+        var userHeader = (ytcenter.feather ? document.getElementById("ud") : document.getElementById("watch7-user-header"));
+        var userInfo = userHeader;
+        if (!ytcenter.feather && userHeader && userHeader.getElementsByClassName("yt-user-info").length > 0) {
+          userInfo = userHeader.getElementsByClassName("yt-user-info")[0];
+        }
+        var separator = userInfo.children[1];
+        
+        var user = (ytcenter.feather ? userInfo.getElementsByTagName("a")[0] : userInfo.getElementsByTagName("a")[1]);
+        var linebreak = (ytcenter.feather ? userInfo.lastChild : userInfo.getElementsByTagName("br")[0]);
+        var countryContainer = document.createElement("span");
+        var countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+        
+        if (userInfo.getElementsByClassName("country").length > 0) return;
         countryContainer.className = "country";
         if (ytcenter.settings.uploaderCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
           var img = document.createElement("img");
@@ -4687,20 +4691,20 @@
         if (ytcenter.settings.uploaderCountryPosition === "before_username") {
           countryContainer.style.marginLeft = "10px";
           user.style.marginLeft = "5px";
-          userHeader.insertBefore(countryContainer, user);
+          userInfo.insertBefore(countryContainer, user);
         } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
           if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified") || ytcenter.utils.hasClass(separator, "yt-channel-title-icon-verified")) {
-            separator = (ytcenter.feather ? userHeader.children[2] : userHeader.children[3]);
+            separator = userInfo.children[2];
           } else {
             countryContainer.style.marginLeft = "5px";
           }
-          userHeader.insertBefore(countryContainer, separator);
+          userInfo.insertBefore(countryContainer, separator);
         } else if (ytcenter.settings.uploaderCountryPosition === "last") {
           countryContainer.style.marginLeft = "5px";
           if (ytcenter.feather) {
-            userHeader.appendChild(countryContainer);
+            userInfo.appendChild(countryContainer);
           } else {
-            userHeader.insertBefore(countryContainer, linebreak);
+            userInfo.insertBefore(countryContainer, linebreak);
           }
         }
       }
@@ -8170,10 +8174,8 @@
             return item.config.customName;
           } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
             return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
-            //subtext.textContent = (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
           } else {
             return dim[0] + "×" + dim[1];
-            //subtext.textContent = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER"));
           }
         } catch (e) {
           con.error(e);
@@ -20724,6 +20726,22 @@
           if (typeof item !== "undefined") lastResizeId = item.id;
           if (typeof lastResizeId === "undefined") return;
           uw.clearTimeout(__r_timeout);
+          
+          // Generate the player size name.
+          var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
+          var sizeName = null;
+          if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
+            sizeName = item.config.customName;
+          } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
+            sizeName = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+          } else {
+            sizeName = dim[0] + "×" + dim[1];
+          }
+          
+          // Setting the data attributes to the html tag.
+          document.documentElement.setAttribute("data-ytc-player-size-id", item.id);
+          document.documentElement.setAttribute("data-ytc-player-size-name", sizeName);
+          
           ytcenter.player._resize(item.config.width, item.config.height, item.config.large, item.config.align);
           ytcenter.player.updateResize_updateVisibility();
           ytcenter.player.updateResize_updatePosition();
@@ -20942,13 +20960,19 @@
           playerHeight = playerHeight + 80;
         }
         
+        document.documentElement.setAttribute("data-ytc-player-size-w", playerWidth); // The width of the player
+        document.documentElement.setAttribute("data-ytc-player-size-h", playerHeight); // The height of the player
+        document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
+        document.documentElement.setAttribute("data-ytc-player-size-aligned", align); // Whether the player should be aligned with the content element (description, comments, recommended videos and etc).
+        
+        /* Handle the YouTube player size classes (YouTube Center doesn't differentiate between watch-medium and watch-large
+           as the difference is only the size of the player and that is handled by YouTube Center). */
+        ytcenter.utils.removeClass(player, "watch-small watch-medium watch-large");
         if (player) {
           if (large) {
             ytcenter.utils.addClass(player, "watch-large");
-            ytcenter.utils.removeClass(player, "watch-small");
           } else {
             ytcenter.utils.addClass(player, "watch-small");
-            ytcenter.utils.removeClass(player, "watch-large");
           }
         }
         
@@ -23494,7 +23518,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 299, crossUnsafeWindow);
+        main_function(false, 4, true, 301, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23557,6 +23581,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 299, crossUnsafeWindow);
+    main_function(false, 4, true, 301, crossUnsafeWindow);
   }
 })();
