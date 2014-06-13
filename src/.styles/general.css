@@ -3,7 +3,7 @@
 }
 
 .static-header #masthead-positioner {
-  position: static !important;
+  position: relative !important;
 }
 
 .static-header #masthead-positioner-height-offset {
