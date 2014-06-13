@@ -20960,8 +20960,10 @@
           playerHeight = playerHeight + 80;
         }
         
-        document.documentElement.setAttribute("data-ytc-player-size-w", playerWidth); // The width of the player
-        document.documentElement.setAttribute("data-ytc-player-size-h", playerHeight); // The height of the player
+        document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size
+        document.documentElement.setAttribute("data-ytc-player-size-height", height); // The height of the player as given by the player size
+        document.documentElement.setAttribute("data-ytc-player-size-calc-width", playerWidth); // The calculated width of the player in pixels.
+        document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
         document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
         document.documentElement.setAttribute("data-ytc-player-size-aligned", align); // Whether the player should be aligned with the content element (description, comments, recommended videos and etc).
         
