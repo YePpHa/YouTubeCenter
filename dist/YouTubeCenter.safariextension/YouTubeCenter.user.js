@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         301
+// @version         302
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 301);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 302);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -20960,8 +20960,10 @@
           playerHeight = playerHeight + 80;
         }
         
-        document.documentElement.setAttribute("data-ytc-player-size-w", playerWidth); // The width of the player
-        document.documentElement.setAttribute("data-ytc-player-size-h", playerHeight); // The height of the player
+        document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size
+        document.documentElement.setAttribute("data-ytc-player-size-height", height); // The height of the player as given by the player size
+        document.documentElement.setAttribute("data-ytc-player-size-calc-width", playerWidth); // The calculated width of the player in pixels.
+        document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
         document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
         document.documentElement.setAttribute("data-ytc-player-size-aligned", align); // Whether the player should be aligned with the content element (description, comments, recommended videos and etc).
         
@@ -23518,7 +23520,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 301, crossUnsafeWindow);
+        main_function(false, 4, true, 302, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23581,6 +23583,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 301, crossUnsafeWindow);
+    main_function(false, 4, true, 302, crossUnsafeWindow);
   }
 })();
