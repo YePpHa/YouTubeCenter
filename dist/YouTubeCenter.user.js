@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         303
+// @version         304
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 303);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 304);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21408,15 +21408,14 @@
     ytcenter.player._onPlayerLoadedBefore = false;
     ytcenter.player.setPlayerType = function(type){
       function setType(api, type) {
-        if (api && api.getPlayerType && api.getPlayerType() === type) {
+        var playerType = null;
+        if (api && typeof api.getPlayerType === "function" && (playerType = api.getPlayerType()) === type) {
           con.log("[Player:setPlayerType] Type is already " + type + "!");
           return;
         }
-        con.log("[Player:setPlayerType] Setting player type from " + api.getPlayerType() + " to " + type);
-        if (api && api.getPlayerType && api.writePlayer) {
+        con.log("[Player:setPlayerType] Setting player type from " + playerType + " to " + type);
+        if (api && typeof api.writePlayer === "function") {
           api.writePlayer(type);
-        } else if (uw && uw.yt && uw.yt.player && uw.yt.player.embed) {
-          //uw.yt.player.embed("player-api", ytcenter.player.getConfig()); // this causes an infinite loop on certain browsers due to YouTube forcing the flash player.
         }
       }
       con.log("[Player:setPlayerType] Requesting player type change to " + type);
@@ -22846,8 +22845,23 @@
             ytcenter.player.__getAPI = api;
             
             api = ytcenter.player.getAPI();
-            
-            ytcenter.html5 = (api && api.getPlayerType && api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
+            ytcenter.html5 = (api && typeof api.getPlayerType === "function" && api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
+            if (!ytcenter.html5) {
+              if (uw && uw.yt && uw.yt.player && uw.yt.player.utils &&
+                  uw.yt.player.utils.VideoTagPool && uw.yt.player.utils.VideoTagPool.instance_
+                  && uw.yt.player.utils.VideoTagPool.instance_.g && ytcenter.utils.isArray(uw.yt.player.utils.VideoTagPool.instance_.g)) {
+                for (var i = 0, len = uw.yt.player.utils.VideoTagPool.instance_.g.length; i < len; i++) {
+                  yt.player.utils.VideoTagPool.instance_.g[i].src = "";
+                  yt.player.utils.VideoTagPool.instance_.g[i].pause && yt.player.utils.VideoTagPool.instance_.g[i].pause();
+                  if (yt.player.utils.VideoTagPool.instance_.g[i].parentNode) {
+                    yt.player.utils.VideoTagPool.instance_.g[i].parentNode.removeChild(yt.player.utils.VideoTagPool.instance_.g[i]);
+                  }
+                  uw.yt.player.utils.VideoTagPool.instance_.g.splice(i, 1);
+                  i--;
+                  len--;
+                }
+              }
+          }
             
             ytcenter.player.listeners.dispose();
             ytcenter.player.listeners.setup();
@@ -23520,7 +23534,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 303, crossUnsafeWindow);
+        main_function(false, 0, true, 304, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -23583,6 +23597,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 303, crossUnsafeWindow);
+    main_function(false, 0, true, 304, crossUnsafeWindow);
   }
 })();
