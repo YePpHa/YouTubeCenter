@@ -202,7 +202,7 @@
     }
   }
   
-  var main_function = function(injected, identifier, devbuild, devnumber, _unsafeWindow){
+  var main_function = function(injected, identifier, devbuild, devnumber, _unsafeWindow, preloadedSettings, undefined){
     "use strict";
     /* UTILS */
     function $SaveData(key, value) {
@@ -1864,6 +1864,46 @@
         obj.__defineSetter__(key, setter);
         return obj;
       }
+    }
+    function freeze(parent, freezeObject) {
+      function wait(_parent, _freezeObject) {
+        var args = _freezeObject.split(".");
+        var _object = undefined;
+        defineLockedProperty(_parent, args[0], function(val){
+          args.splice(0, 1);
+          freeze(val, args.join("."));
+          _object = val;
+        }, function(){
+          return _object;
+        });
+      }
+      
+      var args = freezeObject.split(".");
+      var at = parent;
+      for (var i = 0, len = args.length - 1; i < len; i++) {
+        if (typeof at[args[i]] === "object") {
+          at = at[args[i]];
+        } else {
+          args.splice(0, i);
+          wait(at, args.join("."));
+          return;
+        }
+      }
+      
+      var defObject = undefined;
+      var frozen = false;
+      if (typeof at[args[args.length - 1]] !== "undefined") {
+        defObject = at[args[args.length - 1]];
+        frozen = true;
+      }
+      defineLockedProperty(at, args[args.length - 1], function(val){
+        if (!frozen) {
+          frozen = true;
+          defObject = val;
+        }
+      }, function(){
+        return defObject;
+      });
     }
     function PlayerConfig(configSetter, configGetter) {
       defineLockedProperty(this, "config", function(value){
@@ -5167,6 +5207,11 @@
             if (ytcenter.utils.hasClass(videoThumb, "yt-uix-simple-thumb-wrap")) {
               data.content = videoThumb;
             }
+            var img = videoThumb.getElementsByTagName("img");
+            if (img && img.length > 0 && img[0]) {
+              data.thumbnailImage = img[0];
+            }
+            
             return data;
           }
         }
@@ -6039,6 +6084,12 @@
           })(vt[i]), false);
           videoThumbs.push(vt[i]);
           updateReuse(vt[i]);
+          
+          // TODO make it load with scrolling.
+          if (vt[i].thumbnailImage && vt[i].thumbnailImage.hasAttribute("data-thumb")) {
+            vt[i].thumbnailImage.src = vt[i].thumbnailImage.getAttribute("data-thumb");
+          }
+          
           processItem(vt[i]);
           processItemHeavyLoad(vt[i]);
           if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
@@ -13274,9 +13325,9 @@
       videoThumbnailAnimationDelay: 1000,
       videoThumbnailAnimationInterval: 700,
       videoThumbnailAnimationFallbackInterval: 2000,
-      forcePlayerType: "default", // default, flash, html5
-      embed_forcePlayerType: "default", // default, flash, html5
-      channel_forcePlayerType: "default", // default, flash, html5
+      forcePlayerType: "default", // default, flash, html5, aggressive_flash
+      embed_forcePlayerType: "default", // default, flash, html5, aggressive_flash
+      channel_forcePlayerType: "default", // default, flash, html5, aggressive_flash
       settingsDialogMode: true,
       ytExperimentFixedTopbar: false,
       ytspf: false,
@@ -13615,6 +13666,15 @@
     }
     ytcenter.storageName = "YouTubeCenterSettings";
     ytcenter.loadSettings = function(callback){
+      if (preloadedSettings) {
+        for (var key in preloadedSettings) {
+          if (preloadedSettings.hasOwnProperty(key)) {
+            ytcenter.settings[key] = preloadedSettings[key];
+          }
+        }
+        preloadedSettings = undefined;
+        callback && callback();
+      }
       try {
         if (((identifier === 1 || identifier === 4 || identifier === 2) && injected) || identifier === 5) {
           ytcenter.unsafeCall("load", [ytcenter.storageName], function(storage){
@@ -13679,11 +13739,21 @@
         con.error(e);
       }
     };
-    
     ytcenter.__settingsLoaded = false;
     ytcenter.loadSettings(function(){
       ytcenter.__settingsLoaded = true;
+      var page = ytcenter.getPage();
+      if ((ytcenter.settings.forcePlayerType === "aggressive_flash" && page === "watch") || (ytcenter.settings.embed_forcePlayerType === "aggressive_flash" && page === "embed") || (ytcenter.settings.channel_forcePlayerType === "aggressive_flash" && page === "channel")) {
+        // Try to prevent the html5 player from having any effect on the page to increase the load time of the flash player.
+        uw.yt = uw.yt || {};
+        uw.yt.player = uw.yt.player || {};
+        uw.yt.player.Application = uw.yt.player.Application || {};
+        uw.yt.player.Application.create = uw.yt.player.Application.create || null;
+        freeze(uw, "yt.player.Application.create");
+      }
+      
       settingsInit();
+      //ytcenter.pageReadinessListener.update();
       if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
         var intercom = ytcenter.Intercom.getInstance();
         intercom.on("settings", function(data){
@@ -15076,7 +15146,8 @@
               "list": [
                 { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
                 { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
-                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" },
+                { "value": "aggressive_flash", "label": "SETTINGS_FORCEPLAYERTYPE_AGGRESSIVE_FLASH" }
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Type"
@@ -15781,7 +15852,8 @@
               "list": [
                 { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
                 { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
-                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" },
+                { "value": "aggressive_flash", "label": "SETTINGS_FORCEPLAYERTYPE_AGGRESSIVE_FLASH" }
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Type-2"
@@ -16071,7 +16143,8 @@
               "list": [
                 { "value": "default", "label": "SETTINGS_FORCEPLAYERTYPE_DEFAULT" },
                 { "value": "flash", "label": "SETTINGS_FORCEPLAYERTYPE_FLASH" },
-                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" }
+                { "value": "html5", "label": "SETTINGS_FORCEPLAYERTYPE_HTML5" },
+                { "value": "aggressive_flash", "label": "SETTINGS_FORCEPLAYERTYPE_AGGRESSIVE_FLASH" }
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Type-3"
@@ -19737,7 +19810,7 @@
           config.args.disablekb = 1;
         }
         
-        if (ytcenter.settings.forcePlayerType === "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        if ((ytcenter.settings.forcePlayerType === "flash" || ytcenter.settings.forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = false;
           ytcenter.player.setPlayerType("flash");
         } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
@@ -19748,7 +19821,7 @@
           ytcenter.player.setPlayerType("html5");
         }
       } else if (ytcenter.getPage() === "embed") {
-        if (ytcenter.settings.embed_forcePlayerType === "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        if ((ytcenter.settings.embed_forcePlayerType === "flash" || ytcenter.settings.embed_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = false;
           config.args.html5_sdk_version = "0";
           ytcenter.player.setPlayerType("flash");
@@ -19760,7 +19833,7 @@
           ytcenter.player.setPlayerType("html5");
         }
       } else if (ytcenter.getPage() === "embed") {
-        if (ytcenter.settings.channel_forcePlayerType === "flash" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        if ((ytcenter.settings.channel_forcePlayerType === "flash" || ytcenter.settings.channel_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = false;
           config.args.html5_sdk_version = "0";
           ytcenter.player.setPlayerType("flash");
@@ -19846,7 +19919,7 @@
         } else {
           con.log("Keeping the aspect");
         }
-        if (ytcenter.settings.forcePlayerType === "flash") {
+        if ((ytcenter.settings.forcePlayerType === "flash" || ytcenter.settings.forcePlayerType === "aggressive_flash")) {
           config.html5 = false;
         } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
@@ -19923,7 +19996,7 @@
           }
         }
       } else if (page === "embed") {
-        if (ytcenter.settings.embed_forcePlayerType === "flash") {
+        if (ytcenter.settings.embed_forcePlayerType === "flash" || ytcenter.settings.embed_forcePlayerType === "aggressive_flash") {
           
           config.html5 = false;
         } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
@@ -19968,7 +20041,7 @@
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", ytcenter.settings.embed_bgcolor);
         }
       } else if (page === "channel") {
-        if (ytcenter.settings.channel_forcePlayerType === "flash") {
+        if (ytcenter.settings.channel_forcePlayerType === "flash" || ytcenter.settings.channel_forcePlayerType === "aggressive_flash") {
           config.html5 = false;
         } else if (ytcenter.settings.channel_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = true;
@@ -22514,6 +22587,10 @@
       // Hijacks the ytplayer global variable.
       try {
         if (uw.ytplayer && uw.ytplayer.config) {
+          con.log("[Player Config Global] Player configuration already registered by YouTube.");
+          if (uw.ytplayer.config.html5) {
+            con.log("[Player] HTML5 configuration detected");
+          }
           ytcenter.player.setConfig(ytcenter.utils.mergeObjects(uw.ytplayer.config || {}, ytcenter.player.config || {}));
         }
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.loaded) {
@@ -22530,10 +22607,14 @@
           ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), uw.yt.config_.PLAYER_CONFIG));
           ytcenter.player.disablePlayerUpdate = false;
         }
+        
         if (ytcenter.utils.setterGetterClassCompatible()) {
           ytcenter.player.disablePlayerUpdate = false;
           uw.ytplayer = new PlayerConfig(function(config){
             con.log("[Player Config Global] A new player configuration change request!", config);
+            if (config && config.html5) {
+              con.log("[Player] HTML5 configuration detected");
+            }
             if (config) {
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), config));
               if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
@@ -22574,6 +22655,7 @@
             return;
           }
         }
+        
         if (page === "embed" || !ytcenter.settings.ytspf) ytcenter.spf.disable();
         ytcenter.unsafeInit();
         
@@ -22857,8 +22939,7 @@
                     yt.player.utils.VideoTagPool.instance_.g[i].parentNode.removeChild(yt.player.utils.VideoTagPool.instance_.g[i]);
                   }
                   uw.yt.player.utils.VideoTagPool.instance_.g.splice(i, 1);
-                  i--;
-                  len--;
+                  i--; len--;
                 }
               }
           }
@@ -23514,7 +23595,7 @@
     }
   })();
   
-  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && @identifier@ !== 2 && @identifier@ !== 4) {
+  if (window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('Chrome') > -1 && @identifier@ !== 2 && @identifier@ !== 4 && @identifier@ !== 0) {
     try {
       if (crossUnsafeWindow === window) {
         window.addEventListener("message", function(e){
