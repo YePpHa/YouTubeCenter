@@ -13237,6 +13237,8 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      playlistAutoPlay: true,
+      playlistAutoPlayFreeze: false, /* Freeze the playlist auto play so that playlistAutoPlay is not changed when the toggle button has been clicked */
       playerGlowEnabled: false,
       playerGlowPixelInterval: 100,
       playerGlowRequestAnimationFrame: true,
@@ -15452,6 +15454,26 @@
             "SETTINGS_PREVENTTABPLAYLISTAUTOBUFFERING_LABEL",
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Prevent_Tab_Playlist_AutoBuffering"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "newline"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "playlistAutoPlay", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYLIST_AUTOPLAY"
+          );
+          ytcenter.events.addEvent("settings-update", (function(opt){
+            return function(){ opt.getLiveModule().update(ytcenter.settings.playlistAutoPlay); };
+          })(option));
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "playlistAutoPlayFreeze", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYLIST_AUTOPLAY_FREEZE"
           );
           subcat.addOption(option);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RESOLUTION"); cat.addSubCategory(subcat);
@@ -19109,6 +19131,72 @@
         update: update,
         delayedUpdate: delayedUpdate,
         isEnabled: isEnabled
+      };
+    })();
+    
+    ytcenter.playlistAutoPlay = (function(){
+      /* We want the toggle button */
+      function getToggleAutoPlayButton() {
+        var playlistToggleButton = document.getElementsByClassName("toggle-autoplay");
+        if (playlistToggleButton && playlistToggleButton.length > 0 && playlistToggleButton[0]) {
+          playlistToggleButton = playlistToggleButton[0];
+        } else {
+          playlistToggleButton = null;
+        }
+        return playlistToggleButton;
+      }
+      
+      function update() {
+        if (updating) return;
+        updating = true;
+        /* We want to either disable the playlist auto play or enable it */
+        if (ytcenter.playlist) { // Checking if we're watching a playlist
+          var toggleButton = getToggleAutoPlayButton();
+          if (toggleButton) {
+            if (ytcenter.utils.hasClass(toggleButton, "yt-uix-button-toggled")) {
+              if (!ytcenter.settings.playlistAutoPlay) {
+                toggleButton.click();
+                toggled = false;
+              } else {
+                toggled = true;
+              }
+            } else {
+              if (ytcenter.settings.playlistAutoPlay) {
+                toggleButton.click();
+                toggled = true;
+              } else {
+                toggled = false;
+              }
+            }
+          }
+        }
+        updating = false;
+      }
+      
+      function onToggleButtonClick() {
+        toggled = !toggled;
+        if (updating || ytcenter.settings.playlistAutoPlayFreeze) return;
+        
+        ytcenter.settings.playlistAutoPlay = toggled;
+        ytcenter.saveSettings();
+        ytcenter.events.performEvent("settings-update");
+      }
+      
+      function init() {
+        if (ytcenter.playlist) {
+          var toggleButton = getToggleAutoPlayButton();
+          if (toggleButton) {
+            ytcenter.utils.addEventListener(toggleButton, "click", onToggleButtonClick, false);
+          }
+        }
+      }
+      
+      var updating = false;
+      var toggled = false;
+      
+      return {
+        init: init,
+        update: update
       };
     })();
     
@@ -23209,6 +23297,9 @@
         }
         
         if (page === "watch") {
+          ytcenter.playlistAutoPlay.init();
+          ytcenter.playlistAutoPlay.update();
+          
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
           ytcenter.effects.playerGlow.setOption("interval", (ytcenter.settings.playerGlowRequestAnimationFrame ? -1 : ytcenter.settings.playerGlowUpdateInterval));
           ytcenter.effects.playerGlow.setOption("transition", ytcenter.settings.playerGlowTransition/1000);
@@ -23286,6 +23377,8 @@
           ytcenter.classManagement.applyClassesForElement();
           if (typeof api === "object") {
             ytcenter.player.__getAPI = api;
+            
+            ytcenter.playlistAutoPlay.update();
             
             api = ytcenter.player.getAPI();
             ytcenter.html5 = (api && typeof api.getPlayerType === "function" && api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
