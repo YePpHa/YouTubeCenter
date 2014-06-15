@@ -21795,7 +21795,7 @@
         var dt = (now - lastTimestamp)/1000;
         lastTimestamp = now;
         
-        color = getAverageColor(dt);
+        color = getAverageColor(dt, color);
         
         /* Apply the new rgb values to the glow */
         applyGlow(color, blur, spread, opacity);
@@ -21834,10 +21834,12 @@
         }
         
         if (lastColor && transition > 0) {
+          /* Make sure that it can't transition past the destination */
+          var dest = Math.min(dt/transition, 1);
           /* Transition from color to another */
-          r = lastColor.r + (r - lastColor.r)*dt*transition;
-          g = lastColor.g + (g - lastColor.g)*dt*transition;
-          b = lastColor.b + (b - lastColor.b)*dt*transition;
+          r = lastColor.r + (r - lastColor.r)*dest;
+          g = lastColor.g + (g - lastColor.g)*dest;
+          b = lastColor.b + (b - lastColor.b)*dest;
         }
         
         /* Make sure that the rgb color doesn't go under 0 or over 255 */

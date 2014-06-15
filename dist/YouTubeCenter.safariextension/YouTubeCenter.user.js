@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         308
+// @version         309
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 308);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 309);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21795,7 +21795,7 @@
         var dt = (now - lastTimestamp)/1000;
         lastTimestamp = now;
         
-        color = getAverageColor(dt);
+        color = getAverageColor(dt, color);
         
         /* Apply the new rgb values to the glow */
         applyGlow(color, blur, spread, opacity);
@@ -21834,10 +21834,12 @@
         }
         
         if (lastColor && transition > 0) {
+          /* Make sure that it can't transition past the destination */
+          var dest = Math.min(dt/transition, 1);
           /* Transition from color to another */
-          r = lastColor.r + (r - lastColor.r)*dt*transition;
-          g = lastColor.g + (g - lastColor.g)*dt*transition;
-          b = lastColor.b + (b - lastColor.b)*dt*transition;
+          r = lastColor.r + (r - lastColor.r)*dest;
+          g = lastColor.g + (g - lastColor.g)*dest;
+          b = lastColor.b + (b - lastColor.b)*dest;
         }
         
         /* Make sure that the rgb color doesn't go under 0 or over 255 */
@@ -23940,7 +23942,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 308, crossUnsafeWindow);
+        main_function(false, 4, true, 309, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24003,6 +24005,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 308, crossUnsafeWindow);
+    main_function(false, 4, true, 309, crossUnsafeWindow);
   }
 })();
