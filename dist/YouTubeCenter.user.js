@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         310
+// @version         311
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 310);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 311);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21767,6 +21767,12 @@
         }
       }
       function stopPlaying() {
+        /* Remove the glow if the player was unstartet or ended (we don't need to do this if it's only paused) */
+        if (state < 1) {
+          if (!playerElement) playerElement = getPlayerWrapper(); // Make sure that the player wrapper is referenced so that the glow can be removed.
+          removeGlow();
+        }
+        
         /* We don't need the references */
         html5Player = null;
         playerElement = null;
@@ -21784,8 +21790,8 @@
         if (state !== 1) return;
         
         /* Resize the canvas to the video */
-        width = canvas.width = html5Player.clientWidth;
-        height = canvas.height = html5Player.clientWidth;
+        width = canvas.width = html5Player.clientWidth || html5Player.offsetWidth;
+        height = canvas.height = html5Player.clientHeight || html5Player.offsetHeight;
         
         if (width === 0 || height === 0) return;
         
@@ -21795,6 +21801,7 @@
         var dt = (now - lastTimestamp)/1000;
         lastTimestamp = now;
         
+        /* We want the average color */
         color = getAverageColor(dt, color);
         
         /* Apply the new rgb values to the glow */
@@ -21807,9 +21814,12 @@
           requestFrameId = reqFrame(onRequestGlow);
         }
       }
-      function getAverageColor(dt, lastColor) {
+      function drawVideoOnCanvas() {
         /* Write video data to canvas */
         ctx.drawImage(html5Player, 0, 0, width, height);
+      }
+      function getAverageColor(dt, lastColor) {
+        drawVideoOnCanvas();
         
         /* Loop through every pixel */
         var imageData = ctx.getImageData(0, 0, width, height);
@@ -21862,6 +21872,12 @@
         playerElement.style.setProperty("box-shadow", value);
       }
       
+      function removeGlow(){
+        playerElement.style.setProperty("-webkit-box-shadow", "");
+        playerElement.style.setProperty("-moz-box-shadow", "");
+        playerElement.style.setProperty("box-shadow", "");
+      }
+      
       function setEnabled(e) {
         enabled = !!e;
         update();
@@ -21897,10 +21913,13 @@
       var requestFrameId = null;
       
       var enabled = false;
+      var width, height;
       
       var state = -1;
       var canvas = document.createElement("canvas");
+      var canvas2 = document.createElement("canvas");
       var ctx = canvas.getContext("2d");
+      var ctx2 = canvas2.getContext("2d");
       
       var html5Player = null;
       var playerElement = null;
@@ -23943,7 +23962,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 310, crossUnsafeWindow);
+        main_function(false, 0, true, 311, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24006,6 +24025,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 310, crossUnsafeWindow);
+    main_function(false, 0, true, 311, crossUnsafeWindow);
   }
 })();
