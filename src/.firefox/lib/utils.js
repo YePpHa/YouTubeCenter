@@ -3,11 +3,9 @@ function bind(obj, method) {
     throw new Error("...");
   method = obj[method];
   
-  var sargs = Array.prototype.splice.call(arguments, 2, arguments.length);
+  var args = Array.prototype.splice.call(arguments, 2, arguments.length);
   return function() {
-    var args = Array.prototype.slice.call(sargs);
-    Array.prototype.push.apply(args, arguments);
-    return method.apply(obj, args);
+    return method.apply(obj, args.concat(Array.prototype.slice.call(arguments)));
   };
 }
 

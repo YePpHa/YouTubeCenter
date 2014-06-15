@@ -1,7 +1,7 @@
 Cu.import("resource://gre/modules/Services.jsm");
 
 var {getChromeWinForContentWin} = require("getChromeWinForContentWin");
-var {getFirebugConsole, bind, bindCache, runAsync} = require("utils");
+var {getFirebugConsole, bind, runAsync, console} = require("utils");
 var {storage} = require("storage");
 var {session} = require("session");
 var {Request} = require("request");
@@ -40,24 +40,33 @@ Sandbox.prototype.loadScript = function(filename, content, wrappedContentWin, do
     let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
     let sandbox = this.createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
     
-    wrappedContentWin.addEventListener("unload", function(){
-      runAsync(null, function(){
-        if (sandbox) {
-          unloadSandbox(sandbox);
-          sandbox = null;
-        }
-      });
-    }, false);
-    unload(function(){ if (sandbox) { unloadSandbox(sandbox); } sandbox = null; });
-    
     Cu.evalInSandbox(content, sandbox, "1.8", filename, 0);
-    
-    //Services.scriptloader.loadSubScript(url, sandbox, "UTF-8");
   }
 }
 
 Sandbox.prototype.createSandbox = function(wrappedContentWin, chromeWin, firebugConsole) {
-  let sandbox = new Cu.Sandbox(
+  function onWindowUnloadAsync() {
+    wrappedContentWin.removeEventListener("unload", onWindowUnloadAsync, true);
+    delete wrappedContentWin;
+    if (runAsync) {
+      runAsync(null, unloadCurrentSandbox);
+    }
+  }
+  function onWindowUnload() {
+    unloadCurrentSandbox();
+    
+    wrappedContentWin.removeEventListener("unload", onWindowUnloadAsync, true);
+    delete wrappedContentWin;
+  }
+  function unloadCurrentSandbox() {
+    console.log("[Firefox:Sandbox] Nuking sandbox.");
+    if ("nukeSandbox" in Cu) {
+      // Bug 775067: From FF17 we can kill all CCW from a given sandbox
+      Cu.nukeSandbox(sandbox);
+    }
+    delete sandbox;
+  }
+  var sandbox = new Cu.Sandbox(
     wrappedContentWin, {
       "sandboxName": "YouTube Center",
       "sandboxPrototype": wrappedContentWin,
@@ -85,6 +94,9 @@ Sandbox.prototype.createSandbox = function(wrappedContentWin, chromeWin, firebug
   sandbox.session_remove = bind(session, "remove");
   sandbox.session_addEventListener = bind(session, "addEventListener", wrappedContentWin);
   sandbox.session_removeEventListener = bind(session, "removeEventListener", wrappedContentWin);
+  
+  wrappedContentWin.addEventListener("unload", onWindowUnloadAsync, true);
+  unload(onWindowUnload);
   
   return sandbox;
 }

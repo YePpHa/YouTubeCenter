@@ -5,19 +5,37 @@ const Cu = Components.utils;
 
 var {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
 var addonData = null;
-var scopes = {};
-var scopesArray = [];
+var modules = {};
 var unloadFunctions = [];
 var filename = "chrome://ytcenter/content/YouTubeCenter.js";
 
 function unload(func) {
   unloadFunctions.push(func);
 }
-function unloadSandbox(scope) {
-  for (let v in scope) {
-    scope[v] = null;
+
+function unloadSandbox(sandbox) {
+  nukeSandbox(sandbox);
+}
+
+function nukeSandbox(sandbox) {
+  if ("nukeSandbox" in Cu) {
+    // Bug 775067: From FF17 we can kill all CCW from a given sandbox
+    Cu.nukeSandbox(sandbox);
   }
-  scope = null;
+}
+
+function unloadSandboxes() {
+  for (let key in modules) {
+    let sandbox = modules[key];
+    for (let v in sandbox) {
+      delete sandbox[v];
+    }
+    delete modules[key];
+    
+    nukeSandbox(sandbox);
+    delete sandbox;
+  }
+  delete modules;
 }
 
 function loadFile(scriptName, onload) {
@@ -30,10 +48,10 @@ function loadFile(scriptName, onload) {
 }
 
 function require(module) {
-  if (!(module in scopes)) {
-    let principal = Components.classes["@mozilla.org/systemprincipal;1"].getService(Components.interfaces.nsIPrincipal);
+  if (!(module in modules)) {
+    let principal = Cc["@mozilla.org/systemprincipal;1"].getService(Components.interfaces.nsIPrincipal);
     let url = addonData.resourceURI.spec + "lib/" + module + ".js";
-    scopes[module] = Components.utils.Sandbox(principal, {
+    modules[module] = Cu.Sandbox(principal, {
       sandboxName: url,
       sandboxPrototype: {
         require: require,
@@ -47,9 +65,9 @@ function require(module) {
       },
       wantXrays: false
     });
-    Services.scriptloader.loadSubScript(url, scopes[module]);
+    Services.scriptloader.loadSubScript(url, modules[module]);
   }
-  return scopes[module].exports;
+  return modules[module].exports;
 }
 
 function init() {
@@ -86,26 +104,12 @@ function shutdown(data, reason) {
   
   for (let i = 0; i < unloadFunctions.length; i++) {
     unloadFunctions[i]();
+    unloadFunctions.splice(i, 1);
+    i--;
   }
-  unloadFunctions = null;
+  delete unloadFunctions;
   
-  for (let key in scopes) {
-    let scope = scopes[key];
-    for (let v in scope) {
-      scope[v] = null;
-    }
-    scopes[key] = null;
-  }
-  for (let i = 0; i < scopesArray.length; i++) {
-    let scope = scopesArray[i];
-    for (let v in scope) {
-      scope[v] = null;
-    }
-    scopesArray[i] = null;
-  }
-  
-  scopes = null;
-  scopesArray = null;
+  unloadSandboxes();
 }
 
 function install(data, reason) { }
