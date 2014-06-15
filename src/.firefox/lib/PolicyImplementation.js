@@ -32,9 +32,9 @@ PolicyImplementation.prototype.init = function(){
     for each (let category in this.xpcom_categories)
       catMan.deleteCategoryEntry(category, this.contractID, false);
     
-    runAsync(function(){
+    Services.tm.currentThread.dispatch(function(){
       registrar.unregisterFactory(this.classID, this);
-    });
+    }.bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
     
   }.bind(this));
 };
