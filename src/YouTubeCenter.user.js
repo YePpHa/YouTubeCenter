@@ -4729,9 +4729,8 @@
         
         
         if (ytcenter.settings.uploaderCountryPosition === "before_username") {
-          countryContainer.style.marginLeft = "10px";
-          user.style.marginLeft = "5px";
-          userInfo.insertBefore(countryContainer, user);
+          countryContainer.style.marginRight = "10px";
+          userInfo.insertBefore(countryContainer, userInfo.children[0]);
         } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
           if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified") || ytcenter.utils.hasClass(separator, "yt-channel-title-icon-verified")) {
             separator = userInfo.children[2];
@@ -18907,6 +18906,20 @@
       try {
         if (document.getElementById("watch-channel-brand-div")) {
           ytcenter.discardElement(document.getElementById("watch-channel-brand-div"));
+        }
+      } catch (e) {
+        con.error(e);
+      }
+      try {
+        var adBadges = ytcenter.utils.toArray(document.getElementsByClassName("yt-badge-ad"));
+        for (var i = 0, len = adBadges.length; i < len; i++) {
+          var parent = adBadges;
+          while ((parent = parent.parentNode) !== null) {
+            if (parent.tagName === "LI") {
+              parent.parentNode.removeChild(parent);
+              break;
+            }
+          }
         }
       } catch (e) {
         con.error(e);
