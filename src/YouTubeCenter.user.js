@@ -15820,7 +15820,7 @@
               opt.setVisibility(!ytcenter.settings.playerGlowRequestAnimationFrame);
             };
           })(option));
-          option.setVisibility(ytcenter.settings.playerGlowRequestAnimationFrame);
+          option.setVisibility(!ytcenter.settings.playerGlowRequestAnimationFrame);
           
           subcat.addOption(option);
           
