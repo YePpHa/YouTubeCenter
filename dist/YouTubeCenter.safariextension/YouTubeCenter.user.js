@@ -13239,7 +13239,7 @@
     
     ytcenter._settings = {
       playerGlowEnabled: true,
-      playerGlowPixelInterval: 100000,
+      playerGlowPixelInterval: 100,
       playerGlowRequestAnimationFrame: true,
       playerGlowUpdateInterval: 20,
       playerGlowTransition: 0,
