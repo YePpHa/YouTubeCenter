@@ -13238,7 +13238,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
-      playerGlowEnabled: true,
+      playerGlowEnabled: false,
       playerGlowPixelInterval: 100,
       playerGlowRequestAnimationFrame: true,
       playerGlowUpdateInterval: 20,
@@ -15787,7 +15787,7 @@
             "rangetext", // module
             "SETTINGS_PLAYERGLOW_PIXEL_INTERVAL", // label
             {
-              "min": 0,
+              "min": 1,
               "max": 10000000
             }
           );
@@ -21871,6 +21871,7 @@
         switch (key) {
           case "pixelInterval":
             pixelInterval = value;
+            if (pixelInterval <= 0) pixelInterval = 1;
             break;
           case "interval":
             interval = value;

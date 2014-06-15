@@ -65,7 +65,7 @@ unload(function(){
     for (let key in listeners) {
       if (listeners.hasOwnProperty(key)) {
         for (let i = 0; i < listeners[key].length; i++) {
-          listeners[event][i].wrappedContentWindow.removeEventListener("unload", listeners[event][i].unload, true);
+          listeners[key][i].wrappedContentWindow.removeEventListener("unload", listeners[key][i].unload, true);
           delete listeners[key][i].wrappedContentWindow;
           delete listeners[key][i].callback;
           delete listeners[key][i];

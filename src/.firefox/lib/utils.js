@@ -63,6 +63,7 @@ function isWindowClosed(aWin) {
 }
 
 function runAsync(thisPtr, callback) {
+  if (typeof callback !== "function") return;
   let params = Array.prototype.slice.call(arguments, 2);
   let runnable = {
     run: function() {

@@ -5,37 +5,20 @@ const Cu = Components.utils;
 
 var {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
 var addonData = null;
-var modules = {};
+var scopes = {};
 var unloadFunctions = [];
 var filename = "chrome://ytcenter/content/YouTubeCenter.js";
 
 function unload(func) {
   unloadFunctions.push(func);
 }
-
-function unloadSandbox(sandbox) {
-  nukeSandbox(sandbox);
-}
-
-function nukeSandbox(sandbox) {
-  if ("nukeSandbox" in Cu) {
-    // Bug 775067: From FF17 we can kill all CCW from a given sandbox
-    Cu.nukeSandbox(sandbox);
+function unloadSandbox(scope) {
+  for (let v in scope) {
+    try {
+      scope[v] = null;
+    } catch (e) { }
   }
-}
-
-function unloadSandboxes() {
-  for (let key in modules) {
-    let sandbox = modules[key];
-    for (let v in sandbox) {
-      delete sandbox[v];
-    }
-    delete modules[key];
-    
-    nukeSandbox(sandbox);
-    delete sandbox;
-  }
-  delete modules;
+  scope = null;
 }
 
 function loadFile(scriptName, onload) {
@@ -48,10 +31,10 @@ function loadFile(scriptName, onload) {
 }
 
 function require(module) {
-  if (!(module in modules)) {
-    let principal = Cc["@mozilla.org/systemprincipal;1"].getService(Components.interfaces.nsIPrincipal);
+  if (!(module in scopes)) {
+    let principal = Components.classes["@mozilla.org/systemprincipal;1"].getService(Components.interfaces.nsIPrincipal);
     let url = addonData.resourceURI.spec + "lib/" + module + ".js";
-    modules[module] = Cu.Sandbox(principal, {
+    scopes[module] = Components.utils.Sandbox(principal, {
       sandboxName: url,
       sandboxPrototype: {
         require: require,
@@ -65,9 +48,9 @@ function require(module) {
       },
       wantXrays: false
     });
-    Services.scriptloader.loadSubScript(url, modules[module]);
+    Services.scriptloader.loadSubScript(url, scopes[module]);
   }
-  return modules[module].exports;
+  return scopes[module].exports;
 }
 
 function init() {
@@ -104,12 +87,18 @@ function shutdown(data, reason) {
   
   for (let i = 0; i < unloadFunctions.length; i++) {
     unloadFunctions[i]();
-    unloadFunctions.splice(i, 1);
-    i--;
   }
-  delete unloadFunctions;
+  unloadFunctions = null;
   
-  unloadSandboxes();
+  for (let key in scopes) {
+    let scope = scopes[key];
+    for (let v in scope) {
+      scope[v] = null;
+    }
+    scopes[key] = null;
+  }
+  
+  scopes = null;
 }
 
 function install(data, reason) { }
