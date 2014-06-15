@@ -22169,6 +22169,7 @@
       }
     };
     ytcenter.classManagement.db = [
+      {element: function(){return document.getElementById("page");}, className: "watch-stage-mode", condition: function(){return false;}, groups: ["init", "page", "page-center"]}, // We have our own theatre mode
       {element: function(){return document.getElementById("player");}, className: "", condition: function(loc){
         if (ytcenter.settings.removeBrandingBackground) {
           var p = document.getElementById("player");
