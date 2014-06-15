@@ -30,12 +30,17 @@ session.remove = function(key) {
   delete data[key];
 };
 
+session.clear = function() {
+  data = {};
+};
+
 session.addEventListener = function(wrappedContentWindow, event, callback){
   addEventListener(wrappedContentWindow, prefix + ":" + event, callback);
 };
 
 session.removeEventListener = function(wrappedContentWindow, event, callback){
   removeEventListener(wrappedContentWindow, prefix + ":" + event, callback);
+  session.clear();
 };
 
 unload(function(){ data = null; prefix = null; });

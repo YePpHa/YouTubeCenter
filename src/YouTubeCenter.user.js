@@ -10629,7 +10629,7 @@
       } else {
         try {
           localStorage = uw.localStorage;
-          if (typeof localStorage === 'undefined') {
+          if (typeof localStorage === "undefined") {
             localStorage = {
               getItem    : function() {},
               setItem    : function() {},
@@ -11015,6 +11015,13 @@
     })();
     
     // @utils
+    ytcenter.utils.getHTML5Player = function(){
+      var movie_player = document.getElementById("movie_player");
+      if (!movie_player) return null;
+      
+      var video = movie_player.getElementsByClassName("html5-main-video")[0];
+      return video || null;
+    };
     ytcenter.utils.errorProxy = function(scope, func){
       var args = Array.prototype.slice.call(arguments, 2);
       return function(){
@@ -13231,6 +13238,14 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      playerGlowEnabled: true,
+      playerGlowPixelInterval: 100000,
+      playerGlowRequestAnimationFrame: true,
+      playerGlowUpdateInterval: 20,
+      playerGlowTransition: 0,
+      playerGlowBlur: 15,
+      playerGlowSpread: 5,
+      playerGlowOpacity: 75,
       likeButtonColor: "#000000",
       likeButtonHoverColor: "#000000",
       dislikeButtonColor: "#000000",
@@ -15755,7 +15770,120 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Counter_Reset_After"
           );
           subcat.addOption(option);
-
+          
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_PLAYERGLOW"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYERGLOW_ENABLED"
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setEnabled(ytcenter.settings.playerGlowEnabled);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowPixelInterval", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_PIXEL_INTERVAL", // label
+            {
+              "min": 0,
+              "max": 10000000
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowRequestAnimationFrame", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYERGLOW_USE_REQUEST_ANIMATION_FRAME"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowUpdateInterval", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_UPDATE_INTERVAL", // label
+            {
+              "min": 0,
+              "max": 10000,
+              "suffix": " ms"
+            }
+          );
+          
+          ytcenter.events.addEvent("settings-update", (function(opt){
+            return function(){
+              ytcenter.effects.playerGlow.setOption("interval", ytcenter.settings.playerGlowUpdateInterval);
+              opt.setVisibility(!ytcenter.settings.playerGlowRequestAnimationFrame);
+            };
+          })(option));
+          option.setVisibility(ytcenter.settings.playerGlowRequestAnimationFrame);
+          
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowTransition", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_TRANSITION", // label
+            {
+              "min": 0,
+              "max": 10000,
+              "suffix": " ms"
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("transition", ytcenter.settings.playerGlowTransition);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowBlur", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_BLUR", // label
+            {
+              "min": 0,
+              "max": 50,
+              "suffix": "px"
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("blur", ytcenter.settings.playerGlowBlur);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowSpread", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_SPREAD", // label
+            {
+              "min": 0,
+              "max": 50,
+              "suffix": "px"
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("spread", ytcenter.settings.playerGlowSpread);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowOpacity", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_OPACITY", // label
+            {
+              "min": 0,
+              "max": 100,
+              "suffix": "%"
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("opacity", ytcenter.settings.playerGlowOpacity/100);
+          });
+          subcat.addOption(option);
+        
       /* Category:External Players */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_EXTERNAL_PLAYERS");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_EMBED"); cat.addSubCategory(subcat);
@@ -19467,6 +19595,8 @@
       con.log("[Config Update] Updating as page " + page);
       
       if (page === "watch") {
+        ytcenter.effects.playerGlow.update();
+        uw.setTimeout(ytcenter.effects.playerGlow.update, 1000); // Make sure that the player glow got the state update
         ytcenter.player.updateResize();
         if (ytcenter.settings.enableAutoVideoQuality) {
           ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false)));
@@ -21605,6 +21735,192 @@
         con.error(e);
       }
     };
+    
+    ytcenter.effects = {};
+    ytcenter.effects.playerGlow = (function(){
+      function playerStateChange(s) {
+        state = s;
+        if (state === 1 && enabled) {
+          stopPlaying();
+          onPlaying();
+        } else {
+          stopPlaying();
+        }
+      }
+      function update() {
+        var api = ytcenter.player.getAPI();
+        if (api && typeof api.getPlayerState === "function") {
+          playerStateChange(api.getPlayerState());
+        }
+      }
+      function getPlayerWrapper() {
+        return document.getElementById("player-api") || document.getElementById("player") || document.getElementById("movie_player");
+      }
+      function onPlaying() {
+        html5Player = ytcenter.utils.getHTML5Player();
+        playerElement = getPlayerWrapper();
+        
+        /* We want to make sure that the html5 player exist */
+        if (html5Player) {
+          /* Let's get this running */
+          onRequestGlow();
+        }
+      }
+      function stopPlaying() {
+        /* We don't need the references */
+        html5Player = null;
+        playerElement = null;
+        
+        if (timeoutId) {
+          uw.clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+        if (requestFrameId) {
+          cancelFrame(requestFrameId);
+          requestFrameId = null;
+        }
+      }
+      function onRequestGlow(now) {
+        if (state !== 1) return;
+        
+        /* Resize the canvas to the video */
+        width = canvas.width = html5Player.clientWidth;
+        height = canvas.height = html5Player.clientWidth;
+        
+        if (width === 0 || height === 0) return;
+        
+        /* Handle the delta time */
+        now = now || ytcenter.utils.now();
+        lastTimestamp = lastTimestamp || now;
+        var dt = (now - lastTimestamp)/1000;
+        lastTimestamp = now;
+        
+        color = getAverageColor(dt);
+        
+        /* Apply the new rgb values to the glow */
+        applyGlow(color, blur, spread, opacity);
+        
+        /* We really want to run this again to change the color of the glow for the next frame */
+        if (interval >= 0) {
+          timeoutId = uw.setTimeout(onRequestGlow, interval);
+        } else {
+          requestFrameId = reqFrame(onRequestGlow);
+        }
+      }
+      function getAverageColor(dt, lastColor) {
+        /* Write video data to canvas */
+        ctx.drawImage(html5Player, 0, 0, width, height);
+        
+        /* Loop through every pixel */
+        var imageData = ctx.getImageData(0, 0, width, height);
+        var length = imageData.data.length;
+        
+        var i = - 4;
+        var count = 0;
+        var r = 0, g = 0, b = 0;
+        while ((i += pixelInterval * 4) < length) {
+          count++;
+          r += imageData.data[i];
+          g += imageData.data[i + 1];
+          b += imageData.data[i + 2];
+        }
+        
+        /* We are dividing by a variable that could be 0 */
+        if (count > 0) {
+          /* Average the color */
+          r = Math.floor(r/count);
+          g = Math.floor(g/count);
+          b = Math.floor(b/count);
+        }
+        
+        if (lastColor && transition > 0) {
+          /* Transition from color to another */
+          r = lastColor.r + (r - lastColor.r)*dt*transition;
+          g = lastColor.g + (g - lastColor.g)*dt*transition;
+          b = lastColor.b + (b - lastColor.b)*dt*transition;
+        }
+        
+        /* Make sure that the rgb color doesn't go under 0 or over 255 */
+        if (r < 0) r = 0;
+        if (r > 255) r = 255;
+        
+        if (g < 0) g = 0;
+        if (g > 255) g = 255;
+        
+        if (b < 0) b = 0;
+        if (b > 255) b = 255;
+        
+        return { r: r, g: g, b: b };
+      }
+      
+      function applyGlow(color, blur, radius, opacity){
+        var value = "0px 0px " + blur + "px " + radius + "px rgba(" + Math.floor(color.r) + ", " + Math.floor(color.g) + ", " + Math.floor(color.b) + ", " + opacity + ")";
+        playerElement.style.setProperty("-webkit-box-shadow", value);
+        playerElement.style.setProperty("-moz-box-shadow", value);
+        playerElement.style.setProperty("box-shadow", value);
+      }
+      
+      function setEnabled(e) {
+        enabled = !!e;
+        update();
+      }
+      
+      function setOption(key, value) {
+        switch (key) {
+          case "pixelInterval":
+            pixelInterval = value;
+            break;
+          case "interval":
+            interval = value;
+            break;
+          case "transition":
+            transition = value;
+            break;
+          case "blur":
+            blur = value;
+            break;
+          case "spread":
+            spread = value;
+            break;
+          case "opacity":
+            opacity = value;
+            break;
+        }
+      }
+      
+      var reqFrame = uw.requestAnimationFrame || uw.mozRequestAnimationFrame || uw.webkitRequestAnimationFrame || uw.msRequestAnimationFrame;
+      var cancelFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+      var timeoutId = null;
+      var requestFrameId = null;
+      
+      var enabled = false;
+      
+      var state = -1;
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext("2d");
+      
+      var html5Player = null;
+      var playerElement = null;
+      var color = null;
+      var lastTimestamp = null;
+      
+      /* Options */
+      var pixelInterval = 100000; /* Iterate every nth pixel instead of every single pixel */
+      var interval = -1; /* If interval is -1 it will use requestAnimationFrame instead of setTimeout */
+      var transition = 0; /* The transition time in seconds */
+      var blur = 15;
+      var spread = 5;
+      var opacity = .75;
+      
+      ytcenter.player.listeners.addEventListener("onStateChange", playerStateChange);
+      
+      return {
+        setEnabled: setEnabled,
+        setOption: setOption,
+        update: update
+      };
+    })();
+    
     ytcenter.parseStreams = function(playerConfig){
       if (playerConfig.url_encoded_fmt_stream_map === "") return [];
       var parser1 = function(f){
@@ -22857,6 +23173,15 @@
         }
         
         if (page === "watch") {
+          ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
+          ytcenter.effects.playerGlow.setOption("interval", (ytcenter.settings.playerGlowRequestAnimationFrame ? -1 : ytcenter.settings.playerGlowUpdateInterval));
+          ytcenter.effects.playerGlow.setOption("transition", ytcenter.settings.playerGlowTransition/1000);
+          ytcenter.effects.playerGlow.setOption("blur", ytcenter.settings.playerGlowBlur);
+          ytcenter.effects.playerGlow.setOption("spread", ytcenter.settings.playerGlowSpread);
+          ytcenter.effects.playerGlow.setOption("opacity", ytcenter.settings.playerGlowOpacity/100);
+          
+          ytcenter.effects.playerGlow.setEnabled(ytcenter.settings.playerGlowEnabled);
+          
           var description = document.getElementById("watch-description"),
             headline = document.getElementById("watch7-headline");
           if (description && ytcenter.settings.expandDescription) {
@@ -22942,7 +23267,7 @@
                   i--; len--;
                 }
               }
-          }
+            }
             
             ytcenter.player.listeners.dispose();
             ytcenter.player.listeners.setup();

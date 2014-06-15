@@ -1,6 +1,8 @@
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
+var {runAsync} = require("utils");
+
 function PolicyImplementation(filename, content, sandbox) {
   this.sandbox = sandbox;
   this.classDescription = "YouTube Center Policy Implementation";
@@ -30,9 +32,9 @@ PolicyImplementation.prototype.init = function(){
     for each (let category in this.xpcom_categories)
       catMan.deleteCategoryEntry(category, this.contractID, false);
     
-    Services.tm.currentThread.dispatch(function(){
+    runAsync(function(){
       registrar.unregisterFactory(this.classID, this);
-    }.bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
+    });
     
   }.bind(this));
 };

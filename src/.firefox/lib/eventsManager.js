@@ -1,22 +1,19 @@
-var {bind, console, callUnsafeJSObject, isWindowClosed} = require("utils");
+var {console, callUnsafeJSObject, isWindowClosed} = require("utils");
 var listeners = {};
 
 function addEventListener(wrappedContentWindow, event, callback) {
   function unloadListener() {
-    wrappedContentWindow.removeEventListener("unload", unloadListener, true);
-    if (wrappedContentWindow != null) {
-      
-      removeEventListener(wrappedContentWindow, event, callback);
-      
-      wrappedContentWindow = null;
-      event = null;
-      callback = null;
-    }
+    console.log("[Firefox:eventsManager] Unloading listener with event " + event + "...");
+    removeEventListener(wrappedContentWindow, event, callback);
+    
+    wrappedContentWindow = null;
+    event = null;
+    callback = null;
     unloadListener = null;
   }
   
   if (!listeners || !listeners[event]) listeners[event] = [];
-  listeners[event].push({wrappedContentWindow: wrappedContentWindow, callback: callback});
+  listeners[event].push({ wrappedContentWindow: wrappedContentWindow, callback: callback, unload: unloadListener });
   
   wrappedContentWindow.addEventListener("unload", unloadListener, true);
 }
@@ -26,6 +23,7 @@ function removeEventListener(wrappedContentWindow, event, callback) {
   
   for (let i = 0; i < listeners[event].length; i++) {
     if (listeners[event][i].wrappedContentWindow == wrappedContentWindow && listeners[event][i].callback == callback) {
+      listeners[event][i].wrappedContentWindow.removeEventListener("unload", listeners[event][i].unload, true);
       listeners[event][i].wrappedContentWindow = null;
       listeners[event][i].callback = null;
       listeners[event][i] = null;
@@ -49,6 +47,7 @@ function fireEvent(event, key, value) {
     
     for (let i = 0; i < listeners[event].length; i++) {
       if (isWindowClosed(listeners[event][i].wrappedContentWindow)) {
+        
         listeners[event].splice(i, 1); i--;
       } else {
         try {
@@ -66,14 +65,15 @@ unload(function(){
     for (let key in listeners) {
       if (listeners.hasOwnProperty(key)) {
         for (let i = 0; i < listeners[key].length; i++) {
-          listeners[key][i].wrappedContentWindow = null;
-          listeners[key][i].callback = null;
-          listeners[key][i] = null;
+          listeners[event][i].wrappedContentWindow.removeEventListener("unload", listeners[event][i].unload, true);
+          delete listeners[key][i].wrappedContentWindow;
+          delete listeners[key][i].callback;
+          delete listeners[key][i];
         }
-        listeners[key] = null;
+        delete listeners[key];
       }
     }
-    listeners = null;
+    delete listeners;
   }
 });
 
