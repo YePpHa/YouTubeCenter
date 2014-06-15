@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         312
+// @version         313
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 312);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 313);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -4729,9 +4729,8 @@
         
         
         if (ytcenter.settings.uploaderCountryPosition === "before_username") {
-          countryContainer.style.marginLeft = "10px";
-          user.style.marginLeft = "5px";
-          userInfo.insertBefore(countryContainer, user);
+          countryContainer.style.marginRight = "10px";
+          userInfo.insertBefore(countryContainer, userInfo.children[0]);
         } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
           if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified") || ytcenter.utils.hasClass(separator, "yt-channel-title-icon-verified")) {
             separator = userInfo.children[2];
@@ -18911,6 +18910,20 @@
       } catch (e) {
         con.error(e);
       }
+      try {
+        var adBadges = ytcenter.utils.toArray(document.getElementsByClassName("yt-badge-ad"));
+        for (var i = 0, len = adBadges.length; i < len; i++) {
+          var parent = adBadges;
+          while ((parent = parent.parentNode) !== null) {
+            if (parent.tagName === "LI") {
+              parent.parentNode.removeChild(parent);
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        con.error(e);
+      }
       return cfg;
     };
     ytcenter.user = {};
@@ -23963,7 +23976,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 312, crossUnsafeWindow);
+        main_function(false, 0, true, 313, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24026,6 +24039,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 312, crossUnsafeWindow);
+    main_function(false, 0, true, 313, crossUnsafeWindow);
   }
 })();
