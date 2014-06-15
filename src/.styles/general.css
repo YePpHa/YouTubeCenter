@@ -1,3 +1,11 @@
+.appbar-flexwatch .watch-stage-mode #theater-background, .appbar-flexwatch-mini .watch-stage-mode #theater-background {
+  display: none !important;
+}
+
+.appbar-flexwatch .watch-stage-mode #player, .appbar-flexwatch-mini .watch-stage-mode #player {
+  margin-top: 10px !important;
+}
+
 .hide-lang-alert #alerts #yt-lang-alert-container {
   display: none !important;
 }
