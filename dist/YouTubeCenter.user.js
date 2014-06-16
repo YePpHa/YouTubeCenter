@@ -21890,11 +21890,20 @@
       function onRequestGlow(now) {
         if (state !== 1) return;
         
+        var w = width;
+        var h = height;
+        
         /* Resize the canvas to the video */
         width = canvas.width = html5Player.clientWidth || html5Player.offsetWidth;
         height = canvas.height = html5Player.clientHeight || html5Player.offsetHeight;
         
         if (width === 0 || height === 0) return;
+        
+        /* Calculate the amount of pixels used */
+        if (w !== width || h !== height) {
+          totalPixels = width*height;
+          pixelCount = Math.floor(totalPixels/pixelInterval);
+        }
         
         /* Handle the delta time */
         now = now || ytcenter.utils.now();
@@ -21924,24 +21933,24 @@
         
         /* Loop through every pixel */
         var imageData = ctx.getImageData(0, 0, width, height);
-        var length = imageData.data.length;
+        var data = imageData.data;
         
         var i = - 4;
-        var count = 0;
         var r = 0, g = 0, b = 0;
-        while ((i += pixelInterval * 4) < length) {
-          count++;
-          r += imageData.data[i];
-          g += imageData.data[i + 1];
-          b += imageData.data[i + 2];
+        for (i = 0; i < totalPixels; i += pixelInterval) {
+          idx = i << 2;
+          
+          r += data[idx];
+          g += data[idx + 1];
+          b += data[idx + 2];
         }
         
         /* We are dividing by a variable that could be 0 */
-        if (count > 0) {
+        if (pixelCount > 0) {
           /* Average the color */
-          r = Math.floor(r/count);
-          g = Math.floor(g/count);
-          b = Math.floor(b/count);
+          r = Math.floor(r/pixelCount);
+          g = Math.floor(g/pixelCount);
+          b = Math.floor(b/pixelCount);
         }
         
         if (lastColor && transition > 0) {
@@ -21989,6 +21998,8 @@
           case "pixelInterval":
             pixelInterval = value;
             if (pixelInterval <= 0) pixelInterval = 1;
+            totalPixels = width * height;
+            pixelCount = Math.floor(totalPixels/pixelInterval);
             break;
           case "interval":
             interval = value;
@@ -22021,6 +22032,9 @@
       var canvas2 = document.createElement("canvas");
       var ctx = canvas.getContext("2d");
       var ctx2 = canvas2.getContext("2d");
+      
+      var pixelCount = null;
+      var totalPixels = null;
       
       var html5Player = null;
       var playerElement = null;
