@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         319
+// @version         320
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 319);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 320);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -10576,9 +10576,9 @@
       };
     };
     
-    ytcenter._intercomOnPlayer = false;
+    //ytcenter._intercomOnPlayer = false;
     /*! intercom.js | https://github.com/diy/intercom.js | Apache License (v2) */
-    ytcenter.Intercom = (function(){
+    /*ytcenter.Intercom = (function(){
       
       // --- lib/events.js ---
       
@@ -10705,7 +10705,7 @@
           }
         }
         return array;
-      };
+      };*/
       
       // --- lib/intercom.js ---
       
@@ -10718,7 +10718,7 @@
       * @constructor
       */
       
-      var Intercom = function() {
+      /*var Intercom = function() {
         var self = this;
         var now = (new Date()).getTime();
       
@@ -10963,7 +10963,7 @@
           }
           return intercom;
         };
-      })();
+      })();*/
       
       // --- lib/bindings/socket.js ---
       
@@ -10976,7 +10976,7 @@
       * @author Brian Reavis <brian@thirdroute.com>
       */
       
-      var SocketBinding = function(socket, options, intercom) {
+      /*var SocketBinding = function(socket, options, intercom) {
         options = util.extend({
           id      : null,
           send    : true,
@@ -11024,7 +11024,7 @@
       
       Intercom.bindings.push(SocketBinding);
       return Intercom;
-    })();
+    })();*/
     
     // @utils
     ytcenter.utils.getHTML5Player = function(){
@@ -13776,7 +13776,7 @@
       settingsInit();
       //ytcenter.pageReadinessListener.update();
       if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
-        var intercom = ytcenter.Intercom.getInstance();
+        /*var intercom = ytcenter.Intercom.getInstance();
         intercom.on("settings", function(data){
           if (data.origin === intercom.origin) return;
           if (data.action === "loadSettings") {
@@ -13792,18 +13792,18 @@
               ytcenter.classManagement.applyClasses();
             });
           }
-        });
+        });*/
       }
     });
     
     ytcenter.saveSettings_timeout_obj = null;
     ytcenter.saveSettings_timeout = 300;
-    ytcenter.saveSettings_intercomTimeout = null;
+    //ytcenter.saveSettings_intercomTimeout = null;
     ytcenter.saveSettings = function(async, timeout, _callback){
       var callback = function(){
-        uw.clearTimeout(ytcenter.saveSettings_intercomTimeout);
+        //uw.clearTimeout(ytcenter.saveSettings_intercomTimeout);
         ytcenter.events.performEvent("save-complete");
-        ytcenter.saveSettings_intercomTimeout = uw.setTimeout(function(){
+        /*ytcenter.saveSettings_intercomTimeout = uw.setTimeout(function(){
           if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
             con.log("[SaveSettings] Ordering other tabs to load the new settings.");
             var intercom = ytcenter.Intercom.getInstance();
@@ -13812,7 +13812,7 @@
               origin: intercom.origin
             });
           }
-        }, 500);
+        }, 500);*/
         if (_callback) _callback();
       };
       if (typeof async !== "boolean") async = false;
@@ -15323,10 +15323,10 @@
             "rangetext", // module
             "SETTINGS_BUFFER_SIZE",
             {
-              "min": 0,
-              "max": 569228273678,
-              "suffix": " bytes",
-              "text-width": "125px"
+              "min": 0, /* 0 bytes - I have no idea if this will break something */
+              "max": 1099511627776, /* 1 TB - Why not... */
+              "suffix": " b",
+              "text-width": "135px"
             }
           );
           subcat.addOption(option);
@@ -16217,10 +16217,10 @@
             "rangetext", // module
             "SETTINGS_BUFFER_SIZE",
             {
-              "min": 0,
-              "max": 569228273678,
-              "suffix": " bytes",
-              "text-width": "125px"
+              "min": 0, /* 0 bytes - I have no idea if this will break something */
+              "max": 1099511627776, /* 1 TB - Why not... */
+              "suffix": " b",
+              "text-width": "135px"
             }
           );
           subcat.addOption(option);
@@ -16534,10 +16534,10 @@
             "rangetext", // module
             "SETTINGS_BUFFER_SIZE",
             {
-              "min": 0,
-              "max": 569228273678,
-              "suffix": " bytes",
-              "text-width": "125px"
+              "min": 0, /* 0 bytes - I have no idea if this will break something */
+              "max": 1099511627776, /* 1 TB - Why not... */
+              "suffix": " b",
+              "text-width": "135px"
             }
           );
           subcat.addOption(option);
@@ -19505,11 +19505,11 @@
     ytcenter.player.network = {};
     ytcenter.player.network.pause = function(){
       con.log("[Network] Player -> pause");
-      var intercom = ytcenter.Intercom.getInstance();
+      /*var intercom = ytcenter.Intercom.getInstance();
       intercom.emit("player", {
         action: "pause",
         origin: intercom.origin
-      });
+      });*/
     };
     ytcenter.player.setPlaybackQuality = function(preferredQuality){
       function recall(vq){
@@ -23657,7 +23657,7 @@
                 ytcenter.player.listeners.addEventListener("onStateChange", lis);
                 ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
               }
-              if (!ytcenter._intercomOnPlayer) {
+              /*if (!ytcenter._intercomOnPlayer) {
                 ytcenter._intercomOnPlayer = true;
                 ytcenter.Intercom.getInstance().on("player", function(data){
                   if (data.origin === ytcenter.Intercom.getInstance().origin) return;
@@ -23675,7 +23675,7 @@
                     api.stopVideo();
                   }
                 });
-              }
+              }*/
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
               ytcenter.classManagement.applyClasses();
@@ -24287,7 +24287,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 319, crossUnsafeWindow);
+        main_function(false, 0, true, 320, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24350,6 +24350,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 319, crossUnsafeWindow);
+    main_function(false, 0, true, 320, crossUnsafeWindow);
   }
 })();
