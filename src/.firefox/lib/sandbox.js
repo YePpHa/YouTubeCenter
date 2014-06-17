@@ -98,13 +98,13 @@ Sandbox.prototype.createSandbox = function(wrappedContentWin, chromeWin, firebug
   sandbox.storage_addEventListener = bind(storage, "addEventListener", wrappedContentWin);
   sandbox.storage_removeEventListener = bind(storage, "removeEventListener", wrappedContentWin);
   
-  sandbox.session_setValue = bind(session, "setValue");
+  /*sandbox.session_setValue = bind(session, "setValue");
   sandbox.session_getValue = bind(session, "getValue");
   sandbox.session_listValues = bind(session, "listValues");
   sandbox.session_exists = bind(session, "exists");
   sandbox.session_remove = bind(session, "remove");
   sandbox.session_addEventListener = bind(session, "addEventListener", wrappedContentWin);
-  sandbox.session_removeEventListener = bind(session, "removeEventListener", wrappedContentWin);
+  sandbox.session_removeEventListener = bind(session, "removeEventListener", wrappedContentWin);*/
   
   return sandbox;
 }
