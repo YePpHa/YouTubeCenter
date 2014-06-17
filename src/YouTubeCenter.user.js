@@ -13243,6 +13243,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      playerGlowEffectOnPlayer: "both",
       bufferEnabled: true,
       bufferSize: 569228273678,
       embedBufferEnabled: false,
@@ -15940,6 +15941,24 @@
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("opacity", ytcenter.settings.playerGlowOpacity/100);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerGlowEffectOnPlayer",
+            "list",
+            "SETTINGS_PLAYERGLOW_APPLIED",
+            {
+              "list": [
+                { "value": "both", "label": "SETTINGS_PLAYERGLOW_LIGHTS_OFF_BOTH" },
+                { "value": "only-lights-off", "label": "SETTINGS_PLAYERGLOW_LIGHTS_OFF_ONLY_LIGHTS_OFF" },
+                { "value": "only-without-lights-off", "label": "SETTINGS_PLAYERGLOW_LIGHTS_OFF_ONLY_WITHOUT_LIGHTS_OFF" }
+              ]
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Switch_To_Tab_At_Like_of_Video"
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("glowEffectOnPlayer", ytcenter.settings.playerGlowEffectOnPlayer);
           });
           subcat.addOption(option);
         
@@ -19277,6 +19296,7 @@
           var toggleButton = getToggleAutoPlayButton();
           if (toggleButton) {
             ytcenter.utils.addEventListener(toggleButton, "click", onToggleButtonClick, false);
+            toggled = ytcenter.utils.hasClass(toggleButton, "yt-uix-button-toggled");
           }
         }
       }
@@ -20496,6 +20516,8 @@
             ytcenter.utils.addClass(lightElement, "hid");
             ytcenter.utils.removeClass(document.body, "ytcenter-lights-off");
             ytcenter.player.isLightOff = false;
+            
+            ytcenter.effects.playerGlow.update();
           };
           document.body.appendChild(lightElement);
         }
@@ -20507,6 +20529,8 @@
         ytcenter.utils.addClass(document.body, "ytcenter-lights-off");
         ytcenter.utils.removeClass(lightElement, "hid");
         ytcenter.player.isLightOff = true;
+        
+        ytcenter.effects.playerGlow.update();
       };
     })();
     ytcenter.player.checkHTML5Support = function(){
@@ -21961,9 +21985,12 @@
     
     ytcenter.effects = {};
     ytcenter.effects.playerGlow = (function(){
+      function inCorrectMode() {
+        return (glowEffectOnPlayer === "both" || (ytcenter.player.isLightOff && glowEffectOnPlayer === "only-lights-off") || (!ytcenter.player.isLightOff && glowEffectOnPlayer === "only-without-lights-off"));
+      }
       function playerStateChange(s) {
         state = s;
-        if (state === 1 && enabled) {
+        if (state === 1 && enabled && inCorrectMode()) {
           stopPlaying();
           onPlaying();
         } else {
@@ -21976,12 +22003,28 @@
           playerStateChange(api.getPlayerState());
         }
       }
+      function getPlayerAPIElement() {
+        return document.getElementById("player-api");
+      }
+      function getPlayerWrapperOverlay() {
+        return document.getElementById("movie_player") || document.getElementById("player-api") || document.getElementById("player");
+      }
       function getPlayerWrapper() {
         return document.getElementById("player-api") || document.getElementById("player") || document.getElementById("movie_player");
+      }
+      function getCorrectPlayerElement() {
+        return ((glowEffectOnPlayer === "both" || glowEffectOnPlayer === "only-lights-off") ? playerElementOverlay : playerElement);
       }
       function onPlaying() {
         html5Player = ytcenter.utils.getHTML5Player();
         playerElement = getPlayerWrapper();
+        playerElementOverlay = getPlayerWrapperOverlay();
+        correctPlayerElement = getCorrectPlayerElement();
+        playerAPIElement = getPlayerAPIElement();
+        
+        if (playerAPIElement && (glowEffectOnPlayer === "both" || glowEffectOnPlayer === "only-lights-off")) {
+          playerAPIElement.style.overflow = "visible";
+        }
         
         /* We want to make sure that the html5 player exist */
         if (html5Player) {
@@ -21991,14 +22034,32 @@
       }
       function stopPlaying() {
         /* Remove the glow if the player was unstartet or ended (we don't need to do this if it's only paused) */
-        if (state < 1) {
+        if (state < 1 || !inCorrectMode()) {
           if (!playerElement) playerElement = getPlayerWrapper(); // Make sure that the player wrapper is referenced so that the glow can be removed.
+          if (!playerElementOverlay) playerElementOverlay = getPlayerWrapperOverlay(); // Make sure that the player wrapper is referenced so that the glow can be removed.
+          if (!correctPlayerElement) correctPlayerElement = getCorrectPlayerElement();
+          if (!playerAPIElement) playerAPIElement = getPlayerAPIElement(); // Make sure that the player wrapper is referenced so that the glow can be removed.
+          if (playerAPIElement && (glowEffectOnPlayer === "both" || glowEffectOnPlayer === "only-lights-off")) {
+            playerAPIElement.style.overflow = "";
+          }
+          removeGlow();
+        } else if (state === 1) {
+          if (!playerElement) playerElement = getPlayerWrapper(); // Make sure that the player wrapper is referenced so that the glow can be removed.
+          if (!playerElementOverlay) playerElementOverlay = getPlayerWrapperOverlay(); // Make sure that the player wrapper is referenced so that the glow can be removed.
+          if (!correctPlayerElement) correctPlayerElement = getCorrectPlayerElement();
+          if (!playerAPIElement) playerAPIElement = getPlayerAPIElement(); // Make sure that the player wrapper is referenced so that the glow can be removed.
+          if (playerAPIElement && (glowEffectOnPlayer === "both" || glowEffectOnPlayer === "only-lights-off")) {
+            playerAPIElement.style.overflow = "";
+          }
           removeGlow();
         }
         
         /* We don't need the references */
         html5Player = null;
         playerElement = null;
+        playerElementOverlay = null;
+        correctPlayerElement = null;
+        playerAPIElement = null;
         
         if (timeoutId) {
           uw.clearTimeout(timeoutId);
@@ -22103,15 +22164,18 @@
       
       function applyGlow(color, blur, radius, opacity){
         var value = "0px 0px " + blur + "px " + radius + "px rgba(" + Math.floor(color.r) + ", " + Math.floor(color.g) + ", " + Math.floor(color.b) + ", " + opacity + ")";
-        playerElement.style.setProperty("-webkit-box-shadow", value);
-        playerElement.style.setProperty("-moz-box-shadow", value);
-        playerElement.style.setProperty("box-shadow", value);
+        correctPlayerElement.style.setProperty("-webkit-box-shadow", value);
+        correctPlayerElement.style.setProperty("-moz-box-shadow", value);
+        correctPlayerElement.style.setProperty("box-shadow", value);
       }
       
       function removeGlow(){
         playerElement.style.setProperty("-webkit-box-shadow", "");
         playerElement.style.setProperty("-moz-box-shadow", "");
         playerElement.style.setProperty("box-shadow", "");
+        playerElementOverlay.style.setProperty("-webkit-box-shadow", "");
+        playerElementOverlay.style.setProperty("-moz-box-shadow", "");
+        playerElementOverlay.style.setProperty("box-shadow", "");
       }
       
       function setEnabled(e) {
@@ -22142,7 +22206,11 @@
           case "opacity":
             opacity = value;
             break;
+          case "glowEffectOnPlayer":
+            glowEffectOnPlayer = value;
+            break;
         }
+        update();
       }
       
       var reqFrame = uw.requestAnimationFrame || uw.mozRequestAnimationFrame || uw.webkitRequestAnimationFrame || uw.msRequestAnimationFrame;
@@ -22164,6 +22232,9 @@
       
       var html5Player = null;
       var playerElement = null;
+      var playerElementOverlay = null;
+      var correctPlayerElement = null;
+      var playerAPIElement = null;
       var color = null;
       var lastTimestamp = null;
       
@@ -22174,6 +22245,7 @@
       var blur = 15;
       var spread = 5;
       var opacity = .75;
+      var glowEffectOnPlayer = "both";
       
       ytcenter.player.listeners.addEventListener("onStateChange", playerStateChange);
       
@@ -23438,9 +23510,9 @@
         
         if (page === "watch") {
           ytcenter.playlistAutoPlay.init();
-          ytcenter.playlistAutoPlay.update();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
+          ytcenter.effects.playerGlow.setOption("glowEffectOnPlayer", ytcenter.settings.playerGlowEffectOnPlayer);
           ytcenter.effects.playerGlow.setOption("interval", (ytcenter.settings.playerGlowRequestAnimationFrame ? -1 : ytcenter.settings.playerGlowUpdateInterval));
           ytcenter.effects.playerGlow.setOption("transition", ytcenter.settings.playerGlowTransition/1000);
           ytcenter.effects.playerGlow.setOption("blur", ytcenter.settings.playerGlowBlur);
