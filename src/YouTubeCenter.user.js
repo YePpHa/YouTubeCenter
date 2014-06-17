@@ -4493,6 +4493,7 @@
         ytcenter.events.addEvent("language-refresh", onLanguageRefresh);
         
         btn.element.className += " ytcenter-flag-button yt-uix-tooltip";
+        btn.element.style.verticalAlign = "middle";
         countryContainer.appendChild(btn.element);
         
         if (ytcenter.settings.commentCountryPosition === "before_username") {
@@ -6085,9 +6086,9 @@
           updateReuse(vt[i]);
           
           // TODO make it load with scrolling.
-          if (vt[i].thumbnailImage && vt[i].thumbnailImage.hasAttribute("data-thumb")) {
+          /*if (vt[i].thumbnailImage && vt[i].thumbnailImage.hasAttribute("data-thumb")) {
             vt[i].thumbnailImage.src = vt[i].thumbnailImage.getAttribute("data-thumb");
-          }
+          }*/
           
           processItem(vt[i]);
           processItemHeavyLoad(vt[i]);
@@ -6439,6 +6440,7 @@
         if (onViewUpdateBuffer) {
           ytcenter.utils.removeEventListener(window, "scroll", onViewUpdateBuffer, false);
           ytcenter.utils.removeEventListener(window, "resize", onViewUpdateBuffer, false);
+          ytcenter.events.removeEvent("ui-refresh", onViewUpdateBuffer);
         } else {
           if ((loc.href.indexOf("apis.google.com/u/") !== -1 || loc.href.indexOf("plus.googleapis.com") !== -1) && loc.href.indexOf("/widget/render/comments?") !== -1) {
             ytcenter.message.listen(uw, null, "$_scroll", function(data){
@@ -6458,7 +6460,8 @@
         ytcenter.utils.addEventListener(window, "resize", onViewUpdateBuffer, false);
         ytcenter.events.addEvent("ui-refresh", onViewUpdateBuffer);
         uw.setInterval(onViewUpdateBuffer, 7500); // Todo attach this to an event instead.
-        onViewUpdate();
+        
+        onViewUpdateBuffer();
       };
       
       return __r;
@@ -9247,6 +9250,9 @@
       _text.setAttribute("type", "text");
       _text.value = Math.round(range.getValue());
       _text.className = "ytcenter-modules-rangetext";
+      if (option.args["text-width"]) {
+        _text.style.width = option.args["text-width"];
+      }
       wrapper.appendChild(_text);
       
       range.bind(function(value){
@@ -13237,6 +13243,12 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      bufferEnabled: true,
+      bufferSize: 569228273678,
+      embedBufferEnabled: false,
+      embedBufferSize: 569228273678,
+      channelBufferEnabled: false,
+      channelBufferSize: 569228273678,
       playlistAutoPlay: true,
       playlistAutoPlayFreeze: false, /* Freeze the playlist auto play so that playlistAutoPlay is not changed when the toggle button has been clicked */
       playerGlowEnabled: false,
@@ -14402,11 +14414,11 @@
               ytcenter.events.performEvent("settings-update", option.id);
             });
             ytcenter.events.addEvent("settings-update", function(id){
-              if (id !== option.id && option.defaultSetting && ytcenter.settings[option.defaultSetting]) {
+              if (module && id !== option.id && option.defaultSetting && ytcenter.settings[option.defaultSetting]) {
                 module.update(ytcenter.settings[option.defaultSetting]);
               }
             });
-            if (option.defaultSetting && ytcenter.settings[option.defaultSetting]) {
+            if (module && option.defaultSetting && ytcenter.settings[option.defaultSetting]) {
               module.update(ytcenter.settings[option.defaultSetting]);
             }
             
@@ -15305,6 +15317,32 @@
             "line"
           );
           subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "bufferEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_BUFFER_ENABLE"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "bufferSize", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_BUFFER_SIZE",
+            {
+              "min": 0,
+              "max": 569228273678,
+              "suffix": " bytes",
+              "text-width": "125px"
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "removeBrandingBanner", // defaultSetting
             "bool", // module
@@ -16152,6 +16190,32 @@
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
+            "embedBufferEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_BUFFER_ENABLE"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "embedBufferSize", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_BUFFER_SIZE",
+            {
+              "min": 0,
+              "max": 569228273678,
+              "suffix": " bytes",
+              "text-width": "125px"
+            }
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
             "embed_enableAutoVideoQuality",
             "bool",
             "SETTINGS_ENABLEAUTORESOLUTION_LABEL",
@@ -16433,6 +16497,32 @@
             "SETTINGS_ENABLEANNOTATIONS_LABEL",
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Annotations-3"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null,
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "channelBufferEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_BUFFER_ENABLE"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "channelBufferSize", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_BUFFER_SIZE",
+            {
+              "min": 0,
+              "max": 569228273678,
+              "suffix": " bytes",
+              "text-width": "125px"
+            }
           );
           subcat.addOption(option);
           
@@ -19263,14 +19353,17 @@
           if (state === 1 && step === 0) {
             step = 1;
             api.setPlaybackQuality(vq);
+            api.seekTo(api.getCurrentTime());
             api.pauseVideo();
           } else if (state === 2 && step === 1) {
             step = 2;
             api.setPlaybackQuality(vq);
+            api.seekTo(api.getCurrentTime());
             api.playVideo();
           } else if (state === 1 && step === 2) {
             step = -1;
             api.setPlaybackQuality(vq);
+            api.seekTo(api.getCurrentTime());
             
             removeStateListener();
           }
@@ -20022,8 +20115,10 @@
       config.args.enablejsapi = 1;
       config.args.jsapicallback = "ytcenter.player.onReady";
       
-      
       if (ytcenter.getPage() === "watch") {
+        if (ytcenter.settings.bufferEnabled) {
+          config.args.tsp_buffer = ytcenter.settings.bufferSize;
+        }
         if (ytcenter.settings.enable_custom_fexp) {
           config.args.fexp = ytcenter.settings.custom_fexp;
         } else {
@@ -20052,6 +20147,9 @@
           ytcenter.player.setPlayerType("html5");
         }
       } else if (ytcenter.getPage() === "embed") {
+        if (ytcenter.settings.embedBufferEnabled) {
+          config.args.tsp_buffer = ytcenter.settings.embedBufferSize;
+        }
         if ((ytcenter.settings.embed_forcePlayerType === "flash" || ytcenter.settings.embed_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = false;
           config.args.html5_sdk_version = "0";
@@ -20063,7 +20161,10 @@
           config.args.html5_sdk_version = "3.1";
           ytcenter.player.setPlayerType("html5");
         }
-      } else if (ytcenter.getPage() === "embed") {
+      } else if (ytcenter.getPage() === "channel") {
+        if (ytcenter.settings.channelBufferEnabled) {
+          config.args.tsp_buffer = ytcenter.settings.channelBufferSize;
+        }
         if ((ytcenter.settings.channel_forcePlayerType === "flash" || ytcenter.settings.channel_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
           config.html5 = false;
           config.args.html5_sdk_version = "0";
@@ -20128,6 +20229,9 @@
         if (ytcenter.settings.enableAutoVideoQuality) {
           // This does not work with the HTML5 player anymore.
           config.args.vq = ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
+          config.args.suggestedQuality = config.args.vq;
+          var vqDim = ytcenter.player.getQualityDimension(config.args.vq);
+          if (vqDim) config.args.video_container_override = vqDim;
         }
         if (config.args.dash === "1" && config.args.adaptive_fmts) {
           ytcenter.player.setRatio(ytcenter.player.calculateRatio(true));
@@ -20248,6 +20352,9 @@
         if (ytcenter.settings.embed_enableAutoVideoQuality) {
           var vq = ytcenter.player.getQuality(ytcenter.settings.embed_autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
           config.args.vq = vq;
+          config.args.suggestedQuality = vq;
+          var vqDim = ytcenter.player.getQualityDimension(vq);
+          if (vqDim) config.args.video_container_override = vqDim;
         }
         if (!ytcenter.settings.embed_enableAnnotations) {
           config.args.iv_load_policy = 3;
@@ -20289,6 +20396,9 @@
         if (ytcenter.settings.channel_enableAutoVideoQuality) {
           var vq = ytcenter.player.getQuality(ytcenter.settings.channel_autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
           config.args.vq = vq;
+          config.args.suggestedQuality = vq;
+          var vqDim = ytcenter.player.getQualityDimension(vq);
+          if (vqDim) config.args.video_container_override = vqDim;
         }
         
         if (ytcenter.settings.removeAdvertisements) {
@@ -21013,7 +21123,7 @@
         if (!ytcenter.settings.enableResize) return;
         ytcenter.player.resize(ytcenter.player.getPlayerSize(lastResizeId));
         ytcenter.player.updateResize_updateVisibility();
-        ytcenter.player.updateResize_updatePosition();
+        ytcenter.playersResize_updatePosition();
       };
       ytcenter.player.isSelectedPlayerSizeById = function(id){
         if (!ytcenter.settings.enableResize) return;
@@ -21583,6 +21693,18 @@
       return ytcenter.player.getQualityByDimensionHTML5(size[0], size[1]);
     };
     ytcenter.player.qualities = ["highres", "hd1440", "hd1080", "hd720", "large", "medium", "small", "tiny", "auto"];
+    ytcenter.player.qualityDimensions = ["3840x2160", "2560x1440", "1920x1080", "1280x720", "854x480", "640x360", "640x360"];
+    ytcenter.player.getQualityDimension = function(vq){
+      if (vq === "auto") return null;
+      var i = 0;
+      for (i = 0; i < ytcenter.player.qualities.length; i++) {
+        if (ytcenter.player.qualities[i] === vq) {
+          return ytcenter.player.qualityDimensions[i];
+        }
+      }
+      
+      return null;
+    };
     ytcenter.player.getQuality = function(vq, streams, dash){
       var _vq = "auto", priority = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'highres'],
           a = document.createElement("video"), cpt = a && a.canPlayType,
