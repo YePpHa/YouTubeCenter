@@ -7,18 +7,52 @@ var {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
 var addonData = null;
 var scopes = {};
 var unloadFunctions = [];
+var windowEventListeners = [];
 var filename = "chrome://ytcenter/content/YouTubeCenter.js";
 
 function unload(func) {
   unloadFunctions.push(func);
 }
 function unloadSandbox(scope) {
-  for (let v in scope) {
-    try {
-      scope[v] = null;
-    } catch (e) { }
-  }
+  try {
+    for (let v in scope) {
+      try {
+        scope[v] = null;
+      } catch (e) { }
+    }
+  } catch (e) { }
   scope = null;
+}
+
+function addUnloadListener(element, event, callback, capture) {
+  function callbackWrapper() {
+    callback.apply(null, arguments);
+    removeUnloadListener(element, event, callbackWrapper, capture, true);
+  }
+  windowEventListeners.push([element, event, callbackWrapper, capture]);
+  element.addEventListener(event, callbackWrapper, capture);
+}
+
+function searchAndRemove(windowEventListeners, value) {
+  for (let i = 0; i < windowEventListeners.length; i++) {
+    if (windowEventListeners[i] == value) {
+      windowEventListeners.splice(i, 1);
+      break;
+    }
+  }
+}
+
+function removeUnloadListener(element, event, callback, capture, removeFromMemory) {
+  element.removeEventListener(event, callback, capture);
+  if (removeFromMemory && windowEventListeners) {
+    let arr = windowEventListeners.splice();
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i][0] == element && arr[i][1] == event && arr[i][2] == callback && arr[i][3] == capture) {
+        if (removeFromMemory) searchAndRemove(windowEventListeners, arr[i]);
+      }
+    }
+    arr = null;
+  }
 }
 
 function loadFile(scriptName, onload) {
@@ -44,7 +78,8 @@ function require(module) {
         Cr: Cr,
         Cu: Cu,
         unload: unload,
-        unloadSandbox: unloadSandbox
+        unloadSandbox: unloadSandbox,
+        addUnloadListener: addUnloadListener
       },
       wantXrays: false
     });
@@ -84,6 +119,11 @@ function startup(data, reason) {
 function shutdown(data, reason) {
   if (reason == APP_SHUTDOWN)
     return;
+  let wArr = windowEventListeners.splice();
+  for (let i = 0; i < wArr.length; i++) {
+    wArr[i][2]();
+  }
+  windowEventListeners = null;
   
   for (let i = 0; i < unloadFunctions.length; i++) {
     unloadFunctions[i]();
