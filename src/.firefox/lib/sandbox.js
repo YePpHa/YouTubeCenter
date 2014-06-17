@@ -40,10 +40,32 @@ Sandbox.prototype.loadScript = function(filename, content, wrappedContentWin, do
     let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
     let sandbox = this.createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
     
-    wrappedContentWin.addEventListener("unload", function(){
+    addUnloadListener(wrappedContentWin, "unload", function(){
+      function runAsync(thisPtr, callback) {
+        if (typeof callback !== "function") return;
+        let params = Array.prototype.slice.call(arguments, 2);
+        let runnable = {
+          run: function() {
+            callback.apply(thisPtr, params);
+          }
+        };
+        try {
+          Cc['@mozilla.org/thread-manager;1'].getService(Ci.nsIThreadManager).currentThread.dispatch(runnable, Ci.nsIEventTarget.DISPATCH_NORMAL);
+        } catch (e) {
+          /* Error */
+        }
+      }
       runAsync(null, function(){
         if (sandbox) {
-          unloadSandbox(sandbox);
+          if ("nukeSandbox" in Cu) {
+            Cu.nukeSandbox(sandbox);
+          } else {
+            for (let v in sandbox) {
+              try {
+                sandbox[v] = null;
+              } catch (e) { }
+            }
+          }
           sandbox = null;
         }
       });

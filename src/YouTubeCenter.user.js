@@ -2422,6 +2422,13 @@
     })();
     if (loc.href.indexOf("http://apiblog.youtube.com/") === 0 || loc.href.indexOf("https://apiblog.youtube.com/") === 0) return;
     if (typeof console !== "undefined" && typeof console.log !== "undefined") {
+      var con = {};
+      for (var key in console) {
+        if (typeof console[key] === "function") {
+          con[key] = console[key].bind(console);
+        }
+      }
+    } else if (typeof console !== "undefined" && typeof console.log !== "undefined") {
       con = {};
       for (var key in console) {
         if (typeof console[key] === "function") {
@@ -2747,7 +2754,7 @@
           likeButton = getLikeButton(),
           likeButtonEvent = getEventListener({ event: "click", element: likeButton });
           
-          if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
+          if (likeButton == null || likeButtonEvent == null || typeof likeButtonEvent[3] != "function") {
             uw.setTimeout(function(){ setup(); }, 2500);
             return;
           }
@@ -13646,26 +13653,11 @@
       }
     };
     
-    ytcenter.discardElement = (function(){
-      var g = document.createElement('div');
-      g.style.display = 'none';
-      document.addEventListener("DOMContentLoaded", (function(g){
-        return function(){
-          document.body.appendChild(g);
-        };
-      })(g), true);
-      return (function(g){
-        return function(element){
-          con.log("Discarding element");
-          if (!element) return;
-          if (element.parentNode) {
-            element.parentNode.removeChild(element);
-          }
-          g.appendChild(element);
-          g.innerHTML = "";
-        };
-      })(g);
-    })();
+    ytcenter.discardElement = function(element){
+      if (element.parentNode && typeof element.parentNode.removeChild === "function") {
+        element.parentNode.removeChild(element);
+      }
+    };
     
     ytcenter.callback_db = [];
     if (identifier === 3) { // Firefox Extension
@@ -15506,7 +15498,12 @@
             "SETTINGS_PLAYLIST_AUTOPLAY"
           );
           ytcenter.events.addEvent("settings-update", (function(opt){
-            return function(){ opt.getLiveModule().update(ytcenter.settings.playlistAutoPlay); };
+            return function(){
+              var module = opt.getLiveModule();
+              if (module) {
+                module.update(ytcenter.settings.playlistAutoPlay);
+              }
+            };
           })(option));
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -18488,15 +18485,19 @@
             }
           );
           subcat.addOption(option);
-          subcat.addEventListener("click", function(){
-            var a = this;
-            con.log("[Debug] Loading debug log...");
-            a.getLiveModule().setText(ytcenter.language.getLocale("SETTINGS_DEBUG_LOADING"));
-            uw.setTimeout(function(){
-              a.getLiveModule().setText(ytcenter.getDebug());
-              a.getLiveModule().selectAll();
-            }, 100);
-          }.bind(option));
+          subcat.addEventListener("click", (function(opt){
+            return function(){
+              con.log("[Debug] Loading debug log...");
+              var module = opt.getLiveModule();
+              if (module) {
+                module.setText(ytcenter.language.getLocale("SETTINGS_DEBUG_LOADING"));
+                uw.setTimeout(function(){
+                  module.setText(ytcenter.getDebug());
+                  module.selectAll();
+                }, 100);
+              }
+            };
+          })(option));
           
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
@@ -18563,8 +18564,10 @@
           );
           subcat.addEventListener("click", (function(opt){
             return function(){
-              if (!opt.getLiveModule().hasLoadedOnce())
-                opt.getLiveModule().loadExperiments();
+              var module = opt.getLiveModule();
+              if (module && !module.hasLoadedOnce()) {
+                module.loadExperiments();
+              }
             };
           })(option));
           subcat.addOption(option);
@@ -21942,6 +21945,7 @@
       var isHTML5 = (movie_player && movie_player.tagName === "DIV") || cfg.html5 || (api && api.getPlayerType && api.getPlayerType() === "html5");
       return isHTML5;
     };
+    ytcenter.player._update_onYouTubeReady = false;
     ytcenter.player.update = function(config){
       if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
@@ -21951,7 +21955,8 @@
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
         con.log("[Player Update] Checking if player exist!");
-        if (player && player.tagName.toLowerCase() === "embed") {
+        if ((player && player.tagName.toLowerCase() === "embed") || ytcenter.player._update_onYouTubeReady) {
+          ytcenter.player._update_onYouTubeReady = false;
           ytcenter.player.updateFlashvars(player, config);
           
           if (ytcenter.getPage() === "watch") {
@@ -21976,7 +21981,7 @@
           player = clone;
           con.log("[Player Update] Player has been cloned and replaced!");
         } else {
-          uw.setTimeout(function(){ ytcenter.player.update(config) }, 100);
+          uw.setTimeout(function(){ ytcenter.player._update_noplayer = true; ytcenter.player.update(config); }, 100);
         }
       } catch (e) {
         con.error(e);
@@ -23594,6 +23599,7 @@
             
             api = ytcenter.player.getAPI();
             ytcenter.html5 = (api && typeof api.getPlayerType === "function" && api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
+            ytcenter.player._update_onYouTubeReady = !ytcenter.html5;
             if (!ytcenter.html5) {
               if (uw && uw.yt && uw.yt.player && uw.yt.player.utils &&
                   uw.yt.player.utils.VideoTagPool && uw.yt.player.utils.VideoTagPool.instance_
