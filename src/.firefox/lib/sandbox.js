@@ -1,82 +1,36 @@
 Cu.import("resource://gre/modules/Services.jsm");
 
+var {getFirebugConsole} = require("utils");
 var {getChromeWinForContentWin} = require("getChromeWinForContentWin");
-var {getFirebugConsole, bind, bindCache, runAsync} = require("utils");
-var {storage} = require("storage");
-var {session} = require("session");
-var {Request} = require("request");
+var {sendRequest} = require("request");
+var storage = require("storage");
+var crossWindowLinker = require("crossWindowLinker");
+var windowHandler = require("windowHandler");
 
-function Sandbox(whitelist, blacklist) {
-  this.whitelist = whitelist;
-  this.blacklist = blacklist;
-}
-
-Sandbox.prototype.isRunnable = function(url) {
-  for (var i = 0; i < this.blacklist.length; i++) {
-    if (this.blacklist[i].test(url + "/")) {
-      return false;
-    }
-  }
-  for (var i = 0; i < this.whitelist.length; i++) {
-    if (this.whitelist[i].test(url + "/")) {
-      return true;
-    }
-  }
-  return false;
-}
-
-Sandbox.prototype.embedCheck = function(url) {
-  let settings = storage.getValue("YouTubeCenterSettings");
-  if (settings != null && !settings.embed_enabled && /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|(youtube\.com\/))embed\//.test(url)) {
-    return false;
-  }
+function sandboxUnloader(win, sandbox) {
+  crossWindowLinker.removeWindowListeners(win);
   
-  return true;
-}
-
-Sandbox.prototype.loadScript = function(filename, content, wrappedContentWin, doc) {
-  if (this.isRunnable(doc.location.href) && this.embedCheck(doc.location.href)) {
-    let chromeWindow = getChromeWinForContentWin(wrappedContentWin);
-    let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
-    let sandbox = this.createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
-    
-    addUnloadListener(wrappedContentWin, "unload", function(){
-      function runAsync(thisPtr, callback) {
-        if (typeof callback !== "function") return;
-        let params = Array.prototype.slice.call(arguments, 2);
-        let runnable = {
-          run: function() {
-            callback.apply(thisPtr, params);
+  if (sandbox) {
+    try {
+      if ("nukeSandbox" in Cu) {
+        Cu.nukeSandbox(sandbox);
+      } else {
+        for (let v in sandbox) {
+          try {
+            sandbox[v] = null;
+          } catch (e) {
+            Cu.reportError(e);
           }
-        };
-        try {
-          Cc['@mozilla.org/thread-manager;1'].getService(Ci.nsIThreadManager).currentThread.dispatch(runnable, Ci.nsIEventTarget.DISPATCH_NORMAL);
-        } catch (e) {
-          /* Error */
         }
       }
-      runAsync(null, function(){
-        if (sandbox) {
-          if ("nukeSandbox" in Cu) {
-            Cu.nukeSandbox(sandbox);
-          } else {
-            for (let v in sandbox) {
-              try {
-                sandbox[v] = null;
-              } catch (e) { }
-            }
-          }
-          sandbox = null;
-        }
-      });
-    }, false);
-    unload(function(){ if (sandbox) { unloadSandbox(sandbox); } sandbox = null; });
-    
-    Cu.evalInSandbox(content, sandbox, "1.8", filename, 0);
+    } catch (e) {
+      Cu.reportError(e);
+    }
   }
+  sandbox = null;
 }
 
-Sandbox.prototype.createSandbox = function(wrappedContentWin, chromeWin, firebugConsole) {
+function createSandbox(wrappedContentWin, chromeWin, firebugConsole) {
   let sandbox = new Cu.Sandbox(
     wrappedContentWin, {
       "sandboxName": "YouTube Center",
@@ -84,29 +38,62 @@ Sandbox.prototype.createSandbox = function(wrappedContentWin, chromeWin, firebug
       "wantXrays": true,
     }
   );
-  
   sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
   if (firebugConsole) sandbox.console = firebugConsole;
   
-  sandbox.request = bind(new Request(wrappedContentWin, chromeWin), "sendRequest");
+  sandbox.request = sendRequest.bind(this, wrappedContentWin, chromeWin);
   
-  sandbox.storage_setValue = bind(storage, "setValue");
-  sandbox.storage_getValue = bind(storage, "getValue");
-  sandbox.storage_listValues = bind(storage, "listValues");
-  sandbox.storage_exists = bind(storage, "exists");
-  sandbox.storage_remove = bind(storage, "remove");
-  sandbox.storage_addEventListener = bind(storage, "addEventListener", wrappedContentWin);
-  sandbox.storage_removeEventListener = bind(storage, "removeEventListener", wrappedContentWin);
+  sandbox.storage_setValue = storage.setValue.bind(storage);
+  sandbox.storage_getValue = storage.getValue.bind(storage);
+  //sandbox.storage_listValues = storage.listValues.bind(storage);
+  //sandbox.storage_exists = storage.exists.bind(storage);
+  //sandbox.storage_remove = storage.remove.bind(storage);
   
-  /*sandbox.session_setValue = bind(session, "setValue");
-  sandbox.session_getValue = bind(session, "getValue");
-  sandbox.session_listValues = bind(session, "listValues");
-  sandbox.session_exists = bind(session, "exists");
-  sandbox.session_remove = bind(session, "remove");
-  sandbox.session_addEventListener = bind(session, "addEventListener", wrappedContentWin);
-  sandbox.session_removeEventListener = bind(session, "removeEventListener", wrappedContentWin);*/
+  sandbox.addWindowListener = crossWindowLinker.addWindowListener.bind(crossWindowLinker, wrappedContentWin);
+  sandbox.windowLinkerFireRegisteredEvent = crossWindowLinker.fireEvent.bind(crossWindowLinker, wrappedContentWin);
+  
+  // Make sure that everything is properly unloaded
+  windowHandler.addEventListener(wrappedContentWin, "unload", sandboxUnloader.bind(this, wrappedContentWin, sandbox));
   
   return sandbox;
 }
 
-exports["Sandbox"] = Sandbox;
+function isRunnable(url, whitelist, blacklist) {
+  for (var i = 0; i < blacklist.length; i++) {
+    if (blacklist[i].test(url + "/")) {
+      return false;
+    }
+  }
+  for (var i = 0; i < whitelist.length; i++) {
+    if (whitelist[i].test(url + "/")) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function embedCheck(url) {
+  let settings = storage.getValue("YouTubeCenterSettings");
+  if (settings !== null && !settings.embed_enabled && /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|(youtube\.com\/))embed\//.test(url)) {
+    return false;
+  }
+  
+  return true;
+}
+
+function loadScript(whitelist, blacklist, filename, content, wrappedContentWin, doc) {
+  if (isRunnable(doc.location.href, whitelist, blacklist) && embedCheck(doc.location.href)) {
+    let experimentArr = [wrappedContentWin];
+    let chromeWindow = getChromeWinForContentWin(wrappedContentWin);
+    let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
+    let sandbox = createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
+    
+    if (content !== null) {
+      Cu.evalInSandbox(content, sandbox, "1.8", filename, 0);
+    } else {
+      Services.scriptloader.loadSubScript(filename, sandbox, "UTF-8");
+    }
+  }
+}
+
+exports["loadScript"] = loadScript;

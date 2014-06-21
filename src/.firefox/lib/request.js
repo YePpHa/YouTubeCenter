@@ -1,25 +1,21 @@
-var {bind, isWindowClosed} = require("utils");
+var {callUnsafeJSObject} = require("utils");
 
-function Request(wrappedContentWin, chromeWindow) {
-  this.wrappedContentWin = wrappedContentWin;
-  this.chromeWindow = chromeWindow;
-}
-
-Request.prototype.sendRequest = function(details){
-  var req = new this.chromeWindow.XMLHttpRequest(),
-      ael = bind(this, "addEventListener", this.wrappedContentWin);
+function sendRequest(wrappedContentWin, chromeWin, details) {
+  let req = new chromeWin.XMLHttpRequest();
+  let addEventReq = addEventListener.bind(this, wrappedContentWin, req);
   
-  ael(req, "abort", details);
-  ael(req, "error", details);
-  ael(req, "load", details);
-  ael(req, "progress", details);
-  ael(req, "readystatechange", details);
-  ael(req, "timeout", details);
+  addEventReq("abort", details);
+  addEventReq("error", details);
+  addEventReq("load", details);
+  addEventReq("progress", details);
+  addEventReq("readystatechange", details);
+  addEventReq("timeout", details);
   if (details.upload) {
-    ael(req.upload, "abort", details);
-    ael(req.upload, "error", details);
-    ael(req.upload, "load", details);
-    ael(req.upload, "progress", details);
+    let addEventReqUpload = addEventListener.bind(this, wrappedContentWin, req.upload);
+    addEventReqUpload("abort", details);
+    addEventReqUpload("error", details);
+    addEventReqUpload("load", details);
+    addEventReqUpload("progress", details);
   }
   
   req.mozBackgroundRequest = !!details.mozBackgroundRequest;
@@ -29,12 +25,14 @@ Request.prototype.sendRequest = function(details){
   if (details.overrideMimeType) {
     req.overrideMimeType(details.overrideMimeType);
   }
+  
   if (details.timeout) {
     req.timeout = details.timeout;
   }
+  
   if (details.headers) {
-    var headers = details.headers;
-    for (var prop in headers) {
+    let headers = details.headers;
+    for (let prop in headers) {
       if (Object.prototype.hasOwnProperty.call(headers, prop)) {
         req.setRequestHeader(prop, headers[prop]);
       }
@@ -48,7 +46,7 @@ Request.prototype.sendRequest = function(details){
     req.send(body);
   }
   
-  var rv = {
+  var exposedVariable = {
     __exposedProps__: {
       finalUrl: "r",
       readyState: "r",
@@ -63,17 +61,17 @@ Request.prototype.sendRequest = function(details){
     }
   };
   if (!!details.synchronous) {
-    rv.finalUrl = req.finalUrl;
-    rv.readyState = req.readyState;
-    rv.responseHeaders = req.getAllResponseHeaders();
-    rv.responseText = req.responseText;
-    rv.status = req.status;
-    rv.statusText = req.statusText;
+    exposedVariable.finalUrl = req.finalUrl;
+    exposedVariable.readyState = req.readyState;
+    exposedVariable.responseHeaders = req.getAllResponseHeaders();
+    exposedVariable.responseText = req.responseText;
+    exposedVariable.status = req.status;
+    exposedVariable.statusText = req.statusText;
   }
-  return rv;
-};
+  return exposedVariable;
+}
 
-Request.prototype.addEventListener = function(wrappedContentWin, req, event, details){
+function addEventListener(wrappedContentWin, req, event, details){
   if (!details["on" + event]) return;
   
   req.addEventListener(event, function(evt){
@@ -116,14 +114,8 @@ Request.prototype.addEventListener = function(wrappedContentWin, req, event, det
         break;
     }
 
-    if (isWindowClosed(wrappedContentWin)) {
-      return;
-    }
-    
-    new XPCNativeWrapper(wrappedContentWin, "setTimeout").setTimeout(function(){
-      details["on" + event](responseState);
-    }, 0);
+    callUnsafeJSObject(wrappedContentWin, details["on" + event], responseState);
   }, false);
-};
+}
 
-exports["Request"] = Request;
+exports["sendRequest"] = sendRequest;

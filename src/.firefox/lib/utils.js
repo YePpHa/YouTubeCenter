@@ -1,41 +1,8 @@
 function bind(obj, method) {
-  if (!obj[method])
-    throw new Error("...");
-  method = obj[method];
-  
   var args = Array.prototype.splice.call(arguments, 2, arguments.length);
   return function() {
     return method.apply(obj, args.concat(Array.prototype.slice.call(arguments)));
   };
-}
-
-var bindings = [];
-unload(function(){
-  for (let i = 0; i < bindings.length; i++) {
-    bindings[i] = null;
-  }
-  bindings = null;
-});
-function bindCache(obj, method) {
-  if (!obj[method]) throw new Error("...");
-  
-  for (let i = 0; i < bindings.length; i++) {
-    if (bindings[i].obj == obj && bindings[i].method == method) {
-      return bindings[i].func;
-    }
-  }
-  let _method = method;
-  method = obj[method];
-  
-  var sargs = Array.prototype.splice.call(arguments, 2, arguments.length);
-  var func = function() {
-    var args = Array.prototype.slice.call(sargs);
-    Array.prototype.push.apply(args, arguments);
-    return method.apply(obj, args);
-  };
-  bindings.push({ method: _method, obj: obj, func: func });
-  
-  return func;
 }
 
 const conService = Cc['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
@@ -84,9 +51,11 @@ function getFirebugConsole(wrappedContentWindow, chromeWindow) {
   }
 }
 
-function callUnsafeJSObject(wrappedContentWindow, callback, rv) {
-  if (isWindowClosed(wrappedContentWindow)) return;
-  (new XPCNativeWrapper(wrappedContentWindow, "setTimeout")).setTimeout(function(){ callback(rv); }, 0);
+function callUnsafeJSObject(wrappedContentWindow, callback) {
+  let args = Array.prototype.slice.call(arguments, 2);
+  
+  if (isWindowClosed(wrappedContentWindow)) return; /* The window is closed and therefore it should not be called! */
+  (new XPCNativeWrapper(wrappedContentWindow, "setTimeout")).setTimeout(function(){ callback.apply(null, args); }, 0);
 }
 
 function setTimeout(callback, delay) {
@@ -96,7 +65,6 @@ function setTimeout(callback, delay) {
 }
 
 exports["bind"] = bind;
-exports["bindCache"] = bindCache;
 exports["console"] = console;
 exports["isWindowClosed"] = isWindowClosed;
 exports["runAsync"] = runAsync;

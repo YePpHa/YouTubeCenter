@@ -1,37 +1,33 @@
 var {console, callUnsafeJSObject, isWindowClosed} = require("utils");
 var listeners = {};
 
-function addEventListener(wrappedContentWindow, event, callback) {
-  function unloadListener() {
-    console.log("[Firefox:eventsManager] Unloading listener with event " + event + "...");
-    removeEventListener(wrappedContentWindow, event, callback);
-    
-    wrappedContentWindow = null;
-    event = null;
-    callback = null;
-    unloadListener = null;
+function unloadWindow(wrappedContentWindow) {
+  for (let key in listeners) {
+    if (listeners.hasOwnProperty(key)) {
+      for (let i = 0; i < listeners[key].length; i++) {
+        if (listeners[key][i].wrappedContentWindow === wrappedContentWindow) {
+          listeners[key].splice(i, 1);
+          i--;
+        }
+      }
+    }
   }
-  
-  if (!listeners || !listeners[event]) listeners[event] = [];
-  listeners[event].push({ wrappedContentWindow: wrappedContentWindow, callback: callback, unload: unloadListener });
-  
-  wrappedContentWindow.addEventListener("unload", unloadListener, true);
+}
+
+function addEventListener(wrappedContentWindow, event, callback) {
+  /*if (!listeners || !listeners[event]) listeners[event] = [];
+  listeners[event].push({ wrappedContentWindow: wrappedContentWindow, callback: callback });*/
 }
 
 function removeEventListener(wrappedContentWindow, event, callback) {
-  if (!listeners || !listeners[event]) return;
+  /*if (!listeners || !listeners[event]) return;
   
   for (let i = 0; i < listeners[event].length; i++) {
     if (listeners[event][i].wrappedContentWindow == wrappedContentWindow && listeners[event][i].callback == callback) {
-      listeners[event][i].wrappedContentWindow.removeEventListener("unload", listeners[event][i].unload, true);
-      listeners[event][i].wrappedContentWindow = null;
-      listeners[event][i].callback = null;
-      listeners[event][i] = null;
-      
       listeners[event].splice(i, 1);
-      break;
+      i--;
     }
-  }
+  }*/
 }
 
 function fireEvent(event, key, value) {
@@ -47,36 +43,22 @@ function fireEvent(event, key, value) {
     
     for (let i = 0; i < listeners[event].length; i++) {
       if (isWindowClosed(listeners[event][i].wrappedContentWindow)) {
-        
-        listeners[event].splice(i, 1); i--;
+        listeners[event].splice(i, 1);
+        i--;
       } else {
         try {
           callUnsafeJSObject(listeners[event][i].wrappedContentWindow, listeners[event][i].callback, rv);
         } catch (e) {
-          console.error(e);
+          Cu.reportError(e);
         }
       }
     }
   }
 }
 
-unload(function(){
-  if (listeners) {
-    for (let key in listeners) {
-      if (listeners.hasOwnProperty(key)) {
-        for (let i = 0; i < listeners[key].length; i++) {
-          listeners[key][i].wrappedContentWindow.removeEventListener("unload", listeners[key][i].unload, true);
-          delete listeners[key][i].wrappedContentWindow;
-          delete listeners[key][i].callback;
-          delete listeners[key][i];
-        }
-        delete listeners[key];
-      }
-    }
-    delete listeners;
-  }
-});
+unload(function(){ listeners = null; });
 
 exports["addEventListener"] = addEventListener;
 exports["removeEventListener"] = removeEventListener;
 exports["fireEvent"] = fireEvent;
+exports["unloadWindow"] = unloadWindow;

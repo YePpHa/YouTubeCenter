@@ -1,16 +1,12 @@
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
-var {runAsync} = require("utils");
-
-function PolicyImplementation(filename, content, sandbox) {
-  this.sandbox = sandbox;
+function PolicyImplementation(loadScript) {
+  this.loadScript = loadScript;
   this.classDescription = "YouTube Center Policy Implementation";
   this.classID = Components.ID("{338b51a4-0709-4971-ac89-18e82be90a93}");
   this.contractID = "@ytcenter/ytcenter-policy-service;1";
   this.xpcom_categories = ["content-policy"];
-  this.filename = filename;
-  this.content = content;
 }
 PolicyImplementation.prototype.init = function(){
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
@@ -53,7 +49,7 @@ PolicyImplementation.prototype.observe = function(subject, topic, data, addition
       let doc = subject;
       let win = doc && doc.defaultView;
       if (!doc || !doc.location || !win) break;
-      this.sandbox(this.filename, this.content, win, doc);
+      this.loadScript(win, doc);
       break;
     case "xpcom-category-entry-removed":
     case "xpcom-category-cleared": {

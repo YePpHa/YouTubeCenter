@@ -1,5 +1,4 @@
 const filename_regex = /^[a-zA-Z0-9\.,-_]+$/;
-var fileAccess = {};
 
 function getLocalDirectory() {
   let directoryService = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
@@ -9,16 +8,16 @@ function getLocalDirectory() {
       localDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0774);
   return localDir;
 }
-fileAccess.exists = function exists(name) {
+function exists(name) {
   if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
   if (!file.exists())
     return false;
   return true;
-};
+}
 
-fileAccess.writeFile = function writeFile(name, data) {
+function writeFile(name, data) {
   if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
@@ -35,9 +34,9 @@ fileAccess.writeFile = function writeFile(name, data) {
     if (!Components.isSuccessCode(status))
       return;
   });
-};
+}
 
-fileAccess.readFile = function readFile(name) {
+function readFile(name) {
   if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
@@ -60,13 +59,17 @@ fileAccess.readFile = function readFile(name) {
     cstream.close();
   }
   return data;
-};
+}
 
-fileAccess.removeFile = function removeFile(name) {
+function removeFile(name) {
   if (!(filename_regex.test(name))) throw new Error("Filename was malformed!");
   let file = getLocalDirectory();
   file.append(name + ".data");
   if (!file.exists() || !file.isFile()) return;
   file.remove(false);
-};
-exports["fileAccess"] = fileAccess;
+}
+
+exports["exists"] = exists;
+exports["writeFile"] = writeFile;
+exports["readFile"] = readFile;
+exports["removeFile"] = removeFile;

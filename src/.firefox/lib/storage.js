@@ -1,46 +1,37 @@
-var {isWindowClosed} = require("utils");
-var {fileAccess} = require("fileaccess");
-var {addEventListener, removeEventListener, fireEvent} = require("eventsManager");
+var fileAccess = require("fileaccess");
 
-var storage = {}, cache = {}, prefix = "storage";
+var cache = {}, event = "storage";
 
-storage.getValue = function(key){
+function getValue(key){
   if (!cache[key]) {
     let data = fileAccess.readFile(key);
     cache[key] = data;
   }
   return cache[key];
 };
-storage.setValue = function(key, value){
+function setValue(key, value){
   cache[key] = value;
   
   fileAccess.writeFile(key, value);
-  
-  fireEvent(prefix + ":storage", key, value);
-};
+}
 
-storage.listValues = function() {
+function listValues() {
   throw new Error("Not implemented!");
-};
+}
 
-storage.exists = function(key) {
+function exists(key) {
   return fileAccess.exists(key);
-};
+}
 
-storage.remove = function(key) {
-  cache[key] = null;
+function remove(key) {
+  delete cache[key];
   fileAccess.removeFile(key);
-};
+}
 
+unload(function(){ cache = null; event = null; });
 
-storage.addEventListener = function(wrappedContentWindow, event, callback){
-  addEventListener(wrappedContentWindow, prefix + ":" + event, callback);
-};
-
-storage.removeEventListener = function(wrappedContentWindow, event, callback){
-  removeEventListener(wrappedContentWindow, prefix + ":" + event, callback);
-};
-
-unload(function(){ cache = null; prefix = null; });
-
-exports["storage"] = storage;
+exports["getValue"] = getValue;
+exports["setValue"] = setValue;
+exports["listValues"] = listValues;
+exports["exists"] = exists;
+exports["remove"] = remove;
