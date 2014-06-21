@@ -3,58 +3,38 @@ const Ci = Components.interfaces;
 const Cr = Components.results;
 const Cu = Components.utils;
 
-var {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
+const {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
+
+var evalInSandbox = false; // Use evalInSandbox (true) or The Sub-Script Loader (false)
+
 var addonData = null;
-var scopes = {};
-var unloadFunctions = [];
-var windowEventListeners = [];
 var filename = "chrome://ytcenter/content/YouTubeCenter.js";
 
-function unload(func) {
-  unloadFunctions.push(func);
-}
-function unloadSandbox(scope) {
-  try {
-    for (let v in scope) {
-      try {
-        scope[v] = null;
-      } catch (e) { }
-    }
-  } catch (e) { }
-  scope = null;
-}
+var modules = {}; // The loaded modules (alike CommonJS)
+var unloadListeners = []; // The unload listeners which will be called when the add-on needs to be unloaded (uninstall, reinstall, shutdown).
 
-function addUnloadListener(element, event, callback, capture) {
-  function callbackWrapper() {
-    callback.apply(null, arguments);
-    removeUnloadListener(element, event, callbackWrapper, capture, true);
+/* Add an unload listener to the queue
+ * Optional: index - insert listener into queue at index
+ */
+function unload(listener, index) {
+  if (typeof index === "number") {
+    unloadListeners.splice(index, 0, listener);
+  } else {
+    unloadListeners.push(listener);
   }
-  windowEventListeners.push([element, event, callbackWrapper, capture]);
-  element.addEventListener(event, callbackWrapper, capture);
 }
 
-function searchAndRemove(windowEventListeners, value) {
-  for (let i = 0; i < windowEventListeners.length; i++) {
-    if (windowEventListeners[i] == value) {
-      windowEventListeners.splice(i, 1);
-      break;
+/* Remove an unload listener from the queue */
+function removeUnloadListener(listener) {
+  for (let i = 0; i < unloadListeners.length; i++) {
+    if (unloadListeners[i] === listener) {
+      unloadListeners.splice(i, 1);
+      i--;
     }
   }
 }
 
-function removeUnloadListener(element, event, callback, capture, removeFromMemory) {
-  element.removeEventListener(event, callback, capture);
-  if (removeFromMemory && windowEventListeners) {
-    let arr = windowEventListeners.splice();
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i][0] == element && arr[i][1] == event && arr[i][2] == callback && arr[i][3] == capture) {
-        if (removeFromMemory) searchAndRemove(windowEventListeners, arr[i]);
-      }
-    }
-    arr = null;
-  }
-}
-
+/* Load a file */
 function loadFile(scriptName, onload) {
   let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
   request.open("GET", scriptName, true);
@@ -64,11 +44,12 @@ function loadFile(scriptName, onload) {
   request.send(null);
 }
 
+/* Require a library file (alike CommonJS) */
 function require(module) {
-  if (!(module in scopes)) {
+  if (!(module in modules)) {
     let principal = Components.classes["@mozilla.org/systemprincipal;1"].getService(Components.interfaces.nsIPrincipal);
     let url = addonData.resourceURI.spec + "lib/" + module + ".js";
-    scopes[module] = Components.utils.Sandbox(principal, {
+    modules[module] = Components.utils.Sandbox(principal, {
       sandboxName: url,
       sandboxPrototype: {
         require: require,
@@ -78,36 +59,48 @@ function require(module) {
         Cr: Cr,
         Cu: Cu,
         unload: unload,
-        unloadSandbox: unloadSandbox,
-        addUnloadListener: addUnloadListener
+        removeUnloadListener: removeUnloadListener
       },
       wantXrays: false
     });
-    Services.scriptloader.loadSubScript(url, scopes[module]);
+    Services.scriptloader.loadSubScript(url, modules[module]);
   }
-  return scopes[module].exports;
+  return modules[module].exports;
 }
 
+/* Initialize YouTube Center */
 function init() {
-  let {Sandbox} = require("sandbox");
+  let sandbox = require("sandbox");
   let {PolicyImplementation} = require("PolicyImplementation");
   
-  loadFile(filename, function initPolicy(e) {
-    let sandbox = new Sandbox(
-      [
-        /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/,
-        /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/
-      ], [
-        /^http(s)?:\/\/apiblog\.youtube\.com\//,
-        /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)subscribe_embed\?/
-      ]
-    );
-    let policy = new PolicyImplementation(filename, e.target.responseText, sandbox.loadScript.bind(sandbox));
+  let whitelist = [ /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/, /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/ ];
+  let blacklist = [ /^http(s)?:\/\/apiblog\.youtube\.com\//, /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)subscribe_embed\?/ ];
+  
+  if (evalInSandbox) {
+    loadFile(filename, function initPolicy(e) {
+      let policy = new PolicyImplementation(sandbox.loadScript.bind(sandbox, whitelist, blacklist, filename, e.target.responseText));
+      policy.init();
+    });
+  } else {
+    let policy = new PolicyImplementation(sandbox.loadScript.bind(sandbox, whitelist, blacklist, filename, null));
+    policy.init();
+  }
+  
+  /*loadFile(filename, function initPolicy(e) {
+    let loadScript = sandbox.loadScript.bind(sandbox, [
+      /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/,
+      /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/
+    ], [
+      /^http(s)?:\/\/apiblog\.youtube\.com\//,
+      /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)subscribe_embed\?/
+    ], filename, e.target.responseText);
+    let policy = new PolicyImplementation(loadScript);
     
     policy.init();
-  });
+  });*/
 }
 
+/* On add-on startup */
 function startup(data, reason) {
   addonData = data;
   
@@ -116,30 +109,34 @@ function startup(data, reason) {
   }, Ci.nsIEventTarget.DISPATCH_NORMAL);
 }
 
+/* On add-on shutdown */
 function shutdown(data, reason) {
   if (reason == APP_SHUTDOWN)
     return;
-  let wArr = windowEventListeners.splice();
-  for (let i = 0; i < wArr.length; i++) {
-    wArr[i][2]();
-  }
-  windowEventListeners = null;
   
-  for (let i = 0; i < unloadFunctions.length; i++) {
-    unloadFunctions[i]();
+  /* Call the unload listeners and remove them afterwards */
+  for (let i = 0; i < unloadListeners.length; i++) {
+    try { unloadListeners[i](); } catch (e) { }
   }
-  unloadFunctions = null;
+  unloadListeners = null; // Remove all references
   
-  for (let key in scopes) {
-    let scope = scopes[key];
-    for (let v in scope) {
-      scope[v] = null;
+  /* Remove all the loaded modules and their exported variables */
+  for (let key in modules) {
+    let module = modules[key];
+    if ("nukeSandbox" in Cu) {
+      Cu.nukeSandbox(module);
+    } else {
+      for (let v in module) {
+        module[v] = null;
+      }
     }
-    scopes[key] = null;
   }
   
-  scopes = null;
+  modules = null; // Remove all references to the module
 }
 
+/* On add-on install */
 function install(data, reason) { }
+
+/* On add-on uninstall */
 function uninstall(data, reason) { }

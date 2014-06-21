@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         320
+// @version         321
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 320);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 321);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -335,7 +335,7 @@
       item.setAttribute("onclick", ";return false;");
       item.textContent = ytcenter.language.getLocale("BUTTON_ASPECT_NONE");
       ytcenter.language.addLocaleElement(item, "BUTTON_ASPECT_NONE", "@textContent");
-      item.addEventListener("click", function(){
+      ytcenter.utils.addEventListener(item, "click", function(){
         playerAspectTMP = "none";
         if (ytcenter.settings.aspectSave) {
           ytcenter.settings['aspectValue'] = "none";
@@ -363,7 +363,7 @@
       item.setAttribute("onclick", ";return false;");
       item.textContent = ytcenter.language.getLocale("BUTTON_ASPECT_DEFAULT");
       
-      item.addEventListener("click", function(){
+      ytcenter.utils.addEventListener(item, "click", function(){
         playerAspectTMP = "default";
         if (ytcenter.settings.aspectSave) {
           ytcenter.settings['aspectValue'] = "default";
@@ -405,7 +405,7 @@
               item.setAttribute("onclick", ";return false;");
               item.textContent = ytcenter.language.getLocale(groupChoices[child]);
               ytcenter.language.addLocaleElement(item, groupChoices[child], "@textContent");
-              item.addEventListener("click", (function(val, group, child){
+              ytcenter.utils.addEventListener(item, "click", (function(val, group, child){
                 return function(){
                   var val = "yt:" + group + "=" + child;
                   playerAspectTMP = val;
@@ -440,7 +440,7 @@
             item.setAttribute("onclick", ";return false;");
             item.textContent = ytcenter.language.getLocale("BUTTON_ASPECT_24:10");
             ytcenter.language.addLocaleElement(item, "BUTTON_ASPECT_24:10", "@textContent");
-            item.addEventListener("click", (function(val, group, child){
+            ytcenter.utils.addEventListener(item, "click", (function(val, group, child){
               return function(){
                 var val = "yt:" + group + "=24:10";
                 playerAspectTMP = val;
@@ -477,7 +477,7 @@
       var itemCheckbox = $CreateCheckbox(ytcenter.settings.aspectSave);
       itemCheckbox.style.marginLeft = "3px";
       
-      itemLabel.addEventListener("click", function(){
+      ytcenter.utils.addEventListener(itemLabel, "click", function(){
         ytcenter.settings.aspectSave = !ytcenter.settings.aspectSave;
         if (ytcenter.settings.aspectSave) {
           ytcenter.utils.addClass(itemCheckbox, "checked");
@@ -668,7 +668,7 @@
       s.appendChild(icon);
       btn.appendChild(s);
       
-      btn.addEventListener("click", function(){
+      ytcenter.utils.addEventListener(btn, "click", function(){
         ytcenter.player.toggleLights();
       }, false);
       
@@ -690,7 +690,7 @@
       btn.setAttribute("type", "button");
       btn.setAttribute("onclick", ";return false;");
       btn.className = "yt-uix-button yt-uix-tooltip" + (ytcenter.settings.autoActivateRepeat ? " ytcenter-uix-button-toggled" : " yt-uix-button-text") + (ytcenter.settings.enableRepeat ? "" : " hid");
-      btn.addEventListener("click", function(){
+      ytcenter.utils.addEventListener(btn, "click", function(){
         if (ytcenter.doRepeat) {
           ytcenter.utils.removeClass(this, 'ytcenter-uix-button-toggled');
           ytcenter.utils.addClass(this, 'yt-uix-button-text');
@@ -812,7 +812,7 @@
       //btn1.setAttribute("onclick", ";return false;");
       btn1.setAttribute("type", "button");
       btn1.setAttribute("role", "button");
-      btn1.addEventListener("click", function(e){
+      ytcenter.utils.addEventListener(btn1, "click", function(e){
         if (!ytcenter.settings.downloadAsLinks) {
           stream = $DownloadButtonStream();
           if (stream) {
@@ -1024,7 +1024,7 @@
                   }
                 };
               })(stream_groups[key].streams[i]);
-              item.addEventListener("click", downloadStreamListener, false);
+              ytcenter.utils.addEventListener(item, "click", downloadStreamListener, false);
               ytcenter.events.addEvent("ui-refresh", (function(__stream, item, _downloadStreamListener){
                 return function(){
                   item.href = ytcenter.video.downloadLink(__stream);
@@ -1158,7 +1158,7 @@
             }
           };
         })(ytcenter.mp3services[i]);
-        item.addEventListener("click", mp3RedirectListener, false);
+        ytcenter.utils.addEventListener(item, "click", mp3RedirectListener, false);
         ytcenter.events.addEvent("ui-refresh", (function(mp3, li){
           return function(){
             var a = ytcenter.settings.mp3Services.split("&");
@@ -1309,7 +1309,7 @@
         
         btn.appendChild(ytuixbc);
         
-        btn.addEventListener("click", function(){
+        ytcenter.utils.addEventListener(btn, "click", function(){
           if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
           ytcenter.settingsPanelDialog.setVisibility(true);
         }, false);
@@ -1501,7 +1501,7 @@
       
       returnKit.setValue(range.defaultValue);
       
-      elm.addEventListener("click", clickListener, false);
+      ytcenter.utils.addEventListener(elm, "click", clickListener, false);
       /* Mouse */
       ytcenter.utils.addEventListener(elm, "mousedown", mousedownListener, false);
       ytcenter.utils.addEventListener(document, "mouseup", mouseupListener, false);
@@ -1763,7 +1763,7 @@
       if (((identifier === 1 || identifier === 4 || identifier === 2) && injected) || identifier === 5) {
         ytcenter.unsafeCall("xhr", [details], null);
       } else {
-        if (identifier === 3) { // Firefox Extension
+        if (identifier === 3) { // Firefox legacy add-on
           var entry = {};
           if (details.onreadystatechange) {
             entry.onreadystatechange = details.onreadystatechange;
@@ -1788,7 +1788,7 @@
             id: id,
             details: details
           }));
-        } else if (identifier === 6) {
+        } else if (identifier === 6) { // Firefox add-on
           request(details);
         } else if (typeof GM_xmlhttpRequest !== "undefined") {
           GM_xmlhttpRequest(details);
@@ -2587,11 +2587,12 @@
       function getEventListener(options) {
         if (ytcenter.feather) return null;
         if (typeof uw.yt === "undefined" || typeof uw.yt.events === "undefined" || typeof uw.yt.events.listeners_ === "undefined") return null;
-        var i, item = null;
-        con.log("[ActionPanel] Amount of YouTube listeners: " + uw.yt.events.counter_.count);
-        for (i = 1; i <= uw.yt.events.counter_.count; i++) {
-          item = uw.yt.events.listeners_[i];
-          if (item && item.length > 1 && (options.element === item[0] || options.element.id === item[0].id) && options.event === item[1]) {
+        var key, item = null;
+        
+        var listeners = uw.yt.events.listeners_;
+        for (key in listeners) {
+          item = listeners[key];
+          if (item && item.length > 1 && options.element === item[0] && options.event === item[1]) {
             return item;
           }
         }
@@ -2610,7 +2611,7 @@
         if (ytcenter.feather) return;
         var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
         for (i = 0; i < secondaryActions.children.length; i++) {
-          secondaryActions.children[i].children[0].addEventListener("click", tabClickedEventListener, false);
+          ytcenter.utils.addEventListener(secondaryActions.children[i].children[0], "click", tabClickedEventListener, false);
         }
       }
       function enableActionPanel() {
@@ -2750,11 +2751,12 @@
           }
           
           if (ytcenter.getPage() !== "watch") return;
+          con.log("[ActionPanel] Loading...");
           
-          likeButton = getLikeButton(),
+          likeButton = getLikeButton();
           likeButtonEvent = getEventListener({ event: "click", element: likeButton });
           
-          if (likeButton == null || likeButtonEvent == null || typeof likeButtonEvent[3] != "function") {
+          if (likeButton === null || likeButtonEvent === null || typeof likeButtonEvent[3] !== "function") {
             uw.setTimeout(function(){ setup(); }, 2500);
             return;
           }
@@ -2764,7 +2766,7 @@
           
           con.log("[ActionPanel] Adding/Removing listeners");
           likeButton.removeEventListener("click", originalEventListener, likeButtonEvent[4]);
-          likeButton.addEventListener("click", listenerDisabler, likeButtonEvent[4]);
+          ytcenter.utils.addEventListener(likeButton, "click", listenerDisabler, likeButtonEvent[4]);
           
           con.log("[ActionPanel] Handling other inits");
           initActionPanel();
@@ -2773,23 +2775,23 @@
           con.error(e);
         }
       }
-      var __r = {},
-        enabled = true,
-        switchToElm = null,
-        observer = null,
-        originalEventListener = null,
-        likeButton = null,
-        likeButtonEvent = null,
-        delayedSwitchTabTimer = null,
-        maxSetupCalls = 10,
-        setupCalls = 0;
+      var enabled = true;
+      var switchToElm = null;
+      var observer = null;
+      var originalEventListener = null;
+      var likeButton = null;
+      var likeButtonEvent = null;
+      var delayedSwitchTabTimer = null;
+      var maxSetupCalls = 10;
+      var setupCalls = 0;
       
-      __r.switchTo = switchTo;
-      __r.setEnabled = setEnabled;
-      __r.setThreadEnabled = setThreadEnabled;
-      __r.getLikeButton = getLikeButton;
-      __r.setup = setup;
-      return __r;
+      return {
+        switchTo: switchTo,
+        setEnabled: setEnabled,
+        setThreadEnabled: setThreadEnabled,
+        getLikeButton: getLikeButton,
+        setup: setup
+      };
     })();
     ytcenter.mutation = (function(){
       var __r = {},
@@ -5016,51 +5018,7 @@
       return ytcenter.page;
     };
     ytcenter.pageReadinessListener = (function(){
-      var __r = {},
-          events = [
-            {
-              event: "headerInitialized",
-              test: function(){
-                if (document && document.getElementsByTagName && document.getElementsByTagName("head")[0])
-                  return true;
-                return false;
-              },
-              called: false,
-              callbacks: []
-            }, {
-              event: "bodyInitialized",
-              test: function(){
-                if (document && document.body && (document.body.className !== "" || ytcenter.feather))
-                  return true;
-                return false;
-              },
-              called: false,
-              callbacks: []
-            }, {
-              event: "bodyInteractive", test: function(){
-                if (document.readyState === "interactive" || document.readyState === "complete")
-                  return true;
-                return false;
-              },
-              called: false,
-              callbacks: []
-            }, {
-              event: "bodyComplete", test: function(){
-                if (document.readyState === "complete")
-                  return true;
-                return false;
-              },
-              called: false,
-              callbacks: []
-            }, {
-              event: "stopInterval",
-              called: false,
-              callbacks: []
-            }
-          ],
-          preTester,
-          preTesterInterval = 75;
-      __r.call = function(event){
+      function call(event){
         for (i = 0; i < events.length; i++) {
           if (events[i].event === event) {
             con.log("[PageReadinessListener] Calling => " + events[i].event);
@@ -5069,8 +5027,8 @@
             }
           }
         }
-      };
-      __r.addEventListener = function(event, callback){
+      }
+      function addEventListener(event, callback){
         var i;
         for (i = 0; i < events.length; i++) {
           if (events[i].event === event) {
@@ -5079,8 +5037,8 @@
             return;
           }
         }
-      };
-      __r.update = function(){
+      }
+      function update(){
         var i, j, page = ytcenter.getPage(loc.href);
         if (ytcenter.pageReadinessListener.waitfor) {
           if (!ytcenter.pageReadinessListener.waitfor()) return;
@@ -5094,36 +5052,88 @@
           if (events[i].event === "stopInterval") {
             con.log("[PageReadinessListener] Stopping interval");
             uw.clearInterval(preTester);
+            ytcenter.utils.removeEventListener(document, "readystatechange", update, true);
+            ytcenter.utils.removeEventListener(document, "DOMContentLoaded", update, true);
+            events = null;
+            preTester = null;
+            preTesterInterval = null;
+            update = null;
+            return;
           } else if (events[i].event === "startInterval") {
             con.log("[PageReadinessListener] Starting interval");
             uw.clearInterval(preTester); // Just to make sure that only one instance is running.
             preTester = uw.setInterval(function(){
-              __r.update();
+              update();
             }, preTesterInterval);
           } else {
-            try {
-              con.log("[PageReadinessListener] At event => " + events[i].event, page);
-              events[i].called = true;
-              for (j = 0; j < events[i].callbacks.length; j++) {
-                events[i].callbacks[j](page);
-              }
-            } catch (e) {
-              con.error("[PageReadinessListener]", events[i]);
-              con.error(e);
+            con.log("[PageReadinessListener] At event => " + events[i].event, page);
+            events[i].called = true;
+            for (j = 0; j < events[i].callbacks.length; j++) {
+              events[i].callbacks[j](page);
             }
           }
         }
       };
-      __r.setup = function(){
-        ytcenter.utils.addEventListener(document, "readystatechange", __r.update, false);
-        ytcenter.utils.addEventListener(document, "DOMContentLoaded", __r.update, false);
+      function setup(){
+        ytcenter.utils.addEventListener(document, "readystatechange", update, true);
+        ytcenter.utils.addEventListener(document, "DOMContentLoaded", update, true);
         preTester = uw.setInterval(function(){
-          __r.update();
+          update();
         }, preTesterInterval);
         
-        __r.update();
+        update();
+      }
+      
+      var events = [
+        {
+          event: "headerInitialized",
+          test: function(){
+            if (document && document.getElementsByTagName && document.getElementsByTagName("head")[0])
+              return true;
+            return false;
+          },
+          called: false,
+          callbacks: []
+        }, {
+          event: "bodyInitialized",
+          test: function(){
+            if (document && document.body && (document.body.className !== "" || ytcenter.feather))
+              return true;
+            return false;
+          },
+          called: false,
+          callbacks: []
+        }, {
+          event: "bodyInteractive", test: function(){
+            if (document.readyState === "interactive" || document.readyState === "complete")
+              return true;
+            return false;
+          },
+          called: false,
+          callbacks: []
+        }, {
+          event: "bodyComplete", test: function(){
+            if (document.readyState === "complete")
+              return true;
+            return false;
+          },
+          called: false,
+          callbacks: []
+        }, {
+          event: "stopInterval",
+          called: false,
+          callbacks: []
+        }
+      ];
+      var preTester;
+      var preTesterInterval = 75;
+      
+      return {
+        setup: setup,
+        update: update,
+        addEventListener: addEventListener,
+        call: call,
       };
-      return __r;
     })();
     ytcenter.thumbnail = (function(){
       function getPlaylistVideoThumbs() {
@@ -5225,12 +5235,13 @@
         return null;
       }
       function getVideoThumbs() {
-        var arr = ytcenter.utils.toArray(document.getElementsByClassName("video-thumb")).concat(ytcenter.utils.toArray(document.getElementsByClassName("yt-uix-simple-thumb-wrap"))),
-            videos = [],
-            playlistVideoThumbs = getPlaylistVideoThumbs(), a, i, data;
-        for (i = 0; i < arr.length; i++) {
+        var arr = ytcenter.utils.toArray(document.getElementsByClassName("video-thumb")).concat(ytcenter.utils.toArray(document.getElementsByClassName("yt-uix-simple-thumb-wrap")));
+        var videos = [];
+        var playlistVideoThumbs = getPlaylistVideoThumbs();
+        var i;
+        for (var i = 0, len = arr.length; i < len; i++) {
           if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i])) continue;
-          data = handleVideoThumbs(arr[i], arr[i].parentNode);
+          var data = handleVideoThumbs(arr[i], arr[i].parentNode);
           if (data) videos.push(data);
         }
         return videos;
@@ -5344,6 +5355,7 @@
         if (item.likes && item.dislikes) {
           callback(item.likes, item.dislikes);
         } else if (item.id) {
+          con.log("Loading video data...");
           $XMLHTTPRequest({
             url: "https://gdata.youtube.com/feeds/api/videos/" + item.id + "?v=2&alt=json",
             method: "GET",
@@ -5901,6 +5913,7 @@
       }
       function processItem(item) {
         if (!ytcenter.settings.videoThumbnailRatingsCount && !ytcenter.settings.videoThumbnailRatingsBar) return;
+        
         if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "hover_thumbnail") {
           ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
             var added = false;
@@ -5976,20 +5989,21 @@
         }
       }
       function compareDifference(newData, oldData) {
-        var i, j, a, b = [];
-        for (i = 0; i < newData.length; i++) {
+        var a = false;
+        var arr = [];
+        for (var i = 0, len = newData.length; i < len; i++) {
           a = false;
-          for (j = 0; j < oldData.length; j++) {
+          for (var j = 0, lenj = oldData.length; j < lenj; j++) {
             if (oldData[j].wrapper === newData[i].wrapper) {
               a = true;
               break;
             }
           }
           if (!a) {
-            b.push(newData[i]);
+            arr.push(newData[i]);
           }
         }
-        return b;
+        return arr;
       }
       function updateItemInCache(data) {
         var index = getDataCacheIndex(data);
@@ -6281,7 +6295,7 @@
         closeButton.setAttribute("role", "button");
         closeButton.setAttribute("onclick", ";return false;");
         closeButton.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
-        closeButton.addEventListener("click", function(){
+        ytcenter.utils.addEventListener(closeButton, "click", function(){
           __r.setVisibility(false);
         });
         
@@ -6723,7 +6737,7 @@
           btn.setAttribute("onclick", ";return false;");
           btn.className = "yt-uix-button " + (actions[i].primary ? "yt-uix-button-primary" : "yt-uix-button-default");
           if (typeof actions[i].callback === "function") {
-            btn.addEventListener("click", actions[i].callback, false);
+            ytcenter.utils.addEventListener(btn, "click", actions[i].callback, false);
           }
           var btnContent = document.createElement("span");
           btnContent.className = "yt-uix-button-content";
@@ -6742,7 +6756,7 @@
         closeBtn.setAttribute("onclick", ";return false;");
         closeBtn.className = "yt-uix-button yt-uix-button-default";
         
-        closeBtn.addEventListener("click", function(){
+        ytcenter.utils.addEventListener(closeBtn, "click", function(){
           __r.setVisibility(false);
         }, false);
         
@@ -10576,455 +10590,151 @@
       };
     };
     
-    //ytcenter._intercomOnPlayer = false;
-    /*! intercom.js | https://github.com/diy/intercom.js | Apache License (v2) */
-    /*ytcenter.Intercom = (function(){
+    // @support
+    ytcenter.supported = {};
+    ytcenter.supported.localStorage = (function(){
+      var mod = "ytc.supported";
+      try {
+        uw.localStorage.setItem(mod, mod);
+        uw.localStorage.removeItem(mod);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    })();
+    
+    // @tabEvents
+    ytcenter.tabEvents = (function(){
+      /* Fire an event to the other tabs for Firefox */
+      function fireEventFirefox() {
+        windowLinkerFireRegisteredEvent.apply(null, arguments); /* Firefox addon function */
+      }
       
-      // --- lib/events.js ---
-      
-      var EventEmitter = function() {};
-      
-      EventEmitter.createInterface = function(space) {
-        var methods = {};
+      function fireEventLocalStorage() {
+        if (!guid) guid = ytcenter.utils.guid();
         
-        methods.on = function(name, fn) {
-          if (typeof this[space] === 'undefined') {
-            this[space] = {};
-          }
-          if (!this[space].hasOwnProperty(name)) {
-            this[space][name] = [];
-          }
-          this[space][name].push(fn);
-        };
+        var locked = parseInt(uw.localStorage.getItem(STORAGE_LOCK) || 0);
+        var now = ytcenter.utils.now();
+        var args = Array.prototype.slice.call(arguments, 0);
         
-        methods.off = function(name, fn) {
-          if (typeof this[space] === 'undefined') return;
-          if (this[space].hasOwnProperty(name)) {
-            util.removeItem(fn, this[space][name]);
-          }
-        };
-        
-        methods.trigger = function(name) {
-          if (typeof this[space] !== 'undefined' && this[space].hasOwnProperty(name)) {
-            var args = Array.prototype.slice.call(arguments, 1);
-            for (var i = 0; i < this[space][name].length; i++) {
-              this[space][name][i].apply(this[space][name][i], args);
-            }
-          }
-        };
-        
-        return methods;
-      };
-      
-      var pvt = EventEmitter.createInterface('_handlers');
-      EventEmitter.prototype._on = pvt.on;
-      EventEmitter.prototype._off = pvt.off;
-      EventEmitter.prototype._trigger = pvt.trigger;
-      
-      var pub = EventEmitter.createInterface('handlers');
-      EventEmitter.prototype.on = function() {
-        pub.on.apply(this, arguments);
-        Array.prototype.unshift.call(arguments, 'on');
-        this._trigger.apply(this, arguments);
-      };
-      EventEmitter.prototype.off = pub.off;
-      EventEmitter.prototype.trigger = pub.trigger;
-      
-      // --- lib/localstorage.js ---
-      var localStorage;
-      if (identifier === 6) {
-        localStorage = {
-          getItem: session_getValue.bind(this),
-          setItem: session_setValue.bind(this),
-          removeItem: session_remove.bind(this)
-        };
-      } else {
-        try {
-          localStorage = uw.localStorage;
-          if (typeof localStorage === "undefined") {
-            localStorage = {
-              getItem    : function() {},
-              setItem    : function() {},
-              removeItem : function() {}
-            };
-          }
-        } catch (e) {
-          con.error(e);
-          localStorage = {
-            getItem    : function() {},
-            setItem    : function() {},
-            removeItem : function() {}
-          };
+        if (locked && now - locked < STORAGE_TIMEOUT) {
+          uw.setTimeout(ytcenter.utils.funcBind.apply(ytcenter.utils, [null, fireEventLocalStorage].concat(args)), STORAGE_WAIT);
+        } else {
+          hasLock = true;
+          uw.localStorage.setItem(STORAGE_LOCK, now);
+          uw.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            origin: guid,
+            args: args
+          }));
         }
       }
       
-      // --- lib/util.js ---
+      /* The standard event handler, which every handler will call at the end. */
+      function eventFired(event) {
+        if (!listeners[event]) return;
+        var args = Array.prototype.slice.call(arguments, 1);
+        
+        for (var i = 0, len = listeners[event].length; i < len; i++) {
+          listeners[event][i].apply(null, args);
+        }
+      }
       
-      var util = {};
-      
-      util.guid = (function() {
-        var S4 = function() {
-          return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        };
-        return function() {
-          return S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4();
-        };
-      })();
-      
-      util.throttle = function(delay, fn) {
-        var last = 0;
-        return function() {
-          var now = (new Date()).getTime();
-          if (now - last > delay) {
-            last = now;
-            try {
-              fn.apply(this, arguments);
-            } catch (e) {
-              con.error(e);
-            }
-          }
-        };
-      };
-      
-      util.extend = function(a, b) {
-        if (typeof a === 'undefined' || !a) { a = {}; }
-        if (typeof b === 'object') {
-          for (var key in b) {
-            if (b.hasOwnProperty(key)) {
-              a[key] = b[key];
-            }
+      /* Event handler for the localStorage */
+      function eventFiredStorage(e) {
+        e = e || uw.event;
+        
+        if (e.key === STORAGE_KEY) {
+          var data = JSON.parse(e.newValue || "{}");
+          if (data.origin !== guid) {
+            eventFired.apply(null, data.args);
+          } else if (hasLock) {
+            hasLock = false;
+            uw.setTimeout(clean, 20);
           }
         }
-        return a;
-      };
+      }
       
-      util.removeItem = function(item, array) {
-        for (var i = array.length - 1; i >= 0; i--) {
-          if (array[i] === item) {
-            array.splice(i, 1);
+      function clean() {
+        uw.localStorage.removeItem(STORAGE_LOCK);
+        uw.localStorage.removeItem(STORAGE_KEY);
+      }
+      
+      /* Add an event listener to get information from other tabs */
+      function addEventListener(event, callback) {
+        if (!listeners[event]) listeners[event] = [];
+        listeners[event].push(callback);
+      }
+      
+      /* Remove the added event listener */
+      function removeEventListener(event, callback) {
+        if (!listeners[event]) return;
+        for (var i = 0, len = listeners[event].length; i < len; i++) {
+          listeners[event].splice(i, 1);
+          break;
+        }
+      }
+      /* Init the event handlers */
+      function init() {
+        if (firefox) {
+          addWindowListener(eventFired); /* Firefox addon function */
+        } else if (ytcenter.supported.localStorage) {
+          if (typeof uw.addEventListener === "function") {
+            uw.addEventListener("storage", eventFiredStorage, false);
+          } else if (typeof uw.attachEvent === "function") {
+            uw.attachEvent("onstorage", eventFiredStorage, false);
           }
         }
-        return array;
-      };*/
+      }
       
-      // --- lib/intercom.js ---
-      
-      /**
-      * A cross-window broadcast service built on top
-      * of the HTML5 localStorage API. The interface
-      * mimic socket.io in design.
-      *
-      * @author Brian Reavis <brian@thirdroute.com>
-      * @constructor
-      */
-      
-      /*var Intercom = function() {
-        var self = this;
-        var now = (new Date()).getTime();
-      
-        this.origin         = util.guid();
-        this.lastMessage    = now;
-        this.bindings       = [];
-        this.receivedIDs    = {};
-        this.previousValues = {};
-      
-        var storageHandler = function() {
-          var args = arguments;
-          if (identifier === 6) args = [arguments[0]];
-          self._onStorageEvent.apply(self, args);
+      function getExportsFirefox() {
+        return {
+          addEventListener: addEventListener,
+          removeEventListener: removeEventListener,
+          fireEvent: fireEventFirefox
         };
-        if (identifier === 6) {
-          session_addEventListener("storage", storageHandler);
-        } else if (window.attachEvent) {
-          document.attachEvent('onstorage', storageHandler);
-          ytcenter.unload(function(){
-            document.detachEvent("storage", storageHandler);
-          });
+      }
+      
+      function getExportsLocalStorage() {
+        return {
+          addEventListener: addEventListener,
+          removeEventListener: removeEventListener,
+          fireEvent: fireEventLocalStorage
+        };
+      }
+      
+      function getExportsPlaceholder() {
+        function empty() { }
+        return {
+          addEventListener: empty,
+          removeEventListener: empty,
+          fireEvent: empty
+        };
+      }
+      
+      function getExports() {
+        if (firefox) {
+          return getExportsFirefox();
+        } else if (ytcenter.supported.localStorage) {
+          return getExportsLocalStorage();
         } else {
-          window.addEventListener('storage', storageHandler, false);
-          ytcenter.unload(function(){
-            window.removeEventListener("storage", storageHandler, false);
-          });
+          return getExportsPlaceholder();
         }
-      };
+      }
+      var listeners = {};
+      var guid = null;
+      var firefox = identifier === 6;
       
-      Intercom.prototype._transaction = function(fn) {
-        var TIMEOUT   = 1000;
-        var WAIT      = 20;
+      var hasLock = false;
       
-        var self      = this;
-        var executed  = false;
-        var listening = false;
-        var waitTimer = null;
+      var STORAGE_KEY = "CMS-YTC";
+      var STORAGE_LOCK = "CMS-YTC-LOCK";
+      var STORAGE_EXPIRED = 3600000;
+      var STORAGE_WAIT = 50;
+      var STORAGE_TIMEOUT = 1000;
       
-        var lock = function() {
-          if (executed) return;
-      
-          var now = (new Date()).getTime();
-          var activeLock = parseInt(localStorage.getItem(INDEX_LOCK) || 0);
-          if (activeLock && now - activeLock < TIMEOUT) {
-            if (!listening) {
-              self._on('storage', lock);
-              listening = true;
-            }
-            waitTimer = window.setTimeout(lock, WAIT);
-            return;
-          }
-          executed = true;
-          localStorage.setItem(INDEX_LOCK, now);
-      
-          fn();
-          unlock();
-        };
-      
-        var unlock = function() {
-          if (listening) { self._off('storage', lock); }
-          if (waitTimer) { window.clearTimeout(waitTimer); }
-          localStorage.removeItem(INDEX_LOCK);
-        };
-      
-        lock();
-      };
-      
-      Intercom.prototype._cleanup_emit = util.throttle(100, function() {
-        var self = this;
-      
-        this._transaction(function() {
-          var now = (new Date()).getTime();
-          var threshold = now - THRESHOLD_TTL_EMIT;
-          var changed = 0;
-      
-          var messages = JSON.parse(localStorage.getItem(INDEX_EMIT) || '[]');
-          for (var i = messages.length - 1; i >= 0; i--) {
-            if (messages[i].timestamp < threshold) {
-              messages.splice(i, 1);
-              changed++;
-            }
-          }
-          if (changed > 0) {
-            localStorage.setItem(INDEX_EMIT, JSON.stringify(messages));
-          }
-        });
-      });
-      
-      Intercom.prototype._cleanup_once = util.throttle(100, function() {
-        var self = this;
-      
-        this._transaction(function() {
-          var timestamp, ttl, key;
-          var table   = JSON.parse(localStorage.getItem(INDEX_ONCE) || '{}');
-          var now     = (new Date()).getTime();
-          var changed = 0;
-      
-          for (key in table) {
-            if (self._once_expired(key, table)) {
-              delete table[key];
-              changed++;
-            }
-          }
-      
-          if (changed > 0) {
-            localStorage.setItem(INDEX_ONCE, JSON.stringify(table));
-          }
-        });
-      });
-      
-      Intercom.prototype._once_expired = function(key, table) {
-        if (!table) return true;
-        if (!table.hasOwnProperty(key)) return true;
-        if (typeof table[key] !== 'object') return true;
-        var ttl = table[key].ttl || THRESHOLD_TTL_ONCE;
-        var now = (new Date()).getTime();
-        var timestamp = table[key].timestamp;
-        return timestamp < now - ttl;
-      };
-      
-      Intercom.prototype._localStorageChanged = function(event, field) {
-        if (event && event.key) {
-          return event.key === field;
-        }
-      
-        var currentValue = localStorage.getItem(field);
-        if (currentValue === this.previousValues[field]) {
-          return false;
-        }
-        this.previousValues[field] = currentValue;
-        return true;
-      };
-      
-      Intercom.prototype._onStorageEvent = function(event) {
-        event = event || window.event;
-        var self = this;
-      
-        if (this._localStorageChanged(event, INDEX_EMIT)) {
-          this._transaction(function() {
-            var now = (new Date()).getTime();
-            var data = localStorage.getItem(INDEX_EMIT);
-            var messages = JSON.parse(data || '[]');
-            for (var i = 0; i < messages.length; i++) {
-              if (messages[i].origin === self.origin) continue;
-              if (messages[i].timestamp < self.lastMessage) continue;
-              if (messages[i].id) {
-                if (self.receivedIDs.hasOwnProperty(messages[i].id)) continue;
-                self.receivedIDs[messages[i].id] = true;
-              }
-              self.trigger(messages[i].name, messages[i].payload);
-            }
-            self.lastMessage = now;
-          });
-        }
-      
-        this._trigger('storage', event);
-      };
-      
-      Intercom.prototype._emit = function(name, message, id) {
-        id = (typeof id === 'string' || typeof id === 'number') ? String(id) : null;
-        if (id && id.length) {
-          if (this.receivedIDs.hasOwnProperty(id)) return;
-          this.receivedIDs[id] = true;
-        }
-      
-        var packet = {
-          id        : id,
-          name      : name,
-          origin    : this.origin,
-          timestamp : (new Date()).getTime(),
-          payload   : message
-        };
-      
-        var self = this;
-        this._transaction(function() {
-          var data = localStorage.getItem(INDEX_EMIT) || '[]';
-          var delimiter = (data === '[]') ? '' : ',';
-          data = [data.substring(0, data.length - 1), delimiter, JSON.stringify(packet), ']'].join('');
-          localStorage.setItem(INDEX_EMIT, data);
-          self.trigger(name, message);
-      
-          window.setTimeout(function() { self._cleanup_emit(); }, 50);
-        });
-      };
-      
-      Intercom.prototype.bind = function(object, options) {
-        for (var i = 0; i < Intercom.bindings.length; i++) {
-          var binding = Intercom.bindings[i].factory(object, options || null, this);
-          if (binding) { this.bindings.push(binding); }
-        }
-      };
-      
-      Intercom.prototype.emit = function(name, message) {
-        this._emit.apply(this, arguments);
-        this._trigger('emit', name, message);
-      };
-      
-      Intercom.prototype.once = function(key, fn, ttl) {
-        if (!Intercom.supported) return;
-      
-        var self = this;
-        this._transaction(function() {
-          var data = JSON.parse(localStorage.getItem(INDEX_ONCE) || '{}');
-          if (!self._once_expired(key, data)) return;
-      
-          data[key] = {};
-          data[key].timestamp = (new Date()).getTime();
-          if (typeof ttl === 'number') {
-            data[key].ttl = ttl * 1000;
-          }
-      
-          localStorage.setItem(INDEX_ONCE, JSON.stringify(data));
-          fn();
-      
-          window.setTimeout(function() { self._cleanup_once(); }, 50);
-        });
-      };
-      
-      util.extend(Intercom.prototype, EventEmitter.prototype);
-      
-      Intercom.bindings = [];
-      Intercom.supported = (typeof localStorage !== 'undefined');
-      
-      var INDEX_EMIT = 'intercom';
-      var INDEX_ONCE = 'intercom_once';
-      var INDEX_LOCK = 'intercom_lock';
-      
-      var THRESHOLD_TTL_EMIT = 50000;
-      var THRESHOLD_TTL_ONCE = 1000 * 3600;
-      
-      Intercom.destroy = function() {
-        localStorage.removeItem(INDEX_LOCK);
-        localStorage.removeItem(INDEX_EMIT);
-        localStorage.removeItem(INDEX_ONCE);
-      };
-      
-      Intercom.getInstance = (function() {
-        var intercom = null;
-        return function() {
-          if (!intercom) {
-            intercom = new Intercom();
-          }
-          return intercom;
-        };
-      })();*/
-      
-      // --- lib/bindings/socket.js ---
-      
-      /**
-      * Socket.io binding for intercom.js.
-      *
-      * - When a message is received on the socket, it's emitted on intercom.
-      * - When a message is emitted via intercom, it's sent over the socket.
-      *
-      * @author Brian Reavis <brian@thirdroute.com>
-      */
-      
-      /*var SocketBinding = function(socket, options, intercom) {
-        options = util.extend({
-          id      : null,
-          send    : true,
-          receive : true
-        }, options);
-        
-        if (options.receive) {
-          var watchedEvents = [];
-          var onEventAdded = function(name, fn) {
-            if (watchedEvents.indexOf(name) === -1) {
-              watchedEvents.push(name);
-              socket.on(name, function(data) {
-                var id = (typeof options.id === 'function') ? options.id(name, data) : null;
-                var emit = (typeof options.receive === 'function') ? options.receive(name, data) : true;
-                if (emit || typeof emit !== 'boolean') {
-                  intercom._emit(name, data, id);
-                }
-              });
-            }
-          };
-      
-          for (var name in intercom.handlers) {
-            for (var i = 0; i < intercom.handlers[name].length; i++) {
-              onEventAdded(name, intercom.handlers[name][i]);
-            }
-          }
-        
-          intercom._on('on', onEventAdded);
-        }
-        
-        if (options.send) {
-          intercom._on('emit', function(name, message) {
-            var emit = (typeof options.send === 'function') ? options.send(name, message) : true;
-            if (emit || typeof emit !== 'boolean') {
-              socket.emit(name, message);
-            }
-          });
-        }
-      };
-      
-      SocketBinding.factory = function(object, options, intercom) {
-        if (typeof object.socket === 'undefined') { return false };
-        return new SocketBinding(object, options, intercom);
-      };
-      
-      Intercom.bindings.push(SocketBinding);
-      return Intercom;
-    })();*/
+      init();
+      return getExports();
+    })();
     
     // @utils
     ytcenter.utils.getHTML5Player = function(){
@@ -12149,7 +11859,7 @@
         var i;
         for (i = 0; i < listeners.length; i++) {
           if (listeners[i].elm.removeEventListener) {
-            listeners[i].elm.removeEventListener(listeners[i].event, listeners[i].callback, listeners[i].useCapture);
+            listeners[i].elm.removeEventListener(listeners[i].event, listeners[i].callback, listeners[i].useCapture || false);
           }
         }
         listeners = [];
@@ -12169,6 +11879,7 @@
       return function(elm, event, callback, useCapture){
         if (!elm) return;
         listeners.push({elm: elm, event: event, callback: callback, useCapture: useCapture});
+        
         if (elm.addEventListener) {
           elm.addEventListener(event, callback, useCapture || false);
         } else if (elm.attachEvent) {
@@ -12275,6 +11986,7 @@
       return a.join(",");
     };
     ytcenter.utils.updateSignatureDecipher = function(){
+      ytcenter.utils.updateSignatureDecipher = function(){}; // I'm just cheating a little bit ...
       if (ytcenter && ytcenter.player && ytcenter.player.config && ytcenter.player.config.assets && ytcenter.player.config.assets.js) {
         var js = (loc.href.indexOf("https") === 0 ? "https:" : "http:") + ytcenter.player.config.assets.js,
             regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(.*?)return a\.join\(""\)}/g,
@@ -13724,7 +13436,7 @@
         } else if (identifier === 6) {
           var data = {};
           con.log("Loading storage_getValue");
-          if (storage_getValue) {
+          if (typeof storage_getValue === "function") {
             data = storage_getValue(ytcenter.storageName) || "{}";
           }
           if (data && data !== null) {
@@ -13774,47 +13486,35 @@
       }
       
       settingsInit();
-      //ytcenter.pageReadinessListener.update();
       if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
-        /*var intercom = ytcenter.Intercom.getInstance();
-        intercom.on("settings", function(data){
-          if (data.origin === intercom.origin) return;
-          if (data.action === "loadSettings") {
-            con.log("[Intercom] Received order to loadSettings!");
-            var _player_wide = ytcenter.settings.player_wide; // We don't want this to be updated.
-            ytcenter.loadSettings(function(){
-              // Restores the settings we don't want changed
-              ytcenter.settings.player_wide = _player_wide;
-              
-              ytcenter.events.performEvent("settings-update");
-              ytcenter.language.update();
-              ytcenter.title.update();
-              ytcenter.classManagement.applyClasses();
-            });
-          }
-        });*/
+        ytcenter.tabEvents.addEventListener("settings", function(settings){
+          con.log("[Tab Events] Received updated settings from another tab.");
+          var player_wide = ytcenter.settings.player_wide; // We don't want this to be updated.
+          ytcenter.settings = JSON.parse(JSON.stringify(settings));
+          ytcenter.settings.player_wide = player_wide;
+          
+          ytcenter.language.update();
+          /*ytcenter.events.performEvent("settings-update");
+          ytcenter.title.update();
+          ytcenter.classManagement.applyClasses();*/
+        });
       }
     });
     
     ytcenter.saveSettings_timeout_obj = null;
     ytcenter.saveSettings_timeout = 300;
-    //ytcenter.saveSettings_intercomTimeout = null;
     ytcenter.saveSettings = function(async, timeout, _callback){
-      var callback = function(){
-        //uw.clearTimeout(ytcenter.saveSettings_intercomTimeout);
+      function tabEventsSettingsAnnounce() {
+        con.log("[Tab Events] Sending new settings to other open tabs.");
+        ytcenter.tabEvents.fireEvent("settings", ytcenter.settings);
+      }
+      function callback() {
         ytcenter.events.performEvent("save-complete");
-        /*ytcenter.saveSettings_intercomTimeout = uw.setTimeout(function(){
-          if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
-            con.log("[SaveSettings] Ordering other tabs to load the new settings.");
-            var intercom = ytcenter.Intercom.getInstance();
-            intercom.emit("settings", {
-              action: "loadSettings",
-              origin: intercom.origin
-            });
-          }
-        }, 500);*/
+        
+        tabEventsSettingsAnnounceThrottle();
         if (_callback) _callback();
-      };
+      }
+      var tabEventsSettingsAnnounceThrottle = ytcenter.utils.throttle(tabEventsSettingsAnnounce, 10000); // We don't need to SPAM the other tabs constantly. Once in a while is fine.
       if (typeof async !== "boolean") async = false;
       if (typeof timeout !== "boolean") timeout = false;
       var __ss = function(){
@@ -13827,7 +13527,9 @@
           }) - 1;
           self.port.emit("save", JSON.stringify({id: id, name: ytcenter.storageName, value: ytcenter.settings}));
         } else if (identifier === 6) {
-          storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
+          if (typeof storage_setValue === "function") {
+            storage_setValue(ytcenter.storageName, JSON.stringify(ytcenter.settings));
+          }
           callback();
         } else {
           if (async) {
@@ -13910,7 +13612,7 @@
                   cbtn.setAttribute("role", "button");
                   cbtn.setAttribute("onclick", ";return false;");
                   cbtn.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
-                  cbtn.addEventListener("click", (function(updElement){
+                  ytcenter.utils.addEventListener(cbtn, "click", (function(updElement){
                     return function(){
                       ytcenter.utils.addClass(updElement, 'hid');
                     };
@@ -14038,7 +13740,7 @@
                   cbtn.setAttribute("role", "button");
                   cbtn.setAttribute("onclick", ";return false;");
                   cbtn.className = "close yt-uix-close yt-uix-button yt-uix-button-close";
-                  cbtn.addEventListener("click", (function(updElement){
+                  ytcenter.utils.addEventListener(cbtn, "click", (function(updElement){
                     return function(){
                       ytcenter.utils.addClass(updElement, 'hid');
                     };
@@ -18531,7 +18233,7 @@
                     pasteUrl.setAttribute("class", "yt-uix-form-input-text");
                     pasteUrl.setAttribute("value", ytcenter.language.getLocale("PASTEBIN_LOADING"));
                     pasteUrl.setAttribute("readonly", "readonly");
-                    pasteUrl.addEventListener("focus", function() { this.select(); }, false);
+                    ytcenter.utils.addEventListener(pasteUrl, "focus", function() { this.select(); }, false);
 
                     content.appendChild(pasteUrl);
 
@@ -19504,12 +19206,8 @@
     };
     ytcenter.player.network = {};
     ytcenter.player.network.pause = function(){
-      con.log("[Network] Player -> pause");
-      /*var intercom = ytcenter.Intercom.getInstance();
-      intercom.emit("player", {
-        action: "pause",
-        origin: intercom.origin
-      });*/
+      con.log("[Tab Event] Calling player.pauseVideo();");
+      ytcenter.tabEvents.fireEvent("player", "pauseVideo");
     };
     ytcenter.player.setPlaybackQuality = function(preferredQuality){
       function recall(vq){
@@ -19738,7 +19436,7 @@
     };
     ytcenter.player.shortcuts = function(){
       con.log("Adding player shortcuts to document");
-      document.addEventListener("keydown", function(e){
+      ytcenter.utils.addEventListener(document, "keydown", function(e){
         e = e || window.event;
         if (ytcenter.settings.enableYouTubeShortcuts && ytcenter.settings.enableShortcuts && ytcenter.getPage() === "watch" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           if (document.activeElement.tagName.toLowerCase() === "input" || document.activeElement.tagName.toLowerCase() === "textarea" || document.activeElement.tagName.toLowerCase() === "object" || document.activeElement.tagName.toLowerCase() === "embed" || document.activeElement.tagName.toLowerCase() === "button") return;
@@ -20512,7 +20210,7 @@
           lightElement.style.background = ytcenter.settings.lightbulbBackgroundColor;
           lightElement.style.opacity = ytcenter.settings.lightbulbBackgroundOpaque/100;
           lightElement.style.filter = "alpha(opacity=" + ytcenter.settings.lightbulbBackgroundOpaque + ")";
-          lightElement.addEventListener("click", function(){
+          ytcenter.utils.addEventListener(lightElement, "click", function(){
             if (!ytcenter.settings["lightbulbClickThrough"]) ytcenter.player.turnLightOn();
           }, false);
           ytcenter.player.turnLightOn = function(){
@@ -20669,6 +20367,8 @@
         var ytEvent = "ytPlayer" + event + "player" + playerId;
         var args = Array.prototype.slice.call(arguments, 2);
         var returnVal = null;
+        
+        ytcenter.player._update_onYouTubeReady = true; // The listener got called therefore the player is here.
         
         if (enabled && origin === 0 && (!events.hasOwnProperty(event) || (events.hasOwnProperty(event) && !events[event].override))) {
           /* Override is false and the origin is from the player; call the YouTube Center listeners */
@@ -21072,7 +20772,7 @@
       scrollToPlayerButton.className = "yt-uix-button yt-uix-button-default yt-uix-button-size-default yt-uix-button-has-icon yt-uix-button-empty flip yt-uix-tooltip ";
       scrollToPlayerButton.style.display = "inline-block";
       scrollToPlayerButton.style.position = "absolute";
-      scrollToPlayerButton.addEventListener("click", function(){
+      ytcenter.utils.addEventListener(scrollToPlayerButton, "click", function(){
         scrollToPlayer();
       }, false);
       
@@ -21163,35 +20863,32 @@
       var __r_timeout;
       return function(item){
         if (!ytcenter.settings.enableResize) return;
-        try {
-          if (typeof item !== "undefined") lastResizeId = item.id;
-          if (typeof lastResizeId === "undefined") return;
-          uw.clearTimeout(__r_timeout);
-          
-          // Generate the player size name.
-          var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
-          var sizeName = null;
-          if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
-            sizeName = item.config.customName;
-          } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
-            sizeName = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
-          } else {
-            sizeName = dim[0] + "×" + dim[1];
-          }
-          
-          // Setting the data attributes to the html tag.
-          document.documentElement.setAttribute("data-ytc-player-size-id", item.id);
-          document.documentElement.setAttribute("data-ytc-player-size-name", sizeName);
-          
-          ytcenter.player._resize(item.config.width, item.config.height, item.config.large, item.config.align);
-          ytcenter.player.updateResize_updateVisibility();
-          ytcenter.player.updateResize_updatePosition();
-          ytcenter.utils.each(ytcenter.player.resizeCallback, function(i, func){
-            func();
-          });
-        } catch (e) {
-          con.error(e);
+        
+        if (typeof item !== "undefined") lastResizeId = item.id;
+        if (typeof lastResizeId === "undefined") return;
+        uw.clearTimeout(__r_timeout);
+        
+        // Generate the player size name.
+        var dim = ytcenter.utils.calculateDimensions(item.config.width, item.config.height);
+        var sizeName = null;
+        if (typeof item.config.customName !== "undefined" && item.config.customName !== "") {
+          sizeName = item.config.customName;
+        } else if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
+          sizeName = (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL"));
+        } else {
+          sizeName = dim[0] + "×" + dim[1];
         }
+        
+        // Setting the data attributes to the html tag.
+        document.documentElement.setAttribute("data-ytc-player-size-id", item.id);
+        document.documentElement.setAttribute("data-ytc-player-size-name", sizeName);
+        
+        ytcenter.player._resize(item.config.width, item.config.height, item.config.large, item.config.align);
+        ytcenter.player.updateResize_updateVisibility();
+        ytcenter.player.updateResize_updatePosition();
+        ytcenter.utils.each(ytcenter.player.resizeCallback, function(i, func){
+          func();
+        });
       };
     })();
     ytcenter.player.ratio = 16/9;
@@ -21237,7 +20934,7 @@
         if (!ytcenter.settings.enableResize) return;
         ytcenter.player._resize(_width, _height, _large, _align);
       });
-      window.addEventListener("resize", (function(){
+      ytcenter.utils.addEventListener(window, "resize", (function(){
         var timer = null;
         return function(){
           if (!ytcenter.settings.enableResize) return;
@@ -21945,18 +21642,18 @@
       var isHTML5 = (movie_player && movie_player.tagName === "DIV") || cfg.html5 || (api && api.getPlayerType && api.getPlayerType() === "html5");
       return isHTML5;
     };
-    ytcenter.player._update_onYouTubeReady = false;
+    ytcenter.player.updated = false;
     ytcenter.player.update = function(config){
       if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
-      if (ytcenter.player.isHTML5()) return;
+      if (ytcenter.player.isHTML5() || ytcenter.player.updated) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
         con.log("[Player Update] Checking if player exist!");
-        if ((player && player.tagName.toLowerCase() === "embed") || ytcenter.player._update_onYouTubeReady) {
-          ytcenter.player._update_onYouTubeReady = false;
+        if ((player && player.tagName.toLowerCase() == "embed") || ytcenter.player._update_onYouTubeReady) {
+          ytcenter.player.updated = false;
           ytcenter.player.updateFlashvars(player, config);
           
           if (ytcenter.getPage() === "watch") {
@@ -21981,7 +21678,7 @@
           player = clone;
           con.log("[Player Update] Player has been cloned and replaced!");
         } else {
-          uw.setTimeout(function(){ ytcenter.player._update_noplayer = true; ytcenter.player.update(config); }, 100);
+          //uw.setTimeout(function(){ ytcenter.player.update(config); }, 100);
         }
       } catch (e) {
         con.error(e);
@@ -23216,7 +22913,7 @@
         }), (loc.href.indexOf("http://") === 0 ? "http://www.youtube.com" : "https://www.youtube.com"));
       }, ytcenter.unsafe.settings);
       
-      uw.addEventListener("message", function(e){
+      ytcenter.utils.addEventListener(uw, "message", function(e){
         if (e.origin !== "http://www.youtube.com" && e.origin !== "https://www.youtube.com")
           return;
         if (!e || !e.data) return; // Checking if data is present
@@ -23599,7 +23296,7 @@
             
             api = ytcenter.player.getAPI();
             ytcenter.html5 = (api && typeof api.getPlayerType === "function" && api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
-            ytcenter.player._update_onYouTubeReady = !ytcenter.html5;
+            ytcenter.player._update_onYouTubeReady = true;
             if (!ytcenter.html5) {
               if (uw && uw.yt && uw.yt.player && uw.yt.player.utils &&
                   uw.yt.player.utils.VideoTagPool && uw.yt.player.utils.VideoTagPool.instance_
@@ -23657,25 +23354,14 @@
                 ytcenter.player.listeners.addEventListener("onStateChange", lis);
                 ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
               }
-              /*if (!ytcenter._intercomOnPlayer) {
-                ytcenter._intercomOnPlayer = true;
-                ytcenter.Intercom.getInstance().on("player", function(data){
-                  if (data.origin === ytcenter.Intercom.getInstance().origin) return;
-                  var api = ytcenter.player.getAPI();
-                  if (!api) {
-                    con.log("[Intercom] Player API not ready!");
-                    return;
-                  }
-                  con.log("[Intercom] Player Action: " + data.action);
-                  if (data.action === "pause") {
-                    api.pauseVideo();
-                  } else if (data.action === "play") {
-                    api.playVideo();
-                  } else if (data.action === "stop") {
-                    api.stopVideo();
-                  }
-                });
-              }*/
+              ytcenter.tabEvents.addEventListener("player", function(playerFunction){
+                var api = ytcenter.player.getAPI();
+                if (!api && api[playerFunction]) {
+                  con.error("[Tab Events] Player API \"" + playerFunction + "\" not found!");
+                } else {
+                  api[playerFunction].apply(api, Array.prototype.slice.call(arguments, 1));
+                }
+              });
               con.log("[onYouTubePlayerReady] => updateConfig");
               ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
               ytcenter.classManagement.applyClasses();
@@ -23706,7 +23392,7 @@
           pic.style.backgroundImage = "URL(" + b.getURL(0) + ")";
           pic.style.backgroundSize = rect.imageWidth + "px " + rect.imageHeight + "px";
           pic.style.backgroundPosition = rect.x + "px " + -rect.y + "px";
-          document.body.addEventListener("keyup", function(e){
+          ytcenter.utils.addEventListener(document.body, "keyup", function(e){
             if (e.keyCode === 37) {
               i--;
             } else if (e.keyCode === 39) {
@@ -23804,21 +23490,27 @@
           }
           
           ytcenter.playlist = false;
-          try {
-            if (document.getElementById("watch7-playlist-data") || loc.search.indexOf("list=") !== -1) {
-              ytcenter.playlist = true;
-            }
-          } catch (e) {
-            con.error(e);
+          if (document.getElementById("watch7-playlist-data") || (loc && loc.search && typeof loc.search.indexOf === "function" && loc.search.indexOf("list=") !== -1)) {
+            ytcenter.playlist = true;
           }
-          try {
-            ytcenter.video.author = (document.getElementById("watch7-user-header").getElementsByClassName("yt-user-name")[0].textContent || document.getElementsByClassName("yt-user-name")[0].textContent);
+          var userHeader = document.getElementById("watch7-user-header");
+          var userName = document.getElementsByClassName("yt-user-name");
+          
+          if (userHeader) {
+            userHeader = userHeader.getElementsByClassName("yt-user-name");
+            if (userHeader && userHeader.length > 1 && userHeader[0] && userHeader[0].textContent) {
+              ytcenter.video.author = userHeader[0].textContent;
+            }
+          }
+          if (!ytcenter.video.author && userName && userName.length > 0 && userName[0] && userName[0].textContent) {
+            ytcenter.video.author = userName[0].textContent;
+          }
+          
+          if (ytcenter.video.author) {
             ytcenter.user.callChannelFeed(ytcenter.video.author, function(){
               ytcenter.video._channel = this;
               ytcenter.video.channelname = this.title['$t'];
             });
-          } catch (e) {
-            con.error(e);
           }
         } else if (page === "channel") {
           ytcenter.page = "channel";
@@ -23982,17 +23674,14 @@
         }*/
         
         if (page === "watch") {
-          //ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": ytcenter.settings.enableYouTubeAutoSwitchToShareTab });
           ytcenter.actionPanel.setup();
           
           ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": false });
-          if (uw.ytplayer && uw.ytplayer.config) {
-            ytcenter.player.setConfig(uw.ytplayer.config);
-            config = ytcenter.player.modifyConfig(ytcenter.getPage(), ytcenter.player.config);
+          ytcenter.player.setConfig(ytcenter.player.modifyConfig("watch", uw.ytplayer.config));
           
-            ytcenter.player.update(ytcenter.player.config);
-          }
-          ytcenter.videoHistory.addVideo(config.args.video_id);
+          ytcenter.player.update(ytcenter.player.config);
+          
+          ytcenter.videoHistory.addVideo(ytcenter.player.config.args.video_id);
           
           ytcenter.placementsystem.clear();
           
@@ -24287,7 +23976,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 320, crossUnsafeWindow);
+        main_function(false, 4, true, 321, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24350,6 +24039,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 320, crossUnsafeWindow);
+    main_function(false, 4, true, 321, crossUnsafeWindow);
   }
 })();
