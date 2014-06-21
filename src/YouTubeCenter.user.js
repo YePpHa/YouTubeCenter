@@ -21286,6 +21286,11 @@
             p.style.margin = "";
           }
         }
+        
+        uw.setTimeout(function(){
+          var player = document.getElementById("player");
+          player.style.left = "";
+        }, 0);
       };
     })();
     ytcenter.player.getBestStream = function(streams, dash){
