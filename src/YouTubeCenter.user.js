@@ -20959,6 +20959,10 @@
       var maxInsidePlayerWidth = 1040;
       var minInsidePlayerWidth = 1003;
       
+      var maxWatchNonStageWidth = 1254;
+      var maxSmallPlayer = 854;
+      var minSmallPlayer = 640;
+      
       ytcenter.player._updateResize = function(){
         if (!ytcenter.settings.enableResize) return;
         ytcenter.player._resize(_width, _height, _large, _align);
@@ -20995,6 +20999,19 @@
       return function(width, height, large, align){
         if (!ytcenter.settings.enableResize) return;
         if (ytcenter.getPage() !== "watch") return;
+        
+        var clientWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        var clientHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        
+        var page = document.getElementById("page");
+        if (large) {
+          ytcenter.utils.addClass(page, "watch-stage-mode");
+          ytcenter.utils.removeClass(page, "watch-non-stage-mode");
+        } else {
+          ytcenter.utils.removeClass(page, "watch-stage-mode");
+          ytcenter.utils.addClass(page, "watch-non-stage-mode");
+        }
+        var isLargeSmall = ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1294 <= clientWidth && 630 <= clientHeight;
         
         width = width || "";
         height = height || "";
@@ -21051,7 +21068,11 @@
             width = "854px";
             height = "";
           } else {
-            width = "640px";
+            if (isLargeSmall) {
+              width = maxWatchNonStageWidth + "px";
+            } else {
+              width = "640px";
+            }
             height = "";
           }
         }
@@ -21095,9 +21116,6 @@
           }
         }
         
-        var clientWidth = document.documentElement.clientWidth || window.innerWidth || document.body.clientWidth;
-        var clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
-        
         var calcWidth, calcHeight,
             calcedWidth = false, calcedHeight = false;
         if (width.match(/%$/) && width.length > 1) {
@@ -21118,19 +21136,6 @@
           calcHeight = parseInt(height);
         }
         
-        if (calcWidth && align && large) {
-          var maxWidth = Math.min(calcWidth, maxInsidePlayerWidth);
-          var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
-          if (clientWidth > maxWidth) {
-            calcWidth = maxWidth;
-          } else if (clientWidth < minWidth) {
-            calcWidth = minWidth;
-          } else {
-            calcWidth = clientWidth;
-          }
-          
-        }
-        
         if (!isNaN(calcWidth) && isNaN(calcHeight) && !calcedHeight) {
           calcedHeight = true;
           if (ytcenter.player.ratio !== 0) calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
@@ -21142,18 +21147,21 @@
           } else {
             calcWidth = Math.round(calcHeight*ytcenter.player.ratio);
           }
-          if (calcWidth && align && large) {
-            var maxWidth = Math.min(calcWidth, maxInsidePlayerWidth);
-            var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
-            if (clientWidth > maxWidth) {
-              calcWidth = maxWidth;
-            } else if (clientWidth < minWidth) {
-              calcWidth = minWidth;
-            } else {
-              calcWidth = clientWidth;
-            }
-            if (ytcenter.player.ratio !== 0) calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
-            else calcHeight = calcWidth;
+        }
+        if (!isNaN(calcWidth) && align && large) {
+          var maxWidth = Math.min(calcWidth, (isLargeSmall ? maxWatchNonStageWidth : maxInsidePlayerWidth));
+          var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
+          if (clientWidth > maxWidth) {
+            calcWidth = maxWidth;
+          } else if (clientWidth < minWidth) {
+            calcWidth = minWidth;
+          } else {
+            calcWidth = clientWidth;
+          }
+          if (ytcenter.player.ratio !== 0) {
+            calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
+          } else {
+            calcHeight = calcWidth;
           }
         }
         
@@ -21161,7 +21169,8 @@
         if (isNaN(calcHeight)) calcHeight = 0;
         
         // Player Dimension
-        var player = document.getElementById("player-legacy") || document.getElementById("player"),
+        var sidebar = document.getElementById("watch7-sidebar"),
+            player = document.getElementById("player-legacy") || document.getElementById("player"),
             playerAPI = document.getElementById("player-api-legacy") || document.getElementById("player-api"),
             theaterBackground = document.getElementById("theater-background"),
             content = document.getElementById("watch7-main-container"),
@@ -21170,6 +21179,21 @@
             playerWidth = Math.round(calcWidth),
             playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
+        
+        if (isLargeSmall) {
+          var maxWidth = Math.min(calcWidth, maxSmallPlayer);
+          var minWidth = Math.min(calcWidth, minSmallPlayer);
+          if (clientWidth > maxWidth) {
+            calcWidth = maxWidth;
+          } else {
+            calcWidth = minWidth;
+          }
+          if (ytcenter.player.ratio !== 0) {
+            calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
+          } else {
+            calcHeight = calcWidth;
+          }
+        }
         
         if (player && player.className && player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
           playerHeight = playerHeight + 80;
@@ -21217,8 +21241,13 @@
           }
           
           if (!large) {
-            player.style.maxWidth = "1040px";
-            player.style.minWidth = "1003px";
+            if (isLargeSmall) {
+              player.style.maxWidth = "1254px";
+              player.style.minWidth = "1003px";
+            } else {
+              player.style.maxWidth = "1040px";
+              player.style.minWidth = "1003px";
+            }
           } else if (align) {
             player.style.maxWidth = maxInsidePlayerWidth + "px";
             player.style.minWidth = minInsidePlayerWidth + "px";
@@ -21243,14 +21272,14 @@
         }
         
         // Sidebar
-        if (document.getElementById("watch7-sidebar")) {
+        if (sidebar) {
           if (!large && !document.getElementById("watch7-playlist-data")) {
             var mt = calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0);
             if (ytcenter.utils.hasClass(document.getElementById("watch7-container"), "watch-branded-banner") && !ytcenter.settings.removeBrandingBanner)
               mt += 70;
-            document.getElementById("watch7-sidebar").style.marginTop = "-" + mt + "px";
+            sidebar.style.top = "-" + mt + "px";
           } else {
-            document.getElementById("watch7-sidebar").style.marginTop = "";
+            sidebar.style.top = "";
           }
         }
         
@@ -21283,38 +21312,37 @@
         }
         
         // Player
-        var wp = document.getElementById("player-api-legacy") || document.getElementById("player-api");
-        if (wp) {
+        if (playerAPI) {
           if (width !== "" || height !== "") {
-            wp.style.width = Math.round(calcWidth) + "px";
-            wp.style.height = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
+            playerAPI.style.width = Math.round(calcWidth) + "px";
+            playerAPI.style.height = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
             _playerHeight = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0));
           } else {
-            wp.style.width = "";
-            wp.style.height = "";
+            playerAPI.style.width = "";
+            playerAPI.style.height = "";
             document.getElementById("playlist-tray").style.top = "";
           }
           if (calcWidth > maxInsidePlayerWidth) {
-            wp.style.margin = "";
+            playerAPI.style.margin = "";
             if (align) {
-              wp.style.marginLeft = "";
+              playerAPI.style.marginLeft = "";
             } else {
               var wvOffset = $GetOffset(player);
               var mLeft = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
               if (-mLeft > wvOffset[0]) mLeft = -wvOffset[0];
-              wp.style.marginLeft = mLeft + "px";
+              playerAPI.style.marginLeft = mLeft + "px";
             }
           } else {
-            wp.style.marginLeft = "";
-            wp.style.margin = "";
+            playerAPI.style.marginLeft = "";
+            playerAPI.style.margin = "";
           }
         
           if (width === "100%") {
-            wp.style.setProperty("margin-left", "0px", "important");
-            wp.style.setProperty("margin-right", "0px", "important");
+            playerAPI.style.setProperty("margin-left", "0px", "important");
+            playerAPI.style.setProperty("margin-right", "0px", "important");
           } else {
-            wp.style.marginLeft = "";
-            wp.style.marginRight = "";
+            playerAPI.style.marginLeft = "";
+            playerAPI.style.marginRight = "";
           }
         }
         
@@ -21354,25 +21382,6 @@
           }
         }
         
-        /*var p = document.getElementById("player-legacy") || document.getElementById("player");
-        if (p) {
-          if (calcWidth > maxInsidePlayerWidth) {
-            p.style.margin = "";
-            if (align) {
-              p.style.marginLeft = "";
-            } else {
-              var ml = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
-              if (document.getElementById("watch7-container")) {
-                var off = ytcenter.utils.getOffset(document.getElementById("watch7-container"));
-                if (-ml > off.left) ml = -off.left;
-              }
-              p.style.marginLeft = ml + "px";
-            }
-          } else {
-            p.style.marginLeft = "";
-            p.style.margin = "";
-          }
-        }*/
         if (!align || !large) {
           uw.setTimeout(function(){
             var player = document.getElementById("player");
