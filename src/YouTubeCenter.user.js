@@ -15048,7 +15048,7 @@
             {
               "min": 0, /* 0 bytes - I have no idea if this will break something */
               "max": 1099511627776, /* 1 TB - Why not... */
-              "suffix": " b",
+              "suffix": " B",
               "text-width": "135px"
             }
           );
@@ -15942,7 +15942,7 @@
             {
               "min": 0, /* 0 bytes - I have no idea if this will break something */
               "max": 1099511627776, /* 1 TB - Why not... */
-              "suffix": " b",
+              "suffix": " B",
               "text-width": "135px"
             }
           );
@@ -16259,7 +16259,7 @@
             {
               "min": 0, /* 0 bytes - I have no idea if this will break something */
               "max": 1099511627776, /* 1 TB - Why not... */
-              "suffix": " b",
+              "suffix": " B",
               "text-width": "135px"
             }
           );
@@ -16756,6 +16756,15 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Dark_Player_Background"
           );
           subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerDarkSideBGRetro",
+            "bool",
+            "SETTINGS_PLAYER_DARK_SIDE_RETRO"
+          );
+          var playerDarkSideBGRetroOption = option;
+          subcat.addOption(option);
+          
           option = ytcenter.settingsPanel.createOption(
             "playerDarkSideBGColor",
             "colorpicker",
@@ -16773,9 +16782,18 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Dark_Player_Background_Color"
           );
+          
+          var playerDarkSideBGColorOption = option;
+          playerDarkSideBGRetroOption.addEventListener("update", function(){
+            ytcenter.classManagement.updateClassesByGroup(["darkside"]);
+            
+            playerDarkSideBGColorOption.setVisibility(!ytcenter.settings.playerDarkSideBGRetro);
+          });
+          
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["darkside"]);
           });
+          if (ytcenter.settings.playerDarkSideBGRetro) option.setVisibility(false);
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
@@ -19206,22 +19224,30 @@
       return preventAutoBuffering;
     };
     ytcenter.player.darkside = function(){
+      var player = document.getElementById("player");
+      var playlistTray = document.getElementById("playlist-tray");
+      var theaterBackground = document.getElementById("theater-background");
+      if (!theaterBackground && player) {
+        theaterBackground = document.createElement("div");
+        theaterBackground.setAttribute("id", "theater-background");
+        player.insertBefore(theaterBackground, player.children[0]);
+      }
       if (ytcenter.getPage() === "watch" && ytcenter.player.getCurrentPlayerSize().large) {
         if (ytcenter.settings.playerDarkSideBG) {
-          if (document.getElementById("player") && !ytcenter.settings.playerDarkSideBGRetro) {
-            document.getElementById("player").style.backgroundColor = ytcenter.settings.playerDarkSideBGColor;
+          if (theaterBackground && !ytcenter.settings.playerDarkSideBGRetro) {
+            theaterBackground.style.backgroundColor = ytcenter.settings.playerDarkSideBGColor;
           }
-          if (document.getElementById("playlist-tray")) {
-            document.getElementById("playlist-tray").style.top = "-" + ytcenter.player.getCurrentPlayerSize().playerHeight + "px";
+          if (playlistTray) {
+            playlistTray.style.top = "-" + ytcenter.player.getCurrentPlayerSize().playerHeight + "px";
           }
           return true;
         }
       }
-      if (document.getElementById("player")) {
-        document.getElementById("player").style.backgroundColor = "";
+      if (theaterBackground) {
+        theaterBackground.style.backgroundColor = "";
       }
-      if (document.getElementById("playlist-tray")) {
-        document.getElementById("playlist-tray").style.top = "";
+      if (playlistTray) {
+        playlistTray.style.top = "";
       }
       return false;
     };
@@ -21137,6 +21163,7 @@
         // Player Dimension
         var player = document.getElementById("player-legacy") || document.getElementById("player"),
             playerAPI = document.getElementById("player-api-legacy") || document.getElementById("player-api"),
+            theaterBackground = document.getElementById("theater-background"),
             content = document.getElementById("watch7-main-container"),
             contentMain = document.getElementById("watch7-main"),
             playlist = document.getElementById("watch7-playlist-tray-container"),
@@ -21146,6 +21173,10 @@
         
         if (player && player.className && player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
           playerHeight = playerHeight + 80;
+        }
+        
+        if (theaterBackground) {
+          theaterBackground.style.height = playerHeight + "px";
         }
         
         document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size
