@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         326
+// @version         327
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 326);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 327);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21018,16 +21018,18 @@
           ytcenter.utils.removeClass(page, "watch-stage-mode");
           ytcenter.utils.addClass(page, "watch-non-stage-mode");
         }
-        var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1294 <= clientWidth && 680 <= clientHeight;
-        var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1294 <= clientWidth && 630 <= clientHeight;
-        var isWatchNonStage201 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1400 <= clientWidth && 740 <= clientHeight;
-        var isWatchNonStage202 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540-mini") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1400 <= clientWidth && 690 <= clientHeight;
-        var isWatchNonStage301 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1720 <= clientWidth && 920 <= clientHeight;
-        var isWatchNonStage302 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-720-mini") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1720 <= clientWidth && 920 <= clientHeight;
+        var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1294 <= clientWidth && 680 <= clientHeight;
+        var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && 1294 <= clientWidth && 630 <= clientHeight;
+        var isWatchNonStage201 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540") && 1400 <= clientWidth && 740 <= clientHeight;
+        var isWatchNonStage202 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540-mini") && 1400 <= clientWidth && 690 <= clientHeight;
+        var isWatchNonStage301 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1720 <= clientWidth && 920 <= clientHeight;
+        var isWatchNonStage302 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-720-mini") && 1720 <= clientWidth && 920 <= clientHeight;
         
-        var isWatchNonStage1 = isWatchNonStage101 || isWatchNonStage102;
-        var isWatchNonStage2 = isWatchNonStage201 || isWatchNonStage202;
-        var isWatchNonStage3 = isWatchNonStage301 || isWatchNonStage302;
+        var isWatchNonStage = ytcenter.utils.hasClass(page, "watch-non-stage-mode");
+        
+        var isWatchNonStage1 = (isWatchNonStage101 || isWatchNonStage102) && isWatchNonStage && !large;
+        var isWatchNonStage2 = (isWatchNonStage201 || isWatchNonStage202) && isWatchNonStage && !large;
+        var isWatchNonStage3 = (isWatchNonStage301 || isWatchNonStage302) && isWatchNonStage && !large;
         
         width = width || "";
         height = height || "";
@@ -21163,8 +21165,7 @@
           }
         }
         if (!isNaN(calcWidth) && align && large) {
-          var maxWidth = maxInsidePlayerWidth;
-          
+          var maxWidth = Math.min(calcWidth, maxInsidePlayerWidth);
           var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
           if (clientWidth > maxWidth) {
             calcWidth = maxWidth;
@@ -21263,6 +21264,7 @@
           }
           
           if (!large) {
+            player.style.width = "auto";
             player.style.minWidth = minInsidePlayerWidth + "px";
             if (isWatchNonStage3) {
               player.style.maxWidth = maxWatchNonStageWidth3 + "px";
@@ -24103,7 +24105,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 326, crossUnsafeWindow);
+        main_function(false, 4, true, 327, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24166,6 +24168,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 326, crossUnsafeWindow);
+    main_function(false, 4, true, 327, crossUnsafeWindow);
   }
 })();
