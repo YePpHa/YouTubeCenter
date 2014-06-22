@@ -5,7 +5,7 @@ const Cu = Components.utils;
 
 const {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
 
-var evalInSandbox = false; // Use evalInSandbox (true) or The Sub-Script Loader (false)
+var evalInSandbox = true; // Use evalInSandbox (true) or The Sub-Script Loader (false)
 
 var addonData = null;
 var filename = "chrome://ytcenter/content/YouTubeCenter.js";

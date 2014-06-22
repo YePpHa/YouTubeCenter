@@ -35,7 +35,7 @@ function createSandbox(wrappedContentWin, chromeWin, firebugConsole) {
     wrappedContentWin, {
       "sandboxName": "YouTube Center",
       "sandboxPrototype": wrappedContentWin,
-      "wantXrays": true,
+      "wantXrays": true
     }
   );
   sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
@@ -89,7 +89,7 @@ function loadScript(whitelist, blacklist, filename, content, wrappedContentWin, 
     let sandbox = createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
     
     if (content !== null) {
-      Cu.evalInSandbox(content, sandbox, "1.8", filename, 0);
+      Cu.evalInSandbox(content, sandbox, "ECMAv5", filename, 0);
     } else {
       Services.scriptloader.loadSubScript(filename, sandbox, "UTF-8");
     }
