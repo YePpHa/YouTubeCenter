@@ -20959,9 +20959,15 @@
       var maxInsidePlayerWidth = 1040;
       var minInsidePlayerWidth = 1003;
       
-      var maxWatchNonStageWidth = 1254;
-      var maxSmallPlayer = 854;
       var minSmallPlayer = 640;
+      
+      var maxWatchNonStageWidth1 = 1254;
+      var maxWatchNonStageWidth2 = 1360;
+      var maxWatchNonStageWidth3 = 1680;
+      
+      var maxWatchNonStagePlayerWidth1 = 854;
+      var maxWatchNonStagePlayerWidth2 = 960;
+      var maxWatchNonStagePlayerWidth3 = 1280;
       
       ytcenter.player._updateResize = function(){
         if (!ytcenter.settings.enableResize) return;
@@ -21004,6 +21010,7 @@
         var clientHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         
         var page = document.getElementById("page");
+        var player = document.getElementById("player-legacy") || document.getElementById("player");
         if (large) {
           ytcenter.utils.addClass(page, "watch-stage-mode");
           ytcenter.utils.removeClass(page, "watch-non-stage-mode");
@@ -21011,7 +21018,16 @@
           ytcenter.utils.removeClass(page, "watch-stage-mode");
           ytcenter.utils.addClass(page, "watch-non-stage-mode");
         }
-        var isLargeSmall = ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1294 <= clientWidth && 630 <= clientHeight;
+        var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1294 <= clientWidth && 680 <= clientHeight;
+        var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1294 <= clientWidth && 630 <= clientHeight;
+        var isWatchNonStage201 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1400 <= clientWidth && 740 <= clientHeight;
+        var isWatchNonStage202 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540-mini") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1400 <= clientWidth && 690 <= clientHeight;
+        var isWatchNonStage301 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1720 <= clientWidth && 920 <= clientHeight;
+        var isWatchNonStage302 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-720-mini") && ytcenter.utils.hasClass(page, "watch-non-stage-mode") && !large && 1720 <= clientWidth && 920 <= clientHeight;
+        
+        var isWatchNonStage1 = isWatchNonStage101 || isWatchNonStage102;
+        var isWatchNonStage2 = isWatchNonStage201 || isWatchNonStage202;
+        var isWatchNonStage3 = isWatchNonStage301 || isWatchNonStage302;
         
         width = width || "";
         height = height || "";
@@ -21037,21 +21053,20 @@
             ytcenter.utils.removeClass(wc, "watch-wide");
           }
         }
-        var p = (document.getElementById("player-legacy") || document.getElementById("player"));
-        if (p) {
+        if (player) {
           if (large) {
-            ytcenter.utils.addClass(p, "watch-medium");
+            ytcenter.utils.addClass(player, "watch-medium");
             if (!_playlist_toggled) {
-              ytcenter.utils.addClass(p, "watch-playlist-collapsed");
+              ytcenter.utils.addClass(player, "watch-playlist-collapsed");
             }
           } else {
-            ytcenter.utils.removeClass(p, "watch-medium");
-            if (ytcenter.utils.hasClass(p, "watch-playlist-collapsed")) {
+            ytcenter.utils.removeClass(player, "watch-medium");
+            if (ytcenter.utils.hasClass(player, "watch-playlist-collapsed")) {
               _playlist_toggled = false;
             } else {
               _playlist_toggled = true;
             }
-            ytcenter.utils.removeClass(p, "watch-playlist-collapsed");
+            ytcenter.utils.removeClass(player, "watch-playlist-collapsed");
           }
         }
         if (align) {
@@ -21064,17 +21079,16 @@
         
         // Settings the sizes for small and large. If width and height is undefined
         if (isNaN(parseInt(width)) && isNaN(parseInt(height))) {
-          if (large) {
-            width = "854px";
-            height = "";
+          if (isWatchNonStage3) {
+            width = maxWatchNonStagePlayerWidth3 + "px";
+          } else if (isWatchNonStage2) {
+            width = maxWatchNonStagePlayerWidth2 + "px";
+          } else if (isWatchNonStage1) {
+            width = maxWatchNonStagePlayerWidth1 + "px";
           } else {
-            if (isLargeSmall) {
-              width = maxWatchNonStageWidth + "px";
-            } else {
-              width = "640px";
-            }
-            height = "";
+            width = large ? "854px" : "640px";
           }
+          height = "";
         }
         
         var pbh = 0;
@@ -21149,7 +21163,8 @@
           }
         }
         if (!isNaN(calcWidth) && align && large) {
-          var maxWidth = Math.min(calcWidth, (isLargeSmall ? maxWatchNonStageWidth : maxInsidePlayerWidth));
+          var maxWidth = maxInsidePlayerWidth;
+          
           var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
           if (clientWidth > maxWidth) {
             calcWidth = maxWidth;
@@ -21170,7 +21185,6 @@
         
         // Player Dimension
         var sidebar = document.getElementById("watch7-sidebar"),
-            player = document.getElementById("player-legacy") || document.getElementById("player"),
             playerAPI = document.getElementById("player-api-legacy") || document.getElementById("player-api"),
             theaterBackground = document.getElementById("theater-background"),
             content = document.getElementById("watch7-main-container"),
@@ -21180,9 +21194,17 @@
             playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
         
-        if (isLargeSmall) {
-          var maxWidth = Math.min(calcWidth, maxSmallPlayer);
-          var minWidth = Math.min(calcWidth, minSmallPlayer);
+        if (isWatchNonStage3 || isWatchNonStage2 || isWatchNonStage1) {
+          var maxWidth = minSmallPlayer;
+          var minWidth = minSmallPlayer;
+          if (isWatchNonStage3) {
+            maxWidth = maxWatchNonStagePlayerWidth3;
+          } else if (isWatchNonStage2) {
+            maxWidth = maxWatchNonStagePlayerWidth2;
+          } else if (isWatchNonStage1) {
+            maxWidth = maxWatchNonStagePlayerWidth1;
+          }
+          
           if (clientWidth > maxWidth) {
             calcWidth = maxWidth;
           } else {
@@ -21241,12 +21263,15 @@
           }
           
           if (!large) {
-            if (isLargeSmall) {
-              player.style.maxWidth = "1254px";
-              player.style.minWidth = "1003px";
+            player.style.minWidth = minInsidePlayerWidth + "px";
+            if (isWatchNonStage3) {
+              player.style.maxWidth = maxWatchNonStageWidth3 + "px";
+            } else if (isWatchNonStage2) {
+              player.style.maxWidth = maxWatchNonStageWidth2 + "px";
+            } else if (isWatchNonStage1) {
+              player.style.maxWidth = maxWatchNonStageWidth1 + "px";
             } else {
-              player.style.maxWidth = "1040px";
-              player.style.minWidth = "1003px";
+              player.style.maxWidth = maxInsidePlayerWidth + "px";
             }
           } else if (align) {
             player.style.maxWidth = maxInsidePlayerWidth + "px";
