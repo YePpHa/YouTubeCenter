@@ -12,6 +12,7 @@
     "cross-domain-content": ["http://www.youtube.com/", "http://youtube.com/", "https://www.youtube.com/", "https://youtube.com/",
                              "http://userscripts.org/", "http://s.ytimg.com/", "https://s.ytimg.com/",
                              "http://apis.google.com/", "https://apis.google.com/", "http://plus.googleapis.com/", "https://plus.googleapis.com/"],
-    "private-browsing": true
+    "private-browsing": true,
+    "unsafe-content-script": true
   }
 }

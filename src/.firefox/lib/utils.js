@@ -55,13 +55,19 @@ function callUnsafeJSObject(wrappedContentWindow, callback) {
   let args = Array.prototype.slice.call(arguments, 2);
   
   if (isWindowClosed(wrappedContentWindow)) return; /* The window is closed and therefore it should not be called! */
-  (new XPCNativeWrapper(wrappedContentWindow, "setTimeout")).setTimeout(function(){ callback.apply(null, args); }, 0);
+  if (typeof callback === "function") {
+    (new XPCNativeWrapper(wrappedContentWindow, "setTimeout")).setTimeout(function(){ callback.apply(null, args); }, 0);
+  }
 }
 
 function setTimeout(callback, delay) {
   let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
   timer.initWithCallback({ notify: callback }, delay, Ci.nsITimer.TYPE_ONE_SHOT);
   return timer;
+}
+
+function getHiddenWindow() {
+  return Cc['@mozilla.org/appshell/appShellService;1'].getService(Ci.nsIAppShellService).hiddenDOMWindow;
 }
 
 exports["bind"] = bind;
@@ -71,3 +77,4 @@ exports["runAsync"] = runAsync;
 exports["getFirebugConsole"] = getFirebugConsole;
 exports["callUnsafeJSObject"] = callUnsafeJSObject;
 exports["setTimeout"] = setTimeout;
+exports["getHiddenWindow"] = getHiddenWindow;

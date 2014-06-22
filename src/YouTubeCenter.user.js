@@ -1759,6 +1759,27 @@
       return pos;
     }
     
+    /* This is just plain stupid. Why would Mozilla disallow addons to have direct access to the background thread?!!! */
+    function prepareFirefoxRequest(details) {
+      ytcenter.ff_requests = ytcenter.ff_requests || [];
+      
+      var key;
+      
+      for (key in details) {
+        if (details.hasOwnProperty(key)) {
+          if (typeof details[key] === "function") {
+            details[key] = ytcenter.ff_requests.push(details[key]) - 1;
+          }
+        }
+      }
+      
+      request(details);
+    }
+    
+    function requestFirefoxCallback(requestFunction, responseState) {
+      ytcenter.ff_requests[requestFunction](responseState);
+    }
+    
     function $XMLHTTPRequest(details) {
       if (((identifier === 1 || identifier === 4 || identifier === 2) && injected) || identifier === 5) {
         ytcenter.unsafeCall("xhr", [details], null);
@@ -20910,6 +20931,7 @@
       var playerBarHeightProgress = 3;
       var playerBarHeightBoth = 35;
       var maxInsidePlayerWidth = 1040;
+      var minInsidePlayerWidth = 1003;
       
       ytcenter.player._updateResize = function(){
         if (!ytcenter.settings.enableResize) return;
@@ -21057,6 +21079,7 @@
         } else if (width.length > 1) {
           calcWidth = parseInt(width);
         }
+        
         if (height.match(/%$/) && height.length > 1) {
           var mp = document.getElementById("masthead-positioner");
           calcHeight = parseInt(height)/100*clientHeight;
@@ -21068,6 +21091,20 @@
         } else if (height.length > 1) {
           calcHeight = parseInt(height);
         }
+        
+        if (calcWidth && align && large) {
+          var maxWidth = Math.min(calcWidth, maxInsidePlayerWidth);
+          var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
+          if (clientWidth > maxWidth) {
+            calcWidth = maxWidth;
+          } else if (clientWidth < minWidth) {
+            calcWidth = minWidth;
+          } else {
+            calcWidth = clientWidth;
+          }
+          
+        }
+        
         if (!isNaN(calcWidth) && isNaN(calcHeight) && !calcedHeight) {
           calcedHeight = true;
           if (ytcenter.player.ratio !== 0) calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
@@ -21078,6 +21115,19 @@
             calcWidth = Math.round((calcHeight - _pbh)*ytcenter.player.ratio);
           } else {
             calcWidth = Math.round(calcHeight*ytcenter.player.ratio);
+          }
+          if (calcWidth && align && large) {
+            var maxWidth = Math.min(calcWidth, maxInsidePlayerWidth);
+            var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
+            if (clientWidth > maxWidth) {
+              calcWidth = maxWidth;
+            } else if (clientWidth < minWidth) {
+              calcWidth = minWidth;
+            } else {
+              calcWidth = clientWidth;
+            }
+            if (ytcenter.player.ratio !== 0) calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
+            else calcHeight = calcWidth;
           }
         }
         
@@ -21131,18 +21181,24 @@
           player.style.position = "";
           player.style.left = "";
           player.style.marginBottom = "";
+          if (playerAPI) {
+            playerAPI.style.cssFloat = "";
+          }
           
-          player.style.width = (large ? playerWidth + "px" : "auto");
-          if (large) {
-            player.style.maxWidth = "";
-            player.style.minWidth = "";
-          } else {
+          if (!large) {
             player.style.maxWidth = "1040px";
             player.style.minWidth = "1003px";
-          }
-          if (large && align && playerWidth < maxInsidePlayerWidth) {
-            player.style.setProperty("position", "relative", "important");
-            player.style.setProperty("left", (-(maxInsidePlayerWidth - playerWidth)/2) + "px", "important");
+          } else if (align) {
+            player.style.maxWidth = maxInsidePlayerWidth + "px";
+            player.style.minWidth = minInsidePlayerWidth + "px";
+            player.style.width = "auto";
+            if (playerAPI) {
+              playerAPI.style.cssFloat = "left";
+            }
+          } else {
+            player.style.maxWidth = "";
+            player.style.minWidth = "";
+            player.style.width = (large ? playerWidth + "px" : "auto");
           }
           if (large) {
             player.style.setProperty("margin-bottom", "28px", "important");
@@ -21267,7 +21323,7 @@
           }
         }
         
-        var p = document.getElementById("player-legacy") || document.getElementById("player");
+        /*var p = document.getElementById("player-legacy") || document.getElementById("player");
         if (p) {
           if (calcWidth > maxInsidePlayerWidth) {
             p.style.margin = "";
@@ -21285,12 +21341,13 @@
             p.style.marginLeft = "";
             p.style.margin = "";
           }
+        }*/
+        if (!align || !large) {
+          uw.setTimeout(function(){
+            var player = document.getElementById("player");
+            player.style.left = "";
+          }, 0);
         }
-        
-        uw.setTimeout(function(){
-          var player = document.getElementById("player");
-          player.style.left = "";
-        }, 0);
       };
     })();
     ytcenter.player.getBestStream = function(streams, dash){
