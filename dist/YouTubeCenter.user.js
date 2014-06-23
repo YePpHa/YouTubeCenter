@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         327
+// @version         328
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 327);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 328);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21006,8 +21006,11 @@
         if (!ytcenter.settings.enableResize) return;
         if (ytcenter.getPage() !== "watch") return;
         
-        var clientWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        var clientHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        var innerWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        var innerHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        
+        var clientWidth = document.documentElement.clientWidth || window.innerWidth || document.body.clientWidth;
+        var clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
         
         var page = document.getElementById("page");
         var player = document.getElementById("player-legacy") || document.getElementById("player");
@@ -21018,12 +21021,12 @@
           ytcenter.utils.removeClass(page, "watch-stage-mode");
           ytcenter.utils.addClass(page, "watch-non-stage-mode");
         }
-        var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1294 <= clientWidth && 680 <= clientHeight;
-        var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && 1294 <= clientWidth && 630 <= clientHeight;
-        var isWatchNonStage201 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540") && 1400 <= clientWidth && 740 <= clientHeight;
-        var isWatchNonStage202 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540-mini") && 1400 <= clientWidth && 690 <= clientHeight;
-        var isWatchNonStage301 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1720 <= clientWidth && 920 <= clientHeight;
-        var isWatchNonStage302 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-720-mini") && 1720 <= clientWidth && 920 <= clientHeight;
+        var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1294 <= innerWidth && 680 <= innerHeight;
+        var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && 1294 <= innerWidth && 630 <= innerHeight;
+        var isWatchNonStage201 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540") && 1400 <= innerWidth && 740 <= innerHeight;
+        var isWatchNonStage202 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540-mini") && 1400 <= innerWidth && 690 <= innerHeight;
+        var isWatchNonStage301 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1720 <= innerWidth && 920 <= innerHeight;
+        var isWatchNonStage302 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-720-mini") && 1720 <= innerWidth && 920 <= innerHeight;
         
         var isWatchNonStage = ytcenter.utils.hasClass(page, "watch-non-stage-mode");
         
@@ -24105,7 +24108,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 327, crossUnsafeWindow);
+        main_function(false, 0, true, 328, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24168,6 +24171,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 327, crossUnsafeWindow);
+    main_function(false, 0, true, 328, crossUnsafeWindow);
   }
 })();
