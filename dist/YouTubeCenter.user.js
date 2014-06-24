@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         328
+// @version         329
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 328);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 329);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -21099,40 +21099,29 @@
         var pbh = 0;
         var _pbh = 0;
         var pbh_changed = false;
+        var autohide = ytcenter.settings.autohide;
         if (ytcenter.html5) {
-          if (ytcenter.settings.autohide === "0") {
-            pbh = playerBarHeightBoth;
-            _pbh = playerBarHeightBoth;
-          } else if (ytcenter.settings.autohide === "1") {
-            pbh = playerBarHeightNone;
-            _pbh = playerBarHeightNone;
-          } else if (ytcenter.settings.autohide === "2") {
-            pbh = playerBarHeight;
-            _pbh = playerBarHeight;
-          } else if (ytcenter.settings.autohide === "3") {
-            pbh = playerBarHeightProgress;
-            _pbh = playerBarHeightProgress;
-          } else {
-            pbh = playerBarHeight;
-            _pbh = playerBarHeight;
+          if (ytcenter.player.ratio < 1.35 && autohide === "-1") {
+            autohide = "3"
           }
-        } else if (ytcenter.player.config && ytcenter.player.config.args) {
-          if (ytcenter.player.config.args.autohide === "0") {
-            pbh = playerBarHeightBoth;
-            _pbh = playerBarHeightBoth;
-          } else if (ytcenter.player.config.args.autohide === "1") {
-            pbh = playerBarHeightNone;
-            _pbh = playerBarHeightNone;
-          } else if (ytcenter.player.config.args.autohide === "2") {
-            pbh = playerBarHeight;
-            _pbh = playerBarHeight;
-          } else if (ytcenter.player.config.args.autohide === "3") {
-            pbh = playerBarHeightProgress;
-            _pbh = playerBarHeightProgress;
-          } else {
-            pbh = playerBarHeight;
-            _pbh = playerBarHeight;
-          }
+        } else {
+          autohide = ytcenter.player.config.args.autohide;
+        }
+        if (autohide === "0") {
+          pbh = playerBarHeightBoth;
+          _pbh = playerBarHeightBoth;
+        } else if (autohide === "1") {
+          pbh = playerBarHeightNone;
+          _pbh = playerBarHeightNone;
+        } else if (autohide === "2") {
+          pbh = playerBarHeight;
+          _pbh = playerBarHeight;
+        } else if (autohide === "3") {
+          pbh = playerBarHeightProgress;
+          _pbh = playerBarHeightProgress;
+        } else {
+          pbh = playerBarHeight;
+          _pbh = playerBarHeight;
         }
         
         var calcWidth, calcHeight,
@@ -24108,7 +24097,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 0, true, 328, crossUnsafeWindow);
+        main_function(false, 0, true, 329, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24171,6 +24160,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 0, true, 328, crossUnsafeWindow);
+    main_function(false, 0, true, 329, crossUnsafeWindow);
   }
 })();
