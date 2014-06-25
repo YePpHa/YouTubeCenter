@@ -12983,6 +12983,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      ytOnlyStageMode: false,
       playerGlowEffectOnPlayer: "both",
       bufferEnabled: true,
       bufferSize: 569228273678,
@@ -15354,6 +15355,22 @@
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Aspect"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "ytOnlyStageMode", // defaultSetting
+            "bool", // module
+            "SETTINGS_RESIZE_ONLY_STAGE_MODE",
+            {
+              "listeners" : [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.player.resizeUpdater();
+                  }
+                }
+              ]
+            }
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -21014,7 +21031,7 @@
         
         var page = document.getElementById("page");
         var player = document.getElementById("player-legacy") || document.getElementById("player");
-        if (large) {
+        if (large || ytcenter.settings.ytOnlyStageMode) {
           ytcenter.utils.addClass(page, "watch-stage-mode");
           ytcenter.utils.removeClass(page, "watch-non-stage-mode");
         } else {
