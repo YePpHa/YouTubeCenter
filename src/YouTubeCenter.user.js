@@ -12007,7 +12007,7 @@
       return a.join(",");
     };
     ytcenter.utils.updateSignatureDecipher = function(){
-      ytcenter.utils.updateSignatureDecipher = function(){}; // I'm just cheating a little bit ...
+      //ytcenter.utils.updateSignatureDecipher = function(){}; // I'm just cheating a little bit ...
       if (ytcenter && ytcenter.player && ytcenter.player.config && ytcenter.player.config.assets && ytcenter.player.config.assets.js) {
         var js = (loc.href.indexOf("https") === 0 ? "https:" : "http:") + ytcenter.player.config.assets.js,
             regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(.*?)return a\.join\(""\)}/g,
