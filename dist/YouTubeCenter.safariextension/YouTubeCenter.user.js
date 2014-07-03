@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         330
+// @version         331
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 330);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 331);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -12007,7 +12007,7 @@
       return a.join(",");
     };
     ytcenter.utils.updateSignatureDecipher = function(){
-      ytcenter.utils.updateSignatureDecipher = function(){}; // I'm just cheating a little bit ...
+      //ytcenter.utils.updateSignatureDecipher = function(){}; // I'm just cheating a little bit ...
       if (ytcenter && ytcenter.player && ytcenter.player.config && ytcenter.player.config.assets && ytcenter.player.config.assets.js) {
         var js = (loc.href.indexOf("https") === 0 ? "https:" : "http:") + ytcenter.player.config.assets.js,
             regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(.*?)return a\.join\(""\)}/g,
@@ -24114,7 +24114,7 @@
         
         inject(main_function);
       } else {
-        main_function(false, 4, true, 330, crossUnsafeWindow);
+        main_function(false, 4, true, 331, crossUnsafeWindow);
       }
     } catch (e) {
       window.addEventListener("message", function(e){
@@ -24177,6 +24177,6 @@
     
     inject(main_function);
   } else {
-    main_function(false, 4, true, 330, crossUnsafeWindow);
+    main_function(false, 4, true, 331, crossUnsafeWindow);
   }
 })();
