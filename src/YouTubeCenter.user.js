@@ -15589,7 +15589,8 @@
             "SETTINGS_PLAYERGLOW_FACTOR", // label
             {
               "min": 1,
-              "max": 100
+              "max": 100,
+              "suffix": "%"
             }
           );
           ytcenter.events.addEvent("settings-update", function(){
