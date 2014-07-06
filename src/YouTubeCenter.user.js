@@ -13001,6 +13001,10 @@
       playerGlowBlur: 15,
       playerGlowSpread: 5,
       playerGlowOpacity: 75,
+      playerGlowFactor: 50,
+      playerMultiGlowEffect: true,
+      playerMultiGlowEffectDepth: 10,
+      playerMultiGlowEffectBlockInterval: 5,
       likeButtonColor: "#000000",
       likeButtonHoverColor: "#000000",
       dislikeButtonColor: "#000000",
@@ -15580,6 +15584,20 @@
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
+            "playerGlowFactor", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_FACTOR", // label
+            {
+              "min": 1,
+              "max": 100
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
             "playerGlowPixelInterval", // defaultSetting
             "rangetext", // module
             "SETTINGS_PLAYERGLOW_PIXEL_INTERVAL", // label
@@ -15613,7 +15631,7 @@
           
           ytcenter.events.addEvent("settings-update", (function(opt){
             return function(){
-              ytcenter.effects.playerGlow.setOption("interval", ytcenter.settings.playerGlowUpdateInterval);
+              ytcenter.effects.playerGlow.setOption("interval", (ytcenter.settings.playerGlowRequestAnimationFrame ? -1 : ytcenter.settings.playerGlowUpdateInterval));
               opt.setVisibility(!ytcenter.settings.playerGlowRequestAnimationFrame);
             };
           })(option));
@@ -15642,7 +15660,7 @@
             "SETTINGS_PLAYERGLOW_BLUR", // label
             {
               "min": 0,
-              "max": 50,
+              "max": 200,
               "suffix": "px"
             }
           );
@@ -15657,7 +15675,7 @@
             "SETTINGS_PLAYERGLOW_SPREAD", // label
             {
               "min": 0,
-              "max": 50,
+              "max": 200,
               "suffix": "px"
             }
           );
@@ -15678,6 +15696,46 @@
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("opacity", ytcenter.settings.playerGlowOpacity/100);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerMultiGlowEffect", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYERGLOW_MULTI_ENABLED"
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("multiglow", ytcenter.settings.playerMultiGlowEffect);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerMultiGlowEffectDepth", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_MULTI_DEPTH", // label
+            {
+              "min": 1,
+              "max": 500,
+              "suffix": "px"
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("depth", ytcenter.settings.playerMultiGlowEffectDepth);
+          });
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "playerMultiGlowEffectBlockInterval", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYERGLOW_MULTI_BLOCK_INTERVAL", // label
+            {
+              "min": 1,
+              "max": 200,
+              "suffix": "px"
+            }
+          );
+          ytcenter.events.addEvent("settings-update", function(){
+            ytcenter.effects.playerGlow.setOption("blockInterval", ytcenter.settings.playerMultiGlowEffectBlockInterval);
           });
           subcat.addOption(option);
           
@@ -21866,8 +21924,15 @@
           playerAPIElement.style.overflow = "visible";
         }
         
+        if (!container.parentNode) {
+          playerAPIElement.appendChild(container);
+        }
+        
+        con.log("[Player Glow] In correct mode? " + inCorrectMode());
+        
         /* We want to make sure that the html5 player exist */
-        if (html5Player) {
+        if (html5Player && enabled && inCorrectMode()) {
+          allowGlowUpdate = true;
           /* Let's get this running */
           onRequestGlow();
         }
@@ -21882,6 +21947,7 @@
           if (playerAPIElement && (glowEffectOnPlayer === "both" || glowEffectOnPlayer === "only-lights-off")) {
             playerAPIElement.style.overflow = "";
           }
+          removeMultiGlow();
           removeGlow();
         } else if (state === 1) {
           if (!playerElement) playerElement = getPlayerWrapper(); // Make sure that the player wrapper is referenced so that the glow can be removed.
@@ -21891,6 +21957,7 @@
           if (playerAPIElement && (glowEffectOnPlayer === "both" || glowEffectOnPlayer === "only-lights-off")) {
             playerAPIElement.style.overflow = "";
           }
+          removeMultiGlow();
           removeGlow();
         }
         
@@ -21909,23 +21976,32 @@
           cancelFrame(requestFrameId);
           requestFrameId = null;
         }
+        allowGlowUpdate = false;
       }
       function onRequestGlow(now) {
         if (state !== 1) return;
         
-        var w = width;
-        var h = height;
+        var w = widthF;
+        var h = heightF;
         
         /* Resize the canvas to the video */
-        width = canvas.width = html5Player.clientWidth || html5Player.offsetWidth;
-        height = canvas.height = html5Player.clientHeight || html5Player.offsetHeight;
+        width = html5Player.clientWidth || html5Player.offsetWidth;
+        height = html5Player.clientHeight || html5Player.offsetHeight;
         
-        if (width === 0 || height === 0) return;
+        container.style.width = width + "px";
+        container.style.height = height + "px";
+        
+        /* Factor the size down of the canvas to increase the performance */
+        widthF = canvas.width = width*factor;
+        heightF = canvas.height = height*factor;
+        
+        if (widthF === 0 || heightF === 0) return;
         
         /* Calculate the amount of pixels used */
-        if (w !== width || h !== height) {
-          totalPixels = width*height;
+        if (w !== widthF || h !== heightF) {
+          totalPixels = widthF*heightF;
           pixelCount = Math.floor(totalPixels/pixelInterval);
+          clearGlowCache();
         }
         
         /* Handle the delta time */
@@ -21934,28 +22010,219 @@
         var dt = (now - lastTimestamp)/1000;
         lastTimestamp = now;
         
-        /* We want the average color */
-        color = getAverageColor(dt, color);
-        
-        /* Apply the new rgb values to the glow */
-        applyGlow(color, blur, spread, opacity);
-        
-        /* We really want to run this again to change the color of the glow for the next frame */
-        if (interval >= 0) {
-          timeoutId = uw.setTimeout(onRequestGlow, interval);
+        if (multiglow) {
+          removeGlow();
+          var blocks = calculateBlocks(width, height);
+          
+          /* Draw the video frame onto the canvas */
+          drawVideoOnCanvas();
+          
+          /* Get the frame data (Unescapable bottleneck) */
+          var imageData = ctx.getImageData(0, 0, widthF, heightF);
+          
+          /* Get the data reference */
+          var data = imageData.data;
+          
+          for (var i = 0, len = blocks.length; i < len; i++) {
+            applyGlowOnBlock(i, blocks[i], data, blur, spread, opacity);
+          }
         } else {
-          requestFrameId = reqFrame(onRequestGlow);
+          removeMultiGlow();
+          /* We want the average color */
+          color = getAverageColor(dt, color);
+          
+          /* Apply the new rgb values to the glow */
+          applyGlow(color, blur, spread, opacity);
         }
+        
+        if (allowGlowUpdate) {
+          /* We really want to run this again to change the color of the glow for the next frame */
+          if (interval >= 0) {
+            timeoutId = uw.setTimeout(onRequestGlow, interval);
+          } else {
+            requestFrameId = reqFrame(onRequestGlow);
+          }
+        }
+      }
+      function clearGlowCache() {
+        blockCache = [];
+        for (var i = 0, len = blockGlowCache.length; i < len; i++) {
+          if (blockGlowCache[i].parentNode) {
+            blockGlowCache[i].parentNode.removeChild(blockGlowCache[i]);
+          }
+        }
+        blockGlowCache = [];
       }
       function drawVideoOnCanvas() {
         /* Write video data to canvas */
-        ctx.drawImage(html5Player, 0, 0, width, height);
+        ctx.drawImage(html5Player, 0, 0, widthF, heightF);
+      }
+      function calculateBlock(x, y, width, height) {
+        if (blockCache[x] && blockCache[x][y]) {
+          return blockCache[x][y];
+        }
+        var block = [];
+        for (var i = 0, len = width*height; i < len; i++) {
+          block.push([x + i%width, y + Math.floor(i/width)]);
+        }
+        if (!blockCache[x]) blockCache[x] = [];
+        blockCache[x][y] = block;
+        
+        return block;
+      }
+      function calculateBlocks() {
+        var blocks = [];
+        
+        var corners = depth/blockInterval;
+        corners = 0;
+        
+        /* Top */
+        for (var i = 0, len = width/blockInterval - corners; i < len; i++) {
+          var pos = {
+            x: i*blockInterval,
+            y: 0,
+            width: blockInterval,
+            height: depth
+          };
+          if (pos.x + pos.width > width) {
+            pos.width = width - pos.x;
+          }
+          
+          pos.xF = Math.floor(pos.x*factor);
+          pos.yF = Math.floor(pos.y*factor);
+          pos.widthF = Math.floor(pos.width*factor);
+          pos.heightF = Math.floor(pos.height*factor);
+          
+          pos.data = calculateBlock(pos.xF, pos.yF, pos.widthF, pos.heightF);
+          blocks.push(pos);
+        }
+        
+        /* Bottom */
+        for (var i = corners, len = width/blockInterval; i < len; i++) {
+          var pos = {
+            x: i*blockInterval,
+            y: height - depth,
+            width: blockInterval,
+            height: depth
+          };
+          if (pos.x + pos.width > width) {
+            pos.width = width - pos.x;
+          }
+          
+          pos.xF = Math.floor(pos.x*factor);
+          pos.yF = Math.floor(pos.y*factor);
+          pos.widthF = Math.floor(pos.width*factor);
+          pos.heightF = Math.floor(pos.height*factor);
+          
+          pos.data = calculateBlock(pos.xF, pos.yF, pos.widthF, pos.heightF);
+          blocks.push(pos);
+        }
+        
+        /* Left */
+        for (var i = corners, len = height/blockInterval; i < len; i++) {
+          var pos = {
+            x: 0,
+            y: i*blockInterval,
+            width: depth,
+            height: blockInterval
+          };
+          if (pos.y + pos.height > height) {
+            pos.height = height - pos.y;
+          }
+          
+          pos.xF = Math.floor(pos.x*factor);
+          pos.yF = Math.floor(pos.y*factor);
+          pos.widthF = Math.floor(pos.width*factor);
+          pos.heightF = Math.floor(pos.height*factor);
+          
+          pos.data = calculateBlock(pos.xF, pos.yF, pos.widthF, pos.heightF);
+          blocks.push(pos);
+        }
+        
+        /* Right */
+        for (var i = 0, len = height/blockInterval - corners; i < len; i++) {
+          var pos = {
+            x: width - depth,
+            y: i*blockInterval,
+            width: depth,
+            height: blockInterval
+          };
+          if (pos.y + pos.height > height) {
+            pos.height = height - pos.y;
+          }
+          
+          pos.xF = Math.floor(pos.x*factor);
+          pos.yF = Math.floor(pos.y*factor);
+          pos.widthF = Math.floor(pos.width*factor);
+          pos.heightF = Math.floor(pos.height*factor);
+          
+          pos.data = calculateBlock(pos.xF, pos.yF, pos.widthF, pos.heightF);
+          blocks.push(pos);
+        }
+        
+        return blocks;
+      }
+      
+      function getAverageColorForBlock(pixels, data) {
+        var minx = -1;
+        var miny = -1;
+        var maxx = -1;
+        var maxy = -1;
+        for (var i = 0, len = pixels.length; i < len; i++) {
+          if (pixels[i][0] < minx || minx === -1) {
+            minx = pixels[i][0];
+          }
+          if (pixels[i][0] > maxx || maxx === -1) {
+            maxx = pixels[i][0];
+          }
+          if (pixels[i][1] < miny || miny === -1) {
+            miny = pixels[i][1];
+          }
+          if (pixels[i][1] > maxy || maxy === -1) {
+            maxy = pixels[i][1];
+          }
+        }
+        
+        /* Prepare variables for the loop */
+        var r = 0, g = 0, b = 0, idx, i = pixels.length - 1;
+        
+        var pixelCount = Math.floor(pixels.length/pixelInterval);
+        
+        /* Loop through every pixel */
+        while (i > 0) {
+          idx = Math.floor(pixels[i][0] + pixels[i][1]*widthF) << 2;
+          r += data[idx];
+          g += data[idx + 1];
+          b += data[idx + 2];
+          
+          i -= pixelInterval;
+        }
+        
+        /* We are dividing by a variable that could be 0 */
+        if (pixelCount > 0) {
+          /* Average the color */
+          r = Math.floor(r/pixelCount);
+          g = Math.floor(g/pixelCount);
+          b = Math.floor(b/pixelCount);
+        }
+        
+        /* Make sure that the rgb color doesn't go under 0 or over 255 */
+        if (r < 0) r = 0;
+        if (r > 255) r = 255;
+        
+        if (g < 0) g = 0;
+        if (g > 255) g = 255;
+        
+        if (b < 0) b = 0;
+        if (b > 255) b = 255;
+        
+        return { r: r, g: g, b: b };
       }
       function getAverageColor(dt, lastColor) {
         drawVideoOnCanvas();
         
         /* Get the frame data (Unescapable bottleneck) */
-        var imageData = ctx.getImageData(0, 0, width, height);
+        var imageData = ctx.getImageData(0, 0, widthF, heightF);
         
         /* Get the data reference */
         var data = imageData.data;
@@ -22002,7 +22269,32 @@
         return { r: r, g: g, b: b };
       }
       
-      function applyGlow(color, blur, radius, opacity){
+      function applyGlowOnBlock(i, block, data, blur, radius, opacity) {
+        var color = getAverageColorForBlock(block.data, data);
+        var el;
+        if (blockGlowCache[i]) {
+          el = blockGlowCache[i];
+        } else {
+          el = document.createElement("div");
+          el.className = "gpu";
+          el.style.position = "absolute";
+          el.style.top = block.y + "px";
+          el.style.left = block.x + "px";
+          el.style.width = block.width + "px";
+          el.style.height = block.height + "px";
+          el.style.zIndex = (i%2 ? "52" : "53");
+        
+          container.appendChild(el);
+          blockGlowCache[i] = el;
+        }
+        
+        var value = "0px 0px " + blur + "px " + radius + "px rgba(" + Math.floor(color.r) + ", " + Math.floor(color.g) + ", " + Math.floor(color.b) + ", " + opacity + ")";
+        el.style.setProperty("-webkit-box-shadow", value);
+        el.style.setProperty("-moz-box-shadow", value);
+        el.style.setProperty("box-shadow", value);
+      }
+      
+      function applyGlow(color, blur, radius, opacity) {
         var value = "0px 0px " + blur + "px " + radius + "px rgba(" + Math.floor(color.r) + ", " + Math.floor(color.g) + ", " + Math.floor(color.b) + ", " + opacity + ")";
         correctPlayerElement.style.setProperty("-webkit-box-shadow", value);
         correctPlayerElement.style.setProperty("-moz-box-shadow", value);
@@ -22016,6 +22308,12 @@
         playerElementOverlay.style.setProperty("-webkit-box-shadow", "");
         playerElementOverlay.style.setProperty("-moz-box-shadow", "");
         playerElementOverlay.style.setProperty("box-shadow", "");
+      }
+      
+      function removeMultiGlow() {
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
       }
       
       function setEnabled(e) {
@@ -22049,6 +22347,18 @@
           case "glowEffectOnPlayer":
             glowEffectOnPlayer = value;
             break;
+          case "multiglow":
+            multiglow = value;
+            break;
+          case "depth":
+            depth = value;
+            break;
+          case "blockInterval":
+            blockInterval = value;
+            break;
+          case "factor":
+            factor = value/100;
+            break;
         }
         update();
       }
@@ -22060,15 +22370,28 @@
       
       var enabled = false;
       var width, height;
+      var factor = 0.5;
+      var widthF, heightF; // Factored
       
       var state = -1;
       var canvas = document.createElement("canvas");
-      var canvas2 = document.createElement("canvas");
       var ctx = canvas.getContext("2d");
-      var ctx2 = canvas2.getContext("2d");
+      
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.mozImageSmoothingEnabled = false;
+      ctx.msImageSmoothingEnabled = false;
+      ctx.oImageSmoothingEnabled = false;
+      ctx.imageSmoothingEnabled = false;
       
       var pixelCount = null;
       var totalPixels = null;
+      
+      var blockGlowCache = [];
+      var blockCache = [];
+      var container = document.createElement("div");
+      container.style.position = "absolute";
+      container.style.top = "0";
+      container.style.left = "0";
       
       var html5Player = null;
       var playerElement = null;
@@ -22086,6 +22409,11 @@
       var spread = 5;
       var opacity = .75;
       var glowEffectOnPlayer = "both";
+      var multiglow = true;
+      var depth = 10;
+      var blockInterval = 40;
+      
+      var allowGlowUpdate = false;
       
       ytcenter.player.listeners.addEventListener("onStateChange", playerStateChange);
       
@@ -23352,12 +23680,17 @@
           ytcenter.playlistAutoPlay.init();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
+          ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
           ytcenter.effects.playerGlow.setOption("glowEffectOnPlayer", ytcenter.settings.playerGlowEffectOnPlayer);
           ytcenter.effects.playerGlow.setOption("interval", (ytcenter.settings.playerGlowRequestAnimationFrame ? -1 : ytcenter.settings.playerGlowUpdateInterval));
           ytcenter.effects.playerGlow.setOption("transition", ytcenter.settings.playerGlowTransition/1000);
           ytcenter.effects.playerGlow.setOption("blur", ytcenter.settings.playerGlowBlur);
           ytcenter.effects.playerGlow.setOption("spread", ytcenter.settings.playerGlowSpread);
           ytcenter.effects.playerGlow.setOption("opacity", ytcenter.settings.playerGlowOpacity/100);
+          
+          ytcenter.effects.playerGlow.setOption("multiglow", ytcenter.settings.playerMultiGlowEffect);
+          ytcenter.effects.playerGlow.setOption("depth", ytcenter.settings.playerMultiGlowEffectDepth);
+          ytcenter.effects.playerGlow.setOption("blockInterval", ytcenter.settings.playerMultiGlowEffectBlockInterval);
           
           ytcenter.effects.playerGlow.setEnabled(ytcenter.settings.playerGlowEnabled);
           

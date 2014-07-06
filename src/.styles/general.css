@@ -360,7 +360,8 @@ body.ytcenter-branding-remove-background #guide-container.branded {
 .ytcenter-lights-off #player-api,
 .ytcenter-lights-off #player-api-legacy,
 .ytcenter-lights-off #movie_player {
-  z-index: 50!important;
+  position: relative;
+  z-index: 70!important;
 }
 
 .ytcenter-lights-off #page-container {
