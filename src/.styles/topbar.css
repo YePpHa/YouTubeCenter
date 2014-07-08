@@ -30,13 +30,6 @@
   }
 }
 
-.site-center-aligned.flex-width-enabled .content-alignment {
-  width: auto !important;
-  min-width: 1003px !important;
-  max-width: 1415px !important;
-  padding: 0 10px !important;
-}
-
 .ytcenter-player-darkside-bg #player {
   width: 100% !important;
   margin-left: 0 !important;
