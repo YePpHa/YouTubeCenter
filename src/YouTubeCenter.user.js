@@ -24058,7 +24058,6 @@
   
   // Firefox API
   function onFirefoxEvent() {
-    console.log("onFirefoxEvent fired!");
     callUnsafeWindow.apply(null, arguments);
   }
 
@@ -24206,7 +24205,7 @@
     } else if (@identifier@ === 2) {
       callUnsafeWindow(id, window.external.mxGetRuntime().storage.getConfig(key) || "{}");
     } else if (@identifier@ === 6) {
-      callUnsafeWindow(id, storage_getValue(key));
+      callUnsafeWindow(id, storage_getValue(key) || "{}");
     } else {
       defaultLoad(id, key);
     }
@@ -24214,11 +24213,11 @@
   
   function defaultLoad(id, key) {
     if (support.Greasemonkey) {
-      callUnsafeWindow(id, GM_getValue(key));
+      callUnsafeWindow(id, GM_getValue(key) || "{}");
     } else if (support.localStorage) {
-      callUnsafeWindow(id, localStorage.getItem(key));
+      callUnsafeWindow(id, localStorage.getItem(key) || "{}");
     } else {
-      callUnsafeWindow(id, getCookie(key));
+      callUnsafeWindow(id, getCookie(key) || "{}");
     }
   }
   

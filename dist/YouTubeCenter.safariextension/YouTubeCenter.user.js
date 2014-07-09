@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         338
+// @version         339
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 338);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 339);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -24058,7 +24058,6 @@
   
   // Firefox API
   function onFirefoxEvent() {
-    console.log("onFirefoxEvent fired!");
     callUnsafeWindow.apply(null, arguments);
   }
 
@@ -24206,7 +24205,7 @@
     } else if (4 === 2) {
       callUnsafeWindow(id, window.external.mxGetRuntime().storage.getConfig(key) || "{}");
     } else if (4 === 6) {
-      callUnsafeWindow(id, storage_getValue(key));
+      callUnsafeWindow(id, storage_getValue(key) || "{}");
     } else {
       defaultLoad(id, key);
     }
@@ -24214,11 +24213,11 @@
   
   function defaultLoad(id, key) {
     if (support.Greasemonkey) {
-      callUnsafeWindow(id, GM_getValue(key));
+      callUnsafeWindow(id, GM_getValue(key) || "{}");
     } else if (support.localStorage) {
-      callUnsafeWindow(id, localStorage.getItem(key));
+      callUnsafeWindow(id, localStorage.getItem(key) || "{}");
     } else {
-      callUnsafeWindow(id, getCookie(key));
+      callUnsafeWindow(id, getCookie(key) || "{}");
     }
   }
   
