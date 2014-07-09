@@ -74,12 +74,8 @@ function load(e, id, key) {
 }
 
 function sendMessage(e, msg) {
-  try {
-    if (typeof msg !== "string") msg = JSON.stringify(msg);
-  } catch (e) {
-    console.error(e);
-  }
-  e.source.postMessage(msg);
+  msg.level = "safe";
+  e.source.postMessage(JSON.stringify(msg));
 }
 
 opera.extension.onmessage = function(e) {
