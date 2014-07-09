@@ -41,7 +41,7 @@ function createSandbox(wrappedContentWin, chromeWin, firebugConsole) {
   sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
   if (firebugConsole) sandbox.console = firebugConsole;
   
-  sandbox.request = sendRequest.bind(this, wrappedContentWin, chromeWin);
+  sandbox.request = sendRequest.bind(this, wrappedContentWin, chromeWin, sandbox);
   
   sandbox.storage_setValue = storage.setValue.bind(storage);
   sandbox.storage_getValue = storage.getValue.bind(storage);
@@ -81,6 +81,14 @@ function embedCheck(url) {
   return true;
 }
 
+function load(content, sandbox, filename) {
+  if (content !== null) {
+    return Cu.evalInSandbox(content, sandbox, "ECMAv5", filename, 0);
+  } else {
+    return Services.scriptloader.loadSubScript(filename, sandbox, "UTF-8");
+  }
+}
+
 function loadScript(whitelist, blacklist, filename, content, wrappedContentWin, doc) {
   if (isRunnable(doc.location.href, whitelist, blacklist) && embedCheck(doc.location.href)) {
     let experimentArr = [wrappedContentWin];
@@ -88,11 +96,7 @@ function loadScript(whitelist, blacklist, filename, content, wrappedContentWin, 
     let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
     let sandbox = createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
     
-    if (content !== null) {
-      Cu.evalInSandbox(content, sandbox, "ECMAv5", filename, 0);
-    } else {
-      Services.scriptloader.loadSubScript(filename, sandbox, "UTF-8");
-    }
+    load(content, sandbox, filename);
   }
 }
 

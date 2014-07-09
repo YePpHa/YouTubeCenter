@@ -51,13 +51,11 @@ function getFirebugConsole(wrappedContentWindow, chromeWindow) {
   }
 }
 
-function callUnsafeJSObject(wrappedContentWindow, callback) {
-  let args = Array.prototype.slice.call(arguments, 2);
+function callUnsafeJSObject(wrappedContentWin, eventCallback) {
+  if (isWindowClosed(wrappedContentWin)) return; /* The window is closed and therefore it should not be called! */
   
-  if (isWindowClosed(wrappedContentWindow)) return; /* The window is closed and therefore it should not be called! */
-  if (typeof callback === "function") {
-    (new XPCNativeWrapper(wrappedContentWindow, "setTimeout")).setTimeout(function(){ callback.apply(null, args); }, 0);
-  }
+  let args = Array.prototype.slice.call(arguments, 2);
+  new XPCNativeWrapper(wrappedContentWin, "setTimeout()").setTimeout(function(){ eventCallback.apply(null, args) }, 0);
 }
 
 function setTimeout(callback, delay) {

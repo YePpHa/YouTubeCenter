@@ -85,7 +85,7 @@
       
       function call(e, id, args) {
         if (id !== null) {
-          e.target.page.dispatchMessage("call", JSON.stringify({ id: id, arguments: args }));
+          e.target.page.dispatchMessage("call", JSON.stringify({ id: id, arguments: args, level: "safe" }));
         }
       }
       

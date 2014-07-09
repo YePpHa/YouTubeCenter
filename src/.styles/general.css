@@ -1,3 +1,8 @@
+.ytcenter-site-subscriptions.flex-width-enabled .content-alignment {
+  width: auto !important;
+  max-width: 1375px !important;
+}
+
 #watch-description .ypc-offer-thumbnail {
   position: relative;
 }
