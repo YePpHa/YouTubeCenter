@@ -1,7 +1,7 @@
-var {bind, console} = require("utils");
+var {bind, console, isWindowClosed} = require("utils");
 
-function callbackHandler(callback, unloadFunc) {
-  if (!unloadListeners) return;
+function callbackHandler(callback, unloadFunc, win) {
+  if (isWindowClosed(win)) return;
   try {
     callback.apply(null, arguments);
   } catch (e) {
@@ -12,7 +12,7 @@ function callbackHandler(callback, unloadFunc) {
 
 function addEventListener(win, event, callback, capture) {
   let unloadFuncArray = [];
-  let func = bind(this, callbackHandler, callback, unloadFuncArray);
+  let func = bind(this, callbackHandler, callback, unloadFuncArray, win);
   let unloadFunc = bind(win, win.removeEventListener, event, func, capture || false); // Preparing unload function
   unloadFuncArray.push(unloadFunc);
   
@@ -23,9 +23,10 @@ function addEventListener(win, event, callback, capture) {
 }
 
 function callUnload(unloadFunc) {
-  for (let i = 0; i < unloadListeners.length; i++) {
+  for (let i = 0, len = unloadListeners.length; i < len; i++) {
     if (unloadFunc === unloadListeners[i]) {
       unloadListeners.splice(i, 1);
+      i--; len--;
     }
   }
   unloadFunc();
@@ -40,6 +41,6 @@ function unloadAll() {
 
 var unloadListeners = [];
 
-unload(unloadAll, 0);
+unload(unloadAll);
 
 exports["addEventListener"] = addEventListener;

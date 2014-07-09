@@ -23081,9 +23081,10 @@
               if (!ytcenter.settingsPanelDialog) ytcenter.settingsPanelDialog = ytcenter.settingsPanel.createDialog();
               ytcenter.settingsPanelDialog.setVisibility(true);
             });
-            if (typeof GM_registerMenuCommand === "function") {
+            ytcenter.unsafeCall("GM_registerMenuCommand", [ytcenter.language.getLocale("BUTTON_SETTINGS_LABEL")], ytcenter.unsafe.openSettings);
+            /*if (typeof GM_registerMenuCommand === "function") {
               GM_registerMenuCommand(ytcenter.language.getLocale("BUTTON_SETTINGS_LABEL"), ytcenter.unsafe.openSettings);
-            }
+            }*/
           } catch (e) {
             con.error(e);
           }
@@ -24113,6 +24114,11 @@
       case "firefox_windowLinkerFireRegisteredEvent":
         windowLinkerFireRegisteredEvent.apply(null, data.arguments);
         break;
+      case "GM_registerMenuCommand":
+        if (support.Greasemonkey) {
+          GM_registerMenuCommand(data.arguments[0], bind(null, callUnsafeWindow, data.id));
+        }
+        break;
       default:
         console.error("Unknown method: " + method + ", with data: " + data);
     }
@@ -24224,8 +24230,19 @@
       callUnsafeWindow(id, getCookie(key));
     }
   }
+  
+  function windowUnload() {
+    window.removeEventListener("message", messageListener, false);
+    window.removeEventListener("unload", windowUnload, false);
+    if (@identifier@ === 4) { // Safari
+      safari.self.removeEventListener("message", safariMessageListener, false);
+    } else if (@identifier@ === 5) { // Opera
+      opera.extension.onmessage = null;
+    }
+  }
 
   window.addEventListener("message", messageListener, false);
+  window.addEventListener("unload", windowUnload, false);
 
   if (@identifier@ === 4) { // Safari
     safari.self.addEventListener("message", safariMessageListener, false);
