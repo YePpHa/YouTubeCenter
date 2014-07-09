@@ -51,7 +51,7 @@ function createSandbox(wrappedContentWin, chromeWin, firebugConsole) {
   
   sandbox.addWindowListener = crossWindowLinker.addWindowListener.bind(crossWindowLinker, wrappedContentWin);
   sandbox.windowLinkerFireRegisteredEvent = crossWindowLinker.fireEvent.bind(crossWindowLinker, wrappedContentWin);
-  
+
   // Make sure that everything is properly unloaded
   windowHandler.addEventListener(wrappedContentWin, "unload", sandboxUnloader.bind(this, wrappedContentWin, sandbox));
   

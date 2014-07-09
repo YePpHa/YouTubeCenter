@@ -1,5 +1,4 @@
 var {callUnsafeJSObject} = require("utils");
-var {callUnsafeFunction} = require("sandboxMessage");
 
 function sendRequest(wrappedContentWin, chromeWin, sandbox, details) {
   let req = new chromeWin.XMLHttpRequest();
@@ -116,11 +115,7 @@ function addEventListener(wrappedContentWin, req, event, details){
         responseState.finalUrl = req.channel.URI.spec;
         break;
     }
-    if (typeof details["on" + event] === "number") {
-      callUnsafeFunction(wrappedContentWin, details["on" + event], responseState);
-    } else {
-      callUnsafeJSObject(wrappedContentWin, details["on" + event], responseState);
-    }
+    callUnsafeJSObject(wrappedContentWin, details["on" + event], responseState);
   }, false);
 }
 
