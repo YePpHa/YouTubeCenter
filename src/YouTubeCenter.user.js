@@ -23994,7 +23994,8 @@
     
     return {
       localStorage: localStorageTest(),
-      Greasemonkey: (typeof GM_setValue !== "undefined" && (typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1))
+      Greasemonkey: (typeof GM_setValue !== "undefined" && (typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1)),
+      Adguard: (typeof AdguardSettings === "object")
     };
   })();
 
@@ -24090,7 +24091,7 @@
   function handleMethods(method, data) {
     switch (method) {
       case "xhr":
-        xhr(data.id, data.arguments[0]);
+        xhr(data.arguments[0]);
         break;
       case "save":
         save(data.id, data.arguments[0], data.arguments[1]);
@@ -24113,11 +24114,89 @@
         console.error("Unknown method: " + method + ", with data: " + data);
     }
   }
+  
+  function adguard_xhr_getURL(details) {
+    var encodeHeaders = function (headers) {
+      if (typeof headers == "object") {
+        var result = "";
+        for (header in headers) result += encodeURIComponent(header) + ":" + encodeURIComponent(headers[header]) + ",";
+        return result.slice(0, -1)
+      }
+      if (typeof headers == "string") return encodeURIComponent(headers);
+      return null
+    };
+    var url = (settings.testDomain ? settings.testDomain : utils.getHostWithProtocol()) + settings.apiurl + settings.apiType + "?type=gm-xml-http-request";
+    var urlData = {};
+    urlData.url = encodeURIComponent(details.url || "");
+    urlData.data = encodeURIComponent(details.data || "");
+    urlData.headers = encodeHeaders(details.headers || "");
+    urlData.method = encodeURIComponent(details.method || "");
+    urlData.overridemimetype = encodeURIComponent(details.overridemimetype || "");
+    urlData.user = encodeURIComponent(details.user || "");
+    urlData.password = encodeURIComponent(details.password || "");
+    
+    var prepareURL = [];
+    
+    for (var key in urlData) {
+      if (urlData.hasOwnProperty(key)) {
+        prepareURL.push(key + "=" + urlData[key]);
+      }
+    }
+    url += "&" + prepareURL.join("&");
+    return url;
+  }
+  
+  function adguard_xhr(details) {
+    var xmlhttp;
+    if (typeof XMLHttpRequest !== "undefined") {
+      xmlhttp = new XMLHttpRequest();
+    } else if (typeof opera !== "undefined" && typeof opera.XMLHttpRequest !== "undefined") {
+      xmlhttp = new opera.XMLHttpRequest();
+    } else {
+      details["onerror"](responseState);
+      return;
+    }
+    xmlhttp.onreadystatechange = function(){
+      var responseState = {
+        responseXML: '',
+        responseText: (xmlhttp.readyState == 4 ? xmlhttp.responseText : ''),
+        readyState: xmlhttp.readyState,
+        responseHeaders: (xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
+        status: (xmlhttp.readyState == 4 ? xmlhttp.status : 0),
+        statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
+        finalUrl: (xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
+      };
+      if (details["onreadystatechange"]) {
+        details["onreadystatechange"](responseState);
+      }
+      if (xmlhttp.readyState == 4) {
+        if (details["onload"] && xmlhttp.status >= 200 && xmlhttp.status < 300) {
+          details["onload"](responseState);
+        }
+        if (details["onerror"] && (xmlhttp.status < 200 || xmlhttp.status >= 300)) {
+          details["onerror"](responseState);
+        }
+      }
+    };
+    try {
+      xmlhttp.open(details.method, adguard_xhr_getURL(details));
+    } catch (e) {
+      details["onerror"]();
+    }
+    if (details.headers) {
+      for (var prop in details.headers) {
+        xmlhttp.setRequestHeader(prop, details.headers[prop]);
+      }
+    }
+    xmlhttp.send((typeof(details.data) !== 'undefined') ? details.data : null);
+  }
 
-  function xhr(id, details) {
+  function xhr(details) {
     createCallableDetails(details);
     if (@identifier@ === 6) { // Firefox
       request(details);
+    } else if (support.Adguard) {
+      adguard_xhr(details);
     } else if (support.Greasemonkey) {
       GM_xmlhttpRequest(details);
     } else {
@@ -24126,8 +24205,6 @@
         xmlhttp = new XMLHttpRequest();
       } else if (typeof opera != "undefined" && typeof opera.XMLHttpRequest != "undefined") {
         xmlhttp = new opera.XMLHttpRequest();
-      } else if (typeof uw != "undefined" && typeof uw.XMLHttpRequest != "undefined") {
-        xmlhttp = new uw.XMLHttpRequest();
       } else {
         details["onerror"](responseState);
       }
@@ -24170,8 +24247,9 @@
   function createCallableDetails(details) {
     var callback = ["abort", "error", "load", "progress", "readystatechange", "timeout"];
     for (var i = 0, len = callback.length; i < len; i++) {
-      if (typeof details["on" + callback[i]] === "number") {
-        details["on" + callback[i]] = bind(null, callUnsafeWindow, details["on" + callback[i]]);
+      var on = details["on" + callback[i]];
+      if (typeof on === "number") {
+        details["on" + callback[i]] = bind(null, callUnsafeWindow, on);
       }
     }
   }
