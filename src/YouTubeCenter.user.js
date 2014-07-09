@@ -2329,15 +2329,6 @@
         }
       }
     }
-    con.log("[URL] " + loc.href);
-    
-    if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*))$", "")).test(loc.href)
-      && !(new RegExp("^http(s)?://apis\.google\.com/.*", "")).test(loc.href)
-      && !(new RegExp("^http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
-      || (new RegExp("^http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
-      con.log(loc.href + " doesn't match!");
-      return;
-    }
     
     ytcenter.actionPanel = (function(){
       function getEventListener(options) {
@@ -24240,15 +24231,32 @@
       opera.extension.onmessage = null;
     }
   }
-
-  window.addEventListener("message", messageListener, false);
-  window.addEventListener("unload", windowUnload, false);
-
-  if (@identifier@ === 4) { // Safari
-    safari.self.addEventListener("message", safariMessageListener, false);
-  } else if (@identifier@ === 5) { // Opera
-    opera.extension.onmessage = operaMessageListener;
+  
+  function isDomainAllowed(domains) {
+    var domain = document.domain;
+    
+    for (var i = 0, len = domains.length; i < len; i++) {
+      if (domain === domains[i]) {
+        return true;
+      }
+    }
+    return false;
   }
+  
+  function initListeners() {
+    window.addEventListener("message", messageListener, false);
+    window.addEventListener("unload", windowUnload, false);
 
-  inject(main_function);
+    if (@identifier@ === 4) { // Safari
+      safari.self.addEventListener("message", safariMessageListener, false);
+    } else if (@identifier@ === 5) { // Opera
+      opera.extension.onmessage = operaMessageListener;
+    }
+  }
+  
+  var domains = ["www.youtube.com", "youtube.com", "apis.google.com", "plus.googleapis.com"];
+  if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center should run.
+    initListeners();
+    inject(main_function);
+  }
 })();

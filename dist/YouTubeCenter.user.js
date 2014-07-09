@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         337
+// @version         338
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 337);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 338);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -2328,15 +2328,6 @@
           })(key);
         }
       }
-    }
-    con.log("[URL] " + loc.href);
-    
-    if ((!(new RegExp("^(http(s)?://)(((.*\.)?youtube\.com\/.*))$", "")).test(loc.href)
-      && !(new RegExp("^http(s)?://apis\.google\.com/.*", "")).test(loc.href)
-      && !(new RegExp("^http(s)?://plus\.googleapis\.com/.*")).test(loc.href))
-      || (new RegExp("^http(s)?://apiblog\.youtube\.com/.*", "")).test(loc.href)) {
-      con.log(loc.href + " doesn't match!");
-      return;
     }
     
     ytcenter.actionPanel = (function(){
@@ -24240,15 +24231,32 @@
       opera.extension.onmessage = null;
     }
   }
-
-  window.addEventListener("message", messageListener, false);
-  window.addEventListener("unload", windowUnload, false);
-
-  if (0 === 4) { // Safari
-    safari.self.addEventListener("message", safariMessageListener, false);
-  } else if (0 === 5) { // Opera
-    opera.extension.onmessage = operaMessageListener;
+  
+  function isDomainAllowed(domains) {
+    var domain = document.domain;
+    
+    for (var i = 0, len = domains.length; i < len; i++) {
+      if (domain === domains[i]) {
+        return true;
+      }
+    }
+    return false;
   }
+  
+  function initListeners() {
+    window.addEventListener("message", messageListener, false);
+    window.addEventListener("unload", windowUnload, false);
 
-  inject(main_function);
+    if (0 === 4) { // Safari
+      safari.self.addEventListener("message", safariMessageListener, false);
+    } else if (0 === 5) { // Opera
+      opera.extension.onmessage = operaMessageListener;
+    }
+  }
+  
+  var domains = ["www.youtube.com", "youtube.com", "apis.google.com", "plus.googleapis.com"];
+  if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center should run.
+    initListeners();
+    inject(main_function);
+  }
 })();
