@@ -1,3 +1,7 @@
+#player-api {
+  position: relative;
+}
+
 body.ytcenter-scrolled-top {
   overflow: hidden;
 }
