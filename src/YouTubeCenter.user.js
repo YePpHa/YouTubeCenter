@@ -12908,7 +12908,7 @@
       "resize-default-playersize": 'default',
       "resize-small-button": "default_fit_to_content",
       "resize-large-button": "default_720",
-      "playerSizeAspect": "default", // default, 4:3, 16:9, 16:10, 24:10
+      "playerSizeAspect": "default", // default, 4:3, 5:4, 16:9, 16:10, 24:10
       "resize-playersizes": [
         {
           id: "default_small",
@@ -14916,16 +14916,19 @@
                   "value": "default",
                   "label": "SETTINGS_RESIZE_ASPECT_DEFAULT"
                 }, {
-                  "value": "4:3",
+                  "value": "4:3", // 1.33333
                   "label": "SETTINGS_RESIZE_ASPECT_4:3"
                 }, {
-                  "value": "16:9",
+                  "value": "5:4", // 1.25
+                  "label": "SETTINGS_RESIZE_ASPECT_5:4"
+                }, {
+                  "value": "16:9", // 1.7778
                   "label": "SETTINGS_RESIZE_ASPECT_16:9"
                 }, {
-                  "value": "16:10",
+                  "value": "16:10", // 1.6
                   "label": "SETTINGS_RESIZE_ASPECT_16:10"
                 }, {
-                  "value": "24:10",
+                  "value": "24:10", // 2.4
                   "label": "SETTINGS_RESIZE_ASPECT_24:10"
                 }
               ],
