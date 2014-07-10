@@ -23712,6 +23712,9 @@
         if (loc.hash === "#ytcenter.settings.open") {
           loc.hash = "#!";
         }
+        
+        /* Advertisements testing */
+        
       });
       
       ytcenter.spf.addEventListener("requested", "before", function(url){
