@@ -73,8 +73,8 @@ function init() {
   let sandbox = require("sandbox");
   let {PolicyImplementation} = require("PolicyImplementation");
   
-  let whitelist = [ /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/, /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/ ];
-  let blacklist = [ /^http(s)?:\/\/apiblog\.youtube\.com\//, /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)subscribe_embed\?/ ];
+  let whitelist = [ /^http(s)?:\/\/(www\.)?youtube\.com\//, /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/ ];
+  let blacklist = [ ];
   
   if (evalInSandbox) {
     loadFile(filename, function initPolicy(e) {

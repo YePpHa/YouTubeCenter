@@ -10542,6 +10542,13 @@
     })();
     
     // @utils
+    ytcenter.utils.getLocationOrigin = function(){
+      if (loc.origin) {
+        return loc.origin;
+      } else {
+        return loc.protocol + "//" + loc.hostname + (loc.port ? ":" + loc.port: "");
+      }
+    };
     ytcenter.utils.getHTML5Player = function(){
       var movie_player = document.getElementById("movie_player");
       if (!movie_player) return null;
@@ -19005,7 +19012,7 @@
         }
       }
       
-      return "/get_video_info?" + b.join("&");
+      return ytcenter.utils.getLocationOrigin() + "/get_video_info?" + b.join("&");
     };
     ytcenter.player.isLiveStream = function(){
       return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.live_playback === 1);
@@ -23495,7 +23502,7 @@
             id = document.body.innerHTML.match(/\\\/v\\\/([0-9a-zA-Z_-]+)/)[1];
           }
           if (id) {
-            var url = "/get_video_info?html5=0&cver=html5&dash=" + (ytcenter.settings.channel_dashPlayback ? "1" : "0") + "&video_id=" + id + "&eurl=" + encodeURIComponent(loc.href);
+            var url = ytcenter.utils.getLocationOrigin() + "/get_video_info?html5=0&cver=html5&dash=" + (ytcenter.settings.channel_dashPlayback ? "1" : "0") + "&video_id=" + id + "&eurl=" + encodeURIComponent(loc.href);
             con.log("Contacting: " + url);
             ytcenter.utils.xhr({
               method: "GET",
@@ -24335,5 +24342,7 @@
   if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center should run.
     initListeners();
     inject(main_function);
+  } else {
+    throw "Domain " + document.domain + " not allowed!";
   }
 })();
