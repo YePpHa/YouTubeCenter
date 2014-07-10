@@ -39,8 +39,10 @@
 // @domain          raw.github.com
 // @domain          raw2.github.com
 // @domain          s.ytimg.com
-// @match           http://*.youtube.com/*
-// @match           https://*.youtube.com/*
+// @match           http://www.youtube.com/*
+// @match           https://www.youtube.com/*
+// @match           http://youtube.com/*
+// @match           https://youtube.com/*
 // @match           http://userscripts.org/scripts/source/114002.meta.js
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
@@ -49,8 +51,10 @@
 // @match           https://apis.google.com/*/widget/render/comments?*
 // @match           http://plus.googleapis.com/*/widget/render/comments?*
 // @match           https://plus.googleapis.com/*/widget/render/comments?*
-// @include         http://*.youtube.com/*
-// @include         https://*.youtube.com/*
+// @include         http://www.youtube.com/*
+// @include         https://www.youtube.com/*
+// @include         http://youtube.com/*
+// @include         https://youtube.com/*
 // @include         http://apis.google.com/*/widget/render/comments?*
 // @include         https://apis.google.com/*/widget/render/comments?*
 // @include         http://plus.googleapis.com/*/widget/render/comments?*
@@ -76,20 +80,19 @@
 (function(){
   "use strict";
   function inject(func) {
-    try {
-      var script = document.createElement("script"),
-          p = (document.body || document.head || document.documentElement);
-      if (!p) {
-        return;
-      }
-      script.setAttribute("type", "text/javascript");
-      if (typeof func === "string") {
-        func = "function(){" + func + "}";
-      }
-      script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@, @devbuild@, @devnumber@);\n//# sourceURL=YouTubeCenter.js"));
-      p.appendChild(script);
-      p.removeChild(script);
-    } catch (e) {}
+    var script = document.createElement("script");
+    var p = document.body || document.head || document.documentElement;
+    if (!p) {
+      setTimeout(bind(null, inject, func), 0);
+      return;
+    }
+    script.setAttribute("type", "text/javascript");
+    if (typeof func === "string") {
+      func = "function(){" + func + "}";
+    }
+    script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@, @devbuild@, @devnumber@);\n//# sourceURL=YouTubeCenter.js"));
+    p.appendChild(script);
+    p.removeChild(script);
   }
   
   var main_function = function(injected, identifier, devbuild, devnumber, _unsafeWindow, preloadedSettings, undefined){
@@ -20813,6 +20816,7 @@
           }
         }
         if (!isNaN(calcWidth) && align && large) {
+          var ratio = calcWidth/calcHeight;
           var maxWidth = Math.min(calcWidth, maxInsidePlayerWidth);
           var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
           if (clientWidth > maxWidth) {
@@ -20822,9 +20826,9 @@
           } else {
             calcWidth = clientWidth;
           }
+          
           if (!isNaN(calcHeight) && typeof calcHeight === "number") {
-            var ratio = calcWidth/calcHeight;
-            if (ratio !== 0) {
+            if (ratio !== 0 && isFinite(ratio)) {
               calcHeight = Math.round(calcWidth/ratio);
             }
           } else {
@@ -24351,6 +24355,7 @@
   
   var domains = ["www.youtube.com", "youtube.com", "apis.google.com", "plus.googleapis.com"];
   if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center should run.
+    console.log("Domain registered " + document.domain + ".");
     initListeners();
     inject(main_function);
   } else {
