@@ -74,7 +74,7 @@ function isRunnable(url, whitelist, blacklist) {
 
 function embedCheck(url) {
   let settings = storage.getValue("YouTubeCenterSettings");
-  if (settings !== null && !settings.embed_enabled && /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|(youtube\.com\/))embed\//.test(url)) {
+  if (settings && settings.embed_enabled === false && /^http(s)?:\/\/(www\.)?youtube\.com\/embed\//.test(url)) {
     return false;
   }
   
