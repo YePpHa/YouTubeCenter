@@ -20822,10 +20822,17 @@
           } else {
             calcWidth = clientWidth;
           }
-          if (ytcenter.player.ratio !== 0) {
-            calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
+          if (!isNaN(calcHeight) && typeof calcHeight === "number") {
+            var ratio = calcWidth/calcHeight;
+            if (ratio !== 0) {
+              calcHeight = Math.round(calcWidth/ratio);
+            }
           } else {
-            calcHeight = calcWidth;
+            if (ytcenter.player.ratio !== 0) {
+              calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
+            } else {
+              calcHeight = calcWidth;
+            }
           }
         }
         
