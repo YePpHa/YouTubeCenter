@@ -12637,6 +12637,8 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      ads_superfish_enabled: false,
+      ads_superfish_blacklist: ["/watch"],
       ytOnlyStageMode: false,
       playerGlowEffectOnPlayer: "both",
       bufferEnabled: true,
@@ -23712,9 +23714,6 @@
         if (loc.hash === "#ytcenter.settings.open") {
           loc.hash = "#!";
         }
-        
-        /* Advertisements testing */
-        
       });
       
       ytcenter.spf.addEventListener("requested", "before", function(url){
