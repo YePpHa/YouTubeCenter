@@ -24222,8 +24222,6 @@
     createCallableDetails(details);
     if (@identifier@ === 6) { // Firefox
       request(details);
-    } else if (support.Adguard) {
-      adguard_xhr(details);
     } else if (support.Greasemonkey) {
       GM_xmlhttpRequest(details);
     } else {
