@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         341
+// @version         342
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 341);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 342);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -18674,9 +18674,12 @@
                 toggled = false;
               }
             }
+            setTimeout(function(){
+              toggleButton.click(); toggleButton.click(); // Delayed
+              updating = false;
+            }, 2500);
           }
         }
-        updating = false;
       }
       
       function onToggleButtonClick() {
@@ -23188,6 +23191,7 @@
         
         if (page === "watch") {
           ytcenter.playlistAutoPlay.init();
+          ytcenter.playlistAutoPlay.update();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
           ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
