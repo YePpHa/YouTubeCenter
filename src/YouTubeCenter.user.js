@@ -18674,9 +18674,12 @@
                 toggled = false;
               }
             }
+            setTimeout(function(){
+              toggleButton.click(); toggleButton.click(); // Delayed
+              updating = false;
+            }, 2500);
           }
         }
-        updating = false;
       }
       
       function onToggleButtonClick() {
@@ -23188,6 +23191,7 @@
         
         if (page === "watch") {
           ytcenter.playlistAutoPlay.init();
+          ytcenter.playlistAutoPlay.update();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
           ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
