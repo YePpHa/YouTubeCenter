@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         342
+// @version         343
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -86,7 +86,7 @@
       if (typeof func === "string") {
         func = "function(){" + func + "}";
       }
-      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 342);\n//# sourceURL=YouTubeCenter.js"));
+      script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 343);\n//# sourceURL=YouTubeCenter.js"));
       p.appendChild(script);
       p.removeChild(script);
     } catch (e) {}
@@ -20822,10 +20822,17 @@
           } else {
             calcWidth = clientWidth;
           }
-          if (ytcenter.player.ratio !== 0) {
-            calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
+          if (!isNaN(calcHeight) && typeof calcHeight === "number") {
+            var ratio = calcWidth/calcHeight;
+            if (ratio !== 0) {
+              calcHeight = Math.round(calcWidth/ratio);
+            }
           } else {
-            calcHeight = calcWidth;
+            if (ytcenter.player.ratio !== 0) {
+              calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
+            } else {
+              calcHeight = calcWidth;
+            }
           }
         }
         
