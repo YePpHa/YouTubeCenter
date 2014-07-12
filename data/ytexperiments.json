@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "codes": [""],
+    "description": {
+      "raw": "The default YouTube layout"
+    }
+  }, {
+    "codes": ["ZhatzZ5Kkic"],
+    "screenshots": [ "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/O20uXj0.png" ],
+    "preview": [ "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/z4ReLwJ.png" ],
+    "description": {
+      "raw": "A new experimental YouTube design."
+    },
+    "features": [
+      {
+        "raw": "The vidoe info, description, recommended videos and comments have been split into separate cards."
+      }, {
+        "raw": "New buttons for the add to and share. A more button is also present, which contains the other buttons."
+      }
+    ]
+  }
+]
