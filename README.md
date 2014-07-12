@@ -63,6 +63,16 @@ The keys in this file have the prefix and suffix `@`.
  * `chrome-update-xml` -- The location of the file, which Chrome uses to check if a new version of the developer version of YouTube Center is available.
  * `chrome-update-file` -- The location of the newest version of the developer version of YouTube Center for Chrome is located.
 
+Contribute
+----------
+You can contribute to YouTube Center by different means. You can help find bugs (and report them in the issue tracker), help with the translation to different languages or try to implement things yourself.
+
+Translation
+-----------
+YouTube Center uses Crowdin to better mangage the translations. If you want to help with the translation of YouTube Center you can find the project page at https://crowdin.net/project/youtube-center.
+
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/youtube-center/localized.png)](https://crowdin.net/project/youtube-center)
+
 License
 -------
 The MIT License (MIT)
