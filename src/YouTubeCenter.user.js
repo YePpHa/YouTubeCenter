@@ -10351,6 +10351,19 @@
         return false;
       }
     })();
+    ytcenter.supported.CustomEvent = (function(){
+      var mod = "support.test";
+      try {
+        var e = document.createEvent('CustomEvent');
+        if (e && typeof e.initCustomEvent === "function") {
+          e.initCustomEvent(mod, true, true, { mod: mod });
+          return true;
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    })();
     
     // @unsafeCall
     ytcenter.unsafeCall = (function(){
@@ -10377,10 +10390,26 @@
         if (callback !== null) {
           id = comm.push(callback) - 1;
         }
-        var data = JSON.stringify({ level: "unsafe", id: id, method: method, arguments: storeFunctions(args) });
+        var detail = JSON.stringify({ id: id, method: method, arguments: storeFunctions(args) });
         
-        postMessage(data);
+        if (ytcenter.supported.CustomEvent) {
+          callEvent(detail);
+        } else {
+          callMessage(detail);
+        }
       }
+      
+      function callMessage(detail) {
+        detail.level = "unsafe";
+        postMessage(detail);
+      }
+      
+      function callEvent(detail) {
+        var event = document.createEvent("CustomEvent");
+        event.initCustomEvent("ytc-content-call", true, true, detail);
+        document.documentElement.dispatchEvent(event);
+      }
+      
       function resp(e) {
         if (!e || !e.data) return; // Checking if data is present
         if (typeof e.data !== "string") return; // Checking if the object is a string.
@@ -10388,15 +10417,35 @@
         
         var data = JSON.parse(e.data);
         if (data.level === "unsafe") return;
+        
+        con.log("Message", data);
+        
         if (typeof comm[data.id] === "function") {
           comm[data.id].apply(null, data.arguments);
         }
       }
+      
+      function eventResponse(e) {
+        var detail = e.detail;
+        if (typeof detail === "string") detail = JSON.parse(detail);
+        
+        if (typeof comm[detail.id] === "function") {
+          comm[detail.id].apply(null, detail.arguments);
+        }
+        
+        if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+      }
+      
       function postMessage(data) {
         window.postMessage(data, "*");
       }
+      
       function initListeners() {
-        window.addEventListener("message", resp, false);
+        if (ytcenter.supported.CustomEvent) {
+          window.addEventListener("ytc-page-call", eventResponse, false);
+        } else {
+          window.addEventListener("message", resp, false);
+        }
       }
       
       var comm = [];
@@ -24009,7 +24058,6 @@
   // Support
   var support = (function(){
     function localStorageTest() {
-      var mod = "support.test";
       try {
         localStorage.setItem(mod, mod);
         localStorage.removeItem(mod);
@@ -24019,10 +24067,27 @@
       }
     }
     
+    function customEvent() {
+      try {
+        var e = document.createEvent('CustomEvent');
+        if (e && typeof e.initCustomEvent === "function") {
+          e.initCustomEvent(mod, true, true, { mod: mod });
+          return true;
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    }
+    
+    var mod = "support.test";
+    
     return {
       localStorage: localStorageTest(),
       Greasemonkey: (typeof GM_setValue !== "undefined" && (typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1)),
-      Adguard: (typeof AdguardSettings === "object")
+      Adguard: (typeof AdguardSettings === "object"),
+      cloneInto: (typeof cloneInto === "function"),
+      CustomEvent: customEvent()
     };
   })();
 
@@ -24092,8 +24157,49 @@
   // General
   function callUnsafeWindow(id) {
     if (typeof id === "number" || typeof id === "string") {
+      if (support.CustomEvent) {
+        callUnsafeWindowEvent.apply(null, arguments);
+      } else {
+        callUnsafeWindowMessage.apply(null, arguments);
+      }
+    }
+  }
+  
+  function callUnsafeWindowMessage(id) {
+    if (typeof id === "number" || typeof id === "string") {
       window.postMessage(JSON.stringify({ level: "safe", id: id, arguments: Array.prototype.slice.call(arguments, 1) }), "*");
     }
+  }
+  
+  function callUnsafeWindowEvent(id) {
+    if (typeof id === "number" || typeof id === "string") {
+      var args = Array.prototype.slice.call(arguments, 1);
+      var detail = { id: id, arguments: args };
+      
+      // Firefox 30 or newer
+      if (support.cloneInto) {
+        detail = cloneInto(detail, document.defaultView);
+      }
+      
+      var e = document.createEvent("CustomEvent");
+      e.initCustomEvent("ytc-page-call", true, true, detail);
+      document.documentElement.dispatchEvent(e);
+    }
+  }
+  
+  function eventListener(e) {
+    var detail = e.detail;
+    if (typeof detail === "string") detail = JSON.parse(detail);
+    
+    if (@identifier@ === 4) { // Safari
+      safari.self.tab.dispatchMessage("call", detail); // Redirect event to the extension
+    } else if (@identifier@ === 5) { // Opera
+      opera.extension.postMessage(detail); // Redirect event to the extension
+    } else {
+      handleMethods(detail.method, detail);
+    }
+    
+    if (e && typeof e.stopPropagation === "function") e.stopPropagation();
   }
 
   function messageListener(e) {
@@ -24346,7 +24452,12 @@
   }
   
   function initListeners() {
-    window.addEventListener("message", messageListener, false);
+    if (support.CustomEvent) {
+      window.addEventListener("ytc-content-call", eventListener, false);
+    } else {
+      window.addEventListener("message", messageListener, false);
+    }
+    
     window.addEventListener("unload", windowUnload, false);
 
     if (@identifier@ === 4) { // Safari
