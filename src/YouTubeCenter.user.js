@@ -10390,7 +10390,7 @@
         if (callback !== null) {
           id = comm.push(callback) - 1;
         }
-        var detail = JSON.stringify({ id: id, method: method, arguments: storeFunctions(args) });
+        var detail = { id: id, method: method, arguments: storeFunctions(args) };
         
         if (ytcenter.supported.CustomEvent) {
           callEvent(detail);
@@ -10401,12 +10401,12 @@
       
       function callMessage(detail) {
         detail.level = "unsafe";
-        postMessage(detail);
+        postMessage(JSON.stringify(detail));
       }
       
       function callEvent(detail) {
         var event = document.createEvent("CustomEvent");
-        event.initCustomEvent("ytc-content-call", true, true, detail);
+        event.initCustomEvent("ytc-content-call", true, true, JSON.stringify(detail));
         document.documentElement.dispatchEvent(event);
       }
       
@@ -10418,8 +10418,6 @@
         var data = JSON.parse(e.data);
         if (data.level === "unsafe") return;
         
-        con.log("Message", data);
-        
         if (typeof comm[data.id] === "function") {
           comm[data.id].apply(null, data.arguments);
         }
@@ -10427,7 +10425,7 @@
       
       function eventResponse(e) {
         var detail = e.detail;
-        if (typeof detail === "string") detail = JSON.parse(detail);
+        if (typeof detail !== "object") detail = JSON.parse(detail);
         
         if (typeof comm[detail.id] === "function") {
           comm[detail.id].apply(null, detail.arguments);
@@ -24177,26 +24175,25 @@
       var detail = { id: id, arguments: args };
       
       // Firefox 30 or newer
-      if (support.cloneInto) {
+      /*if (support.cloneInto) {
         detail = cloneInto(detail, document.defaultView);
-      }
+      }*/
       
       var e = document.createEvent("CustomEvent");
-      e.initCustomEvent("ytc-page-call", true, true, detail);
+      e.initCustomEvent("ytc-page-call", true, true, JSON.stringify(detail));
       document.documentElement.dispatchEvent(e);
     }
   }
   
   function eventListener(e) {
-    var detail = e.detail;
-    if (typeof detail === "string") detail = JSON.parse(detail);
+    var detail = JSON.parse(e.detail);
     
     if (@identifier@ === 4) { // Safari
-      safari.self.tab.dispatchMessage("call", detail); // Redirect event to the extension
+      safari.self.tab.dispatchMessage("call", e.detail); // Redirect event to the extension
     } else if (@identifier@ === 5) { // Opera
-      opera.extension.postMessage(detail); // Redirect event to the extension
+      opera.extension.postMessage(e.detail); // Redirect event to the extension
     } else {
-      handleMethods(detail.method, detail);
+      setTimeout(function(){ handleMethods(detail); }, 0);
     }
     
     if (e && typeof e.stopPropagation === "function") e.stopPropagation();
@@ -24217,12 +24214,12 @@
     } else if (@identifier@ === 5) { // Opera
       opera.extension.postMessage(e.data); // Redirect message to the extension
     } else {
-      handleMethods(d.method, d);
+      handleMethods(d);
     }
   }
 
-  function handleMethods(method, data) {
-    switch (method) {
+  function handleMethods(data) {
+    switch (data.method) {
       case "xhr":
         xhr(data.arguments[0]);
         break;
@@ -24244,7 +24241,7 @@
         }
         break;
       default:
-        console.error("Unknown method: " + method + ", with data: " + data);
+        console.log("Unknown method: " + method + ", with data:", data);
     }
   }
   
