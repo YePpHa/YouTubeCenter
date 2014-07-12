@@ -1,3 +1,13 @@
+#watch8-ytcenter-buttons {
+  padding-top: 5px;
+  border-top: 1px solid #e6e6e6;
+}
+
+#watch8-action-buttons {
+  padding-top: 0;
+  border-top: 0;
+}
+
 .ytcenter-site-subscriptions.flex-width-enabled .content-alignment {
   width: auto !important;
   max-width: 1375px !important;
@@ -845,7 +855,10 @@ body > #page {
 }
 
 .ytcenter-placementsystem-activated #watch7-sentiment-actions,
-.ytcenter-placementsystem-activated #watch7-ytcenter-buttons {
+.ytcenter-placementsystem-activated #watch7-ytcenter-buttons,
+.ytcenter-placementsystem-activated #watch8-sentiment-actions,
+.ytcenter-placementsystem-activated #watch8-secondary-actions,
+.ytcenter-placementsystem-activated #watch8-ytcenter-buttons {
   border: 1px solid #ccc;
   border-radius: 2px;
   min-width: 40px;

@@ -12303,16 +12303,16 @@
     };
     ytcenter.placementsystem = (function(){
       function setParentData(elm, parent) {
-        var new_sandbox,
-            applyParentData;
+        var new_sandbox, applyParentData;
         new_sandbox = (function(){
           for (var i = 0; i < sandboxes.length; i++) {
-            if (sandboxes[i].id == parent) {
+            if (sandboxes[i].id === parent) {
               return sandboxes[i];
             }
           }
           return null;
         })();
+        con.log("placementsystem", elm, parent, new_sandbox);
         applyParentData = function(e){
           var nElm = [];
           var oElm = [];
@@ -12337,10 +12337,12 @@
             }
           }
           
-          for (var i = 0; i < new_sandbox.elements.length; i++) {
-            if (new_sandbox.elements[i].tagname.toLowerCase() === e.nodeName.toLowerCase()) {
-              if (!new_sandbox.elements[i].condition || (new_sandbox.elements[i].condition && new_sandbox.elements[i].condition(elm, e, parent))) {
-                nElm.push(new_sandbox.elements[i]);
+          if (new_sandbox && new_sandbox.elements) {
+            for (var i = 0; i < new_sandbox.elements.length; i++) {
+              if (new_sandbox.elements[i].tagname.toLowerCase() === e.nodeName.toLowerCase()) {
+                if (!new_sandbox.elements[i].condition || (new_sandbox.elements[i].condition && new_sandbox.elements[i].condition(elm, e, parent))) {
+                  nElm.push(new_sandbox.elements[i]);
+                }
               }
             }
           }
@@ -12426,6 +12428,8 @@
           try {
             if (ytcenter.feather) {
               setting = "buttonPlacementFeather";
+            } else if (document.getElementById("watch8-action-buttons")) {
+              setting = "buttonPlacementWatch8exp";
             }
             settings = ytcenter.settings[setting];
             updateList();
@@ -12491,7 +12495,7 @@
               if (!document.getElementById(key)) continue;
               for (var i = 0; i < bp[key].length; i++) {
                 var elm = ytcenter.placementsystem.getElement(bp[key][i]);
-                if (elm != null) {
+                if (elm !== null) {
                   if (elm.parentNode) {
                     setParentData(elm, elm.parentNode.id);
                     elm.parentNode.removeChild(elm);
@@ -12684,8 +12688,6 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
-      ads_superfish_enabled: false,
-      ads_superfish_blacklist: ["/watch"],
       ytOnlyStageMode: false,
       playerGlowEffectOnPlayer: "both",
       bufferEnabled: true,
@@ -12902,34 +12904,43 @@
       updateCheckerInterval: "0",
       updateCheckerLastUpdate: 0,
       buttonPlacementFeather: {
-        "watch7-ytcenter-buttons": ['@downloadgroup', '@repeatbtn', '@lightbtn', '@resizebtn', '@aspectbtn'],
-        'watch7-sentiment-actions': ['vo&@&//*[@id="rl"]', 'vo&@&//*[@id="rd"]', 'vo&@&//*[@id="fl"]']
+        "watch7-ytcenter-buttons": ["@downloadgroup", "@repeatbtn", "@lightbtn", "@resizebtn", "@aspectbtn"],
+        "watch7-sentiment-actions": ["vo&@&//*[@id=\"rl\"]", "vo&@&//*[@id=\"rd\"]", "vo&@&//*[@id=\"fl\"]"]
       },
       buttonPlacementWatch7: {
-        'watch7-ytcenter-buttons': ['@downloadgroup', '@repeatbtn', '@lightbtn', '@resizebtn', '@aspectbtn'],
-        'watch7-sentiment-actions': ['watch7-sentiment-actions&@&//*[@id="watch-like-dislike-buttons"]']
+        "watch7-ytcenter-buttons": ["@downloadgroup", "@repeatbtn", "@lightbtn", "@resizebtn", "@aspectbtn"],
+        "watch7-sentiment-actions": ["watch7-sentiment-actions&@&//*[@id=\"watch-like-dislike-buttons\"]"]
+      },
+      buttonPlacementWatch8exp: {
+        "watch8-ytcenter-buttons": ["@downloadgroup", "@repeatbtn", "@lightbtn", "@resizebtn", "@aspectbtn"],
+        "watch8-sentiment-actions": [ "watch8-sentiment-actions&@&//*[@id=\"watch-like-dislike-buttons\"]" ],
+        "watch8-secondary-actions": [
+          "watch8-secondary-actions&@&//*[@id=\"watch8-secondary-actions\"]/div[1]",
+          "watch8-secondary-actions&@&//*[@id=\"watch8-secondary-actions\"]/span",
+          "watch8-secondary-actions&@&//*[@id=\"watch8-secondary-actions\"]/div[2]"
+        ]
       },
       channel_enableAutoVideoQuality: true,
-      channel_autoVideoQuality: 'medium',
-      channel_autohide: '-1',
-      channel_playerTheme: 'dark',
-      channel_playerColor: 'red',
-      channel_flashWMode: 'none',
+      channel_autoVideoQuality: "medium",
+      channel_autohide: "-1",
+      channel_playerTheme: "dark",
+      channel_playerColor: "red",
+      channel_flashWMode: "none",
       channel_enableAnnotations: true,
       channel_preventAutoPlay: false,
       channel_preventAutoBuffer: true,
       channel_enableVolume: false,
       channel_volume: 100,
       channel_mute: false,
-      channel_experimentalFlashMode: 'clone',
-      channel_experimentalHTML5Mode: 'none',
+      channel_experimentalFlashMode: "clone",
+      channel_experimentalHTML5Mode: "none",
       embed_enabled: true,
       embed_enableAutoVideoQuality: true,
-      embed_autoVideoQuality: 'medium',
-      embed_autohide: '-1',
-      embed_playerTheme: 'dark',
-      embed_playerColor: 'red',
-      embed_flashWMode: 'none',
+      embed_autoVideoQuality: "medium",
+      embed_autohide: "-1",
+      embed_playerTheme: "dark",
+      embed_playerColor: "red",
+      embed_flashWMode: "none",
       embed_enableAnnotations: true,
       embed_preventAutoPlay: false,
       embed_preventAutoBuffer: true,
@@ -12940,7 +12951,7 @@
       resizeSave: false,
       aspectEnable: true,
       aspectSave: false,
-      aspectValue: 'default',
+      aspectValue: "default",
       repeatShowIcon: true,
       watch7playerguidehide: false,
       watch7playerguidealwayshide: false,
@@ -12954,7 +12965,7 @@
       embed_bgcolor: "default",
       channel_bgcolor: "default",
       player_wide: false,
-      "resize-default-playersize": 'default',
+      "resize-default-playersize": "default",
       "resize-small-button": "default_fit_to_content",
       "resize-large-button": "default_720",
       "playerSizeAspect": "default", // default, 4:3, 5:4, 16:9, 16:10, 24:10
@@ -22844,64 +22855,144 @@
         ], []);
       } else {
         var sentimentActions = document.getElementById("watch7-sentiment-actions");
+        var watch8ActionButtons = document.getElementById("watch8-action-buttons");
         if (sentimentActions && sentimentActions.parentNode && ytcd) {
           sentimentActions.parentNode.insertBefore(ytcd, sentimentActions);
+          
+          ytcenter.placementsystem.init([
+            {
+              id: 'watch7-sentiment-actions',
+              elements: [
+                {
+                  tagname: 'button',
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
+                  },
+                  style: {
+                    margin: '0px 2px 0px 0px'
+                  },
+                  classNames: ['yt-uix-tooltip-reverse']
+                }, {
+                  tagname: 'span',
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
+                  },
+                  style: {
+                    margin: '0px 4px 0px 0px'
+                  },
+                  classNames: ['yt-uix-tooltip-reverse']
+                }, {
+                  tagname: 'button',
+                  classNames: ['yt-uix-tooltip-reverse']
+                }
+              ]
+            }, {
+              id: 'watch7-ytcenter-buttons',
+              elements: [
+                {
+                  tagname: 'button',
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
+                  },
+                  style: {
+                    margin: '0px 2px 0px 0px'
+                  },
+                  classNames: ['yt-uix-tooltip-reverse']
+                }, {
+                  tagname: 'span',
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
+                  },
+                  style: {
+                    margin: '0px 4px 0px 0px'
+                  },
+                  classNames: ['yt-uix-tooltip-reverse']
+                }, {
+                  tagname: 'button',
+                  classNames: ['yt-uix-tooltip-reverse']
+                }
+              ]
+            }
+          ], []);
+        } else if (watch8ActionButtons && watch8ActionButtons.parentNode && ytcd) {
+          ytcd.setAttribute("id", "watch8-ytcenter-buttons");
+          watch8ActionButtons.parentNode.insertBefore(ytcd, watch8ActionButtons);
+          
+          ytcenter.placementsystem.init([
+            {
+              id: 'watch8-secondary-actions',
+              elements: [
+                {
+                  tagname: "span",
+                  condition: function(elm, e){
+                    return elm === e;
+                  }
+                }, {
+                  tagname: "button",
+                  condition: function(elm, e) {
+                    return elm === e;
+                  }
+                }, {
+                  tagname: "div",
+                  condition: function(elm, e){
+                    return elm === e;
+                  }
+                }
+              ]
+            }, {
+              id: 'watch8-sentiment-actions',
+              elements: [
+                {
+                  tagname: 'span',
+                  condition: function(elm, e){
+                    return elm === e;
+                  }
+                }, {
+                  tagname: 'button',
+                  condition: function(elm, e) {
+                    return elm === e;
+                  }
+                }, {
+                  tagname: "div",
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-menu") && ytcenter.utils.hasClass(e, "yt-uix-videoactionmenu") && elm === e;
+                  }
+                }, {
+                  tagname: "div",
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-menu") && elm === e;
+                  }
+                }
+              ]
+            }, {
+              id: 'watch8-ytcenter-buttons',
+              elements: [
+                {
+                  tagname: 'button',
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
+                  },
+                  style: {
+                    margin: '0px 2px 0px 0px'
+                  },
+                  classNames: ['yt-uix-tooltip-reverse']
+                }, {
+                  tagname: 'span',
+                  condition: function(elm, e){
+                    return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
+                  },
+                  style: {
+                    margin: '0px 4px 0px 0px'
+                  },
+                  classNames: ['yt-uix-tooltip-reverse']
+                }, {
+                  tagname: 'button',
+                  classNames: ['yt-uix-tooltip-reverse']
+                }
+              ]
+            }
+          ], []);
         }
-        ytcenter.placementsystem.init([
-          {
-            id: 'watch7-sentiment-actions',
-            elements: [
-              {
-                tagname: 'button',
-                condition: function(elm, e){
-                  return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
-                },
-                style: {
-                  margin: '0px 2px 0px 0px'
-                },
-                classNames: ['yt-uix-tooltip-reverse']
-              }, {
-                tagname: 'span',
-                condition: function(elm, e){
-                  return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
-                },
-                style: {
-                  margin: '0px 4px 0px 0px'
-                },
-                classNames: ['yt-uix-tooltip-reverse']
-              }, {
-                tagname: 'button',
-                classNames: ['yt-uix-tooltip-reverse']
-              }
-            ]
-          }, {
-            id: 'watch7-ytcenter-buttons',
-            elements: [
-              {
-                tagname: 'button',
-                condition: function(elm, e){
-                  return ytcenter.utils.hasClass(e, "yt-uix-button") && elm == e;
-                },
-                style: {
-                  margin: '0px 2px 0px 0px'
-                },
-                classNames: ['yt-uix-tooltip-reverse']
-              }, {
-                tagname: 'span',
-                condition: function(elm, e){
-                  return ytcenter.utils.hasClass(e, "yt-uix-button-group") && elm == e;
-                },
-                style: {
-                  margin: '0px 4px 0px 0px'
-                },
-                classNames: ['yt-uix-tooltip-reverse']
-              }, {
-                tagname: 'button',
-                classNames: ['yt-uix-tooltip-reverse']
-              }
-            ]
-          }
-        ], []);
       }
       
       ytcenter.placementsystem.registerNativeElements();
