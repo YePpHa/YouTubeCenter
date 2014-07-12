@@ -61,7 +61,6 @@
   // Support
   var support = (function(){
     function localStorageTest() {
-      var mod = "support.test";
       try {
         localStorage.setItem(mod, mod);
         localStorage.removeItem(mod);
@@ -71,10 +70,27 @@
       }
     }
     
+    function customEvent() {
+      try {
+        var e = document.createEvent('CustomEvent');
+        if (e && typeof e.initCustomEvent === "function") {
+          e.initCustomEvent(mod, true, true, { mod: mod });
+          return true;
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    }
+    
+    var mod = "support.test";
+    
     return {
       localStorage: localStorageTest(),
       Greasemonkey: (typeof GM_setValue !== "undefined" && (typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1)),
-      Adguard: (typeof AdguardSettings === "object")
+      Adguard: (typeof AdguardSettings === "object"),
+      cloneInto: (typeof cloneInto === "function"),
+      CustomEvent: customEvent()
     };
   })();
 
@@ -144,8 +160,50 @@
   // General
   function callUnsafeWindow(id) {
     if (typeof id === "number" || typeof id === "string") {
+      if (support.CustomEvent) {
+        callUnsafeWindowEvent.apply(null, arguments);
+      } else {
+        callUnsafeWindowMessage.apply(null, arguments);
+      }
+    }
+  }
+  
+  function callUnsafeWindowMessage(id) {
+    if (typeof id === "number" || typeof id === "string") {
       window.postMessage(JSON.stringify({ level: "safe", id: id, arguments: Array.prototype.slice.call(arguments, 1) }), "*");
     }
+  }
+  
+  function callUnsafeWindowEvent(id) {
+    if (typeof id === "number" || typeof id === "string") {
+      var args = Array.prototype.slice.call(arguments, 1);
+      var detail = { id: id, arguments: args };
+      
+      // Firefox 30 or newer
+      if (support.cloneInto) {
+        detail = cloneInto(detail, document.defaultView);
+      }
+      
+      var e = document.createEvent("CustomEvent");
+      e.initCustomEvent("ytc-page-call", true, true, detail);
+      document.documentElement.dispatchEvent(e);
+    }
+  }
+  
+  function eventListener(e) {
+    var detail = e.detail;
+    if (typeof detail === "string") detail = JSON.parse(detail);
+    console.log(detail);
+    
+    if (@identifier@ === 4) { // Safari
+      safari.self.tab.dispatchMessage("call", detail); // Redirect event to the extension
+    } else if (@identifier@ === 5) { // Opera
+      opera.extension.postMessage(detail); // Redirect event to the extension
+    } else {
+      handleMethods(detail.method, detail);
+    }
+    
+    if (e && typeof e.stopPropagation === "function") e.stopPropagation();
   }
 
   function messageListener(e) {
@@ -274,8 +332,6 @@
     createCallableDetails(details);
     if (@identifier@ === 6) { // Firefox
       request(details);
-    } else if (support.Adguard) {
-      adguard_xhr(details);
     } else if (support.Greasemonkey) {
       GM_xmlhttpRequest(details);
     } else {
@@ -400,7 +456,12 @@
   }
   
   function initListeners() {
-    window.addEventListener("message", messageListener, false);
+    if (support.CustomEvent) {
+      window.addEventListener("ytc-content-call", eventListener, false);
+    } else {
+      window.addEventListener("message", messageListener, false);
+    }
+    
     window.addEventListener("unload", windowUnload, false);
 
     if (@identifier@ === 4) { // Safari
@@ -412,6 +473,9 @@
   
   var domains = ["www.youtube.com", "youtube.com", "apis.google.com", "plus.googleapis.com"];
   if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center should run.
+    console.log("Domain registered " + document.domain + ".");
     initListeners();
     inject(main_function);
+  } else {
+    throw "Domain " + document.domain + " not allowed!";
   }
