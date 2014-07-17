@@ -11784,7 +11784,7 @@
                 ytcenter.settings['signatureDecipher'] = [];
                 
                 for (var i = 0, len = uniqueMethods.length; i < len; i++) {
-                  var arguments = regexMethod[i*2 + 1];
+                  var args = regexMethod[i*2 + 1];
                   var func = regexMethod[i*2 + 2];
                   ytcenter.settings['signatureDecipher'].push({ func: "function", name: uniqueMethods[i], value: func });
                 }
