@@ -11720,10 +11720,6 @@
           onload: function(response) {
             var a,i,b,v;
             
-            con.log("[updateSignatureDecipher] Retrieved response...");
-            con.log("[updateSignatureDecipher] Testing regex 1: " + !!response.responseText.match(regex));
-            con.log("[updateSignatureDecipher] Testing regex 2: " + !!response.responseText.match(regex2));
-            
             if (response.responseText.match(regex2)) {
               con.log("[updateSignatureDecipher] Using regex 1");
               a = regex2.exec(response.responseText)[0].split("{")[1].split("}")[0].split(";");
@@ -11731,31 +11727,76 @@
               for (i = 1; i < a.length-1; i++) {
                 b = a[i];
                 if (b.indexOf("a.slice") !== -1) { // Slice
-                  con.log("Slice/Clone (" + b + ")");
                   v = b.split("(")[1].split(")")[0];
-                  con.log("=> " + v);
                   ytcenter.settings['signatureDecipher'].push({func: "slice", value: parseInt(v)});
                 } else if (b.indexOf("a.reverse") !== -1) { // Reverse
-                  con.log("Reverse (" + b + ")");
                   ytcenter.settings['signatureDecipher'].push({func: "reverse", value: null});
                 } else if ((a[i] + ";" + a[i+1] + ";" + a[i+2]).indexOf("var b=a[0];a[0]=a[") !== -1){ // swapHeadAndPosition
-                  con.log("swapHeadAndPosition (" + (a[i] + ";" + a[i+1] + ";" + a[i+2]) + ")");
                   v = (a[i] + ";" + a[i+1] + ";" + a[i+2]).split("var b=a[0];a[0]=a[")[1].split("%")[0];
-                  con.log("=> " + v);
                   ytcenter.settings['signatureDecipher'].push({func: "swapHeadAndPosition", value: parseInt(v)});
                   i = i+2;
                 } else { // swapHeadAndPosition (maybe it's deprecated by YouTube)
-                  con.log("swapHeadAndPosition (" + b + ")");
                   v = b.split("(a,")[1].split(")")[0];
-                  con.log("=> " + v);
                   ytcenter.settings['signatureDecipher'].push({func: "swapHeadAndPosition", value: parseInt(v)});
                 }
               }
             } else if (response.responseText.match(regex)) {
               con.log("[updateSignatureDecipher] Using regex 2");
               a = regex.exec(response.responseText)[1];
-              ytcenter.settings['signatureDecipher'] = []; // Clearing signatureDecoder
-              ytcenter.settings['signatureDecipher'].push({func: "code", value: a});
+              console.log(a);
+              if (a.match(/a=([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\(a,([0-9]+)\)/g)) {
+                var commonObject = null;
+                var arr = a.split(";");
+                var methods = [];
+                var methodValues = [];
+                for (var i = 0, len = arr.length - 1; i < len; i++) {
+                  var tokens = /a=([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\(a,([0-9]+)\)/g.exec(arr[i]);
+                  console.log(tokens);
+                  if (commonObject !== tokens[1] && commonObject !== null) {
+                    throw "Unknown cipher method!";
+                  } else {
+                    commonObject = tokens[1];
+                  }
+                  methods.push(tokens[2]);
+                  methodValues.push(tokens[3]);
+                }
+                
+                var prefix = "var " + ytcenter.utils.escapeRegExp(commonObject) + "=\\{";
+                
+                var uniqueMethods = [];
+                for (var i = 0, len = methods.length; i < len; i++) {
+                  if (!ytcenter.utils.inArray(uniqueMethods, methods[i])) {
+                    uniqueMethods.push(methods[i]);
+                  }
+                }
+                
+                for (var i = 0, len = uniqueMethods.length; i < len; i++) {
+                  if (i > 0) prefix += ",";
+                  prefix += ytcenter.utils.escapeRegExp(uniqueMethods[i]) + ":function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}";
+                }
+                
+                prefix += "\\}";
+                
+                console.log(prefix);
+                
+                var regexMethod = new RegExp(prefix, "g").exec(response.responseText);
+                
+                ytcenter.settings['signatureDecipher'] = [];
+                
+                for (var i = 0, len = uniqueMethods.length; i < len; i++) {
+                  var arguments = regexMethod[i*2 + 1];
+                  var func = regexMethod[i*2 + 2];
+                  ytcenter.settings['signatureDecipher'].push({ func: "function", name: uniqueMethods[i], value: func });
+                }
+                
+                for (var i = 0, len = methods.length; i < len; i++) {
+                  ytcenter.settings['signatureDecipher'].push({ func: "call", name: methods[i], value: methodValues[i] });
+                }
+                
+              } else {
+                ytcenter.settings['signatureDecipher'] = []; // Clearing signatureDecoder
+                ytcenter.settings['signatureDecipher'].push({ func: "code", value: a });
+              }
             } else {
               con.error("[updateSignatureDecipher] Couldn't retrieve the signatureDecipher!");
             }
@@ -11780,8 +11821,14 @@
       var cipherArray = signatureCipher.split(""), i;
       decipherRecipe = decipherRecipe || ytcenter.settings['signatureDecipher'];
       
+      var funcMap = {};
+      
       for (i = 0; i < decipherRecipe.length; i++) {
-        if (decipherRecipe[i].func === "code") {
+        if (decipherRecipe[i].func === "function") {
+          funcMap[decipherRecipe[i].name] = new Function("a", "b", decipherRecipe[i].value);
+        } else if (decipherRecipe[i].func === "call") {
+          cipherArray = funcMap[decipherRecipe[i].name](cipherArray, decipherRecipe[i].value);
+        } else if (decipherRecipe[i].func === "code") {
           cipherArray = new Function("a", decipherRecipe[i].value + "return a.join(\"\")")(cipherArray);
         } else if (decipherRecipe[i].func === "swapHeadAndPosition") {
           cipherArray = swapHeadAndPosition(cipherArray, decipherRecipe[i].value);
@@ -12312,7 +12359,6 @@
           }
           return null;
         })();
-        con.log("placementsystem", elm, parent, new_sandbox);
         applyParentData = function(e){
           var nElm = [];
           var oElm = [];
@@ -18399,12 +18445,7 @@
       return stream.url + "&title=" + encodeURIComponent(ytcenter.video.getFilename(stream));
     };
     ytcenter.video.downloadLink = function(stream){
-      try {
-        return ytcenter.video.filename(stream) + "&cpn=" + encodeURIComponent(ytcenter.utils.crypt()) + (stream.s || stream.sig ? "&signature=" + encodeURIComponent(stream.sig || ytcenter.utils.signatureDecipher(stream.s)) : "");
-      } catch (e) {
-        con.error(e);
-        return stream.url + (stream.sig || stream.s ? "&signature=" + encodeURIComponent(stream.sig || ytcenter.utils.signatureDecipher(stream.s)) : "");
-      }
+      return ytcenter.video.filename(stream) + "&cpn=" + encodeURIComponent(ytcenter.utils.crypt()) + (stream.s || stream.sig ? "&signature=" + encodeURIComponent(stream.sig || ytcenter.utils.signatureDecipher(stream.s)) : "");
     };
     ytcenter.video.download = (function(){
       var _download_iframe = null;
@@ -18718,56 +18759,76 @@
         return playlistToggleButton;
       }
       
+      function setInitialAutoPlayState(state) {
+        var playlist = document.getElementById("watch-appbar-playlist");
+        if (playlist) {
+          var content = playlist.getElementsByClassName("playlist-header-content");
+          if (content.length > 0 && content[0]) {
+            content[0].setAttribute("initial-autoplay-state", (state ? "true" : "false"));
+          }
+        }
+        toggled = state;
+      }
+      
       function update() {
-        if (updating) return;
-        updating = true;
         /* We want to either disable the playlist auto play or enable it */
         if (ytcenter.playlist) { // Checking if we're watching a playlist
+          
+          if (uw && uw.yt && uw.yt.config_) {
+            uw.yt.config_.LIST_AUTO_PLAY_ON = toggled;
+          }
+          
           var toggleButton = getToggleAutoPlayButton();
           if (toggleButton) {
             if (ytcenter.utils.hasClass(toggleButton, "yt-uix-button-toggled")) {
-              if (!ytcenter.settings.playlistAutoPlay) {
+              if (!toggled) {
                 toggleButton.click();
                 toggled = false;
-              } else {
-                toggled = true;
               }
             } else {
-              if (ytcenter.settings.playlistAutoPlay) {
+              if (toggled) {
                 toggleButton.click();
                 toggled = true;
-              } else {
-                toggled = false;
               }
             }
-            setTimeout(function(){
-              toggleButton.click(); toggleButton.click(); // Delayed
-              updating = false;
-            }, 2500);
           }
+          if (timer !== null) {
+            clearTimeout(timer);
+            timer = null;
+          }
+          timer = setTimeout(refresh, 2500);
+        }
+      }
+      
+      function refresh() {
+        var toggleButton = getToggleAutoPlayButton();
+        if (toggleButton) {
+          toggleButton.click();
+          toggleButton.click();
         }
       }
       
       function onToggleButtonClick() {
         toggled = !toggled;
-        if (updating || ytcenter.settings.playlistAutoPlayFreeze) return;
+        if (ytcenter.settings.playlistAutoPlayFreeze) return;
         
         ytcenter.settings.playlistAutoPlay = toggled;
+        
         ytcenter.saveSettings();
         ytcenter.events.performEvent("settings-update");
       }
       
       function init() {
         if (ytcenter.playlist) {
+          setInitialAutoPlayState(ytcenter.settings.playlistAutoPlay);
           var toggleButton = getToggleAutoPlayButton();
           if (toggleButton) {
             ytcenter.utils.addEventListener(toggleButton, "click", onToggleButtonClick, false);
-            toggled = ytcenter.utils.hasClass(toggleButton, "yt-uix-button-toggled");
           }
         }
       }
       
-      var updating = false;
+      var timer = null;
       var toggled = false;
       
       return {
@@ -22119,7 +22180,6 @@
               var e = d[j].split("=");
               c[e[0]] = unescape(e[1]);
               if (e[0] === "type") c[e[0]] = c[e[0]].replace(/\+/g, " ");
-              //if (e[0] === "url") c[e[0]] = c[e[0]].replace(/^(http:)|(https:)/g, "");
             }
             b.push(c);
           }
