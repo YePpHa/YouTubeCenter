@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         353
+// @version         354
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 353);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 354);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -11784,7 +11784,7 @@
                 ytcenter.settings['signatureDecipher'] = [];
                 
                 for (var i = 0, len = uniqueMethods.length; i < len; i++) {
-                  var arguments = regexMethod[i*2 + 1];
+                  var args = regexMethod[i*2 + 1];
                   var func = regexMethod[i*2 + 2];
                   ytcenter.settings['signatureDecipher'].push({ func: "function", name: uniqueMethods[i], value: func });
                 }
