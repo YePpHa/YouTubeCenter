@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         354
+// @version         355
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 354);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 355);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -20744,13 +20744,19 @@
       
       var minSmallPlayer = 640;
       
+      var maxWatchNonStageWidth0 = 1254;
       var maxWatchNonStageWidth1 = 1254;
       var maxWatchNonStageWidth2 = 1360;
       var maxWatchNonStageWidth3 = 1680;
       
+      var maxWatchStageWidth0 = 1680;
+      
+      var maxWatchNonStagePlayerWidth0 = 854;
       var maxWatchNonStagePlayerWidth1 = 854;
       var maxWatchNonStagePlayerWidth2 = 960;
       var maxWatchNonStagePlayerWidth3 = 1280;
+      
+      var maxWatchStagePlayerWidth0 = 1280;
       
       ytcenter.player._updateResize = function(){
         if (!ytcenter.settings.enableResize) return;
@@ -20811,8 +20817,12 @@
         var isWatchNonStage301 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1720 <= innerWidth && 920 <= innerHeight;
         var isWatchNonStage302 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-720-mini") && 1720 <= innerWidth && 920 <= innerHeight;
         
+        var isWatchStage = ytcenter.utils.hasClass(page, "watch-stage-mode");
         var isWatchNonStage = ytcenter.utils.hasClass(page, "watch-non-stage-mode");
         
+        var isWatchStage0 = 1320 <= innerWidth && 870 <= innerHeight && isWatchStage && large;
+        
+        var isWatchNonStage0 = 1294 <= innerWidth && 630 <= innerHeight && isWatchNonStage && !large;
         var isWatchNonStage1 = (isWatchNonStage101 || isWatchNonStage102) && isWatchNonStage && !large;
         var isWatchNonStage2 = (isWatchNonStage201 || isWatchNonStage202) && isWatchNonStage && !large;
         var isWatchNonStage3 = (isWatchNonStage301 || isWatchNonStage302) && isWatchNonStage && !large;
@@ -20866,13 +20876,18 @@
         }
         
         // Settings the sizes for small and large. If width and height is undefined
-        if (isNaN(parseInt(width)) && isNaN(parseInt(height))) {
-          if (isWatchNonStage3) {
+        var stageSize = isNaN(parseInt(width)) && isNaN(parseInt(height));
+        if (stageSize) {
+          if (isWatchStage0) {
+            width = maxWatchStagePlayerWidth0 + "px";
+          } else if (isWatchNonStage3) {
             width = maxWatchNonStagePlayerWidth3 + "px";
           } else if (isWatchNonStage2) {
             width = maxWatchNonStagePlayerWidth2 + "px";
           } else if (isWatchNonStage1) {
             width = maxWatchNonStagePlayerWidth1 + "px";
+          } else if (isWatchNonStage0) {
+            width = maxWatchNonStagePlayerWidth0 + "px";
           } else {
             width = large ? "854px" : "640px";
           }
@@ -20978,15 +20993,19 @@
             playerHeight = Math.round(calcHeight + pbh),
             playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
         
-        if (isWatchNonStage3 || isWatchNonStage2 || isWatchNonStage1) {
+        if (stageSize && (isWatchStage0 || isWatchNonStage3 || isWatchNonStage2 || isWatchNonStage1 || isWatchNonStage0)) {
           var maxWidth = minSmallPlayer;
           var minWidth = minSmallPlayer;
-          if (isWatchNonStage3) {
+          if (isWatchStage0) {
+            maxWidth = maxWatchStagePlayerWidth0;
+          } else if (isWatchNonStage3) {
             maxWidth = maxWatchNonStagePlayerWidth3;
           } else if (isWatchNonStage2) {
             maxWidth = maxWatchNonStagePlayerWidth2;
           } else if (isWatchNonStage1) {
             maxWidth = maxWatchNonStagePlayerWidth1;
+          } else if (isWatchNonStage0) {
+            maxWidth = maxWatchNonStagePlayerWidth0;
           }
           
           if (clientWidth > maxWidth) {
@@ -21046,7 +21065,11 @@
             playerAPI.style.cssFloat = "";
           }
           
-          if (!large) {
+          if (large && isWatchStage0 && stageSize) {
+            player.style.width = "auto";
+            player.style.minWidth = minInsidePlayerWidth + "px";
+            player.style.maxWidth = maxWatchStageWidth0 + "px";
+          } else if (!large && stageSize) {
             player.style.width = "auto";
             player.style.minWidth = minInsidePlayerWidth + "px";
             if (isWatchNonStage3) {
@@ -21055,6 +21078,8 @@
               player.style.maxWidth = maxWatchNonStageWidth2 + "px";
             } else if (isWatchNonStage1) {
               player.style.maxWidth = maxWatchNonStageWidth1 + "px";
+            } else if (isWatchNonStage0) {
+              player.style.maxWidth = maxWatchNonStageWidth0 + "px";
             } else {
               player.style.maxWidth = maxInsidePlayerWidth + "px";
             }
