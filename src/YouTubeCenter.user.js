@@ -20850,12 +20850,16 @@
         
         var page = document.getElementById("page");
         var player = document.getElementById("player-legacy") || document.getElementById("player");
-        if (large || ytcenter.settings.ytOnlyStageMode) {
-          ytcenter.utils.addClass(page, "watch-stage-mode");
-          ytcenter.utils.removeClass(page, "watch-non-stage-mode");
+        if (ytcenter.settings.ytOnlyStageMode) {
+          if (large) {
+            ytcenter.utils.addClass(page, "watch-stage-mode");
+            ytcenter.utils.removeClass(page, "watch-non-stage-mode");
+          } else {
+            ytcenter.utils.addClass(page, "watch-non-stage-mode");
+            ytcenter.utils.removeClass(page, "watch-stage-mode");
+          }
         } else {
-          ytcenter.utils.removeClass(page, "watch-stage-mode");
-          ytcenter.utils.addClass(page, "watch-non-stage-mode");
+          ytcenter.utils.removeClass(page, "watch-stage-mode watch-non-stage-mode");
         }
         var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1294 <= innerWidth && 680 <= innerHeight;
         var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && 1294 <= innerWidth && 630 <= innerHeight;

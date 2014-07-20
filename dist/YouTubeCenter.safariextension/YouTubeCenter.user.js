@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         356
+// @version         357
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 356);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 357);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -20850,12 +20850,16 @@
         
         var page = document.getElementById("page");
         var player = document.getElementById("player-legacy") || document.getElementById("player");
-        if (large || ytcenter.settings.ytOnlyStageMode) {
-          ytcenter.utils.addClass(page, "watch-stage-mode");
-          ytcenter.utils.removeClass(page, "watch-non-stage-mode");
+        if (ytcenter.settings.ytOnlyStageMode) {
+          if (large) {
+            ytcenter.utils.addClass(page, "watch-stage-mode");
+            ytcenter.utils.removeClass(page, "watch-non-stage-mode");
+          } else {
+            ytcenter.utils.addClass(page, "watch-non-stage-mode");
+            ytcenter.utils.removeClass(page, "watch-stage-mode");
+          }
         } else {
-          ytcenter.utils.removeClass(page, "watch-stage-mode");
-          ytcenter.utils.addClass(page, "watch-non-stage-mode");
+          ytcenter.utils.removeClass(page, "watch-stage-mode watch-non-stage-mode");
         }
         var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1294 <= innerWidth && 680 <= innerHeight;
         var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && 1294 <= innerWidth && 630 <= innerHeight;
