@@ -11743,7 +11743,6 @@
             } else if (response.responseText.match(regex)) {
               con.log("[updateSignatureDecipher] Using regex 2");
               a = regex.exec(response.responseText)[1];
-              console.log(a);
               if (a.match(/a=([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\(a,([0-9]+)\)/g)) {
                 var commonObject = null;
                 var arr = a.split(";");
@@ -11751,7 +11750,6 @@
                 var methodValues = [];
                 for (var i = 0, len = arr.length - 1; i < len; i++) {
                   var tokens = /a=([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\(a,([0-9]+)\)/g.exec(arr[i]);
-                  console.log(tokens);
                   if (commonObject !== tokens[1] && commonObject !== null) {
                     throw "Unknown cipher method!";
                   } else {
@@ -11761,32 +11759,32 @@
                   methodValues.push(tokens[3]);
                 }
                 
-                var prefix = "var " + ytcenter.utils.escapeRegExp(commonObject) + "=\\{";
+                var prefix = "var " + ytcenter.utils.escapeRegExp(commonObject) + "=\\{(";
                 
                 var uniqueMethods = [];
+                var regexMeth = [];
                 for (var i = 0, len = methods.length; i < len; i++) {
                   if (!ytcenter.utils.inArray(uniqueMethods, methods[i])) {
                     uniqueMethods.push(methods[i]);
+                    regexMeth.push(ytcenter.utils.escapeRegExp(methods[i]));
                   }
                 }
                 
                 for (var i = 0, len = uniqueMethods.length; i < len; i++) {
-                  if (i > 0) prefix += ",";
-                  prefix += ytcenter.utils.escapeRegExp(uniqueMethods[i]) + ":function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}";
+                  if (i > 0) prefix += "|";
+                  prefix += "(([a-zA-Z0-9]+):function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}[,]?)";
                 }
                 
-                prefix += "\\}";
-                
-                console.log(prefix);
+                prefix += ")\\}";
                 
                 var regexMethod = new RegExp(prefix, "g").exec(response.responseText);
+                var definedFunctions = new RegExp("([a-zA-Z0-9]+):function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}", "g");
                 
                 ytcenter.settings['signatureDecipher'] = [];
                 
-                for (var i = 0, len = uniqueMethods.length; i < len; i++) {
-                  var args = regexMethod[i*2 + 1];
-                  var func = regexMethod[i*2 + 2];
-                  ytcenter.settings['signatureDecipher'].push({ func: "function", name: uniqueMethods[i], value: func });
+                var definedFunction;
+                while (definedFunction = definedFunctions.exec(regexMethod[0])) {
+                  ytcenter.settings['signatureDecipher'].push({ func: "function", name: definedFunction[1], value: definedFunction[3] });
                 }
                 
                 for (var i = 0, len = methods.length; i < len; i++) {
@@ -14728,7 +14726,9 @@
           option = ytcenter.settingsPanel.createOption(
             "bufferEnabled", // defaultSetting
             "bool", // module
-            "SETTINGS_BUFFER_ENABLE"
+            "SETTINGS_BUFFER_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Enable_custom_buffer"
           );
           subcat.addOption(option);
           
@@ -14741,7 +14741,8 @@
               "max": 1099511627776, /* 1 TB - Why not... */
               "suffix": " B",
               "text-width": "135px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Custom_buffer_size"
           );
           subcat.addOption(option);
           
@@ -14909,7 +14910,9 @@
           option = ytcenter.settingsPanel.createOption(
             "playlistAutoPlay", // defaultSetting
             "bool", // module
-            "SETTINGS_PLAYLIST_AUTOPLAY"
+            "SETTINGS_PLAYLIST_AUTOPLAY",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Playlist_auto_play"
           );
           ytcenter.events.addEvent("settings-update", (function(opt){
             return function(){
@@ -14923,7 +14926,9 @@
           option = ytcenter.settingsPanel.createOption(
             "playlistAutoPlayFreeze", // defaultSetting
             "bool", // module
-            "SETTINGS_PLAYLIST_AUTOPLAY_FREEZE"
+            "SETTINGS_PLAYLIST_AUTOPLAY_FREEZE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Playlist_auto_play_freeze"
           );
           subcat.addOption(option);
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_RESOLUTION"); cat.addSubCategory(subcat);
@@ -15063,7 +15068,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Only_stage_mode"
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -15265,7 +15271,9 @@
           option = ytcenter.settingsPanel.createOption(
             "playerGlowEnabled", // defaultSetting
             "bool", // module
-            "SETTINGS_PLAYERGLOW_ENABLED"
+            "SETTINGS_PLAYERGLOW_ENABLED",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Enabled"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setEnabled(ytcenter.settings.playerGlowEnabled);
@@ -15280,7 +15288,8 @@
               "min": 1,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Quality"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
@@ -15294,7 +15303,8 @@
             {
               "min": 1,
               "max": 10000000
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Pixel_interval"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
@@ -15304,7 +15314,9 @@
           option = ytcenter.settingsPanel.createOption(
             "playerGlowRequestAnimationFrame", // defaultSetting
             "bool", // module
-            "SETTINGS_PLAYERGLOW_USE_REQUEST_ANIMATION_FRAME"
+            "SETTINGS_PLAYERGLOW_USE_REQUEST_ANIMATION_FRAME",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Use_request_animation_frame"
           );
           subcat.addOption(option);
           
@@ -15316,7 +15328,8 @@
               "min": 0,
               "max": 10000,
               "suffix": " ms"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Update_interval"
           );
           
           ytcenter.events.addEvent("settings-update", (function(opt){
@@ -15337,7 +15350,8 @@
               "min": 0,
               "max": 10000,
               "suffix": " ms"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Transition"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("transition", ytcenter.settings.playerGlowTransition);
@@ -15352,7 +15366,8 @@
               "min": 0,
               "max": 200,
               "suffix": "px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Blur"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("blur", ytcenter.settings.playerGlowBlur);
@@ -15367,7 +15382,8 @@
               "min": 0,
               "max": 200,
               "suffix": "px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Spread"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("spread", ytcenter.settings.playerGlowSpread);
@@ -15382,7 +15398,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Opacity"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("opacity", ytcenter.settings.playerGlowOpacity/100);
@@ -15392,7 +15409,9 @@
           option = ytcenter.settingsPanel.createOption(
             "playerMultiGlowEffect", // defaultSetting
             "bool", // module
-            "SETTINGS_PLAYERGLOW_MULTI_ENABLED"
+            "SETTINGS_PLAYERGLOW_MULTI_ENABLED",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Multi_glow_enabled"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("multiglow", ytcenter.settings.playerMultiGlowEffect);
@@ -15407,7 +15426,8 @@
               "min": 1,
               "max": 500,
               "suffix": "px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Depth"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("depth", ytcenter.settings.playerMultiGlowEffectDepth);
@@ -15422,7 +15442,8 @@
               "min": 1,
               "max": 200,
               "suffix": "px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Block_interval"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("blockInterval", ytcenter.settings.playerMultiGlowEffectBlockInterval);
@@ -15440,7 +15461,7 @@
                 { "value": "only-without-lights-off", "label": "SETTINGS_PLAYERGLOW_LIGHTS_OFF_ONLY_WITHOUT_LIGHTS_OFF" }
               ]
             },
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Switch_To_Tab_At_Like_of_Video"
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Glow_on"
           );
           ytcenter.events.addEvent("settings-update", function(){
             ytcenter.effects.playerGlow.setOption("glowEffectOnPlayer", ytcenter.settings.playerGlowEffectOnPlayer);
@@ -15696,7 +15717,9 @@
           option = ytcenter.settingsPanel.createOption(
             "embedBufferEnabled", // defaultSetting
             "bool", // module
-            "SETTINGS_BUFFER_ENABLE"
+            "SETTINGS_BUFFER_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Enable_custom_buffer"
           );
           subcat.addOption(option);
 
@@ -15709,7 +15732,8 @@
               "max": 1099511627776, /* 1 TB - Why not... */
               "suffix": " B",
               "text-width": "135px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Custom_buffer_size"
           );
           subcat.addOption(option);
           
@@ -16013,7 +16037,9 @@
           option = ytcenter.settingsPanel.createOption(
             "channelBufferEnabled", // defaultSetting
             "bool", // module
-            "SETTINGS_BUFFER_ENABLE"
+            "SETTINGS_BUFFER_ENABLE",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Enable_custom_buffer"
           );
           subcat.addOption(option);
 
@@ -16026,7 +16052,8 @@
               "max": 1099511627776, /* 1 TB - Why not... */
               "suffix": " B",
               "text-width": "135px"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Custom_buffer_size"
           );
           subcat.addOption(option);
           
@@ -16525,7 +16552,9 @@
           option = ytcenter.settingsPanel.createOption(
             "playerDarkSideBGRetro",
             "bool",
-            "SETTINGS_PLAYER_DARK_SIDE_RETRO"
+            "SETTINGS_PLAYER_DARK_SIDE_RETRO",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Dark_player_background_retro"
           );
           var playerDarkSideBGRetroOption = option;
           subcat.addOption(option);
@@ -16632,7 +16661,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Like_button_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likebuttoncolor"]);
@@ -16653,7 +16683,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Like_button_hover_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likebuttonhovercolor"]);
@@ -16668,7 +16699,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Like_button_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likebuttonopacity"]);
@@ -16683,7 +16715,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Like_button_hover_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likebuttonopacity"]);
@@ -16704,7 +16737,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Dislike_button_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikebuttoncolor"]);
@@ -16725,7 +16759,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Dislike_button_hover_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikebuttonhovercolor"]);
@@ -16740,7 +16775,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Dislike_button_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikebuttonopacity"]);
@@ -16755,7 +16791,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Dislike_button_hover_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikebuttonopacity"]);
@@ -16776,7 +16813,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Liked_button_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likedbuttoncolor"]);
@@ -16797,7 +16835,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Liked_button_hover_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likedbuttonhovercolor"]);
@@ -16812,7 +16851,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Liked_button_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likedbuttonopacity"]);
@@ -16827,7 +16867,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Liked_button_hover_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["likedbuttonopacity"]);
@@ -16848,7 +16889,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Disliked_button_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikedbuttoncolor"]);
@@ -16869,7 +16911,8 @@
                   }
                 }
               ]
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Disliked_button_hover_color"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikedbuttonhovercolor"]);
@@ -16884,7 +16927,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Disliked_button_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikedbuttonopacity"]);
@@ -16899,7 +16943,8 @@
               "min": 0,
               "max": 100,
               "suffix": "%"
-            }
+            },
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Disliked_button_hover_opacity"
           );
           option.addEventListener("update", function(){
             ytcenter.classManagement.updateClassesByGroup(["dislikedbuttonopacity"]);
@@ -17834,7 +17879,9 @@
           option = ytcenter.settingsPanel.createOption(
             "commentCountryButtonLoad", // defaultSetting
             "bool", // module
-            "SETTINGS_COMMENTS_COUNTRY_BUTTON_LOAD"
+            "SETTINGS_COMMENTS_COUNTRY_BUTTON_LOAD",
+            null,
+            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Load_by_button"
           );
           subcat.addOption(option);
           
