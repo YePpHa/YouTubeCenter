@@ -26,10 +26,10 @@
 // @namespace       http://www.facebook.com/YouTubeCenter
 // @version         357
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
-// @description     YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
-// @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-48x48.png
-// @icon64          https://raw.github.com/YePpHa/YouTubeCenter/master/assets/logo-64x64.png
-// @domain          userscripts.org
+// @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
+// @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
+// @icon64          https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon64.png
+// @domain          yeppha.github.io
 // @domain          youtube.com
 // @domain          www.youtube.com
 // @domain          gdata.youtube.com
@@ -43,7 +43,7 @@
 // @match           https://www.youtube.com/*
 // @match           http://youtube.com/*
 // @match           https://youtube.com/*
-// @match           http://userscripts.org/scripts/source/114002.meta.js
+// @match           https://yeppha.github.io/downloads/YouTubeCenter.meta.js
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @match           https://raw.github.com/YePpHa/YouTubeCenter/master/*
@@ -623,7 +623,7 @@
       return stream;
     }
     function $CreateDownloadButton() {
-      if (identifier === 8) return; // The Chrome Webstore version of YouTube Center has the download feature disabled.
+      if (identifier === 8) return; // The Chrome Webstore version of YouTube Center Developer Build has the download feature disabled.
       var g = document.createElement("span");
       g.style.margin = "0 2px 0 0";
       ytcenter.events.addEvent("ui-refresh", function(){
@@ -1672,7 +1672,7 @@
       });
     }
     
-    var console_debug = devbuild; // Disable this to stop YouTube Center from writing in the console log.
+    var console_debug = devbuild; // Disable this to stop YouTube Center Developer Build from writing in the console log.
     var _console = [];
     
     var uw = null,
@@ -2798,7 +2798,7 @@
       
       ytcenter.embed._writeEmbed = uw.writeEmbed;
       defineLockedProperty(uw, "writeEmbed", function(func){
-        con.log("[Embed] writeEmbed has been leaked to YouTube Center.");
+        con.log("[Embed] writeEmbed has been leaked to YouTube Center Developer Build.");
         ytcenter.embed._writeEmbed = func;
       }, function(){
         if (ytcenter.embed.failsafe)
@@ -2872,12 +2872,12 @@
             con.log("[Embed] writeEmbed is not yet ready!");
             return;
           }
-          con.log("[Embed] Checking if YouTube and YouTube Center are ready...");
+          con.log("[Embed] Checking if YouTube and YouTube Center Developer Build are ready...");
           if (!ytcenter.embed.isYouTubeReady || !ytcenter.embed.isYouTubeCenterReady) {
             con.log("[Embed] They're both not ready yet!");
             return;
           }
-          /* Settings the player config according to YouTube Center */
+          /* Settings the player config according to YouTube Center Developer Build */
           var cfg = ytcenter.player.getConfig();
           if (cfg) uw.yt.config_.PLAYER_CONFIG = cfg;
           
@@ -2936,7 +2936,7 @@
                 } else {
                   con.error("[Embed] Didn't receive any data!");
                   ytcenter.embed.failsafe = true;
-                  /* Going to set YouTube Center as ready to make it possible for the user to watch the embedded video if possible. */
+                  /* Going to set YouTube Center Developer Build as ready to make it possible for the user to watch the embedded video if possible. */
                   ytcenter.embed.isYouTubeCenterReady = true;
                   ytcenter.embed.writePlayer();
                 }
@@ -2951,7 +2951,7 @@
             onerror: function(){
               con.error("[Embed] Connection failed!");
               ytcenter.embed.failsafe = true;
-              /* Going to set YouTube Center as ready to make it possible for the user to watch the embedded video if possible. */
+              /* Going to set YouTube Center Developer Build as ready to make it possible for the user to watch the embedded video if possible. */
               ytcenter.embed.isYouTubeCenterReady = true;
               ytcenter.embed.writePlayer();
             }
@@ -3096,7 +3096,7 @@
         unloads.push(unload);
       };
     })();
-    ytcenter.version = "2.1.1";
+    ytcenter.version = "2.1.3";
     ytcenter.revision = 151;
     ytcenter.icon = {};
     ytcenter.page = "none";
@@ -4086,7 +4086,7 @@
           if (__r.testFilters(ytcenter.settings.commentsPlusBlacklist, obj)) {
             blockedElement = document.createElement("div");
             
-            blockedElement.textContent = "Comment Blocked by YouTube Center!"; // This is only temporary
+            blockedElement.textContent = "Comment Blocked by YouTube Center Developer Build!"; // This is only temporary
             /*blockedElement.addEventListener("click", (function(obj, blockedElement, wrap){
               function blockedElementListener(){
                 ytcenter.utils.removeClass(wrap, "ytcenter-comments-blocked");
@@ -13412,7 +13412,7 @@
           }
           ytcenter.utils.xhr({
             method: "GET",
-            url: "http://userscripts.org/scripts/source/114002.meta.js",
+            url: "https://yeppha.github.io/downloads/YouTubeCenter.meta.js",
             headers: {
               "Content-Type": "text/plain"
             },
@@ -13479,20 +13479,20 @@
                   var f4 = document.createTextNode(" ");
                   var f5 = document.createElement("a");
                   if (identifier === 0) {
-                    f5.href = "http://userscripts.org/scripts/source/114002.user.js";
+                    f5.href = "https://yeppha.github.io/downloads/YouTubeCenter.user.js";
                   } else if (identifier === 1) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.crx";
+                    f5.href = "https://yeppha.github.io/downloads/YouTubeCenter.crx";
                   } else if (identifier === 2) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.mxaddon";
+                    f5.href = "https://yeppha.github.io/downloads/YouTubeCenter.mxaddon";
                   } else if (identifier === 3) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.xpi";
+                    f5.href = "https://yeppha.github.io/downloads/YouTubeCenter.xpi";
                   } else if (identifier === 4) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.safariextz";
+                    f5.href = "https://yeppha.github.io/downloads/YouTubeCenter.safariextz";
                   } else if (identifier === 5) {
-                    f5.href = "https://dl.dropboxusercontent.com/u/13162258/YouTube%20Center/YouTubeCenter.oex";
+                    f5.href = "https://yeppha.github.io/downloads/YouTubeCenter.oex";
                   }
                   f5.setAttribute("target", "_blank");
-                  f5.textContent = "YouTube Center v" + ver;
+                  f5.textContent = "YouTube Center Developer Build v" + ver;
                   var f6 = document.createTextNode(" ");
                   var f7 = document.createTextNode(ytcenter.language.getLocale("UPDATE_OR"));
                   ytcenter.language.addLocaleElement(f7, "UPDATE_OR", "@textContent", {});
@@ -13503,8 +13503,8 @@
                     f9.href = "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/";
                     f9.textContent = "addons.mozilla.org";
                   } else {
-                    f9.href = "http://userscripts.org/scripts/show/114002";
-                    f9.textContent = "userscripts.org";
+                    f9.href = "https://github.com/YePpHa/YouTubeCenter/wiki";
+                    f9.textContent = "github.com/YePpHa/YouTubeCenter/";
                   }
                   
                   cnme.appendChild(f1);
@@ -13868,7 +13868,7 @@
           });
           productVersion.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("DEV_BUILD"), { "{n}": document.createTextNode(devnumber) }));
         } else {
-          productVersion.textContent = "YouTube Center v" + ytcenter.version;
+          productVersion.textContent = "YouTube Center Developer Build v" + ytcenter.version;
         }
         
         categoryList.className = "ytcenter-settings-category-list";
@@ -18069,7 +18069,7 @@
                           "api_paste_private=1", // unlisted
                           "api_paste_expire_date=1M", // 1 month
                           "api_paste_format=javascript",
-                          "api_paste_name=" + encodeURIComponent("YouTube Center ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
+                          "api_paste_name=" + encodeURIComponent("YouTube Center Developer Build ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
                           "api_paste_code=" + encodeURIComponent(ytcenter.getDebug())
                         ].join('&');
 
@@ -20231,8 +20231,8 @@
       }
       
       /* Origin argument
-       * If origin is equal to 0 then the origin is directly from the player (only YouTube Center's listeners get executed if override is false).
-       * If origin is equal to 1 then the origin is from the global listeners (both YouTube's and YouTube Center's listeners get executed).
+       * If origin is equal to 0 then the origin is directly from the player (only YouTube Center Developer Build's listeners get executed if override is false).
+       * If origin is equal to 1 then the origin is from the global listeners (both YouTube's and YouTube Center Developer Build's listeners get executed).
        */
       function callListener(event, origin) {
         function generateThisObject() {
@@ -20248,7 +20248,7 @@
         ytcenter.player._update_onYouTubeReady = true; // The listener got called therefore the player is here.
         
         if (enabled && origin === 0 && (!events.hasOwnProperty(event) || (events.hasOwnProperty(event) && !events[event].override))) {
-          /* Override is false and the origin is from the player; call the YouTube Center listeners */
+          /* Override is false and the origin is from the player; call the YouTube Center Developer Build listeners */
           if (events.hasOwnProperty(event)) {
             for (var i = 0, len = events[event].listeners.length; i < len; i++) {
               returnVal = events[event].listeners[i].apply(null, args);
@@ -20256,14 +20256,14 @@
           }
         } else if (enabled && origin === 1) {
           if (events.hasOwnProperty(event) && events[event].override) {
-            /* Override is true and the origin is from the global window; call the YouTube Center listeners */
+            /* Override is true and the origin is from the global window; call the YouTube Center Developer Build listeners */
             for (var i = 0, len = events[event].listeners.length; i < len; i++) {
               events[event].listeners[i].apply(generateThisObject(), args);
             }
             con.log("[Player Listener] Event " + event + " was called with", args);
           } else if (ytListeners[ytEvent]) {
             if (apiNotAvailable) {
-              /* API is not available therefore call YouTube Center listeners as YouTube listener is called  */
+              /* API is not available therefore call YouTube Center Developer Build listeners as YouTube listener is called  */
               for (var i = 0, len = events[event].listeners.length; i < len; i++) {
                 returnVal = events[event].listeners[i].apply(null, args);
               }
@@ -21086,8 +21086,8 @@
         document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
         document.documentElement.setAttribute("data-ytc-player-size-aligned", align); // Whether the player should be aligned with the content element (description, comments, recommended videos and etc).
         
-        /* Handle the YouTube player size classes (YouTube Center doesn't differentiate between watch-medium and watch-large
-           as the difference is only the size of the player and that is handled by YouTube Center). */
+        /* Handle the YouTube player size classes (YouTube Center Developer Build doesn't differentiate between watch-medium and watch-large
+           as the difference is only the size of the player and that is handled by YouTube Center Developer Build). */
         ytcenter.utils.removeClass(player, "watch-small watch-medium watch-large");
         if (player) {
           if (large) {
@@ -23234,9 +23234,6 @@
           ytcenter.player.disablePlayerUpdate = false;
           uw.ytplayer = new PlayerConfig(function(config){
             con.log("[Player Config Global] A new player configuration change request!", config);
-            if (config && config.html5) {
-              con.log("[Player] HTML5 configuration detected");
-            }
             if (config) {
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), config));
               if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
@@ -23405,7 +23402,7 @@
          */
         /*http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js*/
         
-        /* The reason this is obfuscated is because IE crashes when using IE7Pro to run YouTube Center.
+        /* The reason this is obfuscated is because IE crashes when using IE7Pro to run YouTube Center Developer Build.
          * I think that it has something to do with the javascript parser IE7Pro are using.
          * The source code of the injected obfuscated part can be found on:
          * https://github.com/YePpHa/YouTubeCenter/tree/master/obfuscated/io.js
@@ -24692,7 +24689,7 @@
   }
   
   var domains = ["www.youtube.com", "youtube.com", "apis.google.com", "plus.googleapis.com"];
-  if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center should run.
+  if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center Developer Build should run.
     console.log("Domain registered " + document.domain + ".");
     initListeners();
     inject(main_function);
