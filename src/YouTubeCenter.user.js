@@ -18374,6 +18374,19 @@
       }
       return "";
     };
+    ytcenter.video.removeNonAlphanumericCharacters = function(text){
+      if (ytcenter.settings.fixfilename) {
+        var buffer = "";
+        for (var i = 0, len = text.length; i < len; i++) {
+          if (text.charAt(i).match(/[0-9a-zA-Z ]/i)) {
+            buffer += text.charAt(i);
+          }
+        }
+        return buffer;
+      } else {
+        return text;
+      }
+    };
     ytcenter.video.getFilename = function(stream){
       if (stream == null) return "";
       var duration = 0;
@@ -18408,7 +18421,7 @@
         pubyear = 0;
       }
       try {
-        var now = new Date();
+        var now = ytcenter.utils.now();
         nowtimestamp = Math.floor(now.getTime()/1000);
         nowsecs = now.getSeconds();
         nowmins = now.getMinutes();
@@ -18427,10 +18440,10 @@
         nowyear = 0;
       }
       var filename = ytcenter.utils.replaceTextAsString(ytcenter.settings.filename, {
-        title: ytcenter.video.title,
+        title: ytcenter.video.removeNonAlphanumericCharacters(ytcenter.video.title),
         videoid: ytcenter.video.id,
-        author: ytcenter.video.author,
-        channelname: ytcenter.video.channelname,
+        author: ytcenter.video.removeNonAlphanumericCharacters(ytcenter.video.author),
+        channelname: ytcenter.video.removeNonAlphanumericCharacters(ytcenter.video.channelname),
         resolution: (ytcenter.video.resolutions.hasOwnProperty(stream.quality) ? ytcenter.video.resolutions[stream.quality] : ''),
         itag: stream.itag,
         dimension: (stream.dimension ? stream.dimension : stream.size),
@@ -18465,6 +18478,7 @@
         pubmonth: ytcenter.utils.prefixText(pubmonth, "0", 2),
         pubyear: pubyear
       });
+      
       // Removing illegal characters for filename for OS
       if (uw.navigator.appVersion.toLowerCase().indexOf("win") != -1) {
         filename = filename.replace(new RegExp('[\\\\/:|]+', 'g'), "-");
@@ -18474,16 +18488,6 @@
         filename = filename.replace(":", "-");
       } else if (uw.navigator.appVersion.toLowerCase().indexOf("linux") != -1) {
         filename = filename.replace(new RegExp('[/\0]+', 'g'), "-");
-      }
-      
-      if (ytcenter.settings.fixfilename) {
-        var tmp = "";
-        for (var i = 0; i < filename.length; i++) {
-          if (filename.charAt(i).match(/[0-9a-zA-Z ]/i)) {
-            tmp += filename.charAt(i);
-          }
-        }
-        filename = tmp;
       }
       return filename;
     };
