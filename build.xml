@@ -29,6 +29,7 @@
   <property name="cert.chrome" value="${cert.chromePath}/${name}.pem" />
   
   <property name="src.chrome" value="${src}/.chrome" />
+  <property name="src.chrome-webstore" value="${src}/.chrome-webstore" />
   <property name="src.maxthon" value="${src}/.maxthon" />
   <property name="src.firefox-legacy" value="${src}/.firefox-legacy" />
   <property name="src.safari" value="${src}/.safari" />
@@ -300,7 +301,7 @@
   
   <target name="copy-chrome-webstore">
     <copy todir="${buildDir}">
-      <fileset dir="${src.chrome}/" />
+      <fileset dir="${src.chrome-webstore}/" />
     </copy>
     <copy todir="${buildDir}">
       <fileset dir="${src}">
@@ -311,7 +312,7 @@
         <globmapper from="*.user.js" to="*.js" /> 
       </mapper>
     </copy>
-    <antcall target="tokenreplace" />
+    <antcall target="tokenreplace-webstore" />
     <antcall target="apply-styles" />
     <replace dir="${buildDir}" value="${indentifier.chrome-webstore}" token="@identifier@" encoding="${encoding}" />
   </target>
@@ -398,6 +399,7 @@
     <loadfile property="chrome-update.install-part.content" srcfile="${chrome-update.install-part}" encoding="${encoding}" />
     
     <replace dir="${buildDir}" value="${language.db.content}" token="@ant-database-language@" encoding="${encoding}" />
+    
     <loadproperties srcFile="${build.prop}"/>
     <if>
       <equals arg1="${@devbuild@}" arg2="true" />
@@ -420,7 +422,36 @@
       </else>
     </if>
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />
+  </target>
+  
+  <target name="tokenreplace-webstore" depends="buildnumber">
+    <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
+    <loadresource property="language.db.content.r">
+      <string value="${language.db.content}"/>
+      <filterchain>
+        <replaceregex pattern="YouTube Center" replace="@chrome-webstore-name@" flags="g"/>
+      </filterchain>
+    </loadresource>
     
+    <replace dir="${buildDir}" value="${language.db.content.r}" token="@ant-database-language@" encoding="${encoding}" />
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <property file="${devbuild.number}" />
+        <replace dir="${buildDir}" value="${build.number}" token="@version@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@chrome-webstore-name-dev@}" token="@name@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@dev-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@dev-updateURL@}" token="@updateURL@" encoding="${encoding}" />
+      </then>
+      <else>
+        <replace dir="${buildDir}" value="${@ant-version@}" token="@version@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@chrome-webstore-name@}" token="@name@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@stable-downloadURL@}" token="@downloadURL@" encoding="${encoding}" />
+        <replace dir="${buildDir}" value="${@stable-updateURL@}" token="@updateURL@" encoding="${encoding}" />
+      </else>
+    </if>
+    <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}" />
   </target>
   
   <target name="clean">
