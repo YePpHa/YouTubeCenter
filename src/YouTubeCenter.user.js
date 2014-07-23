@@ -24321,26 +24321,43 @@
   function chrome_save(id, key, data) {
     if (typeof data !== "string") data = JSON.stringify(data);
     
-    var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
-    if (chrome[runtimeOrExtension]) {
-      chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "setLocalStorage", "key": key, "data": data }), function() {
-        callUnsafeWindow(id);
-      });
+    if (chrome && chrome.storage && chrome.storage.local) {
+      var storage = chrome.storage.local;
+      var details = {};
+      details[key] = data;
+      chrome.storage.local.set(details);
+      
     } else {
-      console.error("Chrome extension API is not present!");
+      console.warn("[Chrome] Chrome extension API is not present!");
       defaultSave(id, key, data);
     }
   }
 
   function chrome_load(id, key) {
-    var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
-    if (chrome[runtimeOrExtension]) {
-      chrome[runtimeOrExtension].sendMessage(JSON.stringify({ "method": "getLocalStorage", "key": key }), function(response) {
-        if (typeof response === "string") response = JSON.parse(response);
-        callUnsafeWindow(id, response.data);
-      });
+    if (chrome && chrome.storage && chrome.storage.local) {
+      var storage = chrome.storage.local;
+      var value = null;
+      if ((value = localStorage.getItem(key) || null) !== null) {
+        console.log("[Chrome] Moving settings from old method to new method for " + key);
+        var details = {};
+        details[key] = value;
+        
+        chrome.storage.local.set(details);
+        
+        localStorage.removeItem(key);
+        callUnsafeWindow(id, value);
+      } else {
+        storage.get(key, function(result) {
+          var res = {};
+          if (key in result) {
+            res = result[key];
+          }
+          
+          callUnsafeWindow(id, res);
+        });
+      }
     } else {
-      console.error("Chrome extension API is not present!");
+      console.warn("[Chrome] Chrome extension API is not present!");
       defaultLoad(id, key);
     }
   }
