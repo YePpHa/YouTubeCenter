@@ -6,6 +6,10 @@ body.ytcenter-scrolled-top {
   overflow: hidden;
 }
 
+.ytcenter-scrolled-top .watch-sidebar {
+  top: 0!important;
+}
+
 .ytcenter-scrolled-top #page,
 .ytcenter-scrolled-top-player-pre #page {
   position: static !important;
