@@ -23,9 +23,6 @@
       "js": [ "YouTubeCenter.js" ]
     }
   ],
-  "background": {
-    "scripts": [ "background.js" ]
-  },
   "options_page": "options.html",
   "permissions": [
     "storage",
