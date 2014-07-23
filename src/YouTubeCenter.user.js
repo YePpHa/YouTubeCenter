@@ -2181,13 +2181,6 @@
     })();
     if (loc.href.indexOf("http://apiblog.youtube.com/") === 0 || loc.href.indexOf("https://apiblog.youtube.com/") === 0) return;
     if (typeof console !== "undefined" && typeof console.log !== "undefined") {
-      var con = {};
-      for (var key in console) {
-        if (typeof console[key] === "function") {
-          con[key] = console[key].bind(console);
-        }
-      }
-    } else if (typeof console !== "undefined" && typeof console.log !== "undefined") {
       con = {};
       for (var key in console) {
         if (typeof console[key] === "function") {
@@ -19205,13 +19198,13 @@
       function loadMethod1() {
         try {
           var a = document.body.innerHTML;
-          a = a.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ");
+          a = a.split("<script>var ytplayer = ytplayer || {};ytplayer.config = {");
           if (!a || !a[1]) return null;
           a = a[1];
-          a = a.split(";</script>");
+          a = a.split("};");
           if (!a || !a[0]) return null;
           a = a[0];
-          a = JSON.parse(a);
+          a = JSON.parse("{" + a + "}");
           return a;
         } catch (e) {
           con.error(e);
