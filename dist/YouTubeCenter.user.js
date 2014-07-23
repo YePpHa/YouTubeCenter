@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         359
+// @version         360
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 359);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 360);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -3096,7 +3096,7 @@
         unloads.push(unload);
       };
     })();
-    ytcenter.version = "2.1.3";
+    ytcenter.version = "2.1.4";
     ytcenter.revision = 151;
     ytcenter.icon = {};
     ytcenter.page = "none";
@@ -18421,7 +18421,7 @@
         pubyear = 0;
       }
       try {
-        var now = ytcenter.utils.now();
+        var now = new Date();
         nowtimestamp = Math.floor(now.getTime()/1000);
         nowsecs = now.getSeconds();
         nowmins = now.getMinutes();
@@ -20208,26 +20208,39 @@
     ytcenter.player.listeners = (function(){
       // Get the YouTube listener for the passed event.
       function getYouTubeListener(event) {
-        var ytEvent = "ytPlayer" + event + "player" + playerId;
+        var ytEvent = "ytPlayer" + event + "player" + getPlayerId();
         return ytListeners[ytEvent];
       }
       
       // The latest player id registered in the global window.
       function getNewestPlayerId() {
-        var id = 1, i;
+        var id = 1;
+        var uid = null;
+        var i = null;
+        
         ytcenter.utils.each(uw, function(key, value){
           if (key.indexOf("ytPlayer") !== -1) {
-            i = parseInt(key.match(/player([0-9]+)$/)[1]);
-            if (i > id) {
-              id = i;
+            var match = key.match(/player([0-9]+)$/);
+            var uidMatch = key.match(/player_uid_([0-9]+)_([0-9]+)$/);
+            if (uidMatch) {
+              uid = parseInt(uidMatch[1], 10);
+              i = parseInt(uidMatch[2], 10);
+              if (i > id) {
+                id = i;
+              }
+            } else if (match) {
+              i = parseInt(match[1], 10);
+              if (i > id) {
+                id = i;
+              }
             }
           }
         });
-        return id;
+        return [uid, id];
       }
       
       function ytListenerContainerSetter(event, func) {
-        var ytEvent = "ytPlayer" + event + "player" + playerId;
+        var ytEvent = "ytPlayer" + event + "player" + getPlayerId();
         ytListeners[ytEvent] = func;
       }
       function ytListenerContainerGetter(event, func) {
@@ -20245,7 +20258,7 @@
           };
         }
         
-        var ytEvent = "ytPlayer" + event + "player" + playerId;
+        var ytEvent = "ytPlayer" + event + "player" + getPlayerId();
         var args = Array.prototype.slice.call(arguments, 2);
         var returnVal = null;
         
@@ -20308,7 +20321,7 @@
         globalListenersInitialized = true;
         for (var event in events) {
           if (events.hasOwnProperty(event)) {
-            var ytEvent = "ytPlayer" + event + "player" + playerId;
+            var ytEvent = "ytPlayer" + event + "player" + getPlayerId();
             if (uw[ytEvent]) {
               ytListeners[ytEvent] = uw[ytEvent];
             }
@@ -20317,6 +20330,14 @@
               ytcenter.utils.funcBind(null, ytListenerContainerGetter, event)
             );
           }
+        }
+      }
+      
+      function getPlayerId() {
+        if (ytcenter.utils.isArray(playerId)) {
+          return "_uid_" + playerId[0] + "_" + playerId[1];
+        } else {
+          return playerId;
         }
       }
       
