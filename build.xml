@@ -11,9 +11,15 @@
   
   <property name="build.prop" value="${basedir}/build.properties" />
   <property name="devbuild.number" value="${basedir}/devbuild.number" />
-  <property name="language.db" value="${basedir}/language.json" />
-  <property name="language.jar" value="${basedir}/LanguageDatabaseUpdater.jar" />
-  <property name="language.key" value="0AhHfBBHelFnAdF9fWHlVaHlGdUYteFNUUFVpeTIta2c" />
+  
+  <property name="crowdin.output" value="${basedir}/language.json" />
+  <property name="crowdin.jar" value="${basedir}/CrowdinManager.jar" />
+  <property name="crowdin.identifier" value="youtube-center" />
+  <property name="crowdin.path.key" value="${basedir}/crowdin.key" />
+  <property name="crowdin.path.base" value="${basedir}/base-english.json" />
+  <property name="crowdin.server.base" value="/base.json" />
+  <property name="crowdin.base.lang" value="en-US" />
+  
   <property name="encoding" value="UTF-8" />
   
   <property name="name" value="YouTubeCenter" />
@@ -77,12 +83,33 @@
     <mkdir dir="${cert.chromePath}" />
   </target>
   <target name="language">
+    <loadfile property="crowdin.key" srcFile="${crowdin.path.key}" />
+    
     <exec executable="java">
       <arg value="-Dfile.encoding=UTF-8" />
       <arg value="-jar" />
-      <arg value="${language.jar}" />
-      <arg value="${language.key}" />
-      <arg value="${language.db}" />
+      <arg value="${crowdin.jar}" />
+      <arg value="-m" /><arg value="build" />
+      <arg value="--key" /><arg value="${crowdin.key}" />
+      <arg value="--identifier" /><arg value="${crowdin.identifier}" />
+      <arg value="--include" /><arg value="${crowdin.path.base}" />
+      <arg value="--include-language" /><arg value="${crowdin.base.lang}" />
+      <arg value="--minify" />
+      <arg value="-o" /><arg value="${crowdin.output}" />
+    </exec>
+  </target>
+  <target name="language-update">
+    <loadfile property="crowdin.key" srcFile="${crowdin.path.key}" />
+    
+    <exec executable="java">
+      <arg value="-Dfile.encoding=UTF-8" />
+      <arg value="-jar" />
+      <arg value="${crowdin.jar}" />
+      <arg value="-m" /><arg value="update" />
+      <arg value="--key" /><arg value="${crowdin.key}" />
+      <arg value="--identifier" /><arg value="${crowdin.identifier}" />
+      <arg value="--file" /><arg value="${crowdin.path.base}" />
+      <arg value="--filename" /><arg value="${crowdin.server.base}" />
     </exec>
   </target>
   
