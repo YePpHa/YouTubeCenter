@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>${firefox.ID}</em:id>
-    <em:version>${version}</em:version>
+    <em:id>jid1-cwbvBTE216jjpg@jetpack</em:id>
+    <em:version>@version@</em:version>
     <em:type>2</em:type>
     <em:iconURL>chrome://ytcenter/content/icon32.png</em:iconURL>
     <em:iconURL64>chrome://ytcenter/content/icon64.png</em:iconURL64>
@@ -13,9 +13,9 @@
     <!-- Firefox -->
     <em:targetApplication>
       <Description>
-        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>19.0</em:minVersion>
-        <em:maxVersion>26.*</em:maxVersion>
+        <em:id>@firefox-target-id@</em:id>
+        <em:minVersion>@firefox-target-min-version@</em:minVersion>
+        <em:maxVersion>@firefox-target-max-version@</em:maxVersion>
       </Description>
     </em:targetApplication>
     
@@ -31,17 +31,54 @@
     <!-- Firefox Mobile -->
     <em:targetApplication>
       <Description>
-        <em:id>{aa3c5121-dab2-40e2-81ca-7ea25febc110}</em:id>
-        <em:minVersion>19.0</em:minVersion>
-        <em:maxVersion>20.*</em:maxVersion>
+        <em:id>@firefox-target-mobile-id@</em:id>
+        <em:minVersion>@firefox-target-mobile-min-version@</em:minVersion>
+        <em:maxVersion>@firefox-target-mobile-max-version@</em:maxVersion>
       </Description>
     </em:targetApplication>
 
     <!-- Front End MetaData -->
-    <em:name>${name}</em:name>
-    <em:description>${description}</em:description>
-    <em:creator>${author}</em:creator>
-    
+    <em:name>@name@</em:name>
+    <em:description>YouTube Center contains all kind of different useful functions which makes your visit on YouTube much more entertaining.</em:description>
+    <em:creator>Jeppe Rune Mortensen</em:creator>
+    @firefox-update-install-part@
     <!-- Translators -->
+    <em:translator>alihill381</em:translator>
+    <em:translator>Joan Alemany</em:translator>
+    <em:translator>Raül Cambeiro</em:translator>
+    <em:translator>Petr Vostřel</em:translator>
+    <em:translator>Simon Artmann</em:translator>
+    <em:translator>Sven "Hidden" W</em:translator>
+    <em:translator>Roxz</em:translator>
+    <em:translator>ThePoivron</em:translator>
+    <em:translator>baryoni</em:translator>
+    <em:translator>Eugenox</em:translator>
+    <em:translator>Mateus</em:translator>
+    <em:translator>Pietro De Nicolao</em:translator>
+    <em:translator>Lightning-Natto</em:translator>
+    <em:translator>Hyeongi Min</em:translator>
+    <em:translator>U Bless</em:translator>
+    <em:translator>master3395</em:translator>
+    <em:translator>Mathias Solheim</em:translator>
+    <em:translator>Marijn Roes</em:translator>
+    <em:translator>Piotr</em:translator>
+    <em:translator>kasper93</em:translator>
+    <em:translator>Thiago R. M. Pereira</em:translator>
+    <em:translator>José Junior</em:translator>
+    <em:translator>Igor Rückert</em:translator>
+    <em:translator>Rafael Damasceno</em:translator>
+    <em:translator>João P. Moutinho Barbosa</em:translator>
+    <em:translator>BlueMe</em:translator>
+    <em:translator>KDASOFT</em:translator>
+    <em:translator>ja1som</em:translator>
+    <em:translator>Christian Eriksson</em:translator>
+    <em:translator>Ismail Aksu</em:translator>
+    <em:translator>SPIDER-T1</em:translator>
+    <em:translator>Tuấn Phạm</em:translator>
+    <em:translator>雅丶涵</em:translator>
+    <em:translator>MatrixGT</em:translator>
+    <em:translator>泰熊</em:translator>
+    <em:translator>Lasse Olsen</em:translator>
+    <em:translator>Jeppe Rune Mortensen</em:translator>
   </Description>
 </RDF>
