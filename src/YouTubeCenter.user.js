@@ -10584,6 +10584,37 @@
       return getExports();
     })();
     
+    ytcenter.channelPlaylistLinks = (function(){
+      function update() {
+        var page = ytcenter.getPage();
+        if (page === "channel" && !ytcenter.settings.channelUploadedVideosPlaylist) {
+          var elements = document.getElementsByTagName("a");
+          for (var i = 0, len = elements.length; i < len; i++) {
+            var el = elements[i];
+            var href = el.getAttribute("href");
+            if (href.match(/^\/watch\?v=[a-zA-Z0-9_\-]+&list=/g) && ytcenter.utils.hasClass(el, "ux-thumb-wrap")) {
+              el.setAttribute("href", /^(\/watch\?v=[a-zA-Z0-9_\-]+)&list=/g.exec(href)[1]);
+              el.setAttribute("data-ytc-href", href);
+            }
+          }
+        } else if (page === "channel") {
+          var elements = document.getElementsByTagName("a");
+          for (var i = 0, len = elements.length; i < len; i++) {
+            var el = elements[i];
+            var href = el.getAttribute("data-ytc-href");
+            if (href) {
+              el.setAttribute("href", href);
+              el.removeAttribute("data-ytc-href");
+            }
+          }
+        }
+      }
+      
+      return {
+        update: update
+      };
+    })();
+    
     // @utils
     ytcenter.utils.getLocationOrigin = function(){
       if (loc.origin) {
@@ -12725,9 +12756,10 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      channelUploadedVideosPlaylist: false,
       ytOnlyStageMode: false,
       playerGlowEffectOnPlayer: "both",
-      bufferEnabled: true,
+      bufferEnabled: false,
       bufferSize: 569228273678,
       embedBufferEnabled: false,
       embedBufferSize: 569228273678,
@@ -12867,11 +12899,11 @@
       uploaderCountryPosition: "after_username", // ["before_username", "after_username", "last"]
       
       commentCountryData: [],
-      commentCountryEnabled: false,
+      commentCountryEnabled: true,
       commentCountryShowFlag: true,
       commentCountryUseNames: true,
       commentCountryLazyLoad: true,
-      commentCountryButtonLoad: false,
+      commentCountryButtonLoad: true,
       commentCountryPosition: "after_username", // ["before_username", "after_username", "last"]
       
       videoThumbnailData: [],
@@ -14215,6 +14247,13 @@
             "SETTINGS_AUTOEXPANDTITLE_LABEL",
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Expand_Title"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            "channelUploadedVideosPlaylist", // defaultSetting
+            "bool", // module
+            "SETTINGS_CHANNELUPLOADVIDEOSPLAYLIST_LABEL"
           );
           subcat.addOption(option);
 
@@ -23493,6 +23532,8 @@
           ytcenter.commentsPlus.setup();
           return;
         }
+        
+        ytcenter.channelPlaylistLinks.update();
         
         if (page === "watch") {
           ytcenter.playlistAutoPlay.init();
