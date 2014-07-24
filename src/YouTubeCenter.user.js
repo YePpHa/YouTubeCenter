@@ -5837,6 +5837,7 @@
       __r.update = function(){
         ytcenter.gridview.update();
         ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
+        ytcenter.channelPlaylistLinks.update();
         
         var vt = compareDifference(getVideoThumbs(), videoThumbs), i;
         for (i = 0; i < vt.length; i++) {
@@ -10587,24 +10588,30 @@
     ytcenter.channelPlaylistLinks = (function(){
       function update() {
         var page = ytcenter.getPage();
-        if (page === "channel" && !ytcenter.settings.channelUploadedVideosPlaylist) {
-          var elements = document.getElementsByTagName("a");
-          for (var i = 0, len = elements.length; i < len; i++) {
-            var el = elements[i];
-            var href = el.getAttribute("href");
-            if (href.match(/^\/watch\?v=[a-zA-Z0-9_\-]+&list=/g) && ytcenter.utils.hasClass(el, "ux-thumb-wrap")) {
-              el.setAttribute("href", /^(\/watch\?v=[a-zA-Z0-9_\-]+)&list=/g.exec(href)[1]);
-              el.setAttribute("data-ytc-href", href);
+        if (page === "channel") {
+          if (!ytcenter.settings.channelUploadedVideosPlaylist) {
+            var elements = document.getElementsByTagName("a");
+            for (var i = 0, len = elements.length; i < len; i++) {
+              var el = elements[i];
+              if (el && typeof el.getAttribute === "function") {
+                var href = el.getAttribute("href");
+                if (href && typeof href.match === "function" && href.match(/^\/watch\?v=[a-zA-Z0-9_\-]+&list=/g) && (ytcenter.utils.hasClass(el, "ux-thumb-wrap") || ytcenter.utils.hasClass(el, "yt-uix-tile-link"))) {
+                  el.setAttribute("href", /^(\/watch\?v=[a-zA-Z0-9_\-]+)&list=/g.exec(href)[1]);
+                  el.setAttribute("data-ytc-href", href);
+                }
+              }
             }
-          }
-        } else if (page === "channel") {
-          var elements = document.getElementsByTagName("a");
-          for (var i = 0, len = elements.length; i < len; i++) {
-            var el = elements[i];
-            var href = el.getAttribute("data-ytc-href");
-            if (href) {
-              el.setAttribute("href", href);
-              el.removeAttribute("data-ytc-href");
+          } else {
+            var elements = document.getElementsByTagName("a");
+            for (var i = 0, len = elements.length; i < len; i++) {
+              var el = elements[i];
+              if (el && typeof el.getAttribute === "function") {
+                var href = el.getAttribute("data-ytc-href");
+                if (href) {
+                  el.setAttribute("href", href);
+                  el.removeAttribute("data-ytc-href");
+                }
+              }
             }
           }
         }
