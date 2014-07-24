@@ -91,7 +91,6 @@ function load(content, sandbox, filename) {
 
 function loadScript(whitelist, blacklist, filename, content, wrappedContentWin, doc) {
   if (isRunnable(doc.location.href, whitelist, blacklist) && embedCheck(doc.location.href)) {
-    let experimentArr = [wrappedContentWin];
     let chromeWindow = getChromeWinForContentWin(wrappedContentWin);
     let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
     let sandbox = createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
