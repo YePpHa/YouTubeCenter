@@ -7138,7 +7138,7 @@
             if (data.raw_locales[language]) {
               return data.raw_locales[language];
             } else {
-              return data.raw_locales["en"] || data.raw;
+              return data.raw_locales["en-US"] || data.raw;
             }
           } else if (data.raw) {
             return data.raw;
@@ -11815,6 +11815,53 @@
                   ytcenter.settings['signatureDecipher'].push({ func: "call", name: methods[i], value: methodValues[i] });
                 }
                 
+              } else if (a.match(/([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\(a,([0-9]+)\)/g)) {
+                var commonObject = null;
+                var arr = a.split(";");
+                var methods = [];
+                var methodValues = [];
+                for (var i = 0, len = arr.length - 1; i < len; i++) {
+                  var tokens = /([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\(a,([0-9]+)\)/g.exec(arr[i]);
+                  if (commonObject !== tokens[1] && commonObject !== null) {
+                    throw "Unknown cipher method!";
+                  } else {
+                    commonObject = tokens[1];
+                  }
+                  methods.push(tokens[2]);
+                  methodValues.push(tokens[3]);
+                }
+                
+                var prefix = "var " + ytcenter.utils.escapeRegExp(commonObject) + "=\\{(";
+                
+                var uniqueMethods = [];
+                var regexMeth = [];
+                for (var i = 0, len = methods.length; i < len; i++) {
+                  if (!ytcenter.utils.inArray(uniqueMethods, methods[i])) {
+                    uniqueMethods.push(methods[i]);
+                    regexMeth.push(ytcenter.utils.escapeRegExp(methods[i]));
+                  }
+                }
+                
+                for (var i = 0, len = uniqueMethods.length; i < len; i++) {
+                  if (i > 0) prefix += "|";
+                  prefix += "(([a-zA-Z0-9]+):function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}[,]?)";
+                }
+                
+                prefix += ")\\}";
+                
+                var regexMethod = new RegExp(prefix, "g").exec(response.responseText);
+                var definedFunctions = new RegExp("([a-zA-Z0-9]+):function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}", "g");
+                
+                ytcenter.settings['signatureDecipher'] = [];
+                
+                var definedFunction;
+                while (definedFunction = definedFunctions.exec(regexMethod[0])) {
+                  ytcenter.settings['signatureDecipher'].push({ func: "function", name: definedFunction[1], value: definedFunction[3] + ";return a;" });
+                }
+                
+                for (var i = 0, len = methods.length; i < len; i++) {
+                  ytcenter.settings['signatureDecipher'].push({ func: "call", name: methods[i], value: methodValues[i] });
+                }
               } else {
                 ytcenter.settings['signatureDecipher'] = []; // Clearing signatureDecoder
                 ytcenter.settings['signatureDecipher'].push({ func: "code", value: a });
@@ -12722,10 +12769,10 @@
             } else if (uw.yt.config_.HL_LOCALE && ytcenter.languages.hasOwnProperty(uw.yt.config_.HL_LOCALE)) {
               lang = uw.yt.config_.HL_LOCALE;
             } else {
-              lang = "en";
+              lang = "en-US";
             }
           } else {
-            lang = "en";
+            lang = "en-US";
             if (!doNotRecurse) {
               con.log("Language set to " + lang + " because it could not be auto-detected yet");
               var languageUpdateCounter = 0;
@@ -14173,22 +14220,37 @@
             "SETTINGS_LANGUAGE", // label
             { // Args
               "list": function(){
+                function sortCompare(a, b) {
+                  if (a === "en-US") return -1;
+                  if (b === "en-US") return 1;
+                  if (ytcenter.languages[a].LANGUAGE < ytcenter.languages[b].LANGUAGE)
+                    return -1;
+                  if (ytcenter.languages[a].LANGUAGE > ytcenter.languages[b].LANGUAGE)
+                    return 1;
+                  return 0;
+                }
+                var sortList = [];
+                for (var key in ytcenter.languages) {
+                  if (ytcenter.languages.hasOwnProperty(key)) {
+                    sortList.push(key);
+                  }
+                }
+                sortList.sort(sortCompare);
+                
                 var a = [];
                 a.push({
                   "label": "LANGUAGE_AUTO",
                   "value": "auto"
                 });
-                for (var key in ytcenter.languages) {
-                  if (ytcenter.languages.hasOwnProperty(key)) {
-                    a.push({
-                      "value": key,
-                      "label": (function(k){
-                        return function(){
-                          return ytcenter.languages[k].LANGUAGE;
-                        };
-                      })(key)
-                    });
-                  }
+                for (var i = 0, len = sortList.length; i < len; i++) {
+                  a.push({
+                    "value": sortList[i],
+                    "label": (function(key){
+                      return function(){
+                        return ytcenter.languages[key].LANGUAGE;
+                      };
+                    })(sortList[i])
+                  });
                 }
                 return a;
               },
@@ -18245,60 +18307,60 @@
             null, // label
             { // args
               "translators": {
-                "ar-bh": [
+                "ar-BH": [
                   { name: "alihill381" }
                 ],
-                "bg": [
+                "bg-BG": [
                   { name: "Mani Farone" }
                 ],
-                "ca": [
+                "ca-ES": [
                   { name: "Joan Alemany" },
                   { name: "Raül Cambeiro" }
                 ],
-                "cs": [
+                "cs-CZ": [
                   { name: "Petr Vostřel", url: "http://petr.vostrel.cz/" }
                 ],
-                "da": [
+                "da-DK": [
                   { name: "Lasse Olsen" },
                   { name: "Jeppe Rune Mortensen", url: "https://github.com/YePpHa/" }
                 ],
-                "de": [
+                "de-DE": [
                   { name: "Simon Artmann" },
                   { name: "Sven \"Hidden\" W" }
                 ],
-                "en": [],
-                "es": [
+                "en-US": [],
+                "es-ES": [
                   { name: "Roxz" }
                 ],
                 "fa-IR": [],
-                "fr": [
+                "fr-FR": [
                   { name: "ThePoivron", url: "http://www.twitter.com/ThePoivron" }
                 ],
-                "he": [
+                "he-IL": [
                   { name: "baryoni" }
                 ],
-                "hu": [
+                "hu-HU": [
                   { name: "Eugenox" },
                   { name: "Mateus" }
                 ],
-                "it": [
+                "it-IT": [
                   { name: "Pietro De Nicolao" }
                 ],
-                "ja": [
+                "ja-JP": [
                   { name: "Lightning-Natto" }
                 ],
-                "ko": [
+                "ko-KR": [
                   { name: "Hyeongi Min", url: "https://www.facebook.com/MxAiNM" },
                   { name: "U Bless", url: "http://userscripts.org/users/ubless" }
                 ],
-                "nb-NO": [
+                "no-NO": [
                   { name: "master3395" },
                   { name: "Mathias Solheim", url: "http://mathias.ocdevelopment.net/" }
                 ],
-                "nl": [
+                "nl-NL": [
                   { name: "Marijn Roes" }
                 ],
-                "pl": [
+                "pl-PL": [
                   { name: "Piotr" },
                   { name: "kasper93" },
                   { name: "Piter432" }
@@ -18312,26 +18374,26 @@
                   { name: "Rafael Damasceno", url: "http://userscripts.org/users/264457" },
                   { name: "João P. Moutinho Barbosa" }
                 ],
-                "ro": [
+                "ro-RO": [
                   { name: "BlueMe", url: "http://www.itinerary.ro/" }
                 ],
-                "ru": [
+                "ru-RU": [
                   { name: "KDASOFT", url: "http://kdasoft.narod.ru/" }
                 ],
-                "sk": [
+                "sk-SK": [
                   { name: "ja1som" }
                 ],
                 "sv-SE": [
                   { name: "Christian Eriksson" }
                 ],
-                "tr": [
+                "tr-TR": [
                   { name: "Ismail Aksu" }
                 ],
-                "UA": [
+                "uk-UA": [
                   { name: "SPIDER-T1" },
                   { name: "Petro Lomaka", url: "https://plus.google.com/103266219992558963899/" }
                 ],
-                "vi": [
+                "vi-VN": [
                   { name: "Tuấn Phạm" }
                 ],
                 "zh-CN": [

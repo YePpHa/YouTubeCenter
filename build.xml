@@ -421,7 +421,7 @@
   </target>
   
   <target name="tokenreplace" depends="buildnumber">
-    <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
+    <loadfile property="language.db.content" srcfile="${crowdin.output}" encoding="${encoding}" />
     <loadfile property="firefox-update.install-part.content" srcfile="${firefox-update.install-part}" encoding="${encoding}" />
     <loadfile property="chrome-update.install-part.content" srcfile="${chrome-update.install-part}" encoding="${encoding}" />
     
@@ -452,7 +452,7 @@
   </target>
   
   <target name="tokenreplace-webstore" depends="buildnumber">
-    <loadfile property="language.db.content" srcfile="${language.db}" encoding="${encoding}" />
+    <loadfile property="language.db.content" srcfile="${crowdin.output}" encoding="${encoding}" />
     <loadresource property="language.db.content.r">
       <string value="${language.db.content}"/>
       <filterchain>
