@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         363
+// @version         364
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 363);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 364);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -12726,6 +12726,7 @@
       }
       var db = [];
       var currentLang = {};
+      var defaultLang = "en-US";
       
       var __r = {};
       /**
@@ -12746,6 +12747,7 @@
        * Gets the locale for the specific locale name.
        */
       __r.getLocale = function(name, language){
+        if (!currentLang) currentLang = __r.getLanguage(defaultLang);
         if (typeof language !== "string" && currentLang.hasOwnProperty(name)) {
           return currentLang[name];
         } else if (ytcenter.languages.hasOwnProperty(language)) {
@@ -12769,10 +12771,10 @@
             } else if (uw.yt.config_.HL_LOCALE && ytcenter.languages.hasOwnProperty(uw.yt.config_.HL_LOCALE)) {
               lang = uw.yt.config_.HL_LOCALE;
             } else {
-              lang = "en-US";
+              lang = defaultLang;
             }
           } else {
-            lang = "en-US";
+            lang = defaultLang;
             if (!doNotRecurse) {
               con.log("Language set to " + lang + " because it could not be auto-detected yet");
               var languageUpdateCounter = 0;
@@ -12790,6 +12792,7 @@
             }
           }
         }
+        if (!ytcenter.languages[lang]) lang = defaultLang;
         currentLang = ytcenter.languages[lang];
         for (var i = 0; i < db.length; i++) {
           __setElementText(currentLang, db[i][0], db[i][1], db[i][2], db[i][3]);
