@@ -2900,7 +2900,6 @@
     ytcenter.io = {};
     
     ytcenter.unsafe.io = ytcenter.io;
-    ytcenter.unsafe.spf = {};
     
     ytcenter.title = {};
     ytcenter.title.originalTitle = "";
@@ -24054,6 +24053,8 @@
           ytcenter.guideMode.setup();
         }
         
+        ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
+        
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         if (loc.hash === "#ytcenter.settings.open") {
@@ -24109,6 +24110,10 @@
             con.log("[Tooltip Cleanup] Removed tooltip with id #" + a[i].id.replace("yt-uix-tooltip", ""));
             document.body.removeChild(a[i]);
           }
+        }
+        
+        if (ytcenter.player.getConfig() !== null) {
+          ytcenter.player.onYouTubePlayerReady(ytcenter.player.getAPI());
         }
       });
       

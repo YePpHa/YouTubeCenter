@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         367
+// @version         368
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 367);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 368);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -2900,7 +2900,6 @@
     ytcenter.io = {};
     
     ytcenter.unsafe.io = ytcenter.io;
-    ytcenter.unsafe.spf = {};
     
     ytcenter.title = {};
     ytcenter.title.originalTitle = "";
@@ -24054,6 +24053,8 @@
           ytcenter.guideMode.setup();
         }
         
+        ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
+        
         ytcenter.classManagement.applyClassesForElement(document.body);
         
         if (loc.hash === "#ytcenter.settings.open") {
@@ -24109,6 +24110,10 @@
             con.log("[Tooltip Cleanup] Removed tooltip with id #" + a[i].id.replace("yt-uix-tooltip", ""));
             document.body.removeChild(a[i]);
           }
+        }
+        
+        if (ytcenter.player.getConfig() !== null) {
+          ytcenter.player.onYouTubePlayerReady(ytcenter.player.getAPI());
         }
       });
       
