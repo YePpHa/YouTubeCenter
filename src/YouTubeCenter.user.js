@@ -23755,7 +23755,12 @@
         ytcenter.pageSetup();
         
         yt = uw.yt;
-        ytcenter.player.onYouTubePlayerReady = ytcenter.utils.errorProxy(null, function(api){
+        
+        if (page === "embed") {
+          ytcenter.player.listeners.setup();
+        }
+        
+        ytcenter.player.onYouTubePlayerReady = function(api){
           if (!ytcenter.player.config) return;
           /* Running other onYouTubePlayerReady callbacks */
           if (ytcenter.onYouTubePlayerReady) {
@@ -23845,7 +23850,7 @@
               ytcenter.classManagement.applyClasses();
             }
           }
-        });
+        };
         ytcenter.player.listeners.addEventListener("onReady", function(api){
           var config = ytcenter.player.getConfig();          
           if (ytcenter.settings.enableAutoVideoQuality) {

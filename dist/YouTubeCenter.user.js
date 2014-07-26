@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         368
+// @version         369
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -71,7 +71,7 @@
 // @grant           unsafeWindow
 // @updateURL       https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.meta.js
 // @downloadURL     https://github.com/YePpHa/YouTubeCenter/raw/master/dist/YouTubeCenter.user.js
-// @updateVersion   151
+// @updateVersion   152
 // @run-at          document-start
 // @priority        9001
 // @contributionURL https://github.com/YePpHa/YouTubeCenter/wiki/Donate
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 368);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 369);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -3026,7 +3026,7 @@
       };
     })();
     ytcenter.version = "2.1.4";
-    ytcenter.revision = 151;
+    ytcenter.revision = 152;
     ytcenter.icon = {};
     ytcenter.page = "none";
     ytcenter.feather = false;
@@ -23755,7 +23755,12 @@
         ytcenter.pageSetup();
         
         yt = uw.yt;
-        ytcenter.player.onYouTubePlayerReady = ytcenter.utils.errorProxy(null, function(api){
+        
+        if (page === "embed") {
+          ytcenter.player.listeners.setup();
+        }
+        
+        ytcenter.player.onYouTubePlayerReady = function(api){
           if (!ytcenter.player.config) return;
           /* Running other onYouTubePlayerReady callbacks */
           if (ytcenter.onYouTubePlayerReady) {
@@ -23845,7 +23850,7 @@
               ytcenter.classManagement.applyClasses();
             }
           }
-        });
+        };
         ytcenter.player.listeners.addEventListener("onReady", function(api){
           var config = ytcenter.player.getConfig();          
           if (ytcenter.settings.enableAutoVideoQuality) {
