@@ -453,7 +453,7 @@
   
   <target name="tokenreplace-webstore" depends="buildnumber">
     <loadfile property="language.db.content" srcfile="${crowdin.output}" encoding="${encoding}" />
-    <loadresource property="language.db.content.r">
+    <loadresource property="language.db.content.r" encoding="${encoding}">
       <string value="${language.db.content}"/>
       <filterchain>
         <replaceregex pattern="YouTube Center" replace="@chrome-webstore-name@" flags="g"/>
