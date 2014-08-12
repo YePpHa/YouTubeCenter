@@ -19702,11 +19702,17 @@
         }
         return false;
       }
+      function clear(config) {
+        var cfg = getConfig(config);
+        if (cfg && cfg.args) {
+          cfg.args.fexp = "";
+        }
+      }
       function getConfig(config) {
         return config || ytcenter.player.config.args;
       }
       
-      return { add: add, remove: remove, has: has };
+      return { add: add, remove: remove, has: has, clear: clear };
     })();
     ytcenter.player.modifyConfig = function(page, config){
       if (page !== "watch" && page !== "embed" && page !== "channel") return config;
@@ -19774,7 +19780,7 @@
           config.args.fexp = ytcenter.settings.custom_fexp;
         } else {
           // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
-          ytcenter.player.experiments.add("931959", config);
+          ytcenter.player.experiments.add("931983 931972", config);
         }
         
         if (!config.args.video_id) {
