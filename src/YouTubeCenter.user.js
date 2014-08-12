@@ -4941,13 +4941,22 @@
             url: url,
             method: "GET",
             onload: function(r){
-              var cfg, errorType = "unknown";
+              var cfg = null;
+              var errorType = "unknown";
               try {
                 try {
                   if (spflink) {
-                    var packages = ytcenter.spfPackages(JSON.parse(r.responseText)),
-                        player = packages.getData("player");
-                    cfg = player.getPlayerConfig();
+                    var parts = JSON.parse(r.responseText);
+                    
+                    for (var i = 0, len = parts.length; i < len; i++) {
+                      var part = parts[i];
+                      if (part && part.data && part.data.swfcfg) {
+                        cfg = part.data.swfcfg;
+                        break;
+                      }
+                    }
+                    
+                    if (!cfg) throw "Player configurations not found in spf.";
                   } else {
                     cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
                     cfg = JSON.parse(cfg);
@@ -18280,7 +18289,7 @@
                 ],
                 "fa-IR": [],
                 "fr-FR": [
-                  { name: "ThePoivron", url: "http://www.twitter.com/ThePoivron" }
+                  { name: "ThePoivron", url: "http://www.twitter.com/DaPavron" }
                 ],
                 "he-IL": [
                   { name: "baryoni" }
@@ -24229,7 +24238,7 @@
       var storage = chrome.storage.local;
       var details = {};
       details[key] = data;
-      chrome.storage.local.set(details);
+      storage.set(details);
       
     } else {
       console.warn("[Chrome] Chrome extension API is not present!");
@@ -24246,7 +24255,7 @@
         var details = {};
         details[key] = value;
         
-        chrome.storage.local.set(details);
+        storage.set(details);
         
         localStorage.removeItem(key);
         callUnsafeWindow(id, value);
@@ -24533,7 +24542,7 @@
 
   function save(id, key, data) {
     if (typeof data !== "string") data = JSON.stringify(data);
-    if (@identifier@ === 1) {
+    if (@identifier@ === 1 || @identifier@ === 8) {
       chrome_save(id, key, data);
     } else if (@identifier@ === 2) {
       callUnsafeWindow(id, window.external.mxGetRuntime().storage.setConfig(key, data));
@@ -24555,7 +24564,7 @@
   }
 
   function load(id, key) {
-    if (@identifier@ === 1) {
+    if (@identifier@ === 1 || @identifier@ === 8) {
       chrome_load(id, key);
     } else if (@identifier@ === 2) {
       callUnsafeWindow(id, window.external.mxGetRuntime().storage.getConfig(key) || "{}");

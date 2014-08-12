@@ -27,7 +27,7 @@
   @chrome-update-install-part@
   "permissions": [
     "storage",
-    "unlimited_storage",
+    "unlimitedStorage",
     "http://*.youtube.com/*",
     "https://*.youtube.com/*",
     "http://s.ytimg.com/yts/jsbin/*",

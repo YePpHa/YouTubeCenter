@@ -26,7 +26,7 @@
   "options_page": "options.html",
   "permissions": [
     "storage",
-    "unlimited_storage",
+    "unlimitedStorage",
     "http://*.youtube.com/*",
     "https://*.youtube.com/*",
     "http://s.ytimg.com/yts/jsbin/*",
