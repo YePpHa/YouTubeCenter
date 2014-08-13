@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         372
+// @version         373
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 372);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 373);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -19780,7 +19780,9 @@
           config.args.fexp = ytcenter.settings.custom_fexp;
         } else {
           // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
-          ytcenter.player.experiments.add("931983 931972", config);
+          //ytcenter.player.experiments.clear(config);
+          ytcenter.player.experiments.remove("931983", config); // YouTube will probably change this in a few months.. again.
+          ytcenter.player.experiments.remove("931972", config);
         }
         
         if (!config.args.video_id) {
