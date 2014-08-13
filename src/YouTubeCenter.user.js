@@ -5705,7 +5705,7 @@
           ytcenter.settings.videoThumbnailData[index].likes = data.likes;
           ytcenter.settings.videoThumbnailData[index].dislikes = data.dislikes;
         }
-        ytcenter.saveSettings(false, true);
+        ytcenter.saveSettings();
       }
       function updateReuse(data) {
         var index = getDataCacheIndex(data);
@@ -5713,7 +5713,7 @@
         ytcenter.settings.videoThumbnailData[index].reused++;
         if (ytcenter.settings.videoThumbnailData[index].reused > 5)
           ytcenter.settings.videoThumbnailData[index].reused = 5;
-        ytcenter.saveSettings(false, true);
+        ytcenter.saveSettings();
       }
       function getDataCacheById(id) {
         var i;
@@ -5746,7 +5746,7 @@
         
         ytcenter.settings.videoThumbnailData.push(nData);
         
-        ytcenter.saveSettings(false, true);
+        ytcenter.saveSettings();
       }
       function calculateCacheLife(data) {
         return 1000*60*10 + (1000*60*5)*(data.reused ? data.reused : 0);
@@ -5776,7 +5776,7 @@
           }
         }
         ytcenter.settings.videoThumbnailData = nData;
-        ytcenter.saveSettings(false, true);
+        ytcenter.saveSettings();
       }
       var __r = {}, videoThumbs = [], observer = null, observer2 = null;
       __r.update = function(){
@@ -13263,39 +13263,42 @@
     
     ytcenter.saveSettings_timeout_obj = null;
     ytcenter.saveSettings_timeout = 300;
-    ytcenter.saveSettings = function(async, timeout, _callback){
-      function tabEventsSettingsAnnounce() {
+    ytcenter.saveSettings = (function(){
+      function save(throttle, callback) {
+        if (typeof throttle !== "boolean") throttle = true;
+        
+        if (throttle) {
+          throttleStoreSettings(callback);
+        } else {
+          storeSettings(callback);
+        }
+      }
+      
+      function saveComplete(callback) {
+        ytcenter.events.performEvent("save-complete");
+        
+        throttleAnnounceSettingStored(); // This should not be spammed!
+        
+        if (callback) callback();
+      }
+      
+      function storeSettings(callback) {
+        ytcenter.events.performEvent("save");
+        
+        con.log("[Storage] Saving Settings");
+        ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], saveComplete);
+      }
+      
+      function announceSettingStored() {
         con.log("[Tab Events] Sending new settings to other open tabs.");
         ytcenter.tabEvents.fireEvent("settings", ytcenter.settings);
       }
-      function callback() {
-        ytcenter.events.performEvent("save-complete");
-        
-        tabEventsSettingsAnnounceThrottle();
-        if (_callback) _callback();
-      }
-      var tabEventsSettingsAnnounceThrottle = ytcenter.utils.throttle(tabEventsSettingsAnnounce, 10000); // We don't need to SPAM the other tabs constantly. Once in a while is fine.
-      if (typeof async !== "boolean") async = false;
-      if (typeof timeout !== "boolean") timeout = false;
-      var __ss = function(){
-        con.log("[Storage] Saving Settings");
-        ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], callback);
-      };
-      try {
-        ytcenter.events.performEvent("save");
-        uw.clearTimeout(ytcenter.saveSettings_timeout_obj);
-        if (timeout) {
-          ytcenter.saveSettings_timeout_obj = uw.setTimeout(function(){
-            __ss();
-          }, ytcenter.saveSettings_timeout);
-        } else {
-          __ss();
-        }
-      } catch (e) {
-        con.error(e);
-        ytcenter.events.performEvent("save-error");
-      }
-    };
+      
+      var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 5000);
+      var throttleAnnounceSettingStored = ytcenter.utils.throttle(announceSettingStored, 7500);
+      
+      return save;
+    })();
     
     ytcenter.checkForUpdatesDev = (function(){
       var updElement;
@@ -14364,7 +14367,7 @@
                         primary: true,
                         callback: function(){
                           ytcenter.settings = ytcenter._settings;
-                          ytcenter.saveSettings(false, false);
+                          ytcenter.saveSettings(false);
                           uw.setTimeout(function(){
                             loc.reload();
                             dialog.setVisibility(false);
@@ -14434,7 +14437,7 @@
                         callback: function(){
                           ytcenter.settings.watchedVideos = [];
                           ytcenter.settings.notwatchedVideos = [];
-                          ytcenter.saveSettings(null, null, function(){
+                          ytcenter.saveSettings(false, function(){
                             loc.reload();
                             dialog.setVisibility(false);
                           });
@@ -18273,7 +18276,8 @@
                   { name: "Raül Cambeiro" }
                 ],
                 "cs-CZ": [
-                  { name: "Petr Vostřel", url: "http://petr.vostrel.cz/" }
+                  { name: "Petr Vostřel", url: "http://petr.vostrel.cz/" },
+                  { name: "R3gi", url: "mailto:regiprogi@gmail.com" }
                 ],
                 "da-DK": [
                   { name: "Lasse Olsen" },
@@ -21174,8 +21178,10 @@
         if (player) {
           if (large) {
             ytcenter.utils.addClass(player, "watch-large");
+            player.style.marginTop = "10px";
           } else {
             ytcenter.utils.addClass(player, "watch-small");
+            player.style.marginTop = "";
           }
         }
         
@@ -23286,15 +23292,18 @@
         }
       }, false);
     };
-    
+    ytcenter._config_registered = false;
     (function(){
       // Hijacks the ytplayer global variable.
       try {
         if (uw.ytplayer && uw.ytplayer.config) {
+          ytcenter._config_registered = true;
           con.log("[Player Config Global] Player configuration already registered by YouTube.");
           if (uw.ytplayer.config.html5) {
             con.log("[Player] HTML5 configuration detected");
           }
+          
+          // Make sure that modify config is applied to the player configuration.
           ytcenter.player.setConfig(ytcenter.utils.mergeObjects(uw.ytplayer.config || {}, ytcenter.player.config || {}));
         }
         if (uw.ytplayer && uw.ytplayer.config && uw.ytplayer.config.loaded) {
@@ -23523,6 +23532,15 @@
         }
         if (page === "comments") return; // We don't need to do anything here.
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+        
+        if (ytcenter._config_registered) {
+          // Re-creating the player to ensure that the correct fexp is applied correctly.
+          if (uw && uw.yt && uw.yt.player && uw.yt.player.Application && typeof uw.yt.player.Application.create === "function") {
+            ytcenter.player.setConfig(ytcenter.player.modifyConfig(page, ytcenter.player.getConfig()));
+            
+            uw.yt.player.Application.create("player-api", ytcenter.player.getConfig());
+          }
+        }
         
         ytcenter.classManagement.applyClassesForElement(document.body);
         
@@ -24096,7 +24114,7 @@
           ytcenter.title.update();
         }
       });
-      ytcenter.spf.addEventListener("part-received", function(e) {
+      ytcenter.spf.addEventListener("partreceived", function(e) {
         var detail = e.detail;
         var url = detail.url;
         if (detail && detail.part) {
@@ -24105,10 +24123,18 @@
             ytcenter.title.originalTitle = part.title;
             ytcenter.title.update();
           }
+          var swfcfg = null;
           if (part.swfcfg) {
-            ytcenter.config.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(url), part.swfcfg));
-            if (part.swfcfg.args && part.swfcfg.args.video_id) {
-              ytcenter.videoHistory.addVideo(part.swfcfg.args.video_id);
+            swfcfg = part.swfcfg;
+          } else if (part.data && part.data.swfcfg) {
+            swfcfg = part.data.swfcfg;
+          }
+          if (swfcfg) {
+            swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(url), swfcfg);
+            ytcenter.player.setConfig(swfcfg);
+            
+            if (swfcfg.args && swfcfg.args.video_id) {
+              ytcenter.videoHistory.addVideo(swfcfg.args.video_id);
             }
           }
           if (part.attr && part.attr.body && part.attr.body.class) {
