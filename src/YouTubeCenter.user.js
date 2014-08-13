@@ -19780,7 +19780,9 @@
           config.args.fexp = ytcenter.settings.custom_fexp;
         } else {
           // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
-          ytcenter.player.experiments.add("931983 931972", config);
+          //ytcenter.player.experiments.clear(config);
+          ytcenter.player.experiments.remove("931983", config); // YouTube will probably change this in a few months.. again.
+          ytcenter.player.experiments.remove("931972", config);
         }
         
         if (!config.args.video_id) {
