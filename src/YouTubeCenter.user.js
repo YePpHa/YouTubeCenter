@@ -18686,7 +18686,7 @@
     
     ytcenter.gridview = (function(){
       function getFeed() {
-        return document.getElementById("feed");
+        return document.getElementById("feed") || document.getElementById("browse-items-primary");
       }
       function getIndividualFeed(feed) {
         if (feed && feed.children && feed.children.length > 0 && feed.children[0]) {
@@ -18710,11 +18710,11 @@
         return type;
       }
       function getFeedItems(feed) {
-        var items = [],
-          feedContainer = feed.getElementsByClassName("feed-item-container"),
-          i;
+        var items = [];
         if (feed && feed.getElementsByClassName) {
-          for (i = 0; i < feedContainer.length; i++) {
+          var feedContainer = feed.getElementsByClassName("feed-item-container");
+          
+          for (var i = 0, len = feedContainer.length; i < len; i++) {
             items.push(parseFeedItem(feedContainer[i]));
           }
         }
@@ -18783,13 +18783,14 @@
       function update() {
         if (loc.pathname.indexOf("/feed/") === 0) {
           var feed = getFeed();
+          
           if (isEnabled(feed)) {
-            var items = getFeedItems(feed),
-              i,
-              ownerElm = null,
-              ownerWrapper = null,
-              details = null;
-            for (i = 0; i < items.length; i++) {
+            var items = getFeedItems(feed);
+            var ownerElm = null;
+            var ownerWrapper = null;
+            var details = null;
+            
+            for (var i = 0; i < items.length; i++) {
               details = items[i];
               if (!ytcenter.utils.inArray(feedItems, details.wrapper)) {
                 feedItems.push(details.wrapper);
