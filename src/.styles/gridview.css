@@ -1,6 +1,11 @@
 
-.ytcenter-grid-subscriptions-username {
+.ytcenter-grid-subscriptions-username,
+.ytcenter-gridview #browse-items-primary .branded-page-module-title {
   display: none;
+}
+
+.ytcenter-gridview #browse-items-primary {
+  padding-top: 10px;
 }
 
 .ytcenter-gridview .ytcenter-grid-subscriptions-username {
@@ -35,9 +40,13 @@
 /* Removes padding from the list items */
 .ytcenter-gridview .feed-item-container {
   padding: 0!important;
-  width: 185px!important;
+  width: 196px!important;
   height: 210px!important;
   border: 0!important;
+}
+.ytcenter-gridview .expanded-shelf-content-list {
+  margin-bottom: 0!important;
+  margin-right: 0!important;
 }
 .ltr.ytcenter-gridview .feed-item-container {
   float: left;
