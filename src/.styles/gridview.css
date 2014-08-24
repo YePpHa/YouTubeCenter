@@ -36,21 +36,29 @@
 /* Removes padding from the list items */
 .ytcenter-gridview .feed-item-container {
   padding: 0!important;
-  width: 185px!important;
+  width: 196px!important;
   height: 210px!important;
   border: 0!important;
 }
-.ytcenter-gridview .expanded-shelf-content-list {
+.ytcenter-gridview .feed-item-container,
+.ytcenter-gridview .feed-item-container .yt-lockup-thumbnail {
+  width: 196px!important;
+}
+.ytcenter-gridview .expanded-shelf-content-list,
+.ytcenter-gridview .expanded-shelf-content-item {
   margin-bottom: 0!important;
   margin-right: 0!important;
 }
-.ltr.ytcenter-gridview .feed-item-container {
-  float: left;
-  margin: 0 0 30px 10px!important;
+.ytcenter-gridview #browse-items-primary {
+  padding: 15px;
+  margin-right: -15px;
+  font-size: 0;
 }
-.rtl.ytcenter-gridview .feed-item-container {
-  float: right;
-  margin: 0 10px 30px 0!important;
+.ytcenter-gridview .feed-item-container {
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 20px;
+  vertical-align: top;
 }
 
 .ytcenter-gridview .feed-item-header {

@@ -4688,6 +4688,8 @@
         ytcenter.page = "channel";
       } else if (document.getElementById("page") && ytcenter.utils.hasClass(document.getElementById("page"), "channel")) {
         ytcenter.page = "channel";
+      } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/(user|channel)\//)) {
+        ytcenter.page = "channel";
       } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\//)) {
         if (loc.pathname === "/results") {
           ytcenter.page = "search";
