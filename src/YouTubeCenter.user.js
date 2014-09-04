@@ -5233,7 +5233,7 @@
           ytcenter.utils.removeClass(item.itemWrapper, "ytcenter-video-watched-wrapper"); // For hiding the item
         }
         if (loc.pathname === "/feed/subscriptions" && !item.actionMenu) {
-          item.actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling;
+          item.actionMenu = item.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.nextElementSibling;
           if (item.actionMenu) {
             am = item.actionMenu.getElementsByTagName("ul")[0];
             li = document.createElement("li");
