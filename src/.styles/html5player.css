@@ -87,7 +87,7 @@ html[data-player-size=fullscreen] .ytp-user-idle.autohide-controlbar-fullscreeno
 }
 
 /* Width and height fix */
-.ltr .html5-video-player .video-click-tracking,
+/*.ltr .html5-video-player .video-click-tracking,
 .ltr .html5-video-player .video-stream,
 .ltr .html5-video-player .html5-video-content {
   width: 100% !important;
@@ -102,7 +102,7 @@ html[data-player-size=fullscreen] .ytp-user-idle.autohide-controlbar-fullscreeno
   height: 100% !important;
   top: 0 !important;
   right: 0 !important;
-}
+}*/
 
 .ytcenter-disable-endscreen .html5-video-player .html5-endscreen {
   display: none!important;

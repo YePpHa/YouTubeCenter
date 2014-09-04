@@ -10,7 +10,12 @@
     },
     "permissions": {
       "httpRequest": [
-        "*"
+        "*.youtube.com",
+        "yeppha.github.io",
+        "s.ytimg.com",
+        "raw.github.com",
+        "apis.google.com",
+        "plus.googleapis.com"
       ]
     },
     "actions": [
@@ -18,7 +23,9 @@
         "type": "script",
         "entryPoints": [ 'doc_start' ],
         'include': [
-          "*"
+          "*.youtube.com",
+          "apis.google.com",
+          "plus.googleapis.com"
         ],
         "js": [ "YouTubeCenter.user.js" ],
         "includeFrames": true

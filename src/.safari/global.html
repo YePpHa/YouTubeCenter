@@ -96,7 +96,9 @@
         
         var func = nameToFunction(data.method);
         if (typeof func === "function") {
-          call(e, data.id, [func.apply(this, [e].concat(data.arguments))]);
+          var args = [e].concat(data.arguments);
+          var returnValue = func.apply(this, args);
+          call(e, data.id, [returnValue]);
         }
       }
       
