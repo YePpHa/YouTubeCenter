@@ -88,10 +88,15 @@
 .ytcenter-settings-category-list .ytcenter-settings-category-item .yt-valign-container {
   padding: 0 24px;
 }
+#ytcenter-settings .ytcenter-dialog-fg {
+  min-width: 1003px;
+}
+#ytcenter-settings .ytcenter-dialog-content {
+  margin: 0 -20px -20px -20px;
+}
 .ytcenter-settings-content {
   display: table;
-  min-width: 1003px;
-  margin: 0 -20px -20px -20px;
+  width: 100%;
 }
 .ytcenter-settings-panel-left {
   position: relative;
