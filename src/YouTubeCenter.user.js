@@ -23671,13 +23671,9 @@
           var userHeader = document.getElementById("watch7-user-header");
           var userName = document.getElementsByClassName("yt-user-name");
           
-          if (userHeader) {
-            userHeader = userHeader.getElementsByClassName("yt-user-name");
-            if (userHeader && userHeader.length > 1 && userHeader[0] && userHeader[0].textContent) {
-              ytcenter.video.author = userHeader[0].textContent;
-            }
-          }
-          if (!ytcenter.video.author && userName && userName.length > 0 && userName[0] && userName[0].textContent) {
+          if (userName && userName.length > 1 && userName[1] && userName[1].textContent) {
+            ytcenter.video.author = userName[1].textContent;
+          } else if (userName && userName.length > 0 && userName[0] && userName[0].textContent) {
             ytcenter.video.author = userName[0].textContent;
           }
           
