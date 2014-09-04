@@ -23735,7 +23735,7 @@
         }
         
         if (page === "watch") {
-          ytcenter.actionPanel.setup();
+          //ytcenter.actionPanel.setup();
           
           ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": false });
           ytcenter.player.setConfig(ytcenter.player.modifyConfig("watch", uw.ytplayer.config));
@@ -24037,7 +24037,7 @@
           }
           
           if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none" && state === 0) {
-            ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
+            //ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
           }
         });
         ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
