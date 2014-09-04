@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         381
+// @version         382
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 381);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 382);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -5233,7 +5233,7 @@
           ytcenter.utils.removeClass(item.itemWrapper, "ytcenter-video-watched-wrapper"); // For hiding the item
         }
         if (loc.pathname === "/feed/subscriptions" && !item.actionMenu) {
-          item.actionMenu = item.content.parentNode.parentNode.parentNode.parentNode.nextElementSibling;
+          item.actionMenu = item.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.nextElementSibling;
           if (item.actionMenu) {
             am = item.actionMenu.getElementsByTagName("ul")[0];
             li = document.createElement("li");
@@ -23671,13 +23671,9 @@
           var userHeader = document.getElementById("watch7-user-header");
           var userName = document.getElementsByClassName("yt-user-name");
           
-          if (userHeader) {
-            userHeader = userHeader.getElementsByClassName("yt-user-name");
-            if (userHeader && userHeader.length > 1 && userHeader[0] && userHeader[0].textContent) {
-              ytcenter.video.author = userHeader[0].textContent;
-            }
-          }
-          if (!ytcenter.video.author && userName && userName.length > 0 && userName[0] && userName[0].textContent) {
+          if (userName && userName.length > 1 && userName[1] && userName[1].textContent) {
+            ytcenter.video.author = userName[1].textContent;
+          } else if (userName && userName.length > 0 && userName[0] && userName[0].textContent) {
             ytcenter.video.author = userName[0].textContent;
           }
           
