@@ -2043,154 +2043,65 @@
         
         return null;
       }
-      function tabClickedEventListener() {
-        if (ytcenter.feather) return;
-        removeOnceLock();
-        clearDelaySwitchTab();
-        enableActionPanel();
-        uw.setTimeout(disableActionPanel, 0);
-      }
-      function initActionPanel() {
-        if (ytcenter.feather) return;
-        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
-        for (i = 0; i < secondaryActions.children.length; i++) {
-          ytcenter.utils.addEventListener(secondaryActions.children[i].children[0], "click", tabClickedEventListener, false);
-        }
-      }
-      function enableActionPanel() {
-        if (ytcenter.feather) return;
-        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
-        for (i = 0; i < secondaryActions.children.length; i++) {
-          ytcenter.utils.addClass(secondaryActions.children[i].children[0], "action-panel-trigger");
-        }
-      }
-      function disableActionPanel() {
-        if (ytcenter.feather) return;
-        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
-        for (i = 0; i < secondaryActions.children.length; i++) {
-          ytcenter.utils.removeClass(secondaryActions.children[i].children[0], "action-panel-trigger");
-        }
-      }
-      function listenerDisabler(e) {
+      function likeButtonListener(e) {
         function switchToPreferredTab() {
-          try {
-            switchTo(ytcenter.settings.likeSwitchToTab);
-          } catch (e) {
-            con.error(e);
-          }
+          setPanelEnabled("share", true);
+          uw.setTimeout(function(){ switchTo(ytcenter.settings.likeSwitchToTab); }, 7);
         }
         if (ytcenter.feather) return;
         try {
-          con.log("[ActionPanel:listenerDisabler] Like/dislike button clicked. Calling original event listener. Switching to preferred tab (" + ytcenter.settings.likeSwitchToTab + ").");
+          var isLiked = ytcenter.utils.hasClass(document.getElementById("watch-like-dislike-buttons"), "liked");
           
-          var h = ytcenter.utils.hasClass(document.getElementById("watch-like"), "yt-uix-button-toggled");
-          if (enabled && typeof h !== "undefined") {
-            setSwitchTab(document.getElementById("watch7-secondary-actions").getElementsByClassName("yt-uix-button-toggled")[0]);
-          }
+          setPanelEnabled("share", false);
           
           originalEventListener(e);
           
-          if (ytcenter.settings.likeSwitchToTab !== "none" && !h) {
-            uw.setTimeout(switchToPreferredTab, 0);
+          if (ytcenter.settings.likeSwitchToTab !== "none" && !isLiked) {
+            uw.setTimeout(switchToPreferredTab, 7);
           }
         } catch (e) {
           con.error(e);
         }
       }
-      function clearDelaySwitchTab() {
-        if (ytcenter.feather) return;
-        if (delayedSwitchTabTimer) {
-          delayedSwitchTabTimer = null;
-          uw.clearTimeout(delayedSwitchTabTimer);
-        }
-      }
-      function delaySwitchTab() {
-        function delayedSwitchTabCallback() {
-          delayedSwitchTabTimer = null;
-          ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
-        }
-        if (ytcenter.feather) return;
-        clearDelaySwitchTab();
-        delayedSwitchTabTimer = uw.setTimeout(delayedSwitchTabCallback, 1000);
-      }
-      function removeOnceLock() {
-        if (ytcenter.feather) return;
-        if (observer) observer.disconnect();
-        observer = null;
-      }
-      function setSwitchTab(elm) {
-        if (ytcenter.feather) return;
-        switchToElm = elm;
-        onceLock();
-      }
-      function onceLock() {
-        if (ytcenter.feather) return;
-        var oldClassName = null;
-        if (observer) observer.disconnect();
-        
-        oldClassName = switchToElm.className;
-        observer = ytcenter.mutation.observe(switchToElm, { attributes: true }, function(mutations){
-          mutations.forEach(function(mutation){
-            if (mutation.type === "attributes" && mutation.attributeName === "class" && oldClassName !== switchToElm.className) {
-              ytcenter.utils.addClass(switchToElm, "yt-uix-button-toggled");
-              //delaySwitchTab();
-              
-              /*if (observer) observer.disconnect();
-              observer = null;*/
-            }
-          });
-        });
-      }
-      function switchTo(tab) {
-        if (ytcenter.feather) return;
-        if (tab === "none" || !tab) return;
-        con.log("[ActionPanel:switchTo] Switching to " + tab);
-        var secondaryActions = document.getElementById("watch7-secondary-actions"), i;
-        for (i = 0; i < secondaryActions.children.length; i++) {
-          if (secondaryActions.children[i].children[0].getAttribute("data-trigger-for") === "action-panel-" + tab) {
-            setSwitchTab(secondaryActions.children[i].children[0]);
-            secondaryActions.children[i].children[0].click();
-            uw.setTimeout(onceLock, 0);
-            return;
+      
+      function setPanelEnabled(panel, enabled) {
+        if (enabled) {
+          var el = document.getElementById("action-panel-" + panel + "-disabled");
+          if (el) {
+            el.setAttribute("id", "action-panel-" + panel);
+          }
+        } else {
+          var el = document.getElementById("action-panel-" + panel);
+          if (el) {
+            el.setAttribute("id", "action-panel-" + panel + "-disabled");
           }
         }
       }
-      function setEnabled(aEnabled) {
-        if (ytcenter.feather) return;
-        if (aEnabled) {
-          enabled = true;
-          disableActionPanel();
-        } else {
-          enabled = false;
-          enableActionPanel();
-        }
+      
+      function switchTo(panel) {
+        if (!panel || panel === "none") return;
+        var btn = document.createElement("button");
+        btn.className = "action-panel-trigger";
+        btn.setAttribute("data-trigger-for", "action-panel-" + panel);
+        
+        var parent = document.getElementById("watch8-action-buttons");
+        
+        parent.appendChild(btn);
+        btn.click();
+        parent.removeChild(btn);
       }
-      function setThreadEnabled() {
-        if (ytcenter.feather) return;
-        enableActionPanel();
-        uw.setTimeout(disableActionPanel, 0);
-      }
+      
       function getLikeButton() {
-        if (ytcenter.feather) return null;
-        var elm = document.getElementById("watch-like");
-        if (elm) return elm;
-        
-        elm = document.getElementById("watch7-sentiment-actions");
-        if (elm && elm.firstChild && elm.firstChild.firstChild && elm.firstChild.firstChild.firstChild)
-          return elm.firstChild.firstChild.firstChild;
-        elm = null;
-        
-        return null;
+        return document.getElementById("watch-like");
       }
       function setup() {
+        if (ytcenter.feather) return;
         if (maxSetupCalls < setupCalls) return;
         setupCalls++;
         
-        if (ytcenter.feather) return;
         try {
-          if (observer) observer.disconnect();
-          if (likeButton && listenerDisabler && likeButtonEvent) {
-            likeButton.removeEventListener("click", listenerDisabler, likeButtonEvent[4]);
+          if (likeButton && likeButtonListener && likeButtonEvent) {
+            likeButton.removeEventListener("click", likeButtonListener, likeButtonEvent[4]);
           }
           
           if (ytcenter.getPage() !== "watch") return;
@@ -2209,15 +2120,12 @@
           
           con.log("[ActionPanel] Adding/Removing listeners");
           likeButton.removeEventListener("click", originalEventListener, likeButtonEvent[4]);
-          ytcenter.utils.addEventListener(likeButton, "click", listenerDisabler, likeButtonEvent[4]);
-          
-          con.log("[ActionPanel] Handling other inits");
-          initActionPanel();
-          disableActionPanel();
+          ytcenter.utils.addEventListener(likeButton, "click", likeButtonListener, likeButtonEvent[4]);
         } catch (e) {
           con.error(e);
         }
       }
+      
       var enabled = true;
       var switchToElm = null;
       var observer = null;
@@ -2230,9 +2138,6 @@
       
       return {
         switchTo: switchTo,
-        setEnabled: setEnabled,
-        setThreadEnabled: setThreadEnabled,
-        getLikeButton: getLikeButton,
         setup: setup
       };
     })();
@@ -13019,8 +12924,8 @@
         { type: "hashlinks", regex: "fixyoutube", attr: "textContent" }
       ],
       commentsPlusWhitelist: [],
-      likeSwitchToTab: "none", // none, details, share, addto, stats
-      endOfVideoAutoSwitchToTab: "none", // none, details, share, addto, stats
+      likeSwitchToTab: "none", // none, share, stats, report, login, ratings-disabled, rental-required, error
+      endOfVideoAutoSwitchToTab: "none", // none, share, stats, report, login, ratings-disabled, rental-required, error
       //enableYouTubeAutoSwitchToShareTab: false,
       topScrollPlayerEnabled: false,
       topScrollPlayerActivated: false,
@@ -14770,10 +14675,12 @@
             {
               "list": [
                 { "value": "none", "label": "SETTINGS_SWITCHTOTAB_NONE" },
-                { "value": "details", "label": "SETTINGS_SWITCHTOTAB_DETAILS" },
-                { "value": "share", "label": "SETTINGS_SWITCHTOTAB_SHARE" },
-                { "value": "addto", "label": "SETTINGS_SWITCHTOTAB_ADDTO" },
-                { "value": "stats", "label": "SETTINGS_SWITCHTOTAB_STATS" }
+                { "value": "share", "label": "SETTINGS_SWITCHTOTAB_SHARE" }/*,
+                { "value": "stats", "label": "SETTINGS_SWITCHTOTAB_STATS" },
+                { "value": "report", "label": "SETTINGS_SWITCHTOTAB_REPORT" },
+                { "value": "ratings-disabled", "label": "SETTINGS_SWITCHTOTAB_RATINGS_DISABLED" },
+                { "value": "rental-required", "label": "SETTINGS_SWITCHTOTAB_RENTAL_REQUIRED" },
+                { "value": "error", "label": "SETTINGS_SWITCHTOTAB_ERROR" }*/
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Switch_To_Tab_At_Like_of_Video"
@@ -14786,10 +14693,12 @@
             {
               "list": [
                 { "value": "none", "label": "SETTINGS_SWITCHTOTAB_NONE" },
-                { "value": "details", "label": "SETTINGS_SWITCHTOTAB_DETAILS" },
                 { "value": "share", "label": "SETTINGS_SWITCHTOTAB_SHARE" },
-                { "value": "addto", "label": "SETTINGS_SWITCHTOTAB_ADDTO" },
-                { "value": "stats", "label": "SETTINGS_SWITCHTOTAB_STATS" }
+                { "value": "stats", "label": "SETTINGS_SWITCHTOTAB_STATS" },
+                { "value": "report", "label": "SETTINGS_SWITCHTOTAB_REPORT" },
+                { "value": "ratings-disabled", "label": "SETTINGS_SWITCHTOTAB_RATINGS_DISABLED" },
+                { "value": "rental-required", "label": "SETTINGS_SWITCHTOTAB_RENTAL_REQUIRED" },
+                { "value": "error", "label": "SETTINGS_SWITCHTOTAB_ERROR" }
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Switch_To_Tab_At_End_of_Video"
@@ -23735,7 +23644,7 @@
         }
         
         if (page === "watch") {
-          //ytcenter.actionPanel.setup();
+          ytcenter.actionPanel.setup();
           
           ytcenter.player.setYTConfig({ "SHARE_ON_VIDEO_END": false });
           ytcenter.player.setConfig(ytcenter.player.modifyConfig("watch", uw.ytplayer.config));
@@ -23789,7 +23698,6 @@
           
           var referenceList = ytcenter.placementsystem.createReferenceList();
           ytcenter.placementsystem.placementGroupsReferenceList = referenceList;
-          con.log("Reference", referenceList);
           
           if (ytcenter.settings.placementGroups) {
             ytcenter.placementsystem.setSortList(ytcenter.settings.placementGroups, referenceList);
@@ -24037,7 +23945,7 @@
           }
           
           if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none" && state === 0) {
-            //ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
+            ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
           }
         });
         ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
