@@ -113,3 +113,11 @@ html[data-player-size=fullscreen] .ytp-user-idle.autohide-controlbar-fullscreeno
 .ytcenter-disable-html5 #player-unavailable {
   display: none !important;
 }
+
+/* Playlist in player for fullscreen top player */
+body.ytcenter-scrolled-top .html5-video-player.playlist-created .ytp-button.ytp-button-playlist,
+body.ytcenter-scrolled-top .html5-video-player.playlist-created .ytp-button.ytp-button-prev,
+body.ytcenter-scrolled-top .html5-video-player.playlist-created .ytp-button.ytp-button-next,
+body.ytcenter-scrolled-top .html5-video-player.playlist-created.playlist-loaded .ytp-playlist-tray-container {
+  display: block;
+}
