@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         384
+// @version         385
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 384);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 385);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -19054,6 +19054,10 @@
             !ytcenter.settings.mute && api.isMuted && api.unMute();
           }
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
+          
+          if (!ytcenter.html5) {
+            setState.preferredState = null;
+          }
         } else if (s <= 0 && state === 2) {
           api.mute();
           
@@ -19063,18 +19067,26 @@
           !ytcenter.settings.mute && api.isMuted && api.unMute();
           
           ytcenter.player.listeners.removeEventListener("onStateChange", listener);
+          
+          if (!ytcenter.html5) {
+            setState.preferredState = null;
+          }
         }
         
         if (ytcenter.html5) {
           ytcenter.utils.asyncCall(function(){
             var newState = api.getPlayerState();
-            if (newState !== state && ((newState !== -1 && newState !== 5) || !ytcenter.html5) && typeof newState === "number") {
+            if (newState !== state && (newState !== -1 && newState !== 5) && typeof newState === "number") {
               updateState(state, newState);
+            } else {
+              setState.preferredState = null;
             }
           });
         }
       }
       function setState(state) {
+        setState.preferredState = state;
+        
         var api = ytcenter.player.getAPI();
         
         con.log("[Player:setPlaybackState] State is changed to " + state);
@@ -19088,6 +19100,8 @@
         updateState(state, api.getPlayerState());
       }
       var listener = null;
+      
+      setState.preferredState = null;
       
       return setState;
     })();
@@ -23862,13 +23876,16 @@
           var api = null, state = null;
           if (ytcenter.player.getAPI) api = ytcenter.player.getAPI();
           if (api && api.getPlayerState) state = ytcenter.player.getAPI().getPlayerState();
-          if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
+          
+          if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying && !ytcenter.player.isPreventAutoBuffering() && !ytcenter.player.isPreventAutoPlay()) {
             if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
               ytcenter.player.network.pause();
             }
           }
         });
         ytcenter.player.listeners.addEventListener("onStateChange", function(state){
+          if (ytcenter.player.setPlaybackState.preferredState !== null) state = ytcenter.player.setPlaybackState.preferredState;
+          
           if (state === 1 && ytcenter.settings.playerOnlyOneInstancePlaying) {
             if ((ytcenter.getPage() === "embed" && ytcenter.settings.embed_enabled) || ytcenter.getPage() !== "embed") {
               ytcenter.player.network.pause();
