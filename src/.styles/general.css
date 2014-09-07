@@ -1,13 +1,3 @@
-#watch8-ytcenter-buttons {
-  padding-top: 5px;
-  border-top: 1px solid #e6e6e6;
-}
-
-#watch8-action-buttons {
-  padding-top: 0;
-  border-top: 0;
-}
-
 #watch-description .ypc-offer-thumbnail {
   position: relative;
 }
@@ -849,16 +839,36 @@ body > #page {
   filter: alpha(opacity=75) !important;
 }
 
+.ytcenter-placementsystem-activated .placementsystem-target {
+  visibility: hidden;
+}
+.ytcenter-placementsystem-activated .placementsystem-target::before {
+  float: left;
+  display: inline-block;
+  content: ' ';
+  border-left: 1px solid #ccc;
+  height: 28px;
+  visibility: visible;
+}
+
+#watch8-ytcenter-buttons {
+  position: relative;
+}
+
+.ytcenter-placementsystem-activated #watch8-ytcenter-buttons > *,
+.ytcenter-placementsystem-activated #watch8-secondary-actions > *,
+.ytcenter-placementsystem-activated #watch8-sentiment-actions > * {
+  display: inline-block;
+  position: relative;
+}
+
 .ytcenter-placementsystem-activated #watch7-sentiment-actions,
 .ytcenter-placementsystem-activated #watch7-ytcenter-buttons,
 .ytcenter-placementsystem-activated #watch8-sentiment-actions,
 .ytcenter-placementsystem-activated #watch8-secondary-actions,
 .ytcenter-placementsystem-activated #watch8-ytcenter-buttons {
-  border: 1px solid #ccc;
-  border-radius: 2px;
   min-width: 40px;
   min-height: 28px;
-  padding: 0 20px;
 }
 
 /*.branded-page-v2-primary-col {

@@ -2724,7 +2724,9 @@
       embed: "@styles-embed@",
       player: "@styles-player@",
       darkside: "@styles-darkside@",
-      feather: "@styles-feather@"/*,
+      feather: "@styles-feather@",
+      elementFocus: "@styles-element-focus@"
+      /*,
       yonez: "@styles-yonez-clean-yt@"*/
     };
     ytcenter.topScrollPlayer = (function(){
@@ -10326,6 +10328,22 @@
     })();
     
     // @utils
+    ytcenter.utils.getViewPort = function() {
+      var width = 0;
+      var height = 0;
+      
+      if (typeof window.innerWidth === "number") {
+        width = window.innerWidth;
+        height = window.innerHeight;
+      } else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+        width = document.documentElement.clientWidth;
+        height = document.documentElement.clientHeight;
+      } else if (document.body && (document.body.clientWidth || document.body.clientHeight)) {
+        width = document.body.clientWidth;
+        height = document.body.clientHeight;
+      }
+      return { width: width, height: height };
+    };
     ytcenter.utils.getAbsolutePosition = function(el) {
       var x = el.offsetLeft || 0;
       var y = el.offsetTop || 0;
@@ -11768,9 +11786,11 @@
       }
       return -1;
     };
-    ytcenter.utils.inArray = function(a, v){
-      for (var i = 0; i < a.length; i++) {
-        if (a[i] === v) return true;
+    ytcenter.utils.inArray = function(array, value){
+      for (var i = 0, len = array.length; i < len; i++) {
+        if (array[i] === value) {
+          return true;
+        }
       }
       return false;
     };
@@ -12039,13 +12059,6 @@
       
       return elm;
     };
-    ytcenter.utils.inArray = function(arr, value){
-      var i;
-      for (i = 0; i < arr.length; i++) {
-        if (arr[i] === value) return true;
-      }
-      return false;
-    };
     ytcenter.utils.objectKeys = function(obj){
       if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
         con.error("ytcenter.utils.objectKeys called on non-object");
@@ -12120,6 +12133,9 @@
     };
     (function(global, propertyName){
       function getTargetedGroup(x, y, groups) {
+        var distance = null;
+        var heightGroup = null;
+        
         for (var i = 0, len = groups.length; i < len; i++) {
           // Group element
           var group = groups[i];
@@ -12146,9 +12162,25 @@
           // Detecting if the (x, y) point is inside or touches the group element (rectangle)
           if (x >= px && x <= pWidth && y >= py && y <= pHeight) {
             return group;
+          } else if (y >= py && y <= pHeight) {
+            var tmpDist = null;
+            if (x < px) {
+              // Left side
+              tmpDist = px - x;
+            } else if (x > pWidth) {
+              // Right side
+              tmpDist = x - pWidth;
+            } else {
+              continue; // This should never happen.
+            }
+            if (distance === null || tmpDist < distance) {
+              heightGroup = group;
+              distance = tmpDist;
+            }
           }
         }
-        return null;
+        
+        return heightGroup;
       }
       
       function getRelativeGroupChild(x, y, group) {
@@ -12167,7 +12199,7 @@
               // The for loop iterates through the children chronological, which means that
               // it only needs to look if the x-value of the cursor is before half of the
               // child element.
-              if (x <= child.offsetWidth/2 + absolutePosition.x) {
+              if (x <= child.offsetWidth/2 + absolutePosition.x && y <= child.offsetHeight + absolutePosition.y) {
                 return child;
               }
             }
@@ -12215,9 +12247,6 @@
             // A child was not found just append the element to the group
             group.appendChild(refTargetedElement);
           }
-          
-          // Changes have been made, do something
-          con.log("The targeted element was moved");
         }
         
         // Prevent default action
@@ -12231,7 +12260,6 @@
       
       function mousedownListener(e) {
         if (mousedown || !moduleEnabled) return;
-        mousedown = true;
         
         e = e || window.event;
         
@@ -12249,6 +12277,8 @@
           targetedElement = targetedElement.parentNode;
         }
         
+        mousedown = true;
+        
         // Relative position to targeted element
         var absolutePosition = utils.getAbsolutePosition(targetedElement);
         relativeMousePosition = {
@@ -12260,7 +12290,8 @@
         var moveableElement = createMoveableElement(targetedElement);
         
         // Make the targeted element invisible
-        targetedElement.style.visibility = "hidden";
+        ytcenter.utils.addClass(targetedElement, "placementsystem-target");
+        //targetedElement.style.visibility = "hidden";
         
         // Store two references for later use
         refMoveableElement = moveableElement;
@@ -12282,20 +12313,14 @@
       }
       
       function mouseupListener(e) {
-        if (!mousedown || !moduleEnabled) return;
+        if (!mousedown || !moduleEnabled || !refTargetedElement) return;
         mousedown = false;
         
         e = e || window.event;
         
-        // Retrive the changed sort list and update the settings accordingly.
-        var sortList = ytcenter.placementsystem.getSortList(ytcenter.placementsystem.placementGroupsReferenceList);
-        //ytcenter.placementsystem.setSortList(sortList);
-        ytcenter.settings.placementGroups = sortList;
-        
-        ytcenter.saveSettings();
-        
         // Make the targeted element visible
-        refTargetedElement.style.visibility = "";
+        ytcenter.utils.removeClass(refTargetedElement, "placementsystem-target");
+        //refTargetedElement.style.visibility = "";
         
         // Remove the moveable element from the DOM
         refMoveableElement.parentNode.removeChild(refMoveableElement);
@@ -12330,9 +12355,9 @@
         // Give the moveable an absolute position, which will be
         // on top of the original element.
         moveableElement.style.position = "absolute";
-        moveableElement.style.top = (absolutePosition.y - (relativeMousePosition.y || 0)) + "px";
-        moveableElement.style.left = (absolutePosition.x - (relativeMousePosition.x || 0)) + "px";
-        moveableElement.style.zIndex = "9999999";
+        moveableElement.style.top = absolutePosition.y + "px";
+        moveableElement.style.left = absolutePosition.x + "px";
+        moveableElement.style.zIndex = "1999999999999";
       }
       
       function createMoveableElement(el) {
@@ -12787,6 +12812,152 @@
       
       global[propertyName] = exports;
     })(ytcenter, "placementsystem");
+    
+    (function(global, propertyName){
+      function createOverlay() {
+        var overlay = document.createElement("div");
+        overlay.className = "element-focus-overlay";
+        return overlay;
+      }
+      
+      function focus(target, saveFunc, cancelFunc) {
+        var replacementHolder = document.createElement("div");
+        replacementHolder.style.height = target.offsetHeight + "px";
+        
+        var targetPos = utils.getAbsolutePosition(target);
+        var targetWidth = target.offsetWidth;
+        var targetHeight = target.offsetHeight;
+        
+        // Eclipse math
+        //var sqrt2 = Math.sqrt(2);
+        //var paddTop = targetHeight/sqrt2 - targetHeight/2 + 10;
+        //var paddLeft = targetWidth/sqrt2 - targetWidth/2 + 10;
+        
+        // Box math
+        var paddTop = 15;
+        var paddLeft = 15;
+        
+        target.parentNode.replaceChild(replacementHolder, target);
+        
+        var wrapper = document.createElement("div");
+        wrapper.className = "element-focus-wrapper";
+        
+        wrapper.style.top = (targetPos.y - paddTop) + "px";
+        wrapper.style.left = (targetPos.x - paddLeft) + "px";
+        
+        var focusEl = document.createElement("div");
+        focusEl.className = "element-focus";
+        focusEl.style.padding = paddTop + "px " + paddLeft + "px";
+        focusEl.style.width = targetWidth + "px";
+        
+        wrapper.appendChild(focusEl);
+        
+        var focusContainer = document.createElement("div");
+        focusContainer.className = "element-focus-container";
+        
+        focusEl.appendChild(focusContainer);
+        focusContainer.appendChild(target);
+        
+        var btnWrapper = document.createElement("div");
+        btnWrapper.className = "element-focus-btn-wrapper";
+        
+        var labelSave = ytcenter.gui.createYouTubeButtonTextLabel("BTN_APPLY");
+        var btnSave = ytcenter.gui.createYouTubePrimaryButton("", [ labelSave ]);
+        btnSave.addEventListener("click", saveFunc, false);
+        
+        var labelCancel = ytcenter.gui.createYouTubeButtonTextLabel("BTN_CANCEL");
+        var btnCancel = ytcenter.gui.createYouTubeDefaultButton("", [ labelCancel ]);
+        btnCancel.addEventListener("click", cancelFunc, false);
+        
+        btnWrapper.appendChild(btnSave);
+        btnWrapper.appendChild(btnCancel);
+        
+        wrapper.appendChild(btnWrapper);
+        
+        var overlay = createOverlay();
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(wrapper);
+        
+        var oldScroll = ytcenter.utils.scrollTop();
+        var viewPort = ytcenter.utils.getViewPort();
+        
+        console.log(oldScroll, viewPort, targetPos);
+        
+        ytcenter.utils.scrollTop(targetPos.y - (viewPort.height - wrapper.offsetHeight)/2);
+        
+        //ytcenter.utils.addClass(document.body, "ytcenter-dialog-active");
+        
+        return function(){
+          //ytcenter.utils.removeClass(document.body, "ytcenter-dialog-active");
+          ytcenter.utils.scrollTop(oldScroll);
+          
+          target.parentNode.removeChild(target);
+          replacementHolder.parentNode.replaceChild(target, replacementHolder);
+          
+          overlay.parentNode.removeChild(overlay);
+          wrapper.parentNode.removeChild(wrapper);
+        };
+      }
+      
+      var utils = ytcenter.utils;
+      
+      var exports = {};
+      exports.focus = focus;
+      
+      global[propertyName] = exports;
+    })(ytcenter, "elementfocus");
+    
+    ytcenter.descriptionTags = (function(){
+      function addTags(list, tags) {
+        for (var i = 0, len = tags.length; i < len; i++) {
+          var item = document.createElement("li");
+          item.textContent = tags[i];
+          list.appendChild(item);
+        }
+      }
+      function addSection(title, tags) {
+        if (addedSections[title]) {
+          addedSections[title].innerHTML = "";
+          addTags(addedSections[title], tags);
+          return;
+        }
+        var extras = document.getElementById("watch-description-extras");
+        if (extras) {
+          var list = extras.getElementsByClassName("watch-extras-section");
+          if (list && list[0]) {
+            var item = document.createElement("li");
+            item.className = "watch-meta-item yt-uix-expander-body";
+            
+            var titleElement = document.createElement("h4");
+            titleElement.className = "title";
+            titleElement.textContent = ytcenter.language.getLocale(title);
+            ytcenter.events.addEvent("ui-refresh", function(){
+              titleElement.textContent = ytcenter.language.getLocale(title);
+            });
+            
+            var tagList = document.createElement("ul");
+            tagList.className = "content watch-info-tag-list";
+            addedSections[title] = tagList;
+            
+            addTags(tagList, tags);
+            
+            item.appendChild(titleElement);
+            item.appendChild(tagList);
+            
+            list[0].appendChild(item);
+          }
+        }
+      }
+      
+      var addedSections = {};
+      
+      var exports = {};
+      
+      exports.addSection = addSection;
+      
+      return exports;
+    })();
     
     ytcenter.language = (function(){
       function __setElementText(lang, elm, name, type, replace) {
@@ -17294,17 +17465,42 @@
             }
           );
           var placementsystemToggler = false;
-          option.addModuleEventListener("click", function(){
+          var focus = null;
+          option.addModuleEventListener("click", function placementToggleFunction(){
+            function save() {
+              // Retrive the changed sort list and update the settings accordingly.
+              var sortList = ytcenter.placementsystem.getSortList(ytcenter.placementsystem.placementGroupsReferenceList);
+              //ytcenter.placementsystem.setSortList(sortList);
+              ytcenter.settings.placementGroups = sortList;
+              
+              ytcenter.saveSettings();
+              
+              placementToggleFunction();
+            }
+            
+            function cancel() {
+              ytcenter.placementsystem.setSortList(ytcenter.settings.placementGroups, ytcenter.placementsystem.placementGroupsReferenceList);
+              
+              placementToggleFunction();
+            }
+            
             placementsystemToggler = !placementsystemToggler;
+            
+            if (focus !== null) {
+              focus();
+              focus = null;
+            }
             
             ytcenter.placementsystem.setMoveable(placementsystemToggler);
             if (placementsystemToggler) {
-              ytcenter.utils.addClass(this, "yt-uix-button-toggled");
               ytcenter.utils.addClass(document.body, "ytcenter-placementsystem-activated");
               ytcenter.settingsPanelDialog.setVisibility(false);
+              ytcenter.cssElements.elementFocus.add();
+              focus = ytcenter.elementfocus.focus(document.getElementById("watch8-action-buttons"), save, cancel);
             } else {
-              ytcenter.utils.removeClass(this, "yt-uix-button-toggled");
+              ytcenter.cssElements.elementFocus.remove();
               ytcenter.utils.removeClass(document.body, "ytcenter-placementsystem-activated");
+              ytcenter.settingsPanelDialog.setVisibility(true);
             }
           });
           option.setVisibility(ytcenter.getPage() === "watch");
@@ -19919,6 +20115,8 @@
       config.args.jsapicallback = "ytcenter.player.onReady";
       
       if (ytcenter.getPage() === "watch") {
+        ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_KEYWORDS", config.args.keywords.split(","));
+        
         if (ytcenter.settings.bufferEnabled) {
           config.args.tsp_buffer = ytcenter.settings.bufferSize;
         }
@@ -20708,7 +20906,6 @@
           listeners: []
         }
       };
-      
       
       return {
         addEventListener: addEventListener,
@@ -23417,6 +23614,8 @@
           
           ytcenter.cssElements.darkside = ytcenter.utils.addCSS("darkside", ytcenter.css.darkside);
           
+          ytcenter.cssElements.elementFocus = ytcenter.utils.addCSS("element-focus", ytcenter.css.elementFocus, false);
+          
           //ytcenter.cssElements.yonez = ytcenter.utils.addCSS("yonez", ytcenter.css.yonez, ytcenter.settings.yonezCleanYT);
           
           try {
@@ -23555,8 +23754,9 @@
           
           ytcenter.effects.playerGlow.setEnabled(ytcenter.settings.playerGlowEnabled);
           
-          var description = document.getElementById("watch-description"),
-            headline = document.getElementById("watch7-headline");
+          var description = document.getElementById("action-panel-details");
+          var headline = document.getElementById("watch7-headline");
+          
           if (description && ytcenter.settings.expandDescription) {
             ytcenter.utils.removeClass(description, "yt-uix-expander-collapsed");
           }
@@ -23742,7 +23942,13 @@
           ytcenterGroup.setAttribute("id", "watch8-ytcenter-buttons");
           
           var userHeader = document.getElementById("watch7-user-header");
-          if (userHeader && userHeader.nextElementSibling) {
+          if (watch8ActionButtons) {
+            if (watch8ActionButtons.children.length > 0) {
+              watch8ActionButtons.insertBefore(ytcenterGroup, watch8ActionButtons.children[0]);
+            } else {
+              watch8ActionButtons.appendChild(ytcenterGroup);
+            }
+          } else if (userHeader && userHeader.nextElementSibling) {
             userHeader.parentNode.insertBefore(ytcenterGroup, userHeader.nextElementSibling);
           } else if (userHeader) {
             userHeader.parentNode.appendChild(ytcenterGroup);
