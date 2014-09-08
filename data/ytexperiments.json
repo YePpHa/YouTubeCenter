@@ -4,24 +4,5 @@
     "description": {
       "raw": "The default YouTube layout"
     }
-  }, {
-    "codes": ["ZhatzZ5Kkic"],
-    "screenshots": [ "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/O20uXj0.png" ],
-    "preview": [ "https://raw.github.com/YePpHa/YouTubeCenter/master/assets/Screenshots/z4ReLwJ.png" ],
-    "description": {
-      "raw": "A new experimental YouTube design."
-    },
-    "features": [
-      {
-        "raw": "The vidoe info, description, recommended videos and comments have been split into separate cards."
-      }, {
-        "raw": "New 'Add to' and 'Share' buttons. A single button for 'Report' and 'Transcript'."
-      }
-    ]
-  }, {
-    "codes": ["IxYREpZ4DYM"],
-    "description": {
-      "raw": "The old YouTube topbar layout where everything is not nested under your profile image."
-    }
   }
 ]

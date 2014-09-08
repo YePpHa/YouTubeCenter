@@ -1,4 +1,8 @@
 {
+  "SETTINGS_DEBUG_CREATEGIST": "Send to Gist",
+  "GIST_TITLE": "Gist",
+  "GIST_LOADING": "Loading...",
+  "GIST_TEXT": "Gist URL",
   "BTN_APPLY": "Apply",
   "BTN_CANCEL": "Cancel",
   "DESCRIPTIONTAG_KEYWORDS": "Keywords",

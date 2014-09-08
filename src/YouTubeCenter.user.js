@@ -1828,7 +1828,13 @@
       
       function listener(event) {
         var args = Array.prototype.slice.call(arguments, 1);
-        con.log("[SPF] " + event, args);
+        
+        var detail = null;
+        if (args.length > 0 && args[0] && args[0].detail) {
+          detail = args[0].detail;
+        }
+        
+        con.log("[SPF] " + event, detail);
         var listeners = attachedEvents[event];
         if (listeners) {
           for (var i = 0, len = listeners.length; i < len; i++) {
@@ -5584,7 +5590,7 @@
       try {
         dbg.htmlelements = {};
         if (document.body)
-          dbg.htmlelements.body = {className: document.body.className};
+          dbg.htmlelements.body = { "className": document.body.className };
         dbg.injected = injected;
         dbg.identifier = identifier;
         dbg.devbuild = devbuild; // variable is true if this a developer build
@@ -5654,7 +5660,7 @@
               dbg.player_test[tests[i]] = ytcenter.player.getReference().api[tests[i]]();
           }
         } catch (e) {
-          dbg.player_test_error = e;
+          dbg.player_test_error = e.message;
         }
         
         dbg.console = _console;
@@ -18432,50 +18438,59 @@
             "button",
             null,
             {
-              "text": "SETTINGS_DEBUG_CREATEPASTE",
+              "text": "SETTINGS_DEBUG_CREATEGIST",
               "listeners": [
                 {
                   "event": "click",
                   "callback": function() {
-                    var content = document.createElement("div"), text, pasteUrl,
-                        data = [
-                          "api_dev_key=@pastebin-api-key@",
-                          "api_option=paste",
-                          "api_paste_private=1", // unlisted
-                          "api_paste_expire_date=1M", // 1 month
-                          "api_paste_format=javascript",
-                          "api_paste_name=" + encodeURIComponent("@name@ ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info")),
-                          "api_paste_code=" + encodeURIComponent(ytcenter.getDebug())
-                        ].join('&');
-
+                    var content = document.createElement("div");
+                    var text;
+                    var gistURL;
+                    var data = {
+                      "description": null,
+                      "public": true,
+                      "files": {
+                        "debug.txt": {
+                          "content": ytcenter.getDebug()
+                        }
+                      }
+                    };
+                    
+                    if (devbuild) {
+                      data.description = "@name@ v" + devnumber + " Debug Info";
+                    } else {
+                      data.description = "@name@ ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info");
+                    }
+                    
                     text = document.createElement("p");
-                    text.appendChild(document.createTextNode(ytcenter.language.getLocale("PASTEBIN_TEXT")));
+                    text.appendChild(document.createTextNode(ytcenter.language.getLocale("GIST_TEXT")));
                     text.setAttribute("style", "margin-bottom: 10px");
 
                     content.appendChild(text);
 
-                    pasteUrl = document.createElement("input");
-                    pasteUrl.setAttribute("type", "text");
-                    pasteUrl.setAttribute("class", "yt-uix-form-input-text");
-                    pasteUrl.setAttribute("value", ytcenter.language.getLocale("PASTEBIN_LOADING"));
-                    pasteUrl.setAttribute("readonly", "readonly");
-                    ytcenter.utils.addEventListener(pasteUrl, "focus", function() { this.select(); }, false);
+                    gistURL = document.createElement("input");
+                    gistURL.setAttribute("type", "text");
+                    gistURL.setAttribute("class", "yt-uix-form-input-text");
+                    gistURL.setAttribute("value", ytcenter.language.getLocale("GIST_LOADING"));
+                    gistURL.setAttribute("readonly", "readonly");
+                    ytcenter.utils.addEventListener(gistURL, "focus", function() { this.select(); }, false);
 
-                    content.appendChild(pasteUrl);
+                    content.appendChild(gistURL);
 
-                    ytcenter.dialog("PASTEBIN_TITLE", content).setVisibility(true);
+                    ytcenter.dialog("GIST_TITLE", content).setVisibility(true);
 
                     ytcenter.utils.xhr({
                       method: "POST",
-                      url: "http://pastebin.com/api/api_post.php",
+                      url: "https://api.github.com/gists",
                       headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
                       },
-                      data: data,
+                      data: JSON.stringify(data),
                       contentType: "application/x-www-form-urlencoded", // Firefox Addon
-                      content: data, // Firefox Addon
+                      content: JSON.stringify(data), // Firefox Addon
                       onload: function(response) {
-                        pasteUrl.value = response.responseText;
+                        var data = JSON.parse(response.responseText);
+                        gistURL.value = data.html_url;
                       }
                     });
                   }
@@ -18992,7 +19007,7 @@
     ytcenter.user.callChannelFeed = function(username, callback){
       ytcenter.utils.xhr({
         method: "GET",
-        url: 'https://gdata.youtube.com/feeds/api/channels?q=' + escape("\"" + username + "\"") + '&start-index=1&max-results=1&v=2&alt=json',
+        url: 'https://gdata.youtube.com/feeds/api/channels?q=' + encodeURIComponent("\"" + username + "\"") + '&start-index=1&max-results=1&v=2&alt=json',
         headers: {
           "Content-Type": "text/plain"
         },
@@ -23483,7 +23498,6 @@
         if (ytcenter.utils.setterGetterClassCompatible()) {
           ytcenter.player.disablePlayerUpdate = false;
           uw.ytplayer = new PlayerConfig(function(config){
-            con.log("[Player Config Global] A new player configuration change request!", config);
             if (config) {
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), config));
               if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
