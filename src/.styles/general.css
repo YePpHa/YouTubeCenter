@@ -849,10 +849,12 @@ body > #page {
   border-left: 1px solid #ccc;
   height: 28px;
   visibility: visible;
+  position: absolute;
 }
 
 #watch8-ytcenter-buttons {
   position: relative;
+  margin: 0 -10px;
 }
 
 .ytcenter-placementsystem-activated #watch8-ytcenter-buttons > *,
