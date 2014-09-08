@@ -18444,8 +18444,6 @@
                   "event": "click",
                   "callback": function() {
                     var content = document.createElement("div");
-                    var text;
-                    var gistURL;
                     var data = {
                       "description": null,
                       "public": true,
@@ -18462,13 +18460,13 @@
                       data.description = "@name@ ".concat(ytcenter.version, "-", ytcenter.revision, " Debug Info");
                     }
                     
-                    text = document.createElement("p");
+                    var text = document.createElement("p");
                     text.appendChild(document.createTextNode(ytcenter.language.getLocale("GIST_TEXT")));
                     text.setAttribute("style", "margin-bottom: 10px");
 
                     content.appendChild(text);
 
-                    gistURL = document.createElement("input");
+                    var gistURL = document.createElement("input");
                     gistURL.setAttribute("type", "text");
                     gistURL.setAttribute("class", "yt-uix-form-input-text");
                     gistURL.setAttribute("value", ytcenter.language.getLocale("GIST_LOADING"));
@@ -18489,8 +18487,8 @@
                       contentType: "application/x-www-form-urlencoded", // Firefox Addon
                       content: JSON.stringify(data), // Firefox Addon
                       onload: function(response) {
-                        var data = JSON.parse(response.responseText);
-                        gistURL.value = data.html_url;
+                        var details = JSON.parse(response.responseText);
+                        gistURL.value = details.html_url;
                       }
                     });
                   }
