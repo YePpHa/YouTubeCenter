@@ -19199,13 +19199,17 @@
     ytcenter.playlistAutoPlay = (function(){
       /* We want the toggle button */
       function getToggleAutoPlayButton() {
-        var playlistToggleButton = document.getElementsByClassName("toggle-autoplay");
-        if (playlistToggleButton && playlistToggleButton.length > 0 && playlistToggleButton[0]) {
-          playlistToggleButton = playlistToggleButton[0];
-        } else {
-          playlistToggleButton = null;
+        var playlist = document.getElementById("watch-appbar-playlist");
+        if (playlist) {
+          var playlistToggleButton = playlist.getElementsByClassName("toggle-autoplay");
+          if (playlistToggleButton && playlistToggleButton.length > 0 && playlistToggleButton[0]) {
+            playlistToggleButton = playlistToggleButton[0];
+          } else {
+            playlistToggleButton = null;
+          }
+          return playlistToggleButton;
         }
-        return playlistToggleButton;
+        return null;
       }
       
       function setInitialAutoPlayState(state) {
@@ -19213,48 +19217,11 @@
         if (playlist) {
           var content = playlist.getElementsByClassName("playlist-header-content");
           if (content.length > 0 && content[0]) {
+            content[0].setAttribute("data-initial-autoplay-state", (state ? "true" : "false"));
             content[0].setAttribute("initial-autoplay-state", (state ? "true" : "false"));
           }
         }
         toggled = state;
-      }
-      
-      function update() {
-        /* We want to either disable the playlist auto play or enable it */
-        if (ytcenter.playlist) { // Checking if we're watching a playlist
-          
-          if (uw && uw.yt && uw.yt.config_) {
-            uw.yt.config_.LIST_AUTO_PLAY_ON = toggled;
-          }
-          
-          var toggleButton = getToggleAutoPlayButton();
-          if (toggleButton) {
-            if (ytcenter.utils.hasClass(toggleButton, "yt-uix-button-toggled")) {
-              if (!toggled) {
-                toggleButton.click();
-                toggled = false;
-              }
-            } else {
-              if (toggled) {
-                toggleButton.click();
-                toggled = true;
-              }
-            }
-          }
-          if (timer !== null) {
-            clearTimeout(timer);
-            timer = null;
-          }
-          timer = setTimeout(refresh, 2500);
-        }
-      }
-      
-      function refresh() {
-        var toggleButton = getToggleAutoPlayButton();
-        if (toggleButton) {
-          toggleButton.click();
-          toggleButton.click();
-        }
       }
       
       function onToggleButtonClick() {
@@ -19274,15 +19241,73 @@
           if (toggleButton) {
             ytcenter.utils.addEventListener(toggleButton, "click", onToggleButtonClick, false);
           }
+          initState();
+        }
+        
+      }
+      
+      function initState() {
+        var playlist = document.getElementById("watch-appbar-playlist");
+        
+        if (playlist) {
+          var toggleAutoplayButton = getToggleAutoPlayButton();
+          
+          if (toggleAutoplayButton) {
+            if (toggled) {
+              ytcenter.utils.addClass(toggleAutoplayButton, "yt-uix-button-toggled");
+            } else {
+              ytcenter.utils.removeClass(toggleAutoplayButton, "yt-uix-button-toggled");
+            }
+            toggleAutoplayButton.setAttribute("data-button-toggle", (toggled ? "true" : "false"));
+          } else {
+            toggleAutoplayButton = document.createElement("button");
+            toggleAutoplayButton.className = "yt-uix-button yt-uix-button-size-default yt-uix-button-player-controls yt-uix-button-empty yt-uix-button-has-icon toggle-autoplay yt-uix-button-opacity yt-uix-tooltip yt-uix-tooltip" + (toggled ? " yt-uix-button-toggled" : "");
+            toggleAutoplayButton.setAttribute("type", "button");
+            toggleAutoplayButton.setAttribute("onclick", ";return false;");
+            toggleAutoplayButton.setAttribute("title", uw.yt.msgs_.YTP_AUTOPLAY);
+            toggleAutoplayButton.setAttribute("data-button-toggle", (toggled ? "true" : "false"));
+            toggleAutoplayButton.addEventListener("click", onToggleButtonClick, false);
+            
+            var iconWrapper = document.createElement("span");
+            iconWrapper.className = "yt-uix-button-icon-wrapper";
+            
+            var icon = document.createElement("img");
+            icon.className = "yt-uix-button-icon yt-uix-button-icon-watch-appbar-autoplay yt-sprite";
+            icon.setAttribute("src", "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif");
+            icon.setAttribute("title", uw.yt.msgs_.YTP_AUTOPLAY);
+            
+            iconWrapper.appendChild(icon);
+            
+            toggleAutoplayButton.appendChild(iconWrapper);
+            
+            var controls = playlist.getElementsByClassName("playlist-nav-controls");
+            controls && controls[0] && controls[0].appendChild && controls[0].appendChild(toggleAutoplayButton);
+          }
+          
+          if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
+            getStateFunction = uw.yt.www.watch.lists.getState;
+            uw.yt.www.watch.lists.getState = getState;
+          } else {
+            con.log("[Playlist] getState not found!");
+            setTimeout(initState, 1000);
+          }
         }
       }
+      
+      function getState() {
+        var state = getStateFunction();
+        state.autoPlay = toggled;
+        
+        return state;
+      }
+      
+      var getStateFunction = null;
       
       var timer = null;
       var toggled = false;
       
       return {
-        init: init,
-        update: update
+        init: init
       };
     })();
     
@@ -23744,7 +23769,6 @@
         
         if (page === "watch") {
           ytcenter.playlistAutoPlay.init();
-          ytcenter.playlistAutoPlay.update();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
           ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
@@ -24030,8 +24054,6 @@
           ytcenter.classManagement.applyClassesForElement();
           if (typeof api === "object") {
             ytcenter.player.__getAPI = api;
-            
-            ytcenter.playlistAutoPlay.update();
             
             api = ytcenter.player.getAPI();
             ytcenter.html5 = (api && typeof api.getPlayerType === "function" && api.getPlayerType() === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream());
