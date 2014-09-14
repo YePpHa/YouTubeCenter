@@ -13055,6 +13055,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      enableComments: true,
       /*yonezCleanYT: false,*/
       channelUploadedVideosPlaylist: false,
       ytOnlyStageMode: false,
@@ -18222,6 +18223,13 @@
 
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_COMMENTS"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
+            "enableComments",
+            "bool",
+            "SETTINGS_COMMENTS_ENABLE"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
             "commentCountryEnabled", // defaultSetting
             "bool", // module
             "SETTINGS_COMMENTS_COUNTRY_ENABLE", // label
@@ -23144,7 +23152,8 @@
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-subscriptions", condition: function(loc){return loc.pathname.indexOf("/feed/subscriptions") === 0;}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-channel", condition: function(){return ytcenter.getPage() === "channel";}},
       {groups: ["header", "page"], element: function(){return document.body;}, className: "static-header", condition: function(){return ytcenter.settings.staticHeader;}},
-      {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
+      {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}},
+      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-disable-comments", condition: function(){return !ytcenter.settings.enableComments;}}
     ];
     ytcenter.intelligentFeed = (function(){
       var exports = {}, observer, config = { attributes: true }, feed;
@@ -24002,9 +24011,15 @@
         var page = ytcenter.getPage();
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
         /* Only need to handle the Google+ comments */
-        if (page === "comments") {
+        if (page === "comments" && ytcenter.settings.enableComments) {
           ytcenter.commentsPlus.setup();
           return;
+        }
+        if (page === "watch" && !ytcenter.settings.enableComments) {
+          var discussionEl = document.getElementById("watch-discussion");
+          if (discussionEl && discussionEl.parentNode) {
+            discussionEl.parentNode.removeChild(discussionEl);
+          }
         }
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         ytcenter.pageSetup();
