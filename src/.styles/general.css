@@ -1,3 +1,8 @@
+.watch8 #watch7-views-info {
+  bottom: initial !important;
+  top: -6px !important;
+}
+
 #watch-description .ypc-offer-thumbnail {
   position: relative;
 }
