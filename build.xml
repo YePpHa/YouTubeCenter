@@ -59,6 +59,9 @@
   <property name="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe" />
   <property name="sdk.uhura-full-path" value="${basedir}/SDK/uhura" />
   
+  <property name="build.safari" value="${basedir}/ant-build-safari.sh" />
+  <property name="build.safari-certs" value="${basedir}/ant-extract-certs-safari.sh" />
+  
   <property name="indentifier.userscript" value="0" />
   <property name="indentifier.chrome" value="1" />
   <property name="indentifier.maxthon" value="2" />
@@ -268,6 +271,9 @@
       <fileset dir="${buildDir}/" />
     </move>
     <antcall target="clean" />
+    <exec executable="bash">
+      <arg value="${build.safari}" />
+    </exec>
 	</target>
   
   <target name="opera" depends="preinit, copy-opera">

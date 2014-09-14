@@ -12938,7 +12938,7 @@
             var titleElement = document.createElement("h4");
             titleElement.className = "title";
             titleElement.textContent = ytcenter.language.getLocale(title);
-            ytcenter.events.addEvent("ui-refresh", function(){
+            ytcenter.events.addEvent("language-refresh", function(){
               titleElement.textContent = ytcenter.language.getLocale(title);
             });
             

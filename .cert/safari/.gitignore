@@ -1,4 +1,5 @@
 # cert
-certreq.txt
-newcsr.pem
-safari_extension.cer
+cert00
+cert01
+cert02
+key.pem
