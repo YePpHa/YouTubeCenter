@@ -12028,7 +12028,7 @@
       var oStyle = document.createElement("style");
       oStyle.setAttribute("id", "ytcenter-styles-" + id);
       oStyle.setAttribute("type", "text\/css");
-      oStyle.appendChild(document.createTextNode(styles));
+      oStyle.appendChild(document.createTextNode(styles + "\n//# sourceURL=" + encodeURIComponent("ytcenter/" + id + ".css")));
       
       if (addElement) {
         add();
@@ -13308,7 +13308,6 @@
       repeatShowIcon: true,
       watch7playerguidehide: false,
       watch7playerguidealwayshide: false,
-      watch7centerpage: true,
       removeBrandingBanner: true,
       removeBrandingBackground: true,
       removeBrandingWatermark: true,
@@ -15104,7 +15103,8 @@
             "line"
           );
           subcat.addOption(option);
-          option = ytcenter.settingsPanel.createOption(
+          
+          /*option = ytcenter.settingsPanel.createOption(
             "removeBrandingBanner", // defaultSetting
             "bool", // module
             "SETTINGS_BRANDING_BANNER_REMOVE", // label
@@ -15120,8 +15120,8 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_Banner"
           );
-          subcat.addOption(option);
-          option = ytcenter.settingsPanel.createOption(
+          subcat.addOption(option);*/
+          /*option = ytcenter.settingsPanel.createOption(
             "removeBrandingBackground", // defaultSetting
             "bool", // module
             "SETTINGS_BRANDING_BACKGROUND_REMOVE", // label
@@ -15137,7 +15137,7 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Branding_Background"
           );
-          subcat.addOption(option);
+          subcat.addOption(option);*/
           option = ytcenter.settingsPanel.createOption(
             "removeBrandingWatermark", // defaultSetting
             "bool", // module
@@ -22924,21 +22924,6 @@
         }
         return false;
       }, groups: ["player-branding"]},
-      {element: function(){return document.getElementById("masthead-subnav");}, className: "", condition: function(loc){
-        if (ytcenter.settings.watch7centerpage) {
-          document.getElementById("masthead-subnav").style.setProperty("margin-left", "auto", "important");
-        } else {
-          document.getElementById("masthead-subnav").style.setProperty("margin-left", "", "");
-        }
-        return false;
-      }, groups: ["page-center", "page"]},
-      {element: function(){return document.getElementById("page");}, className: "", condition: function(loc){
-        if (ytcenter.settings.watch7centerpage)
-          document.getElementById("page").style.setProperty("margin", "0 auto", "important");
-        else
-          document.getElementById("page").style.setProperty("margin", "", "");
-        return false;
-      }, groups: ["page-center", "page"]},
       {element: function(){return document.getElementById("page");}, className: "", condition: function(loc){
         document.getElementById("page").style.setProperty("padding-left", "");
       }, groups: ["page-center", "page"]},
@@ -23624,10 +23609,11 @@
           ytcenter.cssElements.list = ytcenter.utils.addCSS("list", ytcenter.css.list);
           ytcenter.cssElements.confirmbox = ytcenter.utils.addCSS("confirmbox", ytcenter.css.confirmbox);
           ytcenter.cssElements.panel = ytcenter.utils.addCSS("panel", ytcenter.css.panel);
+          ytcenter.cssElements.resize = ytcenter.utils.addCSS("resize", ytcenter.css.resize, ytcenter.settings.enableResize);
           ytcenter.cssElements.resizePanel = ytcenter.utils.addCSS("resizePanel", ytcenter.css.resizePanel);
           ytcenter.cssElements.modules = ytcenter.utils.addCSS("modules", ytcenter.css.modules);
           ytcenter.cssElements.settings = ytcenter.utils.addCSS("settings", ytcenter.css.settings);
-          ytcenter.cssElements.centering = ytcenter.utils.addCSS("centering", ytcenter.css.centering);
+          //ytcenter.cssElements.centering = ytcenter.utils.addCSS("centering", ytcenter.css.centering, false);
           
           ytcenter.cssElements.topbar = ytcenter.utils.addCSS("topbar", ytcenter.css.topbar);
           

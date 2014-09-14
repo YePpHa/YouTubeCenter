@@ -12,14 +12,6 @@ body.ytcenter-disable-comments #watch-discussion iframe {
   position: relative;
 }
 
-.watch-wide #watch7-sidebar, .watch-wide #watch7-preview {
-  top: 0 !important;
-}
-
-#watch7-sidebar {
-  margin-top: 0 !important;
-}
-
 .appbar-flexwatch .watch-stage-mode #player, .appbar-flexwatch-mini .watch-stage-mode #player {
   margin-top: 10px !important;
 }
@@ -398,23 +390,6 @@ body.ytcenter-branding-remove-background #guide-container.branded {
 
 .ytcenter-lights-off.ytcenter-lights-off-click-through .ytcenter-lights-off-overlay {
   pointer-events: none;
-}
-
-/*.ytcenter-branding-remove-background #player,
-.ytcenter-branding-remove-background #player-legacy {
-  background: none!important;
-}*/
-
-.ytcenter-branding-remove-background #watch7-sidebar {
-  background-color: transparent!important;
-}
-
-.ytcenter-branding-remove-banner #watch7-sidebar {
-  top: -390px;
-}
-
-.ytcenter-branding-remove-banner .watch-playlist #watch7-sidebar {
-  top: 0px!important;
 }
 
 .ytcenter-branding-remove-banner #watch7-branded-banner,
