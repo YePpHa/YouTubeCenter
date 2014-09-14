@@ -24518,7 +24518,9 @@
       
     } else {
       console.warn("[Chrome] Chrome extension API is not present!");
-      defaultSave(id, key, data);
+      setTimeout(function(){
+        defaultSave(id, key, data);
+      }, 7);
     }
   }
 
@@ -24547,7 +24549,9 @@
       }
     } else {
       console.warn("[Chrome] Chrome extension API is not present!");
-      defaultLoad(id, key);
+      setTimeout(function(){
+        defaultLoad(id, key);
+      }, 7);
     }
   }
 
@@ -24673,7 +24677,9 @@
         break;
       case "GM_registerMenuCommand":
         if (support.Greasemonkey) {
-          GM_registerMenuCommand(data.arguments[0], bind(null, callUnsafeWindow, data.id));
+          setTimeout(function(){
+            GM_registerMenuCommand(data.arguments[0], bind(null, callUnsafeWindow, data.id));
+          }, 7);
         }
         break;
       default:
@@ -24762,7 +24768,9 @@
     if (@identifier@ === 6) { // Firefox
       request(details);
     } else if (support.Greasemonkey) {
-      GM_xmlhttpRequest(details);
+      setTimeout(function(){
+        GM_xmlhttpRequest(details);
+      }, 7);
     } else {
       var xmlhttp;
       if (typeof XMLHttpRequest != "undefined") {
@@ -24827,7 +24835,9 @@
     } else if (@identifier@ === 6) {
       callUnsafeWindow(id, storage_setValue(key, data));
     } else {
-      defaultSave(id, key, data);
+      setTimeout(function(){
+        defaultSave(id, key, data);
+      }, 7);
     }
   }
   
@@ -24849,7 +24859,9 @@
     } else if (@identifier@ === 6) {
       callUnsafeWindow(id, storage_getValue(key) || "{}");
     } else {
-      defaultLoad(id, key);
+      setTimeout(function() {
+        defaultLoad(id, key);
+      }, 7);
     }
   }
   
