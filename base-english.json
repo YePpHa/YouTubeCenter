@@ -1,4 +1,5 @@
 {
+  "SETTINGS_THUMBVIDEO_QUALITY_FPS": "Show FPS",
   "LOAD_COMMENTS_TEXT": "Load comments",
   "SETTINGS_COMMENTS_ENABLE": "Enable comments",
   "SETTINGS_DEBUG_CREATEGIST": "Send to Gist",
