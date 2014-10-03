@@ -5261,7 +5261,13 @@
           background = tableBackground[quality];
           color = tableColor[quality];
         }
-            
+        
+        if (ytcenter.settings.videoThumbnailQualityFPS && stream && stream !== "error") {
+          var fps = stream.fps || "30";
+          text += "@" + fps;
+        }
+        
+        
         wrapper.className = (ytcenter.settings.videoThumbnailQualityVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
                           + (ytcenter.settings.videoThumbnailQualityVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "")
                           + " ytcenter-thumbnail-quality";
@@ -6172,7 +6178,7 @@
       exports.performEvent = function(event){
         if (!db.hasOwnProperty(event)) return;
         var staticArguments = Array.prototype.splice.call(arguments, 1, arguments.length);
-        con.log("performEvent: " + event, staticArguments, arguments);
+        //con.log("performEvent: " + event, staticArguments, arguments);
         for (var i = 0; i < db[event].length; i++) {
           try {
             db[event][i].apply(null, staticArguments);
@@ -13159,6 +13165,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      videoThumbnailQualityFPS: true,
       enableComments: true,
       /*yonezCleanYT: false,*/
       channelUploadedVideosPlaylist: false,
@@ -17815,6 +17822,14 @@
           subcat.addOption(option);
 
           option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailQualityFPS", // defaultSetting
+            "bool", // module
+            "SETTINGS_THUMBVIDEO_QUALITY_FPS" // label
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
             "videoThumbnailQualityPosition", // defaultSetting
             "list", // module
             "SETTINGS_THUMBVIDEO_POSITION", // label
@@ -21881,7 +21896,7 @@
       };
     })();
     ytcenter.player.getBestStream = function(streams, dash){
-      var i, stream = null, vqIndex = ytcenter.player.qualities.length - 1, _vq, _vqIndex;
+      var i, stream = null, vqIndex = ytcenter.player.qualities.length - 1, _vq, _vqIndex, currFPS = -1;
       for (i = 0; i < streams.length; i++) {
         if ((dash === 1 && !streams[i].dash) || (dash === 0 && streams[i].dash)) continue;
         if (streams[i].dash && streams[i].size) {
@@ -21889,10 +21904,14 @@
         } else if (!streams[i].dash && streams[i].quality) {
           _vq = streams[i].quality;
         }
+        
+        var fps = parseInt(streams[i].fps || "30", 10);
+        
         _vqIndex = $ArrayIndexOf(ytcenter.player.qualities, _vq);
-        if (_vqIndex < vqIndex) {
+        if (_vqIndex < vqIndex || (_vqIndex === vqIndex && currFPS < fps)) {
           stream = streams[i];
           vqIndex = _vqIndex;
+          currFPS = fps;
         }
       }
       if (!stream && dash !== -1)
