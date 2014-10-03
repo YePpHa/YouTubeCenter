@@ -3463,6 +3463,110 @@
       
       return a;
     })();
+    ytcenter.commentsLoader = (function(){
+      function createLoadCommentsButton() {
+        var el = document.createElement("div");
+        el.className = "yt-card yt-card-has-padding";
+        
+        var btn = document.createElement("button");
+        btn.className = "yt-uix-button yt-uix-button-size-default yt-uix-button-expander";
+        btn.setAttribute("type", "button");
+        btn.setAttribute("onclick", ";return false;");
+        btn.style.borderTop = "none";
+        btn.style.margin = "-10px 0 -10px";
+        
+        btn.addEventListener("click", showComments, false);
+        
+        var btnText = document.createElement("span");
+        btnText.className = "yt-uix-button-content";
+        btnText.textContent = ytcenter.language.getLocale("LOAD_COMMENTS_TEXT");
+        ytcenter.events.addEvent("language-refresh", function(){
+          btnText.textContent = ytcenter.language.getLocale("LOAD_COMMENTS_TEXT");
+        });
+        
+        
+        btn.appendChild(btnText);
+        
+        el.appendChild(btn);
+        
+        return el;
+      }
+      
+      function fixWidth() {
+        var iframe = discussionElement.getElementsByTagName("iframe");
+        iframe = iframe.length > 0 ? iframe[0] : null;
+        
+        var container = discussionElement.getElementsByClassName("comments-iframe-container");
+        container = container.length > 0 ? container[0] : null;
+        
+        if (iframe && container) {
+          iframe.style.width = container.offsetWidth + "px";
+        }
+      }
+      
+      function showComments() {
+        if (discussionElement && loadCommentsElement && loadCommentsElement.parentNode) {
+          discussionElement.style.display = "";
+          
+          showComments = true;
+          
+          if (discussionElement.parentNode) {
+            loadCommentsElement.parentNode.removeChild(loadCommentsElement);
+          } else {
+            loadCommentsElement.parentNode.replaceChild(discussionElement, loadCommentsElement);
+          }
+          
+          setTimeout(function(){
+            if (uw.yt && uw.yt.pubsub && uw.yt.pubsub.publish) {
+              uw.yt.pubsub.publish("page-resize", ytcenter.utils.getViewPort());
+            }
+            fixWidth();
+          }, 7);
+        }
+      }
+      
+      function update() {
+        var scrolldetect = discussionElement.getAttribute("data-scrolldetect-callback");
+        if (scrolldetect) {
+          observer.disconnect();
+          
+          if (!showComments) {
+            discussionElement.parentNode.removeChild(discussionElement);
+          }
+        }
+      }
+      
+      function setup() {
+        if (ytcenter.page === "watch" && !ytcenter.settings.enableComments) {
+          discussionElement = document.getElementById("watch-discussion");
+          if (discussionElement && discussionElement.parentNode) {
+            discussionElement.style.display = "none";
+            //discussionElement.style.visibility = "hidden";
+            
+            observer = ytcenter.mutation.observe(discussionElement, { childList: true, subtree: true }, update);
+            
+            discussionElement.parentNode.appendChild(loadCommentsElement);
+            
+            /*discussionElement.parentNode.replaceChild(loadCommentsElement, discussionElement);*/
+            
+            /*discussionElement.parentNode.removeChild(discussionElement);*/
+          }
+        }
+      }
+      
+      var loadCommentsElement = createLoadCommentsButton();
+      var discussionElement = null;
+      
+      var observer = null;
+      var observerWidthFix = null;
+      
+      var showComments = false;
+      
+      var exports = {};
+      exports.setup = setup;
+      
+      return exports;
+    })();
     ytcenter.commentsPlus = (function(){
       var exports = {}, comments = [], observer = null;
       
@@ -18714,6 +18818,7 @@
     settingsInit();
     
     ytcenter.video = {};
+    uw.ytcenter._video = ytcenter.video;
     ytcenter.video.format = [
       {
         type: 'video/mp4',
@@ -23162,8 +23267,7 @@
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-subscriptions", condition: function(loc){return loc.pathname.indexOf("/feed/subscriptions") === 0;}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-channel", condition: function(){return ytcenter.getPage() === "channel";}},
       {groups: ["header", "page"], element: function(){return document.body;}, className: "static-header", condition: function(){return ytcenter.settings.staticHeader;}},
-      {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}},
-      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-disable-comments", condition: function(){return !ytcenter.settings.enableComments;}}
+      {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}}
     ];
     ytcenter.intelligentFeed = (function(){
       var exports = {}, observer, config = { attributes: true }, feed;
@@ -24021,15 +24125,12 @@
         var page = ytcenter.getPage();
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
         /* Only need to handle the Google+ comments */
-        if (page === "comments" && ytcenter.settings.enableComments) {
+        if (page === "comments") {
           ytcenter.commentsPlus.setup();
           return;
         }
         if (page === "watch" && !ytcenter.settings.enableComments) {
-          var discussionEl = document.getElementById("watch-discussion");
-          if (discussionEl && discussionEl.parentNode) {
-            discussionEl.parentNode.removeChild(discussionEl);
-          }
+          ytcenter.commentsLoader.setup();
         }
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         ytcenter.pageSetup();
