@@ -3484,7 +3484,6 @@
           btnText.textContent = ytcenter.language.getLocale("LOAD_COMMENTS_TEXT");
         });
         
-        
         btn.appendChild(btnText);
         
         el.appendChild(btn);
@@ -3538,6 +3537,7 @@
       
       function setup() {
         if (ytcenter.page === "watch" && !ytcenter.settings.enableComments) {
+          loadCommentsElement = createLoadCommentsButton();
           discussionElement = document.getElementById("watch-discussion");
           if (discussionElement && discussionElement.parentNode) {
             discussionElement.style.display = "none";
@@ -3554,7 +3554,7 @@
         }
       }
       
-      var loadCommentsElement = createLoadCommentsButton();
+      var loadCommentsElement = null;
       var discussionElement = null;
       
       var observer = null;
@@ -19879,6 +19879,11 @@
               break;
             case 39: // Right Arrow
               player.seekTo(player.getCurrentTime()+5, true);
+              break;
+            case 70:
+              if (ytcenter.html5) {
+                
+              }
               break;
             case 35: // End
               player.seekTo(player.getDuration(), true);

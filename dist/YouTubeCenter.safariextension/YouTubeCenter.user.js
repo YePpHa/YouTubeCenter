@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         395
+// @version         396
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 395);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 396);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -3484,7 +3484,6 @@
           btnText.textContent = ytcenter.language.getLocale("LOAD_COMMENTS_TEXT");
         });
         
-        
         btn.appendChild(btnText);
         
         el.appendChild(btn);
@@ -3538,6 +3537,7 @@
       
       function setup() {
         if (ytcenter.page === "watch" && !ytcenter.settings.enableComments) {
+          loadCommentsElement = createLoadCommentsButton();
           discussionElement = document.getElementById("watch-discussion");
           if (discussionElement && discussionElement.parentNode) {
             discussionElement.style.display = "none";
@@ -3554,7 +3554,7 @@
         }
       }
       
-      var loadCommentsElement = createLoadCommentsButton();
+      var loadCommentsElement = null;
       var discussionElement = null;
       
       var observer = null;
@@ -19879,6 +19879,11 @@
               break;
             case 39: // Right Arrow
               player.seekTo(player.getCurrentTime()+5, true);
+              break;
+            case 70:
+              if (ytcenter.html5) {
+                
+              }
               break;
             case 35: // End
               player.seekTo(player.getDuration(), true);
