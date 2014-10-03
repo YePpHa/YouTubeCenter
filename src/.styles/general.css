@@ -369,6 +369,10 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   z-index: 0!important;
 }
 
+.ytcenter-lights-off #masthead-positioner {
+  transform: none !important;
+}
+
 .ytcenter-lights-off .ytcenter-lights-off-overlay {
   position: fixed;
   top: 0;

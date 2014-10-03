@@ -19880,11 +19880,6 @@
             case 39: // Right Arrow
               player.seekTo(player.getCurrentTime()+5, true);
               break;
-            case 70:
-              if (ytcenter.html5) {
-                
-              }
-              break;
             case 35: // End
               player.seekTo(player.getDuration(), true);
               break;
