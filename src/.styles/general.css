@@ -1,8 +1,3 @@
-body.ytcenter-disable-comments #watch-discussion,
-body.ytcenter-disable-comments #watch-discussion iframe {
-  display: none !important;
-}
-
 .watch8 #watch7-views-info {
   bottom: initial !important;
   top: -6px !important;
