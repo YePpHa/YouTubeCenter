@@ -3475,7 +3475,7 @@
         btn.style.borderTop = "none";
         btn.style.margin = "-10px 0 -10px";
         
-        btn.addEventListener("click", showComments, false);
+        btn.addEventListener("click", showCommentsFunc, false);
         
         var btnText = document.createElement("span");
         btnText.className = "yt-uix-button-content";
@@ -3503,7 +3503,7 @@
         }
       }
       
-      function showComments() {
+      function showCommentsFunc() {
         if (discussionElement && loadCommentsElement && loadCommentsElement.parentNode) {
           discussionElement.style.display = "";
           

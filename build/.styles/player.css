@@ -1,1 +1,130 @@
-#player-api{position:relative}body.ytcenter-scrolled-top{overflow:hidden}.ytcenter-scrolled-top .watch-sidebar{top:0!important}.ytcenter-scrolled-top #page,.ytcenter-scrolled-top-player-pre #page{position:static!important}.ytcenter-scrolled-top #player-mole-container,.ytcenter-scrolled-top-player-pre #player-mole-container{position:static!important}.ytcenter-scrolled-top #player,.ytcenter-scrolled-top #player-legacy{overflow:visible!important}.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{width:100%!important;height:100%!important;position:absolute!important;top:-100%!important}.ltr.ytcenter-scrolled-top-player-pre #player-api,.ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,.ltr.ytcenter-scrolled-top #player-api,.ltr.ytcenter-scrolled-top #player-api-legacy{left:0!important}.rtl.ytcenter-scrolled-top-player-pre #player-api,.rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,.rtl.ytcenter-scrolled-top #player-api,.rtl.ytcenter-scrolled-top #player-api-legacy{right:0!important}.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top #player-api-legacy{width:100%!important;height:100%!important;position:absolute!important;top:0!important;-moz-transition:top .5s linear;-ms-transition:top .5s linear;-o-transition:top .5s linear;-webkit-transition:top .5s linear;transition:top .5s linear}.ltr.ytcenter-scrolled-top #page{padding-left:0!important}.rtl.ytcenter-scrolled-top #page{padding-right:0!important}.ytcenter-scrolled-top-element{display:none}.ytcenter-site-watch .ytcenter-scrolled-top-element{width:100%;height:0;background:#000;-moz-transition:height .5s linear;-ms-transition:height .5s linear;-o-transition:height .5s linear;-webkit-transition:height .5s linear;transition:height .5s linear;display:block}.ytcenter-scrolled-top .ytcenter-scrolled-top-element{height:100%}.ytcenter-scrolled-inverse #player-api,.ytcenter-scrolled-inverse #player-api-legacy{margin-top:0!important}.ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element{padding-bottom:0}.ytcenter-scrolled-top-noscrollbar{overflow:hidden!important}.ytcenter-scrolled-top #masthead-positioner,.ytcenter-scrolled-top-static #masthead-positioner{position:static!important}.ytcenter-scrolled-top #masthead-positioner-height-offset,.ytcenter-scrolled-top-static #masthead-positioner-height-offset{display:none!important}.ytcenter-scrolled-top #guide,.ytcenter-scrolled-top-static #guide{display:none!important}.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy,.ytcenter-scrolled-top-player-pre #player-api,.ytcenter-scrolled-top-player-pre #player-api-legacy{-moz-transition:none!important;-ms-transition:none!important;-o-transition:none!important;-webkit-transition:none!important;transition:none!important}
+#player-api {
+  position: relative;
+}
+
+body.ytcenter-scrolled-top {
+  overflow: hidden;
+}
+
+.ytcenter-scrolled-top .watch-sidebar {
+  top: 0!important;
+}
+
+.ytcenter-scrolled-top #page,
+.ytcenter-scrolled-top-player-pre #page {
+  position: static !important;
+}
+
+.ytcenter-scrolled-top #player-mole-container,
+.ytcenter-scrolled-top-player-pre #player-mole-container {
+  position: static !important;
+}
+
+.ytcenter-scrolled-top #player,
+.ytcenter-scrolled-top #player-legacy {
+  overflow: visible !important;
+}
+
+.ytcenter-scrolled-top-player-pre #player-api,
+.ytcenter-scrolled-top-player-pre #player-api-legacy {
+  width: 100% !important;
+  height: 100% !important;
+  
+  position: absolute !important;
+  top: -100% !important;
+}
+.ltr.ytcenter-scrolled-top-player-pre #player-api,
+.ltr.ytcenter-scrolled-top-player-pre #player-api-legacy,
+.ltr.ytcenter-scrolled-top #player-api,
+.ltr.ytcenter-scrolled-top #player-api-legacy {
+  left: 0 !important;
+}
+.rtl.ytcenter-scrolled-top-player-pre #player-api,
+.rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,
+.rtl.ytcenter-scrolled-top #player-api,
+.rtl.ytcenter-scrolled-top #player-api-legacy {
+  right: 0 !important;
+}
+
+.ytcenter-scrolled-top #player-api,
+.ytcenter-scrolled-top #player-api-legacy {
+  width: 100% !important;
+  height: 100% !important;
+  
+  position: absolute !important;
+  top: 0% !important;
+
+  -moz-transition: top 0.5s linear;
+  -ms-transition: top 0.5s linear;
+  -o-transition: top 0.5s linear;
+  -webkit-transition: top 0.5s linear;
+  transition: top 0.5s linear;
+}
+
+.ltr.ytcenter-scrolled-top #page {
+  padding-left: 0 !important;
+}
+.rtl.ytcenter-scrolled-top #page {
+  padding-right: 0 !important;
+}
+
+.ytcenter-scrolled-top-element {
+  display: none;
+}
+
+.ytcenter-site-watch .ytcenter-scrolled-top-element {
+  width: 100%;
+  height: 0%;
+  
+  background: #000;
+  
+  -moz-transition: height 0.5s linear;
+  -ms-transition: height 0.5s linear;
+  -o-transition: height 0.5s linear;
+  -webkit-transition: height 0.5s linear;
+  transition: height 0.5s linear;
+  
+  display: block;
+}
+
+.ytcenter-scrolled-top .ytcenter-scrolled-top-element {
+  height: 100%;
+}
+
+.ytcenter-scrolled-inverse #player-api,
+.ytcenter-scrolled-inverse #player-api-legacy {
+  margin-top: 0px !important;
+}
+
+.ytcenter-scrolled-top.ytcenter-scrolled-inverse .ytcenter-scrolled-top-element {
+  padding-bottom: 0px;
+}
+
+.ytcenter-scrolled-top-noscrollbar {
+  overflow: hidden !important;
+}
+
+.ytcenter-scrolled-top #masthead-positioner,
+.ytcenter-scrolled-top-static #masthead-positioner {
+  position: static !important;
+}
+.ytcenter-scrolled-top #masthead-positioner-height-offset,
+.ytcenter-scrolled-top-static #masthead-positioner-height-offset {
+  display: none !important;
+}
+.ytcenter-scrolled-top #guide,
+.ytcenter-scrolled-top-static #guide {
+  display: none !important;
+}
+
+.ytcenter-scrolled-top-disable-animation .ytcenter-scrolled-top-element,
+.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api,
+.ytcenter-scrolled-top-disable-animation.ytcenter-scrolled-top #player-api-legacy,
+.ytcenter-scrolled-top-player-pre #player-api,
+.ytcenter-scrolled-top-player-pre #player-api-legacy  {
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  -webkit-transition: none !important;
+  transition: none !important;
+}
