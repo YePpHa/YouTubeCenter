@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         396
+// @version         397
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,7 +90,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 396);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 397);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -21413,7 +21413,7 @@
       var maxWatchStagePlayerWidth0 = 1280;
       
       ytcenter.player._updateResize = function(){
-        if (!ytcenter.settings.enableResize) return;
+        if (!ytcenter.settings.enableResize || ytcenter.getPage() !== "watch") return;
         ytcenter.player._resize(_width, _height, _large, _align);
         ytcenter.player.updateResize_updateVisibility();
         ytcenter.player.updateResize_updatePosition();
@@ -23836,6 +23836,8 @@
         }
         if (page === "comments") return; // We don't need to do anything here.
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+        
+        ytcenter.mutation.observe(document.getElementById("page"), { attributes: true }, ytcenter.player._updateResize);
         
         if (ytcenter._config_registered) {
           // Re-creating the player to ensure that the correct fexp is applied correctly.
