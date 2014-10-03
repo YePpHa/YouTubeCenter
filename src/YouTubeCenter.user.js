@@ -21413,7 +21413,7 @@
       var maxWatchStagePlayerWidth0 = 1280;
       
       ytcenter.player._updateResize = function(){
-        if (!ytcenter.settings.enableResize) return;
+        if (!ytcenter.settings.enableResize || ytcenter.getPage() !== "watch") return;
         ytcenter.player._resize(_width, _height, _large, _align);
         ytcenter.player.updateResize_updateVisibility();
         ytcenter.player.updateResize_updatePosition();
@@ -23836,6 +23836,8 @@
         }
         if (page === "comments") return; // We don't need to do anything here.
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+        
+        ytcenter.mutation.observe(document.getElementById("page"), { attributes: true }, ytcenter.player._updateResize);
         
         if (ytcenter._config_registered) {
           // Re-creating the player to ensure that the correct fexp is applied correctly.
