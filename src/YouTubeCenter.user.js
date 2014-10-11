@@ -166,6 +166,7 @@
       
       var groupChoices = {
         '4:3': 'BUTTON_ASPECT_4:3',
+        '3:2': 'BUTTON_ASPECT_3:2',
         '16:9': 'BUTTON_ASPECT_16:9'
       };
       
@@ -21179,7 +21180,7 @@
       } else {
         ytcenter.player.setRatio(ytcenter.player.calculateRatio(false, option));
       }
-      ytcenter.player.resizeUpdater();
+      ytcenter.player.resizeUpdater && ytcenter.player.resizeUpdater();
     };
     ytcenter.player.currentResizeId;
     ytcenter.player.resizeCallback = [];
@@ -24276,6 +24277,7 @@
           }
         });
         ytcenter.unsafe.player = ytcenter.unsafe.player || {};
+        ytcenter.unsafe.player.setAspect = ytcenter.player.aspect;
         ytcenter.unsafe.player.getAPI = ytcenter.utils.oldBind(ytcenter.player.getAPI, ytcenter.unsafe);
         ytcenter.unsafe.player.onReady = ytcenter.utils.oldBind(ytcenter.player.onYouTubePlayerReady, ytcenter.unsafe);
         ytcenter.unsafe.player.parseThumbnailStream = ytcenter.player.parseThumbnailStream;
