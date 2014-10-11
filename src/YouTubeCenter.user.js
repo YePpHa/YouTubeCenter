@@ -13168,7 +13168,6 @@
     ytcenter._settings = {
       videoThumbnailQualityFPS: true,
       enableComments: true,
-      /*yonezCleanYT: false,*/
       channelUploadedVideosPlaylist: false,
       ytOnlyStageMode: false,
       playerGlowEffectOnPlayer: "both",
@@ -13432,7 +13431,7 @@
       "resize-default-playersize": "default",
       "resize-small-button": "default_fit_to_content",
       "resize-large-button": "default_720",
-      "playerSizeAspect": "16:9", // default, 4:3, 5:4, 16:9, 16:10, 24:10
+      "playerSizeAspect": "16:9", // default, 4:3, 3:2, 5:4, 16:9, 16:10, 24:10
       "resize-playersizes": [
         {
           id: "default_small",
@@ -15494,6 +15493,9 @@
                 }, {
                   "value": "4:3", // 1.33333
                   "label": "SETTINGS_RESIZE_ASPECT_4:3"
+                }, {
+                  "value": "3:2", // 1.33333
+                  "label": "SETTINGS_RESIZE_ASPECT_3:2"
                 }, {
                   "value": "5:4", // 1.25
                   "label": "SETTINGS_RESIZE_ASPECT_5:4"
