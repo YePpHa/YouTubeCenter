@@ -19412,8 +19412,10 @@
           }
           
           if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
-            getStateFunction = uw.yt.www.watch.lists.getState;
-            uw.yt.www.watch.lists.getState = getState;
+            if (uw.yt.www.watch.lists.getState !== getState) {
+              getStateFunction = uw.yt.www.watch.lists.getState;
+              uw.yt.www.watch.lists.getState = getState;
+            }
           } else {
             con.log("[Playlist] getState not found!");
             setTimeout(initState, 1000);
@@ -23645,6 +23647,7 @@
         if (ytcenter.utils.setterGetterClassCompatible()) {
           ytcenter.player.disablePlayerUpdate = false;
           uw.ytplayer = new PlayerConfig(function(config){
+            con.log("[External] Setting player configruation.");
             if (config) {
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), config));
               if (ytcenter.player.config.html5) ytcenter.player.disablePlayerUpdate = true;
@@ -24525,8 +24528,8 @@
             swfcfg = part.data.swfcfg;
           }
           if (swfcfg) {
-            swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(url), swfcfg);
-            ytcenter.player.setConfig(swfcfg);
+            /*swfcfg = ytcenter.player.modifyConfig(ytcenter.getPage(url), swfcfg);
+            ytcenter.player.setConfig(swfcfg);*/
             
             if (swfcfg.args && swfcfg.args.video_id) {
               ytcenter.videoHistory.addVideo(swfcfg.args.video_id);
@@ -24556,7 +24559,12 @@
         }
         
         if (ytcenter.player.getConfig() !== null) {
-          ytcenter.player.onYouTubePlayerReady(ytcenter.player.getAPI());
+          setTimeout(function(){
+            con.debug("[IssueTmpFix] Player not loading correct video.");
+            var api = ytcenter.player.getAPI();
+            api.loadVideoByPlayerVars(ytcenter.player.getConfig().args);
+            ytcenter.player.onYouTubePlayerReady(api);
+          }, 1000);
         }
       });
       
