@@ -1863,7 +1863,7 @@
       }
       
       var customEventPrefix = "spf";
-      var spfEvents = [ "error", "requested", "partreceived", "partprocessed", "received", "processed", "ready", "jsbeforeunload", "jsunload", "cssbeforeunload", "cssunload" ];
+      var spfEvents = [ "click", "cssbeforeunload", "cssunload", "done", "error", "history", "jsbeforeunload", "jsunload", "partdone", "partprocess", "process", "ready", "reload", "request" ];
       
       var attachedEvents = { };
       var events = [ ];
@@ -3529,6 +3529,7 @@
         var scrolldetect = discussionElement.getAttribute("data-scrolldetect-callback");
         if (scrolldetect) {
           observer.disconnect();
+          observer = null;
           
           if (!showComments) {
             discussionElement.parentNode.removeChild(discussionElement);
@@ -3543,7 +3544,10 @@
           if (discussionElement && discussionElement.parentNode) {
             discussionElement.style.display = "none";
             //discussionElement.style.visibility = "hidden";
-            
+            if (observer) {
+              observer.disconnect();
+              observer = null;
+            }
             observer = ytcenter.mutation.observe(discussionElement, { childList: true, subtree: true }, update);
             
             discussionElement.parentNode.appendChild(loadCommentsElement);
@@ -23896,6 +23900,9 @@
         ytcenter.channelPlaylistLinks.update();
         
         if (page === "watch") {
+          if (!ytcenter.settings.enableComments) {
+            ytcenter.commentsLoader.setup();
+          }
           ytcenter.playlistAutoPlay.init();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
@@ -24153,9 +24160,7 @@
           ytcenter.commentsPlus.setup();
           return;
         }
-        if (page === "watch" && !ytcenter.settings.enableComments) {
-          ytcenter.commentsLoader.setup();
-        }
+        
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         ytcenter.pageSetup();
         
@@ -24492,11 +24497,11 @@
         }
       });
       
-      ytcenter.spf.addEventListener("requested", function(e) {
+      ytcenter.spf.addEventListener("request", function(e) {
         var detail = e.detail;
         ytcenter.player.setConfig(null);
       });
-      ytcenter.spf.addEventListener("received", function(e) {
+      ytcenter.spf.addEventListener("process", function(e) {
         var detail = e.detail;
         
         if (detail && detail.response && detail.response.title) {
@@ -24504,7 +24509,7 @@
           ytcenter.title.update();
         }
       });
-      ytcenter.spf.addEventListener("partreceived", function(e) {
+      ytcenter.spf.addEventListener("partprocess", function(e) {
         var detail = e.detail;
         var url = detail.url;
         if (detail && detail.part) {
@@ -24533,7 +24538,7 @@
         }
       });
       
-      ytcenter.spf.addEventListener("processed", function(e) {
+      ytcenter.spf.addEventListener("done", function(e) {
         var detail = e.detail;
         var url = detail.url;
         
