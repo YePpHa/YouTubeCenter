@@ -13066,16 +13066,31 @@
             item.appendChild(titleElement);
             item.appendChild(tagList);
             
+            elements.push(item);
+            
             list[0].appendChild(item);
           }
         }
       }
       
+      function destroy() {
+        for (var i = 0, len = elements.length; i < len; i++) {
+          var element = elements[i];
+          if (element.parentNode && element.parentNode.removeChild) {
+            element.parentNode.removeChild(element);
+          }
+        }
+        addedSections = {};
+        elements = [];
+      }
+      
       var addedSections = {};
+      var elements = [];
       
       var exports = {};
       
       exports.addSection = addSection;
+      exports.destroy = destroy;
       
       return exports;
     })();
@@ -14311,7 +14326,8 @@
               hideContent = false;
           if (li && !category.visible) li.className = "hid";
           sSelectedList.push(acat);
-          acat.href = ";return false;";
+          acat.setAttribute("onclick", ";return false;");
+          acat.href = "#";
           acat.className = "ytcenter-settings-category-item yt-valign" + (categoryHide || !category.visible ? "" : " ytcenter-selected");
           
           ytcenter.utils.addEventListener(acat, "click", function(e){
@@ -20291,6 +20307,7 @@
       
       if (ytcenter.getPage() === "watch") {
         ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_KEYWORDS", config.args.keywords.split(","));
+        ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_FPS", ytcenter.player.getFPSArray(ytcenter.video.streams));
         
         if (ytcenter.settings.bufferEnabled) {
           config.args.tsp_buffer = ytcenter.settings.bufferSize;
@@ -21904,6 +21921,30 @@
         }
       };
     })();
+    ytcenter.player.getFPSArray = function(streams){
+      var arr = [];
+      for (var i = 0, len = streams.length; i < len; i++) {
+        var localFPS = parseInt(streams[i].fps || "30", 10);
+        
+        if (!ytcenter.utils.inArray(arr, localFPS)) {
+          arr.push(localFPS);
+        }
+      }
+      return arr.sort(function(a, b){
+        return b - a;
+      });
+    };
+    ytcenter.player.getHighestFPS = function(streams){
+      var fps = -1;
+      for (var i = 0, len = streams.length; i < len; i++) {
+        var localfps = parseInt(streams[i].fps || "30", 10);
+        
+        if (fps < localfps) {
+          fps = localfps;
+        }
+      }
+      return fps;
+    };
     ytcenter.player.getBestStream = function(streams, dash){
       var i, stream = null, vqIndex = ytcenter.player.qualities.length - 1, _vq, _vqIndex, currFPS = -1;
       for (i = 0; i < streams.length; i++) {
@@ -24503,6 +24544,7 @@
       ytcenter.spf.addEventListener("request", function(e) {
         var detail = e.detail;
         ytcenter.player.setConfig(null);
+        ytcenter.descriptionTags.destroy();
       });
       ytcenter.spf.addEventListener("process", function(e) {
         var detail = e.detail;
