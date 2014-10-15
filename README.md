@@ -24,7 +24,7 @@ The certificates for signing the extensions have to be provided by yourself and 
 It should be noted that the ant build will create a new signing key for Chrome if it's missing from `/.cert/chrome/` (Running executables is required).
  
 ### Ant
-The build system is made in ant and requires ant and java to be installed.
+The build system is made in Ant and requires both Ant and Java to be installed.
 
  * `ant all` -- Build everything below except for the styles.
  * `ant devnumber` -- Increment the build number.
