@@ -38,6 +38,7 @@
 // @domain          googleapis.com
 // @domain          raw.github.com
 // @domain          raw2.github.com
+// @domain          raw.githubusercontent.com
 // @domain          s.ytimg.com
 // @match           http://www.youtube.com/*
 // @match           https://www.youtube.com/*
@@ -47,6 +48,9 @@
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @match           https://raw.github.com/YePpHa/YouTubeCenter/master/*
+// @match           https://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*
+// @match           http://raw.github.com/YePpHa/YouTubeCenter/master/*
+// @match           http://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*
 // @match           http://apis.google.com/*/widget/render/comments?*
 // @match           https://apis.google.com/*/widget/render/comments?*
 // @match           http://plus.googleapis.com/*/widget/render/comments?*
@@ -18799,7 +18803,7 @@
                   { name: "U Bless", url: "http://userscripts.org/users/ubless" }
                 ],
                 "no-NO": [
-                  { name: "master3395" },
+                  { name: "master3395", url: "https://www.youtube.com/user/master33951" },
                   { name: "Mathias Solheim", url: "http://mathias.ocdevelopment.net/" }
                 ],
                 "nl-NL": [

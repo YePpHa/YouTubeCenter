@@ -15,7 +15,8 @@
         "s.ytimg.com",
         "raw.github.com",
         "apis.google.com",
-        "plus.googleapis.com"
+        "plus.googleapis.com",
+        "raw.githubusercontent.com"
       ]
     },
     "actions": [

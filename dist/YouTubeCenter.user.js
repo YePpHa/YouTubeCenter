@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         404
+// @version         405
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -38,6 +38,7 @@
 // @domain          googleapis.com
 // @domain          raw.github.com
 // @domain          raw2.github.com
+// @domain          raw.githubusercontent.com
 // @domain          s.ytimg.com
 // @match           http://www.youtube.com/*
 // @match           https://www.youtube.com/*
@@ -47,6 +48,9 @@
 // @match           http://s.ytimg.com/yts/jsbin/*
 // @match           https://s.ytimg.com/yts/jsbin/*
 // @match           https://raw.github.com/YePpHa/YouTubeCenter/master/*
+// @match           https://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*
+// @match           http://raw.github.com/YePpHa/YouTubeCenter/master/*
+// @match           http://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*
 // @match           http://apis.google.com/*/widget/render/comments?*
 // @match           https://apis.google.com/*/widget/render/comments?*
 // @match           http://plus.googleapis.com/*/widget/render/comments?*
@@ -90,7 +94,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 404);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 405);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -14326,7 +14330,8 @@
               hideContent = false;
           if (li && !category.visible) li.className = "hid";
           sSelectedList.push(acat);
-          acat.href = ";return false;";
+          acat.setAttribute("onclick", ";return false;");
+          acat.href = "#";
           acat.className = "ytcenter-settings-category-item yt-valign" + (categoryHide || !category.visible ? "" : " ytcenter-selected");
           
           ytcenter.utils.addEventListener(acat, "click", function(e){
@@ -18798,7 +18803,7 @@
                   { name: "U Bless", url: "http://userscripts.org/users/ubless" }
                 ],
                 "no-NO": [
-                  { name: "master3395" },
+                  { name: "master3395", url: "https://www.youtube.com/user/master33951" },
                   { name: "Mathias Solheim", url: "http://mathias.ocdevelopment.net/" }
                 ],
                 "nl-NL": [
