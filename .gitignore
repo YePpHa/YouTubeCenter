@@ -1,8 +1,8 @@
-# txt
-random/
-
 # experiments
-experiments/
+/experiments
 
 # language.sh
-crowdin.key
+/crowdin.key
+
+# Some NODEJS
+/node_modules
