@@ -19,7 +19,7 @@
   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+**/
 // ==UserScript==
 // @id              YouTubeCenter
 // @name            @name@
@@ -18736,7 +18736,6 @@
               "titleLocale": "SETTINGS_ABOUT_LINKS",
               "links": [
                 {text: "Wiki", url: "https://github.com/YePpHa/YouTubeCenter/wiki"},
-                {text: "Userscript", url: "http://userscripts.org/scripts/show/114002"},
                 {text: "Facebook", url: "https://www.facebook.com/YouTubeCenter"},
                 {text: "Google+", url: "https://plus.google.com/111275247987213661483/posts"},
                 {text: "Firefox", url: "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/"},
@@ -21601,7 +21600,11 @@
             autohide = "3"
           }
         } else {
-          autohide = ytcenter.player.config.args.autohide;
+          if (ytcenter.player.config && ytcenter.player.config.args && (typeof ytcenter.player.config.args.autohide === "string" || typeof ytcenter.player.config.args.autohide === "number")) {
+            autohide = ytcenter.player.config.args.autohide;
+          } else {
+            autohide = "3";
+          }
         }
         if (autohide === "0") {
           pbh = playerBarHeightBoth;
