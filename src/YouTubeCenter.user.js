@@ -3043,6 +3043,7 @@
       return exports;
     })();
     ytcenter.flags = {
+      "unknown": "ytcenter-flag-unknown",
       /* Country Code : CSS Class */
       "ad": "ytcenter-flag-ad",
       "ae": "ytcenter-flag-ae",
@@ -3892,86 +3893,84 @@
           }
         }
       };
-      exports.completeFlag = function(comment, country){
-        var countryContainer = document.createElement("span"),
-            metadata = comment.headerUserDataElement,
-            countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
-        
+      exports.addFlagPlaceholder = function(comment){
+        function onLanguageUpdate() {
+          var title = ytcenter.language.getLocale(comment.flagElements.title);
+          img.setAttribute("alt", title);
+          img.setAttribute("title", title);
+          img.setAttribute("data-tooltip-text", title);
+        }
         comment && comment.unloadLoadButton && comment.unloadLoadButton();
-        countryContainer.className = "country";
+        
+        var metadata = comment.headerUserDataElement;
+        
+        var container = document.createElement("span");
+        container.className = "country";
+        
+        var img = document.createElement("img");
+        img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
+        img.className = "ytcenter-flag-loading";
+        
+        container.appendChild(img);
+        
+        comment.flagElements = {};
+        comment.flagElements.container = container;
+        comment.flagElements.img = img;
+        comment.flagElements.title = "COMMENTS_COUNTRY_BUTTON_LOAD_LOADING";
+        comment.flagElements.onLanguageUpdate = onLanguageUpdate;
+        
+        ytcenter.events.addEvent("language-refresh", onLanguageUpdate);
+        onLanguageUpdate();
+        
+        exports.addElement(metadata, container, comment);
+      };
+      exports.completeFlag = function(comment, country){
+        if (!comment.flagElements) exports.addFlagPlaceholder(comment);
+        var container = comment.flagElements.container;
+        var img = comment.flagElements.img;
+        var onLanguageUpdate = comment.flagElements.onLanguageUpdate;
+        
         if (ytcenter.settings.commentCountryShowFlag && ytcenter.flags[country.toLowerCase()]) {
-          var img = document.createElement("img");
-          img.src = "//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif";
           img.className = ytcenter.flags[country.toLowerCase()];
           if (ytcenter.settings.commentCountryUseNames) {
-            img.setAttribute("alt", countryName || country);
-            img.setAttribute("title", countryName || country);
-            ytcenter.events.addEvent("language-refresh", function(){
-              var _countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
-              img.setAttribute("alt", _countryName || country);
-              img.setAttribute("title", _countryName || country);
-            });
+            if (country === "unknown") {
+              comment.flagElements.title = "COUNTRY_UNKNOWN";
+            } else {
+              comment.flagElements.title = "COUNTRY_ISO3166-1_CODES_" + country.toUpperCase();
+            }
           } else {
-            img.setAttribute("alt", country);
-            img.setAttribute("title", country);
+            comment.flagElements.title = country;
           }
-          countryContainer.appendChild(img);
+          onLanguageUpdate();
         } else {
+          ytcenter.events.removeEvent("language-refresh", onLanguageUpdate);
+          if (country === "unknown") {
+            var countryName = ytcenter.language.getLocale("COUNTRY_UNKNOWN");
+          } else {
+            var countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+          }
+          
           if (ytcenter.settings.commentCountryUseNames) {
-            countryContainer.textContent = countryName || country;
+            container.textContent = countryName || country;
             ytcenter.events.addEvent("language-refresh", function(){
-              var _countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
-              countryContainer.textContent = _countryName || country;
+              if (country === "unknown") {
+                var _countryName = ytcenter.language.getLocale("COUNTRY_UNKNOWN");
+              } else {
+                var _countryName = ytcenter.language.getLocale("COUNTRY_ISO3166-1_CODES_" + country.toUpperCase());
+              }
+              container.textContent = _countryName || country;
             });
           } else {
-            countryContainer.textContent = country;
-          }
-        }
-        
-        if (ytcenter.settings.commentCountryPosition === "before_username") {
-          countryContainer.style.marginRight = "10px";
-          if (comment.isOrignalSharedReference) {
-            metadata.insertBefore(countryContainer, metadata.children[1]);
-          } else {
-            metadata.insertBefore(countryContainer, metadata.children[0]);
-          }
-        } else if (ytcenter.settings.commentCountryPosition === "after_username") {
-          if (comment.isOrignalSharedReference) {
-            countryContainer.style.marginLeft = "4px";
-          } else if (!comment.isReply) {
-            countryContainer.style.marginLeft = "10px";
-          } else {
-            countryContainer.style.marginRight = "8px";
-          }
-          if (comment.isOrignalSharedReference) {
-            metadata.insertBefore(countryContainer, metadata.childNodes[2]);
-          } else {
-            metadata.insertBefore(countryContainer, metadata.children[1]);
-          }
-        } else if (ytcenter.settings.commentCountryPosition === "last") {
-          countryContainer.style.marginLeft = "10px";
-          if (comment.isOrignalSharedReference) {
-            metadata.insertBefore(countryContainer, metadata.lastChild);
-          } else if (!comment.isReply) {
-            if (metadata.children.length > 2) {
-              metadata.insertBefore(countryContainer, metadata.children[2]);
-            } else {
-              metadata.appendChild(countryContainer);
-            }
-          } else {
-            if (metadata.children.length > 3) {
-              metadata.insertBefore(countryContainer, metadata.children[3]);
-            } else {
-              metadata.appendChild(countryContainer);
-            }
+            container.textContent = country;
           }
         }
       };
       exports.addLoadButton = function(comment){
         function onLanguageRefresh(){
-          btn.element.setAttribute("alt", ytcenter.language.getLocale(btn_text));
-          btn.element.setAttribute("title", ytcenter.language.getLocale(btn_text));
-          btn.element.setAttribute("data-tooltip-text", ytcenter.language.getLocale(btn_text));
+          var title = ytcenter.language.getLocale(btn_text);
+          btn.element.setAttribute("alt", title);
+          btn.element.setAttribute("title", title);
+          btn.element.setAttribute("data-tooltip-text", title);
         }
         var countryContainer = document.createElement("span"),
             metadata = comment.headerUserDataElement, btn = null,
@@ -3984,13 +3983,6 @@
                 event: "click",
                 callback: function(){
                   if (countryContainer && countryContainer.parentNode) {
-                    btn_text = "COMMENTS_COUNTRY_BUTTON_LOAD_LOADING";
-                    onLanguageRefresh();
-                    
-                    btn.element.className += " ytcenter-flag-button-loading";
-                    
-                    btn.setEnabled(false);
-                    
                     comment.unloadLoadButton = function(){
                       countryContainer && countryContainer.parentNode && countryContainer.parentNode.removeChild && countryContainer.parentNode.removeChild(countryContainer);
                       ytcenter.events.removeEvent("language-refresh", onLanguageRefresh);
@@ -4016,46 +4008,50 @@
         btn.element.style.verticalAlign = "middle";
         countryContainer.appendChild(btn.element);
         
+        exports.addElement(metadata, countryContainer, comment);
+      };
+      exports.addElement = function(metadata, container, comment){
         if (ytcenter.settings.commentCountryPosition === "before_username") {
-          countryContainer.style.marginRight = "10px";
+          container.style.marginRight = "10px";
           if (comment.isOrignalSharedReference) {
-            metadata.insertBefore(countryContainer, metadata.children[1]);
+            metadata.insertBefore(container, metadata.children[1]);
           } else {
-            metadata.insertBefore(countryContainer, metadata.children[0]);
+            metadata.insertBefore(container, metadata.children[0]);
           }
         } else if (ytcenter.settings.commentCountryPosition === "after_username") {
           if (comment.isOrignalSharedReference) {
-            countryContainer.style.marginLeft = "4px";
+            container.style.marginLeft = "4px";
           } else if (!comment.isReply) {
-            countryContainer.style.marginLeft = "10px";
+            container.style.marginLeft = "10px";
           } else {
-            countryContainer.style.marginRight = "8px";
+            container.style.marginRight = "8px";
           }
           if (comment.isOrignalSharedReference) {
-            metadata.insertBefore(countryContainer, metadata.childNodes[2]);
+            metadata.insertBefore(container, metadata.childNodes[2]);
           } else {
-            metadata.insertBefore(countryContainer, metadata.children[1]);
+            metadata.insertBefore(container, metadata.children[1]);
           }
         } else if (ytcenter.settings.commentCountryPosition === "last") {
-          countryContainer.style.marginLeft = "10px";
+          container.style.marginLeft = "10px";
           if (comment.isOrignalSharedReference) {
-            metadata.insertBefore(countryContainer, metadata.lastChild);
+            metadata.insertBefore(container, metadata.lastChild);
           } else if (!comment.isReply) {
             if (metadata.children.length > 2) {
-              metadata.insertBefore(countryContainer, metadata.children[2]);
+              metadata.insertBefore(container, metadata.children[2]);
             } else {
-              metadata.appendChild(countryContainer);
+              metadata.appendChild(container);
             }
           } else {
             if (metadata.children.length > 3) {
-              metadata.insertBefore(countryContainer, metadata.children[3]);
+              metadata.insertBefore(container, metadata.children[3]);
             } else {
-              metadata.appendChild(countryContainer);
+              metadata.appendChild(container);
             }
           }
         }
       };
       exports.handleFlagWorker = function(comment){
+        exports.addFlagPlaceholder(comment);
         ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId || comment.googlePlusRedirectId, function(args){
           try {
             if (comment.profileRedirectId || comment.googlePlusRedirectId) {
@@ -4083,9 +4079,9 @@
             comment && comment.unloadLoadButton && comment.unloadLoadButton();
             con.error(e);
             args.complete(null);
-          }          
+          }
         }, function(data){
-          if (!data) return;
+          if (!data) data = "unknown";
           if (comment.profileRedirectId || comment.channelRedirectId) {
             ytcenter.cache.putItem("profile_country", comment.profileRedirectId || comment.channelRedirectId, data, 2678400000 /* 31 days */);
           }
