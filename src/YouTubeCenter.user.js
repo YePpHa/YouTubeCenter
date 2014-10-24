@@ -24784,6 +24784,7 @@
       details[key] = data;
       storage.set(details);
       
+      callUnsafeWindow(id);
     } else {
       console.warn("[Chrome] Chrome extension API is not present!");
       setTimeout(function(){

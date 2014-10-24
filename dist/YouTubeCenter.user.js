@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         409
+// @version         410
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 409);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 410);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -24784,6 +24784,7 @@
       details[key] = data;
       storage.set(details);
       
+      callUnsafeWindow(id);
     } else {
       console.warn("[Chrome] Chrome extension API is not present!");
       setTimeout(function(){
@@ -24866,8 +24867,9 @@
     }
     
     if (e.name === "call") {
+      console.log("call from Safari with " + d.id);
       if (d.id < 0) {
-        var id = d.id * -1;
+        var id = (d.id * -1) - 1;
         _callback[id].apply(null, d.arguments);
       } else {
         var args = [d.id].concat(d.arguments);
@@ -24888,7 +24890,7 @@
     }
     
     if (d.id < 0) {
-      var id = d.id * -1;
+      var id = (d.id * -1) - 1;
       _callback[id].apply(null, d.arguments);
     } else {
       callUnsafeWindow.apply(null, [d.id].concat(d.arguments));
@@ -25189,13 +25191,15 @@
       safari.self.tab.dispatchMessage("call", JSON.stringify({
         level: "unsafe",
         method: "load",
-        id: parseInt("-" + (_callback.push(callback) - 1), 10)
+        id: parseInt("-" + _callback.push(callback), 10),
+        arguments: [ key ]
       }));
     } else if (0 === 5) { // Opera
       opera.extension.postMessage(JSON.stringify({
         level: "unsafe",
         method: "load",
-        id: parseInt("-" + (_callback.push(callback) - 1), 10)
+        id: parseInt("-" + _callback.push(callback), 10),
+        arguments: [ key ]
       }));
     } else if (0 === 1 || 0 === 8) {
       _chrome_load(key, callback);
@@ -25309,6 +25313,8 @@
           }
         });
       } catch (e) {
+        console.error(e);
+        
         initListeners();
         initExtensionListeners();
         inject(main_function);
