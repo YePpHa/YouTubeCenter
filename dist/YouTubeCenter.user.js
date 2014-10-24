@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         412
+// @version         413
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 412);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 413);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -107,6 +107,34 @@
     return function(){
       return func.apply(scope, args.concat(Array.prototype.slice.call(arguments)))
     };
+  }
+  
+  function getNavigator() {
+    try {
+      if (window && typeof window.navigator === "object") {
+        return window.navigator;
+      } else if (typeof navigator === "object") {
+        return navigator;
+      }
+    } catch (e) {
+      return { /* empty */ };
+    }
+  }
+  
+  function isCookieEnabled() {
+    try {
+      var cookieEnabled = getNavigator().cookieEnabled;
+      if (cookieEnabled === false) return false;
+      
+      setCookie("ytc_cookie_test", "testing", ".youtube.com", "/", 3600*60*24*30);
+      var isEnabled = getCookie("ytc_cookie_test") === "testing";
+      // Removing the test cookie
+      setCookie("ytc_cookie_test", null, ".youtube.com", "/", -1);
+      
+      return isEnabled;
+    } catch (e) {
+      return false;
+    }
   }
   
   function setCookie(name, value, domain, path, expires) {
@@ -25295,6 +25323,14 @@
   var hasInjected = false;
   
   var _callback = [];
+  var ie = (function(){
+    try {
+      for (var v = 3, el = document.createElement('b'), all = el.all || []; el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];);
+      return v > 4 ? v : !!document.documentMode;
+    } catch (e) {
+      return false;
+    }
+  }());
   
   var domains = ["www.youtube.com", "youtube.com", "apis.google.com", "plus.googleapis.com"];
   var loc = (function(){
@@ -25307,7 +25343,7 @@
   if (isDomainAllowed(domains)) { // Let's do a check to see if YouTube Center Developer Build should run.
     console.log("Domain registered " + document.domain + ".");
     
-    if (isEmbeddedVideo()) {
+    if (isEmbeddedVideo() && isCookieEnabled()) {
       try {
         var cookies = getCookies();
         var cookie = ("ytc_embed" in cookies ? cookies["ytc_embed"] : null);
@@ -25323,10 +25359,10 @@
           if (typeof settings === "string") settings = JSON.parse(settings);
           
           if (settings.embed_enabled && cookie !== "enabled") {
-            setCookie("ytc_embed", "enabled");
+            setCookie("ytc_embed", "enabled", ".youtube.com", "/", 3600*60*24*30);
             loc.reload();
           } else if (!settings.embed_enabled && cookie === "enabled") {
-            setCookie("ytc_embed", "disabled");
+            setCookie("ytc_embed", "disabled", ".youtube.com", "/", 3600*60*24*30);
             loc.reload();
           }
         });
