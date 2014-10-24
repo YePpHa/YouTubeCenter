@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         410
+// @version         411
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 410);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 411);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -24763,11 +24763,29 @@
       }
     }
     
+    function gmCheck() {
+      try {
+        if (typeof GM_setValue !== "undefined") {
+          try {
+            if ((typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1)) {
+              return true;
+            } else {
+              return false;
+            }
+          } catch (e) {
+            return true;
+          }
+        }
+      } catch (e) {
+        return false;
+      }
+    }
+    
     var mod = "support.test";
     
     return {
       localStorage: localStorageTest(),
-      Greasemonkey: (typeof GM_setValue !== "undefined" && (typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1)),
+      Greasemonkey: gmCheck(),
       Adguard: (typeof AdguardSettings === "object"),
       cloneInto: (typeof cloneInto === "function"),
       CustomEvent: customEvent()
