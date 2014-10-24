@@ -4251,9 +4251,8 @@
         } else if (ytcenter.settings.uploaderCountryPosition === "after_username") {
           if (ytcenter.utils.hasClass(separator, "yt-user-name-icon-verified") || ytcenter.utils.hasClass(separator, "yt-channel-title-icon-verified")) {
             separator = userInfo.children[2];
-          } else {
-            countryContainer.style.marginLeft = "5px";
           }
+          countryContainer.style.marginLeft = "5px";
           userInfo.insertBefore(countryContainer, separator);
         } else if (ytcenter.settings.uploaderCountryPosition === "last") {
           countryContainer.style.marginLeft = "5px";
