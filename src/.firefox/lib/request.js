@@ -1,4 +1,4 @@
-var {callUnsafeJSObject} = require("utils");
+var {callUnsafeJSObject, isWindowClosed} = require("utils");
 
 function sendRequest(wrappedContentWin, chromeWin, sandbox, details) {
   let req = new chromeWin.XMLHttpRequest();
@@ -115,7 +115,13 @@ function addEventListener(wrappedContentWin, req, event, details){
         responseState.finalUrl = req.channel.URI.spec;
         break;
     }
-    callUnsafeJSObject(wrappedContentWin, details["on" + event], responseState);
+    
+    if (isWindowClosed(wrappedContentWin)) return; /* The window is closed and therefore it should not be called! */
+    
+    var eventCallback = details["on" + event];
+    
+    new XPCNativeWrapper(wrappedContentWin, "setTimeout()")
+        .setTimeout(function(){ eventCallback.call(details, responseState) }, 0);
   }, false);
 }
 

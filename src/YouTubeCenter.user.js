@@ -25002,7 +25002,7 @@
         addWindowListener(bind(null, callUnsafeWindow, data.id));
         break;
       case "firefox_windowLinkerFireRegisteredEvent":
-        windowLinkerFireRegisteredEvent.apply(null, data.arguments);
+        windowLinkerFireRegisteredEvent(data.arguments[0], data.arguments[1]);
         break;
       case "GM_registerMenuCommand":
         if (support.Greasemonkey) {
