@@ -1,3 +1,9 @@
+/* YouTube temporary style bug fix. Issue #1064 */
+.yt-uix-button.yt-uix-button-subscribe-branded,
+.yt-uix-button.yt-uix-button-subscribed-branded {
+  border-width: 1px !important;
+}
+
 .watch8 #watch7-views-info {
   bottom: initial !important;
   top: -6px !important;
