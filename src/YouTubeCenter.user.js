@@ -24866,8 +24866,9 @@
     }
     
     if (e.name === "call") {
+      console.log("call from Safari with " + d.id);
       if (d.id < 0) {
-        var id = d.id * -1;
+        var id = (d.id * -1) - 1;
         _callback[id].apply(null, d.arguments);
       } else {
         var args = [d.id].concat(d.arguments);
@@ -24888,7 +24889,7 @@
     }
     
     if (d.id < 0) {
-      var id = d.id * -1;
+      var id = (d.id * -1) - 1;
       _callback[id].apply(null, d.arguments);
     } else {
       callUnsafeWindow.apply(null, [d.id].concat(d.arguments));
@@ -25189,13 +25190,15 @@
       safari.self.tab.dispatchMessage("call", JSON.stringify({
         level: "unsafe",
         method: "load",
-        id: parseInt("-" + (_callback.push(callback) - 1), 10)
+        id: parseInt("-" + _callback.push(callback), 10),
+        arguments: [ key ]
       }));
     } else if (@identifier@ === 5) { // Opera
       opera.extension.postMessage(JSON.stringify({
         level: "unsafe",
         method: "load",
-        id: parseInt("-" + (_callback.push(callback) - 1), 10)
+        id: parseInt("-" + _callback.push(callback), 10),
+        arguments: [ key ]
       }));
     } else if (@identifier@ === 1 || @identifier@ === 8) {
       _chrome_load(key, callback);
@@ -25309,6 +25312,8 @@
           }
         });
       } catch (e) {
+        console.error(e);
+        
         initListeners();
         initExtensionListeners();
         inject(main_function);
