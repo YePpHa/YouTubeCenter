@@ -83,11 +83,14 @@
 
 (function(){
   "use strict";
-  function inject(func) {
+  function inject(func, bypass) {
+    if (hasInjected && !bypass) return;
+    hasInjected = true;
+    
     var script = document.createElement("script");
     var p = document.body || document.head || document.documentElement;
     if (!p) {
-      setTimeout(bind(null, inject, func), 0);
+      setTimeout(bind(null, inject, func, true), 0);
       return;
     }
     script.setAttribute("type", "text/javascript");
@@ -97,6 +100,66 @@
     script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@, @devbuild@, @devnumber@);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
+  }
+  
+  function bind(scope, func) {
+    var args = Array.prototype.slice.call(arguments, 2);
+    return function(){
+      return func.apply(scope, args.concat(Array.prototype.slice.call(arguments)))
+    };
+  }
+  
+  function setCookie(name, value, domain, path, expires) {
+    domain = domain ? ";domain=" + encodeURIComponent(domain) : "";
+    path = path ? ";path=" + encodeURIComponent(path) : "";
+    expires = 0 > expires ? "" : 0 == expires ? ";expires=" + (new Date(1970, 1, 1)).toUTCString() : ";expires=" + (new Date(now() + 1E3 * expires)).toUTCString();
+    
+    document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + domain + path + expires;
+  }
+  
+  function getCookie(key) {
+    return getCookies()[key];
+  }
+  
+  function getCookies() {
+    function trimLeft(obj){
+      return obj.replace(/^\s+/, "");
+    }
+    function trimRight(obj){
+      return obj.replace(/\s+$/, "");
+    }
+    function map(obj, callback, thisArg) {
+      for (var i = 0, n = obj.length, a = []; i < n; i++) {
+          if (i in obj) a[i] = callback.call(thisArg, obj[i]);
+      }
+      return a;
+    }
+    var c = document.cookie, v = 0, cookies = {};
+    if (document.cookie.match(/^\s*\$Version=(?:"1"|1);\s*(.*)/)) {
+        c = RegExp.$1;
+        v = 1;
+    }
+    if (v === 0) {
+        map(c.split(/[,;]/), function(cookie) {
+            var parts = cookie.split(/=/, 2),
+                name = decodeURIComponent(trimLeft(parts[0])),
+                value = parts.length > 1 ? decodeURIComponent(trimRight(parts[1])) : null;
+            cookies[name] = value;
+        });
+    } else {
+        map(c.match(/(?:^|\s+)([!#$%&'*+\-.0-9A-Z^`a-z|~]+)=([!#$%&'*+\-.0-9A-Z^`a-z|~]*|"(?:[\x20-\x7E\x80\xFF]|\\[\x00-\x7F])*")(?=\s*[,;]|$)/g), function($0, $1) {
+            var name = $0,
+                value = $1.charAt(0) === '"'
+                          ? $1.substr(1, -1).replace(/\\(.)/g, "$1")
+                          : $1;
+            cookies[name] = value;
+        });
+    }
+    return cookies;
+  }
+  
+  function isEmbeddedVideo() {
+    return !!loc.href.match(/^http(s)?:\/\/(www\.)?youtube\.com\/embed\//) || !!loc.href.match(/^http(s)?:\/\/(www\.)?youtube\.com\/watch_popup\?\//);
   }
   
   var main_function = function(injected, identifier, devbuild, devnumber, _unsafeWindow, preloadedSettings, undefined){
@@ -24759,6 +24822,37 @@
       }, 7);
     }
   }
+  
+  function _chrome_load(key, callback) {
+    if (chrome && chrome.storage && chrome.storage.local) {
+      var storage = chrome.storage.local;
+      var value = null;
+      if ((value = localStorage.getItem(key) || null) !== null) {
+        console.log("[Chrome] Moving settings from old method to new method for " + key);
+        var details = {};
+        details[key] = value;
+        
+        storage.set(details);
+        
+        localStorage.removeItem(key);
+        callback(value);
+      } else {
+        storage.get(key, function(result) {
+          var res = {};
+          if (key in result) {
+            res = result[key];
+          }
+          
+          callback(res);
+        });
+      }
+    } else {
+      console.warn("[Chrome] Chrome extension API is not present!");
+      setTimeout(function(){
+        _defaultLoad(key, callback);
+      }, 7);
+    }
+  }
 
   // Safari API
   function safariMessageListener(e) {
@@ -24772,8 +24866,13 @@
     }
     
     if (e.name === "call") {
-      var args = [d.id].concat(d.arguments);
-      callUnsafeWindow.apply(null, args);
+      if (d.id < 0) {
+        var id = d.id * -1;
+        _callback[id].apply(null, d.arguments);
+      } else {
+        var args = [d.id].concat(d.arguments);
+        callUnsafeWindow.apply(null, args);
+      }
     }
   }
   
@@ -24788,7 +24887,12 @@
       return;
     }
     
-    callUnsafeWindow.apply(null, [d.id].concat(d.arguments));
+    if (d.id < 0) {
+      var id = d.id * -1;
+      _callback[id].apply(null, d.arguments);
+    } else {
+      callUnsafeWindow.apply(null, [d.id].concat(d.arguments));
+    }
   }
   
   // Firefox API
@@ -25080,6 +25184,42 @@
     }
   }
   
+  function _load(key, callback) {
+    if (@identifier@ === 4) { // Safari
+      safari.self.tab.dispatchMessage("call", JSON.stringify({
+        level: "unsafe",
+        method: "load",
+        id: parseInt("-" + (_callback.push(callback) - 1), 10)
+      }));
+    } else if (@identifier@ === 5) { // Opera
+      opera.extension.postMessage(JSON.stringify({
+        level: "unsafe",
+        method: "load",
+        id: parseInt("-" + (_callback.push(callback) - 1), 10)
+      }));
+    } else if (@identifier@ === 1 || @identifier@ === 8) {
+      _chrome_load(key, callback);
+    } else if (@identifier@ === 2) {
+      callback(window.external.mxGetRuntime().storage.getConfig(key) || "{}");
+    } else if (@identifier@ === 6) {
+      callback(storage_getValue(key) || "{}");
+    } else {
+      setTimeout(function() {
+        _defaultLoad(key, callback);
+      }, 7);
+    }
+  }
+  
+  function _defaultLoad(key, callback) {
+    if (support.Greasemonkey) {
+      callback(GM_getValue(key) || "{}");
+    } else if (support.localStorage) {
+      callback(localStorage.getItem(key) || "{}");
+    } else {
+      callback(getCookie(key) || "{}");
+    }
+  }
+  
   function windowUnload() {
     window.removeEventListener("message", messageListener, false);
     window.removeEventListener("unload", windowUnload, false);
@@ -25102,6 +25242,9 @@
   }
   
   function initListeners() {
+    if (initializedListeners) return;
+    initializedListeners = true;
+    
     if (support.CustomEvent) {
       window.addEventListener("ytc-content-call", eventListener, false);
     } else {
@@ -25109,7 +25252,12 @@
     }
     
     window.addEventListener("unload", windowUnload, false);
-
+  }
+  
+  function initExtensionListeners() {
+    if (initializedExtensionListeners) return;
+    initializedExtensionListeners = true;
+    
     if (@identifier@ === 4) { // Safari
       safari.self.addEventListener("message", safariMessageListener, false);
     } else if (@identifier@ === 5) { // Opera
@@ -25117,11 +25265,60 @@
     }
   }
   
+  var now = Date.now || function () {
+    return +new Date;
+  };
+  var initializedListeners = false;
+  var initializedExtensionListeners = false;
+  var hasInjected = false;
+  
+  var _callback = [];
+  
   var domains = ["www.youtube.com", "youtube.com", "apis.google.com", "plus.googleapis.com"];
+  var loc = (function(){
+    try {
+      if (typeof location !== "undefined") return location;
+      if (typeof window !== "undefined" && typeof window.location !== "undefined") return window.location;
+      if (typeof unsafeWindow !== "undefined" && typeof unsafeWindow.location !== "undefined") return unsafeWindow.location;
+    } catch (e) {}
+  })();
   if (isDomainAllowed(domains)) { // Let's do a check to see if @name@ should run.
     console.log("Domain registered " + document.domain + ".");
-    initListeners();
-    inject(main_function);
+    
+    if (isEmbeddedVideo()) {
+      try {
+        var cookies = getCookies();
+        var cookie = ("ytc_embed" in cookies ? cookies["ytc_embed"] : null);
+        if (cookie === "enabled") {
+          initListeners();
+          initExtensionListeners();
+          inject(main_function);
+        } else {
+          initExtensionListeners();
+        }
+        
+        _load("YouTubeCenterSettings", function(settings){
+          if (typeof settings === "string") settings = JSON.parse(settings);
+          
+          if (settings.embed_enabled && cookie !== "enabled") {
+            setCookie("ytc_embed", "enabled");
+            loc.reload();
+          } else if (!settings.embed_enabled && cookie === "enabled") {
+            setCookie("ytc_embed", "disabled");
+            loc.reload();
+          }
+        });
+      } catch (e) {
+        initListeners();
+        initExtensionListeners();
+        inject(main_function);
+      }
+    } else {
+      /* Continue normally */
+      initListeners();
+      initExtensionListeners();
+      inject(main_function);
+    }
   } else {
     throw "Domain " + document.domain + " not allowed!";
   }
