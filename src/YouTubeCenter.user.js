@@ -24763,11 +24763,29 @@
       }
     }
     
+    function gmCheck() {
+      try {
+        if (typeof GM_setValue !== "undefined") {
+          try {
+            if ((typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1)) {
+              return true;
+            } else {
+              return false;
+            }
+          } catch (e) {
+            return true;
+          }
+        }
+      } catch (e) {
+        return false;
+      }
+    }
+    
     var mod = "support.test";
     
     return {
       localStorage: localStorageTest(),
-      Greasemonkey: (typeof GM_setValue !== "undefined" && (typeof GM_setValue.toString === "undefined" || GM_setValue.toString().indexOf("not supported") === -1)),
+      Greasemonkey: gmCheck(),
       Adguard: (typeof AdguardSettings === "object"),
       cloneInto: (typeof cloneInto === "function"),
       CustomEvent: customEvent()
