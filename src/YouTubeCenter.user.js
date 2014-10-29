@@ -22417,6 +22417,27 @@
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
+      if (ytcenter.player.isHTML5() && !ytcenter.player.updated) {
+        config = ytcenter.player.getConfig();
+        ytcenter.player.updated = true;
+        if (config.loaded || ytcenter.getPage() !== "watch") {
+          if (!uw.yt || !uw.yt.player || !uw.yt.player.Application || typeof uw.yt.player.Application.create !== "function") {
+            ytcenter.player.updated = false;
+            setTimeout(ytcenter.utils.bind(null, ytcenter.player.update, config), 100);
+          } else {
+            // hopefully only a temp fix
+            if (ytcenter.settings.playerSizeIssueFix) {
+              config.args.el = "ytc-size-fix"; // can be anything as long it's not 'detailpage'.
+              config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
+              config.args.showinfo = false; // probably embed information...
+            }
+            uw.ytplayer && typeof uw.ytplayer.load === "function" && uw.ytplayer.load();
+            /*ytcenter.player.listeners.dispose();
+            ytcenter.player.listeners.setup();*/
+            con.log("Reloaded the HTML5 player.");
+          }
+        }
+      }
       if (ytcenter.player.isHTML5() || ytcenter.player.updated) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
@@ -24322,6 +24343,7 @@
           ytcenter.player.listeners.setup();
         }
         
+        ytcenter.player.onYouTubePlayerReadyCalled = false;
         ytcenter.player.onYouTubePlayerReady = function(api){
           if (!ytcenter.player.config) return;
           /* Running other onYouTubePlayerReady callbacks */
@@ -24335,6 +24357,7 @@
           
           ytcenter.classManagement.applyClassesForElement();
           if (typeof api === "object") {
+            ytcenter.player.onYouTubePlayerReadyCalled = true;
             ytcenter.player.__getAPI = api;
             
             api = ytcenter.player.getAPI();
@@ -24641,6 +24664,10 @@
         }
         
         ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
+        
+        if (page !== "watch" && page !== "embed" && page !== "comments") {
+          ytcenter.player.update();
+        }
         
         ytcenter.classManagement.applyClassesForElement(document.body);
         
