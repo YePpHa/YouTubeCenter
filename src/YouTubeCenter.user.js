@@ -13275,6 +13275,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      playerSizeIssueFix: true,
       videoThumbnailQualityFPS: true,
       enableComments: true,
       channelUploadedVideosPlaylist: false,
@@ -15075,6 +15076,13 @@
       /* Category:Player */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "playerSizeIssueFix",
+            "bool",
+            "SETTINGS_ISSUE_PLAYER_SIZE_FIX"
+          );
+          subcat.addOption(option);
+          
           option = ytcenter.settingsPanel.createOption(
             "removeRelatedVideosEndscreen", // defaultSetting
             "bool", // module
@@ -20399,9 +20407,11 @@
         ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_FPS", ytcenter.player.getFPSArray(ytcenter.video.streams));
         
         // hopefully only a temp fix
-        config.args.el = "ytc-size-fix"; // can be anything as long it's not 'detailpage'.
-        config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
-        config.args.showinfo = false; // probably embed information...
+        if (ytcenter.settings.playerSizeIssueFix && ytcenter.html5) {
+          config.args.el = "ytc-size-fix"; // can be anything as long it's not 'detailpage'.
+          config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
+          config.args.showinfo = false; // probably embed information...
+        }
         
         if (ytcenter.settings.bufferEnabled) {
           config.args.tsp_buffer = ytcenter.settings.bufferSize;
