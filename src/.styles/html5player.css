@@ -1,3 +1,8 @@
+#watch7-views-info {
+  top: -3px!important;
+  bottom: initial!important;
+}
+
 .html5-video-player.ytcenter-autohide-none .html5-video-container {
   bottom: 35px!important;
 }

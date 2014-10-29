@@ -20398,6 +20398,11 @@
         ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_KEYWORDS", config.args.keywords.split(","));
         ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_FPS", ytcenter.player.getFPSArray(ytcenter.video.streams));
         
+        // hopefully only a temp fix
+        config.args.el = "ytc-size-fix"; // can be anything as long it's not 'detailpage'.
+        config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
+        config.args.showinfo = false; // probably embed information...
+        
         if (ytcenter.settings.bufferEnabled) {
           config.args.tsp_buffer = ytcenter.settings.bufferSize;
         }
@@ -24628,6 +24633,8 @@
         ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
         
         ytcenter.classManagement.applyClassesForElement(document.body);
+        
+        uw.yt && uw.yt.pubsub && typeof uw.yt.pubsub.publish === "function" && uw.yt.pubsub.publish("page-scroll"); // Let's trigger the scroll event for YouTube.
         
         if (loc.hash === "#ytcenter.settings.open") {
           loc.hash = "#!";
