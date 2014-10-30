@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         416
+// @version         417
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 416);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 417);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1523,13 +1523,6 @@
         return defObject;
       });
     }
-    function PlayerConfig(configSetter, configGetter) {
-      defineLockedProperty(this, "config", function(value){
-        configSetter(value);
-      }, function(){
-        return configGetter();
-      });
-    }
     
     var console_debug = devbuild; // Disable this to stop YouTube Center Developer Build from writing in the console log.
     var _console = [];
@@ -1569,6 +1562,22 @@
       for (var v = 3, el = document.createElement('b'), all = el.all || []; el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];);
       return v > 4 ? v : !!document.documentMode;
     }());
+    
+    ytcenter.playerConfig = (function(){
+      function setter(func) {
+        return func;
+      }
+      function setProperty(key, setter, getter) {
+        defineLockedProperty(ytplayer, key, setter, getter);
+      }
+      
+      var ytplayer = (uw.ytplayer = uw.ytplayer || {});
+      
+      var exports = {};
+      exports.setProperty = setProperty;
+      
+      return exports;
+    })();
     
     ytcenter.updateLogoLink_ = null;
     ytcenter.updateLogoLink = function(){
@@ -10536,6 +10545,73 @@
       return {
         update: update
       };
+    })();
+    
+    ytcenter.html5Fix = (function(){
+      function loadPointer() {
+        if (elParent !== null && elKey !== null) return true;
+        if (playerInstance === null) return false;
+        
+        try {
+          for (var key in playerInstance) {
+            if (playerInstance.hasOwnProperty(key)) {
+              var prop = playerInstance[key];
+              for (var key2 in prop) {
+                if (prop.hasOwnProperty(key2)) {
+                  if (prop[key2] === "detailpage") {
+                    elParent = prop;
+                    elKey = key2;
+                    con.log(prop, key2);
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) {
+          con.error(e);
+        }
+        return false;
+      }
+      
+      function setProperty(value) {
+        if (loadPointer()) {
+          elParent[elKey] = value;
+        }
+      }
+      
+      function setPlayerInstance(instance) {
+        playerInstance = instance;
+      }
+      
+      function load() {
+        //con.debug("ytplayer.load() has been called.");
+        playerInstance = uw.yt.player.Application.create("player-api", uw.ytplayer.config);
+        uw.ytplayer.config.loaded = true;
+      }
+      
+      function playerLoadInjector() {
+        function getter() {
+          return load;
+        }
+        function setter(value) {
+          // do nothing
+        }
+        ytcenter.playerConfig.setProperty("load", setter, getter);
+      }
+      
+      var playerInstance = null;
+      var elKey = null;
+      var elParent = null;
+      
+      playerLoadInjector();
+      
+      var exports = {};
+      exports.setPlayerInstance = setPlayerInstance;
+      exports.setProperty = setProperty;
+      uw.ytcSetProperty = setProperty; // for scie... erhh, I meant testing
+      
+      return exports;
     })();
     
     // @utils
@@ -19662,7 +19738,7 @@
         /* Forcing the quality */
         step = 0; /* Starting the hack */
         if (!addedListener) {
-          addStateListener();
+          addStateListener(vq);
         }
         /* Checking if the player is already playing the video. If that's the case then execute the stateChange with state set to 1 */
         if (api.getPlayerState() === 1) {
@@ -20406,23 +20482,11 @@
         ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_KEYWORDS", config.args.keywords.split(","));
         ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_FPS", ytcenter.player.getFPSArray(ytcenter.video.streams));
         
-        // hopefully only a temp fix
-        if (ytcenter.settings.playerSizeIssueFix && ytcenter.html5) {
-          config.args.el = "ytc"; // can be anything as long it's not 'detailpage'.
-          config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
-          config.args.showinfo = false; // probably embed information...
-        }
-        
         if (ytcenter.settings.bufferEnabled) {
           config.args.tsp_buffer = ytcenter.settings.bufferSize;
         }
         if (ytcenter.settings.enable_custom_fexp) {
           config.args.fexp = ytcenter.settings.custom_fexp;
-        } else {
-          // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
-          //ytcenter.player.experiments.clear(config);
-          /*ytcenter.player.experiments.remove("931983", config); // YouTube will probably change this in a few months.. again.
-          ytcenter.player.experiments.remove("931972", config);*/
         }
         
         if (!config.args.video_id) {
@@ -22417,7 +22481,7 @@
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
-      if (ytcenter.player.isHTML5() && !ytcenter.player.updated) {
+      /*if (ytcenter.player.isHTML5() && !ytcenter.player.updated) {
         config = ytcenter.player.getConfig();
         ytcenter.player.updated = true;
         if (config.loaded || ytcenter.getPage() !== "watch") {
@@ -22433,12 +22497,10 @@
             }
             uw.yt && uw.yt.player && typeof uw.yt.player.destroy === "function" && uw.yt.player.destroy("player-api");
             uw.ytplayer && typeof uw.ytplayer.load === "function" && uw.ytplayer.load();
-            /*ytcenter.player.listeners.dispose();
-            ytcenter.player.listeners.setup();*/
             con.log("Reloaded the HTML5 player.");
           }
         }
-      }
+      }*/
       if (ytcenter.player.isHTML5() || ytcenter.player.updated) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
@@ -23817,7 +23879,7 @@
         
         if (ytcenter.utils.setterGetterClassCompatible()) {
           ytcenter.player.disablePlayerUpdate = false;
-          uw.ytplayer = new PlayerConfig(function(config){
+          ytcenter.playerConfig.setProperty("config", function(config){
             con.log("[External] Setting player configruation.");
             if (config) {
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), config));
@@ -24358,6 +24420,18 @@
           
           ytcenter.classManagement.applyClassesForElement();
           if (typeof api === "object") {
+            if (ytcenter.getPage() === "watch") {
+              ytcenter.html5Fix.setProperty("ytc");
+              // navigation fix
+              var endscreen = document.getElementsByClassName("html5-endscreen");
+              endscreen && endscreen.length > 0 && endscreen[0] && endscreen[0].addEventListener("click", function(){
+                ytcenter.html5Fix.setProperty("detailpage");
+                setTimeout(function(){
+                  ytcenter.html5Fix.setProperty("ytc");
+                }, 7);
+              }, true);
+            }
+            
             ytcenter.player.onYouTubePlayerReadyCalled = true;
             ytcenter.player.__getAPI = api;
             
