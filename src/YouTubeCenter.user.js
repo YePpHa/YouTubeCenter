@@ -20408,7 +20408,7 @@
         
         // hopefully only a temp fix
         if (ytcenter.settings.playerSizeIssueFix && ytcenter.html5) {
-          config.args.el = "ytc-size-fix"; // can be anything as long it's not 'detailpage'.
+          config.args.el = "ytc"; // can be anything as long it's not 'detailpage'.
           config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
           config.args.showinfo = false; // probably embed information...
         }
@@ -20421,8 +20421,8 @@
         } else {
           // Why did I not think about looking at the YouTube experiments before??? The most simple solution to the issue with the annotations' size and position for the HTML5 player.
           //ytcenter.player.experiments.clear(config);
-          ytcenter.player.experiments.remove("931983", config); // YouTube will probably change this in a few months.. again.
-          ytcenter.player.experiments.remove("931972", config);
+          /*ytcenter.player.experiments.remove("931983", config); // YouTube will probably change this in a few months.. again.
+          ytcenter.player.experiments.remove("931972", config);*/
         }
         
         if (!config.args.video_id) {
@@ -22427,10 +22427,11 @@
           } else {
             // hopefully only a temp fix
             if (ytcenter.settings.playerSizeIssueFix) {
-              config.args.el = "ytc-size-fix"; // can be anything as long it's not 'detailpage'.
+              config.args.el = "ytc"; // can be anything as long it's not 'detailpage'.
               config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
               config.args.showinfo = false; // probably embed information...
             }
+            uw.yt && uw.yt.player && typeof uw.yt.player.destroy === "function" && uw.yt.player.destroy("player-api");
             uw.ytplayer && typeof uw.ytplayer.load === "function" && uw.ytplayer.load();
             /*ytcenter.player.listeners.dispose();
             ytcenter.player.listeners.setup();*/
