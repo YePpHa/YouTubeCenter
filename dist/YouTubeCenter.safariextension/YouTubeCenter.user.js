@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         417
+// @version         418
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 417);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 418);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1471,7 +1471,8 @@
     /* Classes */
     function defineLockedProperty(obj, key, setter, getter) {
       if (typeof obj !== "object") obj = {};
-      if (ytcenter.utils.ie || typeof Object.defineProperty === "function") {
+
+      if (ytcenter.utils.ie || (typeof Object.defineProperty === "function" && !obj.__defineGetter__)) {
         Object.defineProperty(obj, key, {
           get: getter,
           set: setter
@@ -1483,7 +1484,8 @@
         return obj;
       }
     }
-    function freeze(parent, freezeObject) {
+    
+    function freeze(parent, freezeObject, predefinedObject) {
       function wait(_parent, _freezeObject) {
         var args = _freezeObject.split(".");
         var _object = undefined;
@@ -1508,8 +1510,8 @@
         }
       }
       
-      var defObject = undefined;
-      var frozen = false;
+      var defObject = predefinedObject;
+      var frozen = typeof predefinedObject !== "undefined";
       if (typeof at[args[args.length - 1]] !== "undefined") {
         defObject = at[args[args.length - 1]];
         frozen = true;
@@ -1563,7 +1565,7 @@
       return v > 4 ? v : !!document.documentMode;
     }());
     
-    ytcenter.playerConfig = (function(){
+    ytcenter.playerInstance = (function(){
       function setter(func) {
         return func;
       }
@@ -1577,6 +1579,24 @@
       exports.setProperty = setProperty;
       
       return exports;
+    })();
+    
+    ytcenter.playerConfig = (function(){
+      function isLoaded() {
+        return loaded;
+      }
+      function setter(key) {
+        if (loaded !== key) {
+          ytcenter.html5Fix.updateLoaded(key);
+        }
+        loaded = key;
+      }
+      
+      var loaded = false;
+      
+      return function(config){
+        //defineLockedProperty(config, "loaded", setter, isLoaded);
+      };
     })();
     
     ytcenter.updateLogoLink_ = null;
@@ -10549,21 +10569,18 @@
     
     ytcenter.html5Fix = (function(){
       function loadPointer() {
-        if (elParent !== null && elKey !== null) return true;
-        if (playerInstance === null) return false;
-        
+        if (elParent && elKey) return true;
+        if (!playerInstance) return false;
+
         try {
           for (var key in playerInstance) {
-            if (playerInstance.hasOwnProperty(key)) {
-              var prop = playerInstance[key];
-              for (var key2 in prop) {
-                if (prop.hasOwnProperty(key2)) {
-                  if (prop[key2] === "detailpage") {
-                    elParent = prop;
-                    elKey = key2;
-                    con.log(prop, key2);
-                    return true;
-                  }
+            var child = playerInstance[key];
+            if (typeof child === "object") {
+              for (var key2 in child) {
+                if (child[key2] === "detailpage") {
+                  elParent = child;
+                  elKey = key2;
+                  return true;
                 }
               }
             }
@@ -10571,12 +10588,18 @@
         } catch (e) {
           con.error(e);
         }
+        con.error("Couldn't find loadPointer");
         return false;
       }
       
       function setProperty(value) {
         if (loadPointer()) {
           elParent[elKey] = value;
+        } else {
+          uw.yt && uw.yt.player && uw.yt.player.destroy && uw.yt.player.destroy("player-api");
+          setTimeout(ytcenter.utils.bind(null, load, value), 7);
+          
+          con.error("YouTube Center couldn't get leaked variables.", playerInstance);
         }
       }
       
@@ -10584,10 +10607,21 @@
         playerInstance = instance;
       }
       
-      function load() {
-        //con.debug("ytplayer.load() has been called.");
+      function load(value) {
+        loadCalled = true;
+        
+        con.log("ytplayer.load() has been called.");
         playerInstance = uw.yt.player.Application.create("player-api", uw.ytplayer.config);
+        value && setProperty(value);
+        
         uw.ytplayer.config.loaded = true;
+      }
+      
+      function updateLoaded(loaded) {
+        if (!loadCalled && loaded) {
+          document.getElementById("player-api").innerHTML = "";
+          load();
+        }
       }
       
       function playerLoadInjector() {
@@ -10595,20 +10629,34 @@
           return load;
         }
         function setter(value) {
-          // do nothing
         }
-        ytcenter.playerConfig.setProperty("load", setter, getter);
+        
+        
+        /*timer = setInterval(function(){
+          if (uw.yt && uw.yt.player && uw.yt.player.Application && typeof uw.yt.player.Application.create === "function") {
+            load();
+          }
+        }, 50);*/
+        
+        ytcenter.playerInstance.setProperty("load", setter, getter);
       }
       
       var playerInstance = null;
       var elKey = null;
       var elParent = null;
       
+      var playerAPI = null;
+      var timer = null;
+      
+      var loadCalled = false;
+      
       playerLoadInjector();
       
       var exports = {};
       exports.setPlayerInstance = setPlayerInstance;
       exports.setProperty = setProperty;
+      exports.updateLoaded = updateLoaded;
+      exports.load = load;
       uw.ytcSetProperty = setProperty; // for scie... erhh, I meant testing
       
       return exports;
@@ -19630,6 +19678,9 @@
     })();
     
     ytcenter.player = {};
+    ytcenter.player.config = {};
+    ytcenter.playerConfig(ytcenter.player.config);
+    
     ytcenter.player.setPlaybackState = (function(){
       function updateState(state, s) {
         con.log("[Player:setPlaybackState] Preferred state: " + state + ", current state: " + s);
@@ -19865,7 +19916,6 @@
         ytcenter.player.setQuality(preferredQuality);
       }
     };
-    ytcenter.player.config = {};
     ytcenter.player.cpn = ytcenter.utils.crypt();
     ytcenter.player.getVideoDataRequest = function(){
       /* Making sure that the require configuration is available */
@@ -20136,9 +20186,9 @@
         }
       }, false);
     };
-    ytcenter.player.config = ytcenter.player.config || {}; // Never set this variable directly!
     ytcenter.player.setConfig = function(config){
       ytcenter.player.config = config;
+      ytcenter.playerConfig(ytcenter.player.config);
     };
     ytcenter.player.updateConfig = function(page, config){
       if (!config || !config.args) return;
@@ -22481,26 +22531,6 @@
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
-      /*if (ytcenter.player.isHTML5() && !ytcenter.player.updated) {
-        config = ytcenter.player.getConfig();
-        ytcenter.player.updated = true;
-        if (config.loaded || ytcenter.getPage() !== "watch") {
-          if (!uw.yt || !uw.yt.player || !uw.yt.player.Application || typeof uw.yt.player.Application.create !== "function") {
-            ytcenter.player.updated = false;
-            setTimeout(ytcenter.utils.bind(null, ytcenter.player.update, config), 100);
-          } else {
-            // hopefully only a temp fix
-            if (ytcenter.settings.playerSizeIssueFix) {
-              config.args.el = "ytc"; // can be anything as long it's not 'detailpage'.
-              config.args.enablesizebutton = true; // Size button on the watch page, disabled by default when 'detailpage' is not set.
-              config.args.showinfo = false; // probably embed information...
-            }
-            uw.yt && uw.yt.player && typeof uw.yt.player.destroy === "function" && uw.yt.player.destroy("player-api");
-            uw.ytplayer && typeof uw.ytplayer.load === "function" && uw.ytplayer.load();
-            con.log("Reloaded the HTML5 player.");
-          }
-        }
-      }*/
       if (ytcenter.player.isHTML5() || ytcenter.player.updated) return;
       try {
         var player = document.getElementById("movie_player") || document.getElementById("player1"), clone;
@@ -23879,7 +23909,7 @@
         
         if (ytcenter.utils.setterGetterClassCompatible()) {
           ytcenter.player.disablePlayerUpdate = false;
-          ytcenter.playerConfig.setProperty("config", function(config){
+          ytcenter.playerInstance.setProperty("config", function(config){
             con.log("[External] Setting player configruation.");
             if (config) {
               ytcenter.player.setConfig(ytcenter.player.modifyConfig(ytcenter.getPage(), config));
@@ -23888,9 +23918,10 @@
               ytcenter.player.setConfig(config);
             }
           }, function(){            
-            if (ytcenter.feather) {
+            if (!ytcenter.player.config) {
               ytcenter.player.config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
             }
+            
             return ytcenter.player.config;
           });
         } else {
@@ -24101,7 +24132,7 @@
           if (uw && uw.yt && uw.yt.player && uw.yt.player.Application && typeof uw.yt.player.Application.create === "function") {
             ytcenter.player.setConfig(ytcenter.player.modifyConfig(page, ytcenter.player.getConfig()));
             
-            uw.yt.player.Application.create("player-api", ytcenter.player.getConfig());
+            ytcenter.html5Fix.load();
           }
         }
         
@@ -24461,7 +24492,6 @@
               if (ytcenter.player.config && ytcenter.player.config.args) {
                 ytcenter.player.updateConfig(ytcenter.getPage(), ytcenter.player.config);
               } else {
-                if (ytcenter.player.config === null) ytcenter.player.config = {};
                 ytcenter.player.config.updateConfig = true;
               }
             } else {
