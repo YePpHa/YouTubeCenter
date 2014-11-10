@@ -24491,6 +24491,12 @@
         
         ytcenter.player.onYouTubePlayerReadyCalled = false;
         ytcenter.player.onYouTubePlayerReady = function(api){
+          function onVideoChange() {
+            ytcenter.html5Fix.setProperty("detailpage");
+            setTimeout(function(){
+              ytcenter.html5Fix.setProperty("ytc");
+            }, 7);
+          }
           if (!ytcenter.player.config) return;
           /* Running other onYouTubePlayerReady callbacks */
           if (ytcenter.onYouTubePlayerReady) {
@@ -24507,12 +24513,12 @@
               ytcenter.html5Fix.setProperty("ytc");
               // navigation fix
               var endscreen = document.getElementsByClassName("html5-endscreen");
-              endscreen && endscreen.length > 0 && endscreen[0] && endscreen[0].addEventListener("click", function(){
-                ytcenter.html5Fix.setProperty("detailpage");
-                setTimeout(function(){
-                  ytcenter.html5Fix.setProperty("ytc");
-                }, 7);
-              }, true);
+              var playnext = document.getElementsByClassName("ytp-button-next");
+              var playprev = document.getElementsByClassName("ytp-button-prev");
+              
+              endscreen && endscreen.length > 0 && endscreen[0] && endscreen[0].addEventListener("click", onVideoChange, true);
+              playnext && playnext.length > 0 && playnext[0] && playnext[0].addEventListener("click", onVideoChange, true);
+              playprev && playprev.length > 0 && playprev[0] && playprev[0].addEventListener("click", onVideoChange, true);
             }
             
             ytcenter.player.onYouTubePlayerReadyCalled = true;

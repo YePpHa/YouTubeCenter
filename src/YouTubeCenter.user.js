@@ -13443,7 +13443,6 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
-      playerSizeIssueFix: true,
       videoThumbnailQualityFPS: true,
       enableComments: true,
       channelUploadedVideosPlaylist: false,
@@ -15244,13 +15243,6 @@
       /* Category:Player */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
-          option = ytcenter.settingsPanel.createOption(
-            "playerSizeIssueFix",
-            "bool",
-            "SETTINGS_ISSUE_PLAYER_SIZE_FIX"
-          );
-          subcat.addOption(option);
-          
           option = ytcenter.settingsPanel.createOption(
             "removeRelatedVideosEndscreen", // defaultSetting
             "bool", // module
