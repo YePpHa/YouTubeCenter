@@ -21798,12 +21798,12 @@
       
       var minSmallPlayer = 640;
       
-      var maxWatchNonStageWidth0 = 1254;
-      var maxWatchNonStageWidth1 = 1254;
-      var maxWatchNonStageWidth2 = 1360;
-      var maxWatchNonStageWidth3 = 1680;
+      var maxWatchNonStageWidth0 = 1280;
+      var maxWatchNonStageWidth1 = 1280;
+      var maxWatchNonStageWidth2 = 1415;
+      var maxWatchNonStageWidth3 = 1706;
       
-      var maxWatchStageWidth0 = 1680;
+      var maxWatchStageWidth0 = 1706;
       
       var maxWatchNonStagePlayerWidth0 = 854;
       var maxWatchNonStagePlayerWidth1 = 854;
