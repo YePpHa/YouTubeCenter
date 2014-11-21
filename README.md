@@ -66,7 +66,7 @@ The keys in this file have the prefix and suffix `@`.
 You can contribute to YouTube Center by different means. You can help find bugs (and report them in the issue tracker), help with the translation to different languages or you can try and implement new things yourself.
 
 ## Translation
-YouTube Center uses Crowdin to better manage the translations. If you want to help with the translation of YouTube Center you can find the project page at [Crowdin project](https://crowdin.net/project/youtube-center).
+YouTube Center uses Crowdin to better manage the translations. If you want to help with the translation of YouTube Center you can find the project page on [Crowdin](https://crowdin.net/project/youtube-center).
 
 ## License
 The MIT License (MIT)
