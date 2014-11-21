@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         420
+// @version         421
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 420);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 421);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -21798,12 +21798,12 @@
       
       var minSmallPlayer = 640;
       
-      var maxWatchNonStageWidth0 = 1254;
-      var maxWatchNonStageWidth1 = 1254;
-      var maxWatchNonStageWidth2 = 1360;
-      var maxWatchNonStageWidth3 = 1680;
+      var maxWatchNonStageWidth0 = 1280;
+      var maxWatchNonStageWidth1 = 1280;
+      var maxWatchNonStageWidth2 = 1415;
+      var maxWatchNonStageWidth3 = 1706;
       
-      var maxWatchStageWidth0 = 1680;
+      var maxWatchStageWidth0 = 1706;
       
       var maxWatchNonStagePlayerWidth0 = 854;
       var maxWatchNonStagePlayerWidth1 = 854;
