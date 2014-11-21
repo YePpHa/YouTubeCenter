@@ -13823,7 +13823,7 @@
           id: "default_fit_to_content",
           config: {
             customName: "Fit to Content",
-            width: "1040px",
+            width: "1066px",
             height: "",
             large: true,
             align: true,
@@ -21793,7 +21793,7 @@
       var playerBarHeightNone = 0;
       var playerBarHeightProgress = 3;
       var playerBarHeightBoth = 35;
-      var maxInsidePlayerWidth = 1040;
+      var maxInsidePlayerWidth = 1066;
       var minInsidePlayerWidth = 1003;
       
       var minSmallPlayer = 640;
@@ -22115,7 +22115,7 @@
           if (large) {
             playlist_el.style.width = "auto";
             playlist_el.style.minWidth = "1003px";
-            playlist_el.style.maxWidth = "1040px";
+            playlist_el.style.maxWidth = "1066px";
           } else {
             playlist_el.style.minWidth = "";
             playlist_el.style.maxWidth = "";
