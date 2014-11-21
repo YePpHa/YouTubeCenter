@@ -4899,12 +4899,13 @@
         return null;
       }
       function getVideoThumbs() {
+        var userHeader = document.getElementById("watch7-user-header"); // Improved performance by moving this part out of the for loop
         var arr = ytcenter.utils.toArray(document.getElementsByClassName("video-thumb")).concat(ytcenter.utils.toArray(document.getElementsByClassName("yt-uix-simple-thumb-wrap")));
         var videos = [];
         var playlistVideoThumbs = getPlaylistVideoThumbs();
         var i;
         for (var i = 0, len = arr.length; i < len; i++) {
-          if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i]) || ytcenter.utils.isParent(document.getElementById("watch7-user-header"), arr[i])) continue;
+          if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i]) || (userHeader && ytcenter.utils.isParent(userHeader, arr[i]))) continue;
           var data = handleVideoThumbs(arr[i], arr[i].parentNode);
           if (data) videos.push(data);
         }
@@ -10613,8 +10614,10 @@
           if (changed.width && changed.height) {
             // the variable "c" is just a way to distinguish between sizes for the video canvas
             // and sizes for the progressbar, and its components
-            changed.width = (c) ? document.querySelector('#movie_player').getBoundingClientRect().width : document.querySelector('.html5-video-container').getBoundingClientRect().width;
-            changed.height = (c) ? document.querySelector('#movie_player').getBoundingClientRect().height : document.querySelector('.html5-video-container').getBoundingClientRect().height;
+            // TODO make use of document.getElementById and document.getElementsByClassName for better backwards compatibility.
+            // TODO Try using clientWidth or the likes instead of bounding client rect as i.e. clientWidth is better supported.
+            changed.width = (c) ? document.getElementById('movie_player').getBoundingClientRect().width : document.querySelector('.html5-video-container').getBoundingClientRect().width;
+            changed.height = (c) ? document.getElementById('movie_player').getBoundingClientRect().height : document.querySelector('.html5-video-container').getBoundingClientRect().height;
           }
           return changed;
         };
