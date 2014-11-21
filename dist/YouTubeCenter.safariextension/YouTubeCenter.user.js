@@ -4904,7 +4904,7 @@
         var playlistVideoThumbs = getPlaylistVideoThumbs();
         var i;
         for (var i = 0, len = arr.length; i < len; i++) {
-          if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i])) continue;
+          if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i]) || ytcenter.utils.isParent(document.getElementById("watch7-user-header"), arr[i])) continue;
           var data = handleVideoThumbs(arr[i], arr[i].parentNode);
           if (data) videos.push(data);
         }
@@ -11257,6 +11257,14 @@
         return document.documentElement.scrollTop;
       }
     };
+    /**
+    * Checks if an element is a child of parent.
+    *
+    * @method isParent
+    * @param {HTMLElement} parent The parent element.
+    * @param {HTMLElement} child The child element.
+    * @return {Boolean} Returns true if the child element is a child of the parent element.
+    **/
     ytcenter.utils.isParent = function(parent, child){
       var children = parent.getElementsByTagName(child.tagName);
       for (var i = 0, len = children.length; i < len; i++) {
@@ -13815,7 +13823,7 @@
           id: "default_fit_to_content",
           config: {
             customName: "Fit to Content",
-            width: "1040px",
+            width: "1066px",
             height: "",
             large: true,
             align: true,
@@ -21785,7 +21793,7 @@
       var playerBarHeightNone = 0;
       var playerBarHeightProgress = 3;
       var playerBarHeightBoth = 35;
-      var maxInsidePlayerWidth = 1040;
+      var maxInsidePlayerWidth = 1066;
       var minInsidePlayerWidth = 1003;
       
       var minSmallPlayer = 640;
@@ -22107,7 +22115,7 @@
           if (large) {
             playlist_el.style.width = "auto";
             playlist_el.style.minWidth = "1003px";
-            playlist_el.style.maxWidth = "1040px";
+            playlist_el.style.maxWidth = "1066px";
           } else {
             playlist_el.style.minWidth = "";
             playlist_el.style.maxWidth = "";
