@@ -4904,7 +4904,7 @@
         var playlistVideoThumbs = getPlaylistVideoThumbs();
         var i;
         for (var i = 0, len = arr.length; i < len; i++) {
-          if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i])) continue;
+          if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i]) || ytcenter.utils.isParent(document.getElementById("watch7-user-header"), arr[i])) continue;
           var data = handleVideoThumbs(arr[i], arr[i].parentNode);
           if (data) videos.push(data);
         }
@@ -10602,6 +10602,80 @@
     })();
     
     ytcenter.html5Fix = (function(){
+      /* Begin Yonezpt workaround for issue #1083 (#1125) */
+      function detour(b, c) {
+        return function(){
+          // we will call the original sizes, store them in the "changed" variable and
+          // check wether it has the width and height properties. If it does then we
+          // will change them, if not then we relay whatever other arguments the
+          // unknown function calls require
+          var changed = b.apply(this, arguments);
+          if (changed.width && changed.height) {
+            // the variable "c" is just a way to distinguish between sizes for the video canvas
+            // and sizes for the progressbar, and its components
+            changed.width = (c) ? document.querySelector('#movie_player').getBoundingClientRect().width : document.querySelector('.html5-video-container').getBoundingClientRect().width;
+            changed.height = (c) ? document.querySelector('#movie_player').getBoundingClientRect().height : document.querySelector('.html5-video-container').getBoundingClientRect().height;
+          }
+          return changed;
+        };
+      }
+      
+      function patchDetour() {
+        var i, j;
+        try {
+          // first of all we will find our main pointer that targets the two functions we want
+          // to intercept and for that we will iterate through all the keys in the player instance
+          // object (which is acquired by attaching a variable to the Application.create function
+          // which you -YePpHa- already know), find our target functions and "patch" them
+          // accordingly
+          for (i in playerInstance) {
+            // first filtering step is to only work with keys that are objects, aren't null objects
+            // and contain the .element key - there is only one object that contains it which
+            // is the one that we want
+            if (typeof playerInstance[i] === 'object' && playerInstance[i] && playerInstance[i].element) {
+              con.log('Pointer: ' + i);
+              // now that we have our main pointer we will iterate through all its keys
+              // to find our target functions
+              for (j in playerInstance[i]) {
+                // here we check for the main properties of the functions that we want to
+                // find and for that we will check for certain details inside the functions
+                // that we are currently iterating. never use properties that can be changed
+                // when the script is minified -such as named functions- instead use
+                // native javascript nomenclature which is less likely to change.
+                // in this case both our functions contain the return"detailpage" text
+                // so we will be looking for that line in each function.
+                // we also only want to look for functions, the rest will only be a waste of time
+                if (typeof playerInstance[i][j] === 'function' && /return"detailpage"/.test(playerInstance[i][j].toString())) {
+                  // now that we find one of the two functions we will check which one
+                  // we detect so we can manipulate it accordingly.
+                  // there are two functions: one relays the dimensions to the progressbar
+                  // elements and the other is for the video element size. 
+                  // they are almost identical, but there are small differences which
+                  // we wil use to detect which one is for the progressbar and video,
+                  // the later ends with !0) while the former doesn't, so we will use
+                  // that information to regulate the functions' manipulation
+                  if (/!0\)/.test(playerInstance[i][j].toString())) {
+                    con.log('Progressbar: ' + j);
+                    // here we simply wrap the original function to force it pass
+                    // through our detour function before returning the size values.
+                    // in this case I add a '' so that the detour function can tell which
+                    // function is being called and change the sizes accordingly
+                    playerInstance[i][j] = detour(playerInstance[i][j], '');
+                  } else if (!/!0\)/.test(playerInstance[i][j].toString())) {
+                    con.log('Canvas: ' + j);
+                    playerInstance[i][j] = detour(playerInstance[i][j]);
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) {
+          con.error(e);
+        }
+      }
+      
+      /* End Yonezpt glorious workaround */
+      
       function loadPointer() {
         if (elParent && elKey) return true;
         if (!playerInstance) return false;
@@ -10627,6 +10701,7 @@
       }
       
       function setProperty(value) {
+        if (ytcenter.settings.useYonezptHTML5Patch) return; // If using Yonezpt's patch setProperty will be redundant and therefore we won't continue.
         if (ytcenter.html5) {
           if (loadPointer()) {
             elParent[elKey] = value;
@@ -10650,7 +10725,12 @@
         
         con.log("ytplayer.load() has been called.");
         playerInstance = uw.yt.player.Application.create("player-api", uw.ytplayer.config);
-        value && setProperty(value);
+        
+        if (ytcenter.settings.useYonezptHTML5Patch) {
+          patchDetour();
+        } else if (value) {
+          setProperty(value);
+        }
         
         uw.ytplayer.config.loaded = true;
       }
@@ -11177,6 +11257,14 @@
         return document.documentElement.scrollTop;
       }
     };
+    /**
+    * Checks if an element is a child of parent.
+    *
+    * @method isParent
+    * @param {HTMLElement} parent The parent element.
+    * @param {HTMLElement} child The child element.
+    * @return {Boolean} Returns true if the child element is a child of the parent element.
+    **/
     ytcenter.utils.isParent = function(parent, child){
       var children = parent.getElementsByTagName(child.tagName);
       for (var i = 0, len = children.length; i < len; i++) {
@@ -13443,6 +13531,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      useYonezptHTML5Patch: true,
       videoThumbnailQualityFPS: true,
       enableComments: true,
       channelUploadedVideosPlaylist: false,
@@ -15243,6 +15332,19 @@
       /* Category:Player */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "useYonezptHTML5Patch",
+            "bool",
+            "SETTINGS_ISSUE_PLAYER_SIZE_YONEZPT_PATCH"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
+          
           option = ytcenter.settingsPanel.createOption(
             "removeRelatedVideosEndscreen", // defaultSetting
             "bool", // module
@@ -24495,7 +24597,7 @@
           
           ytcenter.classManagement.applyClassesForElement();
           if (typeof api === "object") {
-            if (ytcenter.getPage() === "watch") {
+            if (ytcenter.getPage() === "watch" && !ytcenter.settings.useYonezptHTML5Patch) {
               ytcenter.html5Fix.setProperty("ytc");
               // navigation fix
               var endscreen = document.getElementsByClassName("html5-endscreen");
