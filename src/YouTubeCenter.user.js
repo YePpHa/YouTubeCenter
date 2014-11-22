@@ -24463,10 +24463,14 @@
           if (document.getElementById("watch7-playlist-data") || (loc && loc.search && typeof loc.search.indexOf === "function" && loc.search.indexOf("list=") !== -1)) {
             ytcenter.playlist = true;
           }
+          
+          var cfg = ytcenter.player.getConfig();
           var userHeader = document.getElementById("watch7-user-header");
           var userName = document.getElementsByClassName("yt-user-name");
           
-          if (userName && userName.length > 1 && userName[1] && userName[1].textContent) {
+          if (cfg && cfg.args && cfg.args.author) {
+            ytcenter.video.author = cfg.args.author;
+          } else if (userName && userName.length > 1 && userName[1] && userName[1].textContent) {
             ytcenter.video.author = userName[1].textContent;
           } else if (userName && userName.length > 0 && userName[0] && userName[0].textContent) {
             ytcenter.video.author = userName[0].textContent;
