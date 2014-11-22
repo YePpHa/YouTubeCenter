@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         423
+// @version         424
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 423);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 424);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1925,11 +1925,39 @@
           return func.apply(scope, args.concat(Array.prototype.slice.call(arguments)))
         };
       }
+      function navigateWrapper(url, opt_options) {
+        if (opt_options) {
+          con.warn("opt_options are not supported in the navigateWrapper", url, opt_options);
+        }
+        loc.href = url;
+      }
       function setEnabled(enabled) {
         if (enabled) {
           !isEnabled() && uw && uw.spf && uw.spf.init && uw.spf.init();
+          
+          if (spfNavigate) {
+            uw.spf.navigate = spfNavigate;
+          }
+          
+          if (spfElements) {
+            for (var i = 0, len = spfElements.length; i < len; i++) {
+              ytcenter.utils.addClass(spfElements[i], "spf-link");
+            }
+          }
         } else {
           isEnabled() && uw && uw.spf && uw.spf.dispose && uw.spf.dispose();
+          
+          if (uw && uw.spf && uw.spf.navigate) {
+            spfNavigate = uw.spf.navigate;
+            uw.spf.navigate = navigateWrapper;
+          }
+          
+          if (!spfElements) {
+            spfElements = document.getElementsByClassName("spf-link");
+          }
+          for (var i = 0, len = spfElements.length; i < len; i++) {
+            ytcenter.utils.removeClass(spfElements[i], "spf-link");
+          }
         }
       }
       function isEnabled() {
@@ -1991,6 +2019,9 @@
       
       var attachedEvents = { };
       var events = [ ];
+      
+      var spfNavigate = null;
+      var spfElements = null;
       
       init();
       
@@ -24102,7 +24133,6 @@
           }
         }
         
-        ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
         ytcenter.unsafeInit();
         
         ytcenter.language.update();
@@ -24576,6 +24606,7 @@
           ytcenter.commentsPlus.setup();
           return;
         }
+        ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
         
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         ytcenter.pageSetup();
