@@ -4899,7 +4899,7 @@
         return null;
       }
       function getVideoThumbs() {
-        var userHeader = document.getElementById("watch7-user-header");
+        var userHeader = document.getElementById("watch7-user-header"); // Improved performance by moving this part out of the for loop
         var arr = ytcenter.utils.toArray(document.getElementsByClassName("video-thumb")).concat(ytcenter.utils.toArray(document.getElementsByClassName("yt-uix-simple-thumb-wrap")));
         var videos = [];
         var playlistVideoThumbs = getPlaylistVideoThumbs();
@@ -23516,7 +23516,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-likebutton-color", "#watch-like:not(.yt-uix-button-toggled) .yt-uix-button-icon-watch-like { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like:not(.yt-uix-button-toggled) .yt-uix-button-content { color: " + ytcenter.settings.likeButtonColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-likebutton-color", "#watch-like:not(.yt-uix-button-toggled):before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like:not(.yt-uix-button-toggled) .yt-uix-button-content { color: " + ytcenter.settings.likeButtonColor + "!important; }");
         });
       }, groups: ["likebuttoncolor", "page"]},
       {element: function(){return document.getElementById("watch-dislike");}, className: "", condition: function(loc){
@@ -23527,7 +23527,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-dislikebutton-color", "#watch-dislike:not(.yt-uix-button-toggled) .yt-uix-button-icon-watch-dislike { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike:not(.yt-uix-button-toggled) .yt-uix-button-content { color: " + ytcenter.settings.dislikeButtonColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-dislikebutton-color", "#watch-dislike:not(.yt-uix-button-toggled):before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike:not(.yt-uix-button-toggled) .yt-uix-button-content { color: " + ytcenter.settings.dislikeButtonColor + "!important; }");
         });
       }, groups: ["dislikebuttoncolor", "page"]},
       {element: function(){return document.getElementById("watch-like");}, className: "", condition: function(loc){
@@ -23538,7 +23538,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-likebutton-hover-color", "#watch-like:not(.yt-uix-button-toggled):hover .yt-uix-button-icon-watch-like { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like:not(.yt-uix-button-toggled):hover .yt-uix-button-content { color: " + ytcenter.settings.likeButtonHoverColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-likebutton-hover-color", "#watch-like:not(.yt-uix-button-toggled):hover:before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like:not(.yt-uix-button-toggled):hover .yt-uix-button-content { color: " + ytcenter.settings.likeButtonHoverColor + "!important; }");
         });
       }, groups: ["likebuttonhovercolor", "page"]},
       {element: function(){return document.getElementById("watch-dislike");}, className: "", condition: function(loc){
@@ -23549,7 +23549,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-dislikebutton-hover-color", "#watch-dislike:not(.yt-uix-button-toggled):hover .yt-uix-button-icon-watch-dislike { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike:not(.yt-uix-button-toggled):hover .yt-uix-button-content { color: " + ytcenter.settings.dislikeButtonHoverColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-dislikebutton-hover-color", "#watch-dislike:not(.yt-uix-button-toggled):hover:before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike:not(.yt-uix-button-toggled):hover .yt-uix-button-content { color: " + ytcenter.settings.dislikeButtonHoverColor + "!important; }");
         });
       }, groups: ["dislikebuttonhovercolor", "page"]},
       {element: function(){return document.getElementById("watch-like");}, className: "", condition: function(loc){
@@ -23560,7 +23560,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-likedbutton-color", "#watch-like.yt-uix-button-toggled .yt-uix-button-icon-watch-like { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like.yt-uix-button-toggled .yt-uix-button-content { color: " + ytcenter.settings.likedButtonColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-likedbutton-color", "#watch-like.yt-uix-button-toggled:before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like.yt-uix-button-toggled .yt-uix-button-content { color: " + ytcenter.settings.likedButtonColor + "!important; }");
         });
       }, groups: ["likedbuttoncolor", "page"]},
       {element: function(){return document.getElementById("watch-dislike");}, className: "", condition: function(loc){
@@ -23571,7 +23571,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-dislikedbutton-color", "#watch-dislike.yt-uix-button-toggled .yt-uix-button-icon-watch-dislike { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike.yt-uix-button-toggled .yt-uix-button-content { color: " + ytcenter.settings.dislikedButtonColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-dislikedbutton-color", "#watch-dislike.yt-uix-button-toggled:before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike.yt-uix-button-toggled .yt-uix-button-content { color: " + ytcenter.settings.dislikedButtonColor + "!important; }");
         });
       }, groups: ["dislikedbuttoncolor", "page"]},
       {element: function(){return document.getElementById("watch-like");}, className: "", condition: function(loc){
@@ -23582,7 +23582,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-likedbutton-hover-color", "#watch-like.yt-uix-button-toggled:hover .yt-uix-button-icon-watch-like { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like.yt-uix-button-toggled:hover .yt-uix-button-content { color: " + ytcenter.settings.likedButtonHoverColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-likedbutton-hover-color", "#watch-like.yt-uix-button-toggled:hover:before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-like.yt-uix-button-toggled:hover .yt-uix-button-content { color: " + ytcenter.settings.likedButtonHoverColor + "!important; }");
         });
       }, groups: ["likedbuttonhovercolor", "page"]},
       {element: function(){return document.getElementById("watch-dislike");}, className: "", condition: function(loc){
@@ -23593,7 +23593,7 @@
           b: color.blue,
           a: 1
         }, function(canvas){
-          ytcenter.utils.setCustomCSS("ytcenter-dislikedbutton-hover-color", "#watch-dislike.yt-uix-button-toggled:hover .yt-uix-button-icon-watch-dislike { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike.yt-uix-button-toggled:hover .yt-uix-button-content { color: " + ytcenter.settings.dislikedButtonHoverColor + "!important; }");
+          ytcenter.utils.setCustomCSS("ytcenter-dislikedbutton-hover-color", "#watch-dislike.yt-uix-button-toggled:hover:before { background: url(" + canvas.toDataURL("image/png") + ") no-repeat!important; } #watch-dislike.yt-uix-button-toggled:hover .yt-uix-button-content { color: " + ytcenter.settings.dislikedButtonHoverColor + "!important; }");
         });
       }, groups: ["dislikedbuttonhovercolor", "page"]},
       {element: function(){return document.getElementById("watch-like");}, className: "", condition: function(loc){
