@@ -541,7 +541,7 @@
       
       var btn = ytcenter.gui.createYouTubeButton("BUTTON_RESIZE_TOOLTIP", [btnLabel, arrow, menu]);
       btn.style.textAlign = "left";
-      if (ytcenter.settings.resizeEnable) {
+      if (ytcenter.settings.resizeEnable && ytcenter.settings.enableResize) {
         ytcenter.utils.removeClass(btn, "hid");
       } else {
         ytcenter.utils.addClass(btn, "hid");
@@ -556,7 +556,7 @@
       });
       
       ytcenter.events.addEvent("ui-refresh", function(){
-        if (ytcenter.settings.resizeEnable) {
+        if (ytcenter.settings.resizeEnable && ytcenter.settings.enableResize) {
           ytcenter.utils.removeClass(btn, "hid");
         } else {
           ytcenter.utils.addClass(btn, "hid");
