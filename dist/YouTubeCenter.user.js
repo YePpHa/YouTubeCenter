@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         424
+// @version         425
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 424);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 425);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -541,7 +541,7 @@
       
       var btn = ytcenter.gui.createYouTubeButton("BUTTON_RESIZE_TOOLTIP", [btnLabel, arrow, menu]);
       btn.style.textAlign = "left";
-      if (ytcenter.settings.resizeEnable) {
+      if (ytcenter.settings.resizeEnable && ytcenter.settings.enableResize) {
         ytcenter.utils.removeClass(btn, "hid");
       } else {
         ytcenter.utils.addClass(btn, "hid");
@@ -556,7 +556,7 @@
       });
       
       ytcenter.events.addEvent("ui-refresh", function(){
-        if (ytcenter.settings.resizeEnable) {
+        if (ytcenter.settings.resizeEnable && ytcenter.settings.enableResize) {
           ytcenter.utils.removeClass(btn, "hid");
         } else {
           ytcenter.utils.addClass(btn, "hid");
