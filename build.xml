@@ -41,6 +41,7 @@
   <property name="src.safari" value="${src}/.safari" />
   <property name="src.opera" value="${src}/.opera" />
   <property name="src.firefox" value="${src}/.firefox" />
+  <property name="src.firefox-e10s" value="${src}/.firefox-e10s" />
   <property name="src.meta" value="${src}/.meta" />
   <property name="src.firefox-update" value="${src}/.firefox-update" />
   <property name="src.chrome-update" value="${src}/.chrome-update" />
@@ -251,6 +252,19 @@
       </then>
     </if>
   </target>
+  
+  <target name="firefox-e10s" depends="preinit, copy-firefox-e10s">
+    <zip destfile="${dist}/${name}-e10s.xpi" basedir="${buildDir}" />
+    <antcall target="clean" />
+    
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <antcall target="firefox-update" />
+      </then>
+    </if>
+  </target>
   <target name="firefox-update" depends="preinit, copy-firefox-update">
     <move todir="${dist}/">
       <fileset dir="${buildDir}/" />
@@ -370,6 +384,22 @@
     </move>
     <copy todir="${buildDir}">
       <fileset dir="${src.firefox}/" />
+    </copy>
+    <antcall target="tokenreplace" />
+    <antcall target="apply-styles" />
+    <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
+  </target>
+  
+  <target name="copy-firefox-e10s">
+    <antcall target="copy" />
+    <move todir="${buildDir}/data">
+      <fileset dir="${buildDir}" />
+      <mapper>
+        <globmapper from="*.user.js" to="*.js" /> 
+      </mapper>
+    </move>
+    <copy todir="${buildDir}">
+      <fileset dir="${src.firefox-e10s}/" />
     </copy>
     <antcall target="tokenreplace" />
     <antcall target="apply-styles" />
