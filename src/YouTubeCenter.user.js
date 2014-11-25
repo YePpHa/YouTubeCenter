@@ -5143,6 +5143,7 @@
             sparkBarDislikes.style.background = ytcenter.settings.videoThumbnailRatingsBarDislikesColor;
           } else {
             sparkBarDislikes.style.background = ytcenter.settings.videoThumbnailRatingsBarDefaultColor;
+            likes = 0;
             dislikes = 1;
             total = 1;
           }
