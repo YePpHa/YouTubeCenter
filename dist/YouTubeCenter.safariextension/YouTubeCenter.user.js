@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         431
+// @version         432
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 431);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 432);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1466,9 +1466,66 @@
       
       return pos;
     }
+    
+    function addPropertyWrapper(parent, property, wrapperFunc) {
+      function waitObject(parent, token) {
+        var value;
+        var loaded = false;
+        defineLockedProperty(parent, token, function(aValue){
+          value = aValue;
+          if (!loaded) {
+            loaded = true;
+            iterate(); // Let's start the iteration again.
+          }
+        }, function(){
+          return value;
+        });
+      }
+      
+      function iterate() {
+        var token;
+        // Make sure that at least one item is in the tokens array.
+        while (tokens.length > 1 && (token = tokens.shift())) {
+          // If the next token doesn't exists as a property then attach a `getter and setter` and wait for it to be written to.
+          if (!parent[token]) {
+            waitObject(parent, token);
+            tokens = [token].concat(tokens); // We attach the token at the start of the array because we removed it in while.
+            return; // I will return one day...
+          }
+          parent = parent[token];
+        }
+        // We got to the end and we will then add the wrapper.
+        addWrapper();
+      }
+      
+      function addWrapper() {
+        var func = parent[tokens[0]];
+        defineLockedProperty(parent, tokens[tokens.length - 1], function(value){
+          func = value;
+        }, function(){
+          return function(){
+            if (typeof func === "function") {
+              var args = Array.prototype.slice.call(arguments, 0);
+              var value = func.apply(this, args);
+              wrapperFunc.apply(this, [value].concat(args));
+            } else {
+              con.warn("[Property Wrapper] Wrapped function is not a function!", func);
+            }
+            
+            return value;
+          };
+        });
+      }
+      
+      // Creating the tokens from property
+      var tokens = property.split(".");
+      
+      // Let's start our iteration
+      iterate();
+    }
     /* END UTILS */
     
-    /* Classes */
+    /* Classes (what) */
     function defineLockedProperty(obj, key, setter, getter) {
       if (typeof obj !== "object") obj = {};
 
@@ -1570,6 +1627,9 @@
         return func;
       }
       function setProperty(key, setter, getter) {
+        if (ytplayer[key]) {
+          con.log("[Player Instance] Overwriting existing value.");
+        }
         defineLockedProperty(ytplayer, key, setter, getter);
       }
       
@@ -10755,6 +10815,7 @@
       }
       
       function load(value) {
+        if (loadCalled) return;
         loadCalled = true;
         clearInterval(timer);
         playerAPI && playerAPI.setAttribute("id", "player-api");
@@ -10788,8 +10849,22 @@
             playerAPI.setAttribute("id", "player-api-disabled");
           }
         }
-        
         ytcenter.playerInstance.setProperty("load", setter, getter);
+        
+        // We need to wrap yt.player.Application.create to be able to support SPF properly. However, a better method might be found.
+        uw.yt && addPropertyWrapper(uw.yt, "player.Application.create", function(instance){
+          console.log("yt.player.Application.create has been called");
+          playerInstance = instance;
+          
+          if (!loadCalled) {
+            loadCalled = true;
+            if (ytcenter.settings.useYonezptHTML5Patch) {
+              patchDetour();
+            } else if (value) {
+              setProperty(value);
+            }
+          }
+        });
         
         ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
           if (ytcenter.html5 && !(uw.yt && uw.yt.player && uw.yt.player.Application && uw.yt.player.Application.create)) {
@@ -10808,16 +10883,14 @@
       
       var loadCalled = false;
       
-      if (ytcenter.getPage() === "watch") {
-        playerLoadInjector();
-      }
+      // Always run this
+      playerLoadInjector();
       
       var exports = {};
       exports.setPlayerInstance = setPlayerInstance;
       exports.setProperty = setProperty;
       exports.updateLoaded = updateLoaded;
       exports.load = load;
-      uw.ytcSetProperty = setProperty; // for scie... erhh, I meant testing
       
       return exports;
     })();
@@ -23771,7 +23844,6 @@
       };
       exports.setup = function(){
         exports.dispose();
-        con.log("[Intelligent Feeds] Setting up!");
         var shelf, items, i, j, shelfWrappers, collapsedItem, feedCollapsedContainer, showMoreButton;
         feed = exports.getFeeds();
         for (i = 0; i < feed.length; i++) {
@@ -23787,7 +23859,6 @@
               && shelfWrappers && shelfWrappers.length > 0
               && feedCollapsedContainer && feedCollapsedContainer.length > 0 && feedCollapsedContainer[0]) {
             ytcenter.utils.addClass(feed[i], "ytcenter-intelligentfeed ytcenter-intelligentfeed-minimized");
-            con.log("[Intelligent Feeds] There are " + items.length + " items and " + shelf.length + " shelves!");
             
             shelf = shelf[0];
             for (j = 0; j < items.length; j++) {
@@ -24094,11 +24165,10 @@
             } else {
               ytcenter.player.setConfig(config);
             }
-          }, function(){            
+          }, function(){
             if (!ytcenter.player.config) {
               ytcenter.player.config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
             }
-            
             return ytcenter.player.config;
           });
         } else {
@@ -24307,7 +24377,6 @@
           // Re-creating the player to ensure that the correct fexp is applied correctly.
           if (uw && uw.yt && uw.yt.player && uw.yt.player.Application && typeof uw.yt.player.Application.create === "function") {
             ytcenter.player.setConfig(ytcenter.player.modifyConfig(page, ytcenter.player.getConfig()));
-            
             ytcenter.html5Fix.load();
           }
         }
