@@ -19817,7 +19817,22 @@
             toggleAutoplayButton.appendChild(iconWrapper);
             
             var controls = playlist.getElementsByClassName("playlist-nav-controls");
-            controls && controls[0] && controls[0].appendChild && controls[0].appendChild(toggleAutoplayButton);
+            if (controls && controls[0]) {
+              controls = controls[0];
+              controls.appendChild(toggleAutoplayButton);
+              
+              controls.parentNode.style.display = "block";
+            }
+            
+            var controlBar = document.getElementsByClassName("control-bar");
+            if (controlBar && controlBar[0]) {
+              controlBar = controlBar[0];
+              var controls = controlBar.getElementsByClassName("playlist-behavior-controls");
+              if (controls && controls[0]) {
+                controls = controls[0];
+                controls.style.display = "none";
+              }
+            }
           }
           
           if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
@@ -19827,7 +19842,7 @@
             }
           } else {
             con.log("[Playlist] getState not found!");
-            setTimeout(initState, 1000);
+            setTimeout(initState, 2500);
           }
         }
       }
