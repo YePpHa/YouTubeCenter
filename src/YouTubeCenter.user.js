@@ -5142,6 +5142,7 @@
           } else if (total > 0) {
             sparkBarDislikes.style.background = ytcenter.settings.videoThumbnailRatingsBarDislikesColor;
           } else {
+            sparkBarDislikes.style.background = ytcenter.settings.videoThumbnailRatingsBarDefaultColor;
             dislikes = 1;
             total = 1;
           }
@@ -13729,6 +13730,7 @@
       videoThumbnailRatingsBarVisible: "always",
       videoThumbnailRatingsBarLikesColor: "#590",
       videoThumbnailRatingsBarDislikesColor: "#f00",
+      videoThumbnailRatingsBarDefaultColor: "#ccc",
       videoThumbnailRatingsCount: true,
       videoThumbnailRatingsCountPosition: "bottomleft",
       videoThumbnailRatingsCountDownloadAt: "scroll_into_view",
@@ -18448,6 +18450,17 @@
                   }
                 }
               ]
+            }
+          );
+          option.setStyle("margin-left", "12px");
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "videoThumbnailRatingsBarDefaultColor", // defaultSetting
+            "colorpicker", // module
+            "SETTINGS_THUMBNAIL_SPARKBAR_DEFAULT_COLOR",
+            {
+              "presetColors": ["#590", "#ccc", "#f00", "#2793e6", "#ff8f00", "#fff"]
             }
           );
           option.setStyle("margin-left", "12px");
