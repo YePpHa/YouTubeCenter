@@ -12,11 +12,12 @@ ContentService.prototype.QueryInterface = XPCOMUtils.generateQI([
 ]);
 ContentService.prototype.init = function(){
   var observerService = Services.obs;
-
   observerService.addObserver(this, "document-element-inserted", false);
-  unload(function(){
-    observerService.removeObserver(this, "document-element-inserted");
-  }.bind(this));
+  unload(this.unload.bind(this));
+};
+ContentService.prototype.unload = function(){
+  var observerService = Services.obs;
+  observerService.removeObserver(this, "document-element-inserted");
 };
 
 ContentService.prototype.runScripts = function(aContentWin) {

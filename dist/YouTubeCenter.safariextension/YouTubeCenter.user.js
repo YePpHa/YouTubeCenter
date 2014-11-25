@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         426
+// @version         427
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -97,7 +97,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 426);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 427);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -19817,7 +19817,22 @@
             toggleAutoplayButton.appendChild(iconWrapper);
             
             var controls = playlist.getElementsByClassName("playlist-nav-controls");
-            controls && controls[0] && controls[0].appendChild && controls[0].appendChild(toggleAutoplayButton);
+            if (controls && controls[0]) {
+              controls = controls[0];
+              controls.appendChild(toggleAutoplayButton);
+              
+              controls.parentNode.style.display = "block";
+            }
+            
+            var controlBar = document.getElementsByClassName("control-bar");
+            if (controlBar && controlBar[0]) {
+              controlBar = controlBar[0];
+              var controls = controlBar.getElementsByClassName("playlist-behavior-controls");
+              if (controls && controls[0]) {
+                controls = controls[0];
+                controls.style.display = "none";
+              }
+            }
           }
           
           if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
@@ -19827,7 +19842,7 @@
             }
           } else {
             con.log("[Playlist] getState not found!");
-            setTimeout(initState, 1000);
+            setTimeout(initState, 2500);
           }
         }
       }
