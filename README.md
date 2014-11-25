@@ -1,6 +1,12 @@
 # YouTube Center [![Crowdin](https://d322cqt584bo4o.cloudfront.net/youtube-center/localized.png)](https://crowdin.net/project/youtube-center)
 YouTube Center is an extension for the browser that will enhance the experience on YouTube by adding tons of new and useful features.
 
+## Contribute
+You can contribute to YouTube Center by different means. You can help find bugs (and report them in the issue tracker), help with the translation to different languages or you can try and implement new things yourself.
+
+## Translation
+YouTube Center uses Crowdin to better manage the translations. If you want to help with the translation of YouTube Center you can find the project page on [Crowdin](https://crowdin.net/project/youtube-center).
+
 ## Build
 YouTube Center is using the build system [Ant](http://ant.apache.org/).
 
@@ -61,12 +67,6 @@ The keys in this file have the prefix and suffix `@`.
  * `chrome-id` -- The id of the Chrome extension. The id can be found in `chrome://extensions/` or calculated from the signing key.
  * `chrome-update-xml` -- The location of the file, which Chrome uses to check if a new version of the developer version of YouTube Center is available.
  * `chrome-update-file` -- The location of the newest version of the developer version of YouTube Center for Chrome is located.
-
-## Contribute
-You can contribute to YouTube Center by different means. You can help find bugs (and report them in the issue tracker), help with the translation to different languages or you can try and implement new things yourself.
-
-## Translation
-YouTube Center uses Crowdin to better manage the translations. If you want to help with the translation of YouTube Center you can find the project page on [Crowdin](https://crowdin.net/project/youtube-center).
 
 ## License
 The MIT License (MIT)
