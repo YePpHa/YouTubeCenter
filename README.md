@@ -2,7 +2,7 @@
 YouTube Center is an extension for the browser that will enhance the experience on YouTube by adding tons of new and useful features.
 
 ## Contribute
-You can contribute to YouTube Center by different means. You can help find bugs (and report them in the issue tracker), help with the translation to different languages or you can try and implement new things yourself.
+You can contribute to YouTube Center by different means. You can help find bugs (and report them in the [issue tracker](https://github.com/YePpHa/YouTubeCenter/issues)), help with the translation to different languages or you can try and implement new things yourself.
 
 ## Translation
 YouTube Center uses Crowdin to better manage the translations. If you want to help with the translation of YouTube Center you can find the project page on [Crowdin](https://crowdin.net/project/youtube-center).
