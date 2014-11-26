@@ -1471,8 +1471,9 @@
       function waitObject(parent, token) {
         var value;
         var loaded = false;
+        // TODO research if it's possible to add listeners to an object instead of using setter and getter.
         defineLockedProperty(parent, token, function(aValue){
-          value = aValue;
+          value = aValue; // Always set the value as it's supposed to act like a normal property.
           if (!loaded) {
             loaded = true;
             iterate(); // Let's start the iteration again.
@@ -1488,6 +1489,7 @@
         while (tokens.length > 1 && (token = tokens.shift())) {
           // If the next token doesn't exists as a property then attach a `getter and setter` and wait for it to be written to.
           if (!parent[token]) {
+            con.log("[Property Wrapper] Property doesn't exists in parent, attaching trigger using `getter and setter`.");
             waitObject(parent, token);
             tokens = [token].concat(tokens); // We attach the token at the start of the array because we removed it in while.
             return; // I will return one day...
@@ -1500,6 +1502,7 @@
       
       function addWrapper() {
         var func = parent[tokens[0]];
+        con.log("[Property Wrapper] Wrapping `" + tokens[0] + "` function in a wrapper.");
         defineLockedProperty(parent, tokens[tokens.length - 1], function(value){
           func = value;
         }, function(){
@@ -1516,6 +1519,8 @@
           };
         });
       }
+      
+      con.log("[Property Wrapper] Wrapping the function " + tokens + " into a function wrapper.");
       
       // Creating the tokens from property
       var tokens = property.split(".");
@@ -10849,24 +10854,40 @@
             playerAPI.setAttribute("id", "player-api-disabled");
           }
         }
+        function addProp(noTimer) {
+          // We need to wrap yt.player.Application.create to be able to support SPF properly. However, a better method might be found.
+          if (uw.yt) {
+            if (propAdded) return;
+            propAdded = true;
+            addPropertyWrapper(uw.yt, "player.Application.create", function(instance){
+              console.log("yt.player.Application.create has been called");
+              playerInstance = instance;
+              
+              if (!loadCalled) {
+                loadCalled = true;
+                if (ytcenter.settings.useYonezptHTML5Patch) {
+                  patchDetour();
+                } else if (value) {
+                  setProperty(value);
+                }
+              }
+            });
+          } else {
+            !noTimer && !stopProp && setTimeout(addProp, 100);
+          }
+        }
+        var propAdded = false;
+        var stopProp = false;
+        addProp();
+        
         ytcenter.playerInstance.setProperty("load", setter, getter);
         
-        // We need to wrap yt.player.Application.create to be able to support SPF properly. However, a better method might be found.
-        uw.yt && addPropertyWrapper(uw.yt, "player.Application.create", function(instance){
-          console.log("yt.player.Application.create has been called");
-          playerInstance = instance;
-          
-          if (!loadCalled) {
-            loadCalled = true;
-            if (ytcenter.settings.useYonezptHTML5Patch) {
-              patchDetour();
-            } else if (value) {
-              setProperty(value);
-            }
-          }
+        ytcenter.pageReadinessListener.addEventListener("bodyComplete", function(){
+          stopProp = true;
         });
         
         ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
+          addProp(true);
           if (ytcenter.html5 && !(uw.yt && uw.yt.player && uw.yt.player.Application && uw.yt.player.Application.create)) {
             ytcenter.insertScript(uw.ytplayer.config.assets.js, "html5player/html5player").onload(ytplayer.load);
             ytcenter.insertStyle(uw.ytplayer.config.assets.css, "www-player");
@@ -25075,8 +25096,8 @@
         ytcenter.pageSetup();
         
         /* Removing leftover tooltips */
-        a = ytcenter.utils.transformToArray(document.getElementsByClassName("yt-uix-tooltip-tip"));
-        for (i = 0; i < a.length; i++) {
+        var a = ytcenter.utils.transformToArray(document.getElementsByClassName("yt-uix-tooltip-tip"));
+        for (var i = 0; i < a.length; i++) {
           if (a[i] && a[i].parentNode === document.body) {
             con.log("[Tooltip Cleanup] Removed tooltip with id #" + a[i].id.replace("yt-uix-tooltip", ""));
             document.body.removeChild(a[i]);
