@@ -1449,7 +1449,7 @@
       return pos;
     }
     
-    function addPropertyWrapper(parent, property, wrapperFunc) {
+    function addPropertyWrapper(parent, property, wrapperFunc, callback) {
       function waitObject(parent, token) {
         var value;
         var loaded = false;
@@ -1500,6 +1500,8 @@
             return value;
           };
         });
+        
+        callback();
       }
       
       con.log("[Property Wrapper] Wrapping the function " + tokens + " into a function wrapper.");
@@ -1626,24 +1628,6 @@
       exports.setProperty = setProperty;
       
       return exports;
-    })();
-    
-    ytcenter.playerConfig = (function(){
-      function isLoaded() {
-        return loaded;
-      }
-      function setter(key) {
-        if (loaded !== key) {
-          ytcenter.html5Fix.updateLoaded(key);
-        }
-        loaded = key;
-      }
-      
-      var loaded = false;
-      
-      return function(config){
-        //defineLockedProperty(config, "loaded", setter, isLoaded);
-      };
     })();
     
     ytcenter.updateLogoLink_ = null;
@@ -10411,10 +10395,20 @@
           if (changed.width && changed.height) {
             // the variable "c" is just a way to distinguish between sizes for the video canvas
             // and sizes for the progressbar, and its components
-            // TODO make use of document.getElementById and document.getElementsByClassName for better backwards compatibility.
             // TODO Try using clientWidth or the likes instead of bounding client rect as i.e. clientWidth is better supported.
-            changed.width = (c) ? document.getElementById('movie_player').getBoundingClientRect().width : document.querySelector('.html5-video-container').getBoundingClientRect().width;
-            changed.height = (c) ? document.getElementById('movie_player').getBoundingClientRect().height : document.querySelector('.html5-video-container').getBoundingClientRect().height;
+            
+            var movie_player = document.getElementById("movie_player");
+            var html5_container = document.getElementsByClassName("html5-video-container");
+            
+            var rect = null;
+            if (c && movie_player) {
+              rect = movie_player.getBoundingClientRect();
+            } else if (html5_container && html5_container.length > 0 && html5_container[0]) {
+              rect = html5_container[0].getBoundingClientRect();
+            }
+            
+            changed.width = rect.width;
+            changed.height = rect.height;
           }
           return changed;
         };
@@ -10476,71 +10470,18 @@
       
       /* End Yonezpt glorious workaround */
       
-      function loadPointer() {
-        if (elParent && elKey) return true;
-        if (!playerInstance) return false;
-
-        try {
-          for (var key in playerInstance) {
-            var child = playerInstance[key];
-            if (typeof child === "object") {
-              for (var key2 in child) {
-                if (child[key2] === "detailpage") {
-                  elParent = child;
-                  elKey = key2;
-                  return true;
-                }
-              }
-            }
-          }
-        } catch (e) {
-          con.error(e);
+      function load() {
+        if (!loadCalled) {
+          loadCalled = true;
+          playerAPI && playerAPI.setAttribute("id", "player-api");
+          
+          con.log("ytplayer.load() has been called.");
+          playerInstance = uw.yt.player.Application.create("player-api", uw.ytplayer.config);
         }
-        con.error("Couldn't find loadPointer");
-        return false;
-      }
-      
-      function setProperty(value) {
-        if (ytcenter.settings.useYonezptHTML5Patch) return; // If using Yonezpt's patch setProperty will be redundant and therefore we won't continue.
-        if (ytcenter.html5) {
-          if (loadPointer()) {
-            elParent[elKey] = value;
-          } else {
-            uw.yt && uw.yt.player && uw.yt.player.destroy && uw.yt.player.destroy("player-api");
-            setTimeout(ytcenter.utils.bind(null, load, value), 7);
-            
-            con.error("YouTube Center couldn't get leaked variables.", playerInstance);
-          }
-        }
-      }
-      
-      function setPlayerInstance(instance) {
-        playerInstance = instance;
-      }
-      
-      function load(value) {
-        if (loadCalled) return;
-        loadCalled = true;
-        clearInterval(timer);
-        playerAPI && playerAPI.setAttribute("id", "player-api");
         
-        con.log("ytplayer.load() has been called.");
-        playerInstance = uw.yt.player.Application.create("player-api", uw.ytplayer.config);
-        
-        if (ytcenter.settings.useYonezptHTML5Patch) {
-          patchDetour();
-        } else if (value) {
-          setProperty(value);
-        }
+        !createWrapped && patchDetour();
         
         uw.ytplayer.config.loaded = true;
-      }
-      
-      function updateLoaded(loaded) {
-        if (!loadCalled && loaded && ytcenter.html5) {
-          document.getElementById("player-api").innerHTML = "";
-          load();
-        }
       }
       
       function playerLoadInjector() {
@@ -10562,14 +10503,9 @@
               console.log("yt.player.Application.create has been called");
               playerInstance = instance;
               
-              if (!loadCalled) {
-                loadCalled = true;
-                if (ytcenter.settings.useYonezptHTML5Patch) {
-                  patchDetour();
-                } else if (value) {
-                  setProperty(value);
-                }
-              }
+              patchDetour();
+            }, function(){
+              createWrapped = true;
             });
           } else {
             !noTimer && !stopProp && setTimeout(addProp, 100);
@@ -10595,11 +10531,8 @@
       }
       
       var playerInstance = null;
-      var elKey = null;
-      var elParent = null;
-      
       var playerAPI = null;
-      var timer = null;
+      var createWrapped = false;
       
       var loadCalled = false;
       
@@ -10607,9 +10540,6 @@
       playerLoadInjector();
       
       var exports = {};
-      exports.setPlayerInstance = setPlayerInstance;
-      exports.setProperty = setProperty;
-      exports.updateLoaded = updateLoaded;
       exports.load = load;
       
       return exports;
@@ -13364,7 +13294,6 @@
     ytcenter._settings = {
       likedislikeUIEnabled: true,
       sparkbarEnabled: true,
-      useYonezptHTML5Patch: true,
       videoThumbnailQualityFPS: true,
       enableComments: true,
       channelUploadedVideosPlaylist: false,
@@ -15166,19 +15095,6 @@
       /* Category:Player */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_PLAYER");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
-          option = ytcenter.settingsPanel.createOption(
-            "useYonezptHTML5Patch",
-            "bool",
-            "SETTINGS_ISSUE_PLAYER_SIZE_YONEZPT_PATCH"
-          );
-          subcat.addOption(option);
-          
-          option = ytcenter.settingsPanel.createOption(
-            null, // defaultSetting
-            "line"
-          );
-          subcat.addOption(option);
-          
           option = ytcenter.settingsPanel.createOption(
             "removeRelatedVideosEndscreen", // defaultSetting
             "bool", // module
@@ -19243,8 +19159,8 @@
         var adBadges = ytcenter.utils.toArray(document.getElementsByClassName("yt-badge-ad"));
         for (var i = 0, len = adBadges.length; i < len; i++) {
           var parent = adBadges;
-          while ((parent = parent.parentNode) !== null) {
-            if (parent.tagName === "LI") {
+          while (parent && parent.parentNode && (parent = parent.parentNode) !== null) {
+            if (parent && parent.tagName === "LI") {
               parent.parentNode.removeChild(parent);
               break;
             }
@@ -19788,7 +19704,6 @@
     
     ytcenter.player = {};
     ytcenter.player.config = {};
-    ytcenter.playerConfig(ytcenter.player.config);
     
     ytcenter.player.setPlaybackState = (function(){
       function updateState(state, s) {
@@ -20117,11 +20032,13 @@
       
       return ytcenter.utils.getLocationOrigin() + "/get_video_info?" + b.join("&");
     };
-    ytcenter.player.isLiveStream = function(){
-      return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.live_playback == 1);
+    ytcenter.player.isLiveStream = function(config){
+      config = config || ytcenter.player.config;
+      return (config && config.args && config.args.live_playback == 1);
     };
-    ytcenter.player.isOnDemandStream = function(){
-      return (ytcenter.player.config && ytcenter.player.config.args && ytcenter.player.config.args.ypc_module && ytcenter.player.config.args.ypc_vid);
+    ytcenter.player.isOnDemandStream = function(config){
+      config = config || ytcenter.player.config;
+      return (config && config.args && config.args.ypc_module && config.args.ypc_vid);
     };
     ytcenter.player.getRawPlayerConfig = function(){
       function loadMethod1() {
@@ -20305,7 +20222,6 @@
     };
     ytcenter.player.setConfig = function(config){
       ytcenter.player.config = config;
-      ytcenter.playerConfig(ytcenter.player.config);
     };
     ytcenter.player.updateConfig = function(page, config){
       if (!config || !config.args) return;
@@ -20645,7 +20561,7 @@
       config.args.enablejsapi = 1;
       config.args.jsapicallback = "ytcenter.player.onReady";
       
-      if (ytcenter.getPage() === "watch") {
+      if (page === "watch") {
         if (config && config.args && config.args.keywords) {
           ytcenter.descriptionTags.addSection("DESCRIPTIONTAG_KEYWORDS", config.args.keywords.split(","));
         }
@@ -20668,10 +20584,10 @@
           config.args.disablekb = 1;
         }
         
-        if ((ytcenter.settings.forcePlayerType === "flash" || ytcenter.settings.forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        if ((ytcenter.settings.forcePlayerType === "flash" || ytcenter.settings.forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
           config.html5 = false;
           ytcenter.player.setPlayerType("flash");
-        } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        } else if (ytcenter.settings.forcePlayerType === "html5" && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
           config.html5 = true;
           delete config.args.ad3_module;
           config.args.allow_html5_ads = 1;
@@ -20682,10 +20598,10 @@
         if (ytcenter.settings.embedBufferEnabled) {
           config.args.tsp_buffer = ytcenter.settings.embedBufferSize;
         }
-        if ((ytcenter.settings.embed_forcePlayerType === "flash" || ytcenter.settings.embed_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        if ((ytcenter.settings.embed_forcePlayerType === "flash" || ytcenter.settings.embed_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
           config.html5 = false;
           config.args.html5_sdk_version = "0";
-        } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        } else if (ytcenter.settings.embed_forcePlayerType === "html5" && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
           config.html5 = true;
           delete config.args.ad3_module;
           config.args.allow_html5_ads = 1;
@@ -20695,10 +20611,10 @@
         if (ytcenter.settings.channelBufferEnabled) {
           config.args.tsp_buffer = ytcenter.settings.channelBufferSize;
         }
-        if ((ytcenter.settings.channel_forcePlayerType === "flash" || ytcenter.settings.channel_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        if ((ytcenter.settings.channel_forcePlayerType === "flash" || ytcenter.settings.channel_forcePlayerType === "aggressive_flash") && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
           config.html5 = false;
           config.args.html5_sdk_version = "0";
-        } else if (ytcenter.settings.channel_forcePlayerType === "html5" && !ytcenter.player.isLiveStream() && !ytcenter.player.isOnDemandStream()) {
+        } else if (ytcenter.settings.channel_forcePlayerType === "html5" && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
           config.html5 = true;
           delete config.args.ad3_module;
           config.args.allow_html5_ads = 1;
@@ -22642,7 +22558,7 @@
     };
     ytcenter.player.updated = false;
     ytcenter.player.update = function(config){
-      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && config.args.live_playback !== 1) {
+      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
@@ -23885,9 +23801,9 @@
               ytcenter.player.setConfig(config);
             }
           }, function(){
-            if (!ytcenter.player.config) {
+            /*if (!ytcenter.player.config) {
               ytcenter.player.config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
-            }
+            }*/
             return ytcenter.player.config;
           });
         } else {
@@ -24411,18 +24327,6 @@
           
           ytcenter.classManagement.applyClassesForElement();
           if (typeof api === "object") {
-            if (ytcenter.getPage() === "watch" && !ytcenter.settings.useYonezptHTML5Patch) {
-              ytcenter.html5Fix.setProperty("ytc");
-              // navigation fix
-              var endscreen = document.getElementsByClassName("html5-endscreen");
-              endscreen && endscreen.length > 0 && endscreen[0] && endscreen[0].addEventListener("click", function(){
-                ytcenter.html5Fix.setProperty("detailpage");
-                setTimeout(function(){
-                  ytcenter.html5Fix.setProperty("ytc");
-                }, 7);
-              }, true);
-            }
-            
             ytcenter.player.onYouTubePlayerReadyCalled = true;
             ytcenter.player.__getAPI = api;
             
