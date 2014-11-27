@@ -1635,13 +1635,17 @@
         if (!originalPlayFunc) originalPlayFunc = HTMLVideoElement.prototype.play;
         HTMLVideoElement.prototype.play = play;
       }
-      function setReady(ready) {
+      function setReady(ready, spf) {
         isReady = ready;
+        if (spf) isSPF = true;
       }
       function play() {
         if (ytcenter.player.isPreventAutoPlay() && !isReady) {
           var api = ytcenter.player.getAPI();
           api && api.pauseVideo && api.pauseVideo();
+          if (isSPF) {
+            isReady = true;
+          }
         } else {
           // Call the original play function
           originalPlayFunc.apply(this, arguments);
@@ -1650,6 +1654,7 @@
       
       var originalPlayFunc = null;
       var isReady = false;
+      var isSPF = false;
       
       init();
       
@@ -24681,7 +24686,7 @@
       ytcenter.spf.addEventListener("request", function(e) {
         var detail = e.detail;
         ytcenter.player.setConfig(null);
-        ytcenter.html5PlayWrapper.setReady(false);
+        ytcenter.html5PlayWrapper.setReady(false, true);
         ytcenter.descriptionTags.destroy();
       });
       ytcenter.spf.addEventListener("process", function(e) {
