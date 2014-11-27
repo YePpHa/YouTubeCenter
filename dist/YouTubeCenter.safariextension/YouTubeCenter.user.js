@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         435
+// @version         436
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 435);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 436);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1635,13 +1635,17 @@
         if (!originalPlayFunc) originalPlayFunc = HTMLVideoElement.prototype.play;
         HTMLVideoElement.prototype.play = play;
       }
-      function setReady(ready) {
+      function setReady(ready, spf) {
         isReady = ready;
+        if (spf) isSPF = true;
       }
       function play() {
         if (ytcenter.player.isPreventAutoPlay() && !isReady) {
           var api = ytcenter.player.getAPI();
           api && api.pauseVideo && api.pauseVideo();
+          if (isSPF) {
+            isReady = true;
+          }
         } else {
           // Call the original play function
           originalPlayFunc.apply(this, arguments);
@@ -1650,6 +1654,7 @@
       
       var originalPlayFunc = null;
       var isReady = false;
+      var isSPF = false;
       
       init();
       
@@ -24681,7 +24686,7 @@
       ytcenter.spf.addEventListener("request", function(e) {
         var detail = e.detail;
         ytcenter.player.setConfig(null);
-        ytcenter.html5PlayWrapper.setReady(false);
+        ytcenter.html5PlayWrapper.setReady(false, true);
         ytcenter.descriptionTags.destroy();
       });
       ytcenter.spf.addEventListener("process", function(e) {
