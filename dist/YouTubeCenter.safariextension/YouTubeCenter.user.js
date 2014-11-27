@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         434
+// @version         435
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 434);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 435);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1626,6 +1626,35 @@
       
       var exports = {};
       exports.setProperty = setProperty;
+      
+      return exports;
+    })();
+    
+    ytcenter.html5PlayWrapper = (function(){
+      function init() {
+        if (!originalPlayFunc) originalPlayFunc = HTMLVideoElement.prototype.play;
+        HTMLVideoElement.prototype.play = play;
+      }
+      function setReady(ready) {
+        isReady = ready;
+      }
+      function play() {
+        if (ytcenter.player.isPreventAutoPlay() && !isReady) {
+          var api = ytcenter.player.getAPI();
+          api && api.pauseVideo && api.pauseVideo();
+        } else {
+          // Call the original play function
+          originalPlayFunc.apply(this, arguments);
+        }
+      }
+      
+      var originalPlayFunc = null;
+      var isReady = false;
+      
+      init();
+      
+      var exports = {};
+      exports.setReady = setReady;
       
       return exports;
     })();
@@ -19742,7 +19771,7 @@
           }
         }
         
-        if (ytcenter.html5) {
+        /*if (ytcenter.html5) {
           ytcenter.utils.asyncCall(function(){
             var newState = api.getPlayerState();
             if (newState !== state && (newState !== -1 && newState !== 5) && typeof newState === "number") {
@@ -19751,9 +19780,10 @@
               setState.preferredState = null;
             }
           });
-        }
+        }*/
       }
       function setState(state) {
+        if (ytcenter.html5) return;
         setState.preferredState = state;
         
         var api = ytcenter.player.getAPI();
@@ -24422,6 +24452,7 @@
           }*/
         });
         ytcenter.player.listeners.addEventListener("onReady", function(api){
+          ytcenter.html5PlayWrapper.setReady(true);
           var config = ytcenter.player.getConfig();          
           if (ytcenter.player.isAutoResolutionEnabled()) {
             ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false)));
@@ -24650,6 +24681,7 @@
       ytcenter.spf.addEventListener("request", function(e) {
         var detail = e.detail;
         ytcenter.player.setConfig(null);
+        ytcenter.html5PlayWrapper.setReady(false);
         ytcenter.descriptionTags.destroy();
       });
       ytcenter.spf.addEventListener("process", function(e) {
