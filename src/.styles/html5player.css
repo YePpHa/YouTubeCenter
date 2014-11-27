@@ -3,6 +3,10 @@
   bottom: initial!important;
 }
 
+body.ytcenter-livestream #watch7-views-info {
+  top: -27px!important;
+}
+
 .html5-video-player.ytcenter-autohide-none .html5-video-container {
   bottom: 35px!important;
 }
