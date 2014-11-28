@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         438
+// @version         440
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 438);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 440);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1610,6 +1610,34 @@
       for (var v = 3, el = document.createElement('b'), all = el.all || []; el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];);
       return v > 4 ? v : !!document.documentMode;
     }());
+    
+    ytcenter.reportIssue = (function(){
+      function createSettingsCategory() {
+        /*var cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_REPORT");
+        
+        var instructions = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_INSTRUCTIONS");
+        cat.addSubCategory(instructions);
+        
+        var instructionElement = document.createElement("div");
+        
+        
+        
+        option = ytcenter.settingsPanel.createOption(
+          null,
+          "element",
+          null,
+          {
+            "element": instructionElement
+          }
+        );
+        instructions.addOption(option);*/
+      }
+      
+      var exports = {};
+      exports.createSettingsCategory = createSettingsCategory;
+      
+      return exports;
+    })();
     
     ytcenter.playerInstance = (function(){
       function setter(func) {
@@ -7137,6 +7165,12 @@
         loadExperiments: function(){ loadExperiments(); },
         hasLoadedOnce: function(){ return loadedOnce; }
       };
+    };
+    ytcenter.modules.element = function(option){
+      var exports = {};
+      exports.element = option.args.element;
+      exports.bind = function(){};
+      exports.update = function(){};
     };
     ytcenter.modules.aboutText = function(option){
       var elm = document.createElement("div"),
@@ -18622,7 +18656,10 @@
         /* DISABLED until implemented
         subcat = ytcenter.settingsPanel.createSubCategory("Channel"); cat.addSubCategory(subcat);
         */
-
+      
+      /* Category:Report */
+      ytcenter.reportIssue.createSettingsCategory();
+      
       /* Category:Debug */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_DEBUG");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LOG"); cat.addSubCategory(subcat);
@@ -24895,13 +24932,22 @@
       }
     }
     
+    function firefoxCloneInto() {
+      try {
+        if (typeof cloneInto === "function") {
+          return true;
+        }
+      } catch (e) { }
+      return false;
+    }
+    
     var mod = "support.test";
     
     return {
       localStorage: localStorageTest(),
       Greasemonkey: gmCheck(),
       Adguard: (typeof AdguardSettings === "object"),
-      cloneInto: (typeof cloneInto === "function"),
+      cloneInto: firefoxCloneInto(),
       CustomEvent: customEvent()
     };
   })();
@@ -25052,15 +25098,34 @@
     }
   }
   
+  /*function copyObject(obj) {
+    if (Object.prototype.toString.call(obj) === "[object Array]") {
+      var newObj = [];
+      for (var i = 0, len = obj.length; i < len; i++) {
+        newObj.push(copyObject(obj[i]));
+      }
+      return newObj;
+    } else if (typeof obj === "object") {
+      var newObj = {};
+      for (var key in obj) {
+        newObj[key] = copyObject(obj[key]);
+      }
+      return newObj;
+    }
+    return obj;
+  }*/
+  
   function callUnsafeWindowEvent(id) {
     if (typeof id === "number" || typeof id === "string") {
       var args = Array.prototype.slice.call(arguments, 1);
-      var detail = { id: id, arguments: args };
       
       // Firefox 30 or newer
       /*if (support.cloneInto) {
-        detail = cloneInto(detail, document.defaultView);
+        args = cloneInto(args, window);
+        console.log(args);
       }*/
+      
+      var detail = { id: id, arguments: args };
       
       var e = document.createEvent("CustomEvent");
       e.initCustomEvent("ytc-page-call", true, true, JSON.stringify(detail));

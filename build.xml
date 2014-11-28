@@ -37,11 +37,9 @@
   <property name="src.chrome" value="${src}/.chrome" />
   <property name="src.chrome-webstore" value="${src}/.chrome-webstore" />
   <property name="src.maxthon" value="${src}/.maxthon" />
-  <property name="src.firefox-legacy" value="${src}/.firefox-legacy" />
   <property name="src.safari" value="${src}/.safari" />
   <property name="src.opera" value="${src}/.opera" />
   <property name="src.firefox" value="${src}/.firefox" />
-  <property name="src.firefox-e10s" value="${src}/.firefox-e10s" />
   <property name="src.meta" value="${src}/.meta" />
   <property name="src.firefox-update" value="${src}/.firefox-update" />
   <property name="src.chrome-update" value="${src}/.chrome-update" />
@@ -66,14 +64,13 @@
   <property name="indentifier.userscript" value="0" />
   <property name="indentifier.chrome" value="1" />
   <property name="indentifier.maxthon" value="2" />
-  <property name="indentifier.firefox-legacy" value="3" />
   <property name="indentifier.safari" value="4" />
   <property name="indentifier.opera" value="5" />
   <property name="indentifier.firefox" value="6" />
   <property name="indentifier.scriptish" value="7" />
   <property name="indentifier.chrome-webstore" value="8" />
   
-  <target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, firefox-e10s, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, safari, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
@@ -82,7 +79,6 @@
     <mkdir dir="${src}" />
     <mkdir dir="${src.chrome}" />
     <mkdir dir="${src.firefox}" />
-    <mkdir dir="${src.firefox-legacy}" />
     <mkdir dir="${src.maxthon}" />
     <mkdir dir="${cert.chromePath}" />
   </target>
@@ -253,31 +249,12 @@
     </if>
   </target>
   
-  <target name="firefox-e10s" depends="preinit, copy-firefox-e10s">
-    <zip destfile="${dist}/${name}-e10s.xpi" basedir="${buildDir}" />
-    <antcall target="clean" />
-    
-    <loadproperties srcFile="${build.prop}"/>
-    <if>
-      <equals arg1="${@devbuild@}" arg2="true" />
-      <then>
-        <antcall target="firefox-update" />
-      </then>
-    </if>
-  </target>
   <target name="firefox-update" depends="preinit, copy-firefox-update">
     <move todir="${dist}/">
       <fileset dir="${buildDir}/" />
     </move>
     <antcall target="clean" />
   </target>
-  
-  <target name="firefox-legacy" depends="preinit, copy-firefox-legacy">
-    <exec executable="cmd">
-      <arg value="/c"/>
-      <arg value="build-firefox-legacy.bat"/>
-    </exec>
-	</target>
   
   <target name="safari" depends="preinit, copy-safari">
     <mkdir dir="${dist}/${name}.safariextension" />
@@ -390,22 +367,6 @@
     <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
   </target>
   
-  <target name="copy-firefox-e10s">
-    <antcall target="copy" />
-    <move todir="${buildDir}/data">
-      <fileset dir="${buildDir}" />
-      <mapper>
-        <globmapper from="*.user.js" to="*.js" /> 
-      </mapper>
-    </move>
-    <copy todir="${buildDir}">
-      <fileset dir="${src.firefox-e10s}/" />
-    </copy>
-    <antcall target="tokenreplace" />
-    <antcall target="apply-styles" />
-    <replace dir="${buildDir}" value="${indentifier.firefox}" token="@identifier@" encoding="${encoding}" />
-  </target>
-  
   <target name="copy-firefox-update">
     <copy file="${firefox-update.update}" todir="${buildDir}" />
     <antcall target="tokenreplace" />
@@ -413,19 +374,6 @@
   <target name="copy-chrome-update">
     <copy file="${chrome-update.update}" todir="${buildDir}" />
     <antcall target="tokenreplace" />
-  </target>
-  
-  <target name="copy-firefox-legacy">
-    <antcall target="copy" />
-    <move todir="${buildDir}/data">
-      <fileset dir="${buildDir}" />
-    </move>
-    <copy todir="${buildDir}">
-      <fileset dir="${src.firefox-legacy}/" />
-    </copy>
-    <antcall target="tokenreplace" />
-    <antcall target="apply-styles" />
-    <replace dir="${buildDir}" value="${indentifier.firefox-legacy}" token="@identifier@" encoding="${encoding}" />
   </target>
   
   <target name="copy-safari">

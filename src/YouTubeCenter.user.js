@@ -1611,6 +1611,34 @@
       return v > 4 ? v : !!document.documentMode;
     }());
     
+    ytcenter.reportIssue = (function(){
+      function createSettingsCategory() {
+        /*var cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_REPORT");
+        
+        var instructions = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_INSTRUCTIONS");
+        cat.addSubCategory(instructions);
+        
+        var instructionElement = document.createElement("div");
+        
+        
+        
+        option = ytcenter.settingsPanel.createOption(
+          null,
+          "element",
+          null,
+          {
+            "element": instructionElement
+          }
+        );
+        instructions.addOption(option);*/
+      }
+      
+      var exports = {};
+      exports.createSettingsCategory = createSettingsCategory;
+      
+      return exports;
+    })();
+    
     ytcenter.playerInstance = (function(){
       function setter(func) {
         return func;
@@ -7137,6 +7165,12 @@
         loadExperiments: function(){ loadExperiments(); },
         hasLoadedOnce: function(){ return loadedOnce; }
       };
+    };
+    ytcenter.modules.element = function(option){
+      var exports = {};
+      exports.element = option.args.element;
+      exports.bind = function(){};
+      exports.update = function(){};
     };
     ytcenter.modules.aboutText = function(option){
       var elm = document.createElement("div"),
@@ -18622,7 +18656,10 @@
         /* DISABLED until implemented
         subcat = ytcenter.settingsPanel.createSubCategory("Channel"); cat.addSubCategory(subcat);
         */
-
+      
+      /* Category:Report */
+      ytcenter.reportIssue.createSettingsCategory();
+      
       /* Category:Debug */
       cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_DEBUG");
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LOG"); cat.addSubCategory(subcat);
@@ -24895,13 +24932,22 @@
       }
     }
     
+    function firefoxCloneInto() {
+      try {
+        if (typeof cloneInto === "function") {
+          return true;
+        }
+      } catch (e) { }
+      return false;
+    }
+    
     var mod = "support.test";
     
     return {
       localStorage: localStorageTest(),
       Greasemonkey: gmCheck(),
       Adguard: (typeof AdguardSettings === "object"),
-      cloneInto: (typeof cloneInto === "function"),
+      cloneInto: firefoxCloneInto(),
       CustomEvent: customEvent()
     };
   })();
@@ -25052,15 +25098,34 @@
     }
   }
   
+  /*function copyObject(obj) {
+    if (Object.prototype.toString.call(obj) === "[object Array]") {
+      var newObj = [];
+      for (var i = 0, len = obj.length; i < len; i++) {
+        newObj.push(copyObject(obj[i]));
+      }
+      return newObj;
+    } else if (typeof obj === "object") {
+      var newObj = {};
+      for (var key in obj) {
+        newObj[key] = copyObject(obj[key]);
+      }
+      return newObj;
+    }
+    return obj;
+  }*/
+  
   function callUnsafeWindowEvent(id) {
     if (typeof id === "number" || typeof id === "string") {
       var args = Array.prototype.slice.call(arguments, 1);
-      var detail = { id: id, arguments: args };
       
       // Firefox 30 or newer
       /*if (support.cloneInto) {
-        detail = cloneInto(detail, document.defaultView);
+        args = cloneInto(args, window);
+        console.log(args);
       }*/
+      
+      var detail = { id: id, arguments: args };
       
       var e = document.createEvent("CustomEvent");
       e.initCustomEvent("ytc-page-call", true, true, JSON.stringify(detail));

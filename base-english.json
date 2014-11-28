@@ -1,4 +1,6 @@
 {
+  "SETTINGS_SUBCAT_INSTRUCTIONS": "Instructions",
+  "SETTINGS_CAT_REPORT": "Report",
   "SETTINGS_SWITCHTOTAB_MYSUBSCRIPTIONS": "My subscriptions",
   "SETTINGS_HIDE_WATCH_LATER_ON_PLAYER": "Hide the watch later button on the player",
   "SETTINGS_LIKEDISLIKE_UI_ENABLED": "Enabled",

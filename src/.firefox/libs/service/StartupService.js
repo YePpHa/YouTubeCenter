@@ -5,17 +5,78 @@ var DESCRIPTION = "YouTube Center Startup Service";
 var CONTRACTID = "@ytcenter/ytcenter-startup-service;1";
 var CLASSID = Components.ID("{338b51a4-0709-4971-ac89-18e82be90a93}");
 
+var {getChromeWinForContentWin} = require("getChromeWinForContentWin");
+
 var startupRun = false;
+
+var filename = "resource://ytcenter/data/YouTubeCenter.js";
+
+var whitelist = [ /^http(s)?:\/\/(www\.)?youtube\.com\//, /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/ ];
+var blacklist = [ ];
+
+var file = null;
+
+function loadFile(scriptName) {
+  let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+  request.open("GET", scriptName, true);
+  request.overrideMimeType("text/plain");
+  request.send(null);
+  
+  return request.responseText;
+}
+
+function shimFileAccess(detail) {
+  var fileaccess = require("fileaccess");
+  
+  var data = detail.data;
+  
+  var method = data.method;
+  var args = data.args;
+  
+  return fileaccess[method].apply(null, args);
+}
 
 function startup(aService) {
   if (startupRun) return;
   startupRun = true;
-
+  
   var messageManager = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
+  messageManager.addMessageListener("fileaccess-shim", shimFileAccess);
   messageManager.loadFrameScript("resource://ytcenter/libs/framescript.js", true);
+  
+  unload(function(){
+    globalMM.removeMessageListener("fileaccess-shim", shimFileAccess);
+  });
 }
 
-function StartupService() { }
+function elementInserted(aService, doc, win) {
+  // Check if chrome win is available
+  let chromeWindow = getChromeWinForContentWin(win);
+  if (chromeWindow) {
+    if (!doc || !win || !doc.location) return;
+    
+    var {loadScript} = require("sandbox");
+    file = file || loadFile(filename);
+    
+    try {
+      this.window.QueryInterface(Ci.nsIDOMChromeWindow);
+      // Never ever inject scripts into a chrome context window.
+      return;
+    } catch(e) {
+      // Ignore, it's good if we can't QI to a chrome window.
+    }
+
+    var url = doc.location.href;
+    loadScript(whitelist, blacklist, filename, file, win, url);
+  } else {
+    // e10s
+    startup(aService);
+  }
+}
+
+function StartupService() {
+  unload(this.unload.bind(this));
+}
 
 StartupService.prototype.init = function(){
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
@@ -31,20 +92,23 @@ StartupService.prototype.init = function(){
 };
 StartupService.prototype.unload = function(){
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+  Services.tm.currentThread.dispatch(function(){
+    registrar.unregisterFactory(this.classID, this);
+  }.bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
   
-  var observerService = Services.obs;
-  
-  Services.obs.removeObserver(this, "document-element-inserted");
-  Services.obs.removeObserver(this, "xpcom-category-entry-removed");
-  Services.obs.removeObserver(this, "xpcom-category-cleared");
+  try {
+    var observerService = Services.obs;
+    
+    observerService.removeObserver(this, "document-element-inserted");
+    observerService.removeObserver(this, "xpcom-category-entry-removed");
+    observerService.removeObserver(this, "xpcom-category-cleared");
+  } catch (e) {
+    dump(e);
+  }
 
   let catMan = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
   for each (let category in this.xpcom_categories)
     catMan.deleteCategoryEntry(category, this.contractID, false);
-  
-  Services.tm.currentThread.dispatch(function(){
-    registrar.unregisterFactory(this.classID, this);
-  }.bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
 };
 
 StartupService.prototype.classDescription = DESCRIPTION;
@@ -68,7 +132,10 @@ StartupService.prototype.shouldProcess = function(contentType, contentLocation, 
 StartupService.prototype.observe = function(subject, topic, data, additional) {
   switch (topic) {
     case "document-element-inserted":
-      startup(this);
+      let doc = subject;
+      let win = doc && doc.defaultView;
+      
+      elementInserted(this, doc, win);
       break;
     case "xpcom-category-entry-removed":
     case "xpcom-category-cleared": {
