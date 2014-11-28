@@ -1,3 +1,7 @@
+body.ytcenter-hide-watch-later-on-player .ytp-button.ytp-button-watch-later {
+  display: none !important;
+}
+
 #watch7-views-info {
   top: -3px!important;
   bottom: initial!important;
