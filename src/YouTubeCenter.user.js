@@ -13426,7 +13426,7 @@
       ],
       commentsPlusWhitelist: [],
       likeSwitchToTab: "none", // none, share, stats, report, login, ratings-disabled, rental-required, error
-      endOfVideoAutoSwitchToTab: "none", // none, share, stats, report, login, ratings-disabled, rental-required, error
+      endOfVideoAutoSwitchToTab: "none", // none, share, stats, report, login, ratings-disabled, rental-required, error, mysubscriptions
       //enableYouTubeAutoSwitchToShareTab: false,
       topScrollPlayerEnabled: false,
       topScrollPlayerActivated: false,
@@ -15207,7 +15207,8 @@
                 { "value": "report", "label": "SETTINGS_SWITCHTOTAB_REPORT" },
                 { "value": "ratings-disabled", "label": "SETTINGS_SWITCHTOTAB_RATINGS_DISABLED" },
                 { "value": "rental-required", "label": "SETTINGS_SWITCHTOTAB_RENTAL_REQUIRED" },
-                { "value": "error", "label": "SETTINGS_SWITCHTOTAB_ERROR" }
+                { "value": "error", "label": "SETTINGS_SWITCHTOTAB_ERROR" },
+                { "value": "mysubscriptions", "label": "SETTINGS_SWITCHTOTAB_MYSUBSCRIPTIONS" }
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Switch_To_Tab_At_End_of_Video"
@@ -24627,7 +24628,17 @@
           }
           
           if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none" && state === 0) {
-            ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
+            if (ytcenter.settings.endOfVideoAutoSwitchToTab === "mysubscriptions") {
+              var url = "/feed/subscriptions";
+              // Checking if SPF navigate is defined
+              if (uw && uw.spf && uw.spf.navigate) {
+                uw.spf.navigate(url);
+              } else {
+                loc.href = url;
+              }
+            } else {
+              ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
+            }
           }
         });
         ytcenter.player.listeners.setOverride("SIZE_CLICKED", true);
