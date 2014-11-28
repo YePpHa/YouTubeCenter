@@ -1,4 +1,5 @@
 {
+  "SETTINGS_HIDE_WATCH_LATER_ON_PLAYER": "Hide the watch later button on the player",
   "SETTINGS_LIKEDISLIKE_UI_ENABLED": "Enabled",
   "SETTINGS_SPARKBAR_ENABLED": "Enabled",
   "SETTINGS_THUMBNAIL_SPARKBAR_DEFAULT_COLOR": "Default color",

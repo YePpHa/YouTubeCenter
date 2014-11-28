@@ -1636,7 +1636,10 @@
           if (!originalPlayFunc) originalPlayFunc = HTMLVideoElement.prototype.play;
           HTMLVideoElement.prototype.play = play;
           
-          initialized = true;
+          // Checking if the play function was successfully written to the HTMLVideoElement prototype.
+          if (HTMLVideoElement.prototype.play === play) {
+            initialized = true;
+          }
         } catch (e) {
           con.error(e);
         }
@@ -13338,6 +13341,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      hideWatchLaterOnPlayer: false,
       likedislikeUIEnabled: true,
       sparkbarEnabled: true,
       videoThumbnailQualityFPS: true,
@@ -15165,6 +15169,13 @@
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Auto_Play_First_Video_in_Endscreen"
           );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideWatchLaterOnPlayer", // defaultSetting
+            "bool", // module
+            "SETTINGS_HIDE_WATCH_LATER_ON_PLAYER"
+          );
+          option.addEventListener("update", ytcenter.utils.bind(null, ytcenter.classManagement.updateClassesByGroup, ["html5player"]));
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "likeSwitchToTab",
@@ -23491,7 +23502,8 @@
       {groups: ["header", "page"], element: function(){return document.body;}, className: "static-header", condition: function(){return ytcenter.settings.staticHeader;}},
       {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-livestream", condition: function(){return ytcenter.player.isLiveStream();}},
-      {groups: ["page"], element: function(){return document.getElementById("watch-appbar-playlist");}, className: "player-height", condition: function(){return false;}}
+      {groups: ["page"], element: function(){return document.getElementById("watch-appbar-playlist");}, className: "player-height", condition: function(){return false;}},
+      {groups: ["page", "html5player"], element: function(){return document.body;}, className: "ytcenter-hide-watch-later-on-player", condition: function(){return ytcenter.settings.hideWatchLaterOnPlayer;}}
     ];
     ytcenter.intelligentFeed = (function(){
       var exports = {}, observer, config = { attributes: true }, feed;
