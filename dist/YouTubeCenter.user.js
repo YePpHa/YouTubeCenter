@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         436
+// @version         437
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 436);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 437);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1632,12 +1632,21 @@
     
     ytcenter.html5PlayWrapper = (function(){
       function init() {
-        if (!originalPlayFunc) originalPlayFunc = HTMLVideoElement.prototype.play;
-        HTMLVideoElement.prototype.play = play;
+        try {
+          if (!originalPlayFunc) originalPlayFunc = HTMLVideoElement.prototype.play;
+          HTMLVideoElement.prototype.play = play;
+          
+          initialized = true;
+        } catch (e) {
+          con.error(e);
+        }
       }
       function setReady(ready, spf) {
         isReady = ready;
         if (spf) isSPF = true;
+      }
+      function isInitialized() {
+        return initialized;
       }
       function play() {
         if (ytcenter.player.isPreventAutoPlay() && !isReady) {
@@ -1656,10 +1665,13 @@
       var isReady = false;
       var isSPF = false;
       
+      var initialized = false;
+      
       init();
       
       var exports = {};
       exports.setReady = setReady;
+      exports.isInitialized = isInitialized;
       
       return exports;
     })();
@@ -19788,7 +19800,7 @@
         }*/
       }
       function setState(state) {
-        if (ytcenter.html5) return;
+        if (ytcenter.html5PlayWrapper.isInitialized() && ytcenter.html5) return;
         setState.preferredState = state;
         
         var api = ytcenter.player.getAPI();
@@ -23478,7 +23490,8 @@
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-channel", condition: function(){return ytcenter.getPage() === "channel";}},
       {groups: ["header", "page"], element: function(){return document.body;}, className: "static-header", condition: function(){return ytcenter.settings.staticHeader;}},
       {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}},
-      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-livestream", condition: function(){return ytcenter.player.isLiveStream();}}
+      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-livestream", condition: function(){return ytcenter.player.isLiveStream();}},
+      {groups: ["page"], element: function(){return document.getElementById("watch-appbar-playlist");}, className: "player-height", condition: function(){return false;}}
     ];
     ytcenter.intelligentFeed = (function(){
       var exports = {}, observer, config = { attributes: true }, feed;
