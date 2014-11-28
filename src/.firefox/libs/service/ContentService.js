@@ -42,10 +42,7 @@ ContentService.prototype.observe = function(aSubject, aTopic, aData) {
 
       var win = doc && doc.defaultView;
       if (!doc || !win) break;
-
-      // Work around double-import bug.  This module seems to get imported
-      // twice, though we'd expect once.  One observes broken events, the other
-      // works.
+      
       try {
         this.contentFrameMessageManager(win);
       } catch (e) {

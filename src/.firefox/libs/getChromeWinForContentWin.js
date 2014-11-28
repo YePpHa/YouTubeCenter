@@ -43,14 +43,20 @@
  * ***** END LICENSE BLOCK ***** */
 
 function getChromeWinForContentWin(aContentWin) {
-  return aContentWin
-      .QueryInterface(Ci.nsIInterfaceRequestor)
-      .getInterface(Ci.nsIWebNavigation)
-      .QueryInterface(Ci.nsIDocShellTreeItem)
-      .rootTreeItem
-      .QueryInterface(Ci.nsIInterfaceRequestor)
-      .getInterface(Ci.nsIDOMWindow)
-      .QueryInterface(Ci.nsIDOMChromeWindow);
+  var chrome = null;
+  try {
+    chrome = aContentWin
+        .QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsIDocShellTreeItem)
+        .rootTreeItem
+        .QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIDOMWindow)
+        .QueryInterface(Ci.nsIDOMChromeWindow);
+  } catch (e) {
+    // This is probably e10s and chrome win is not available for e10s.
+  }
+  return chrome
 }
 
 exports["getChromeWinForContentWin"] = getChromeWinForContentWin;

@@ -1,7 +1,6 @@
 Cu.import("resource://gre/modules/Services.jsm");
 
 var {getFirebugConsole} = require("utils");
-var {getChromeWinForContentWin} = require("getChromeWinForContentWin");
 var {sendRequest} = require("request");
 var storage = require("storage");
 var crossWindowLinker = require("crossWindowLinker");
@@ -30,7 +29,7 @@ function sandboxUnloader(win, sandbox) {
   sandbox = null;
 }
 
-function createSandbox(wrappedContentWin, chromeWin, firebugConsole) {
+function createSandbox(wrappedContentWin) {
   let sandbox = new Cu.Sandbox(
     wrappedContentWin, {
       "sandboxName": "YouTube Center",
@@ -38,10 +37,15 @@ function createSandbox(wrappedContentWin, chromeWin, firebugConsole) {
       "wantXrays": true
     }
   );
-  sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
-  if (firebugConsole) sandbox.console = firebugConsole;
   
-  sandbox.request = sendRequest.bind(this, wrappedContentWin, chromeWin, sandbox);
+  
+  sandbox.createObjectIn = Cu.createObjectIn;
+  sandbox.cloneInto = Cu.cloneInto;
+  sandbox.exportFunction = Cu.exportFunction;
+  
+  sandbox.unsafeWindow = wrappedContentWin.wrappedJSObject;
+  
+  sandbox.request = sendRequest.bind(this, wrappedContentWin, sandbox);
   
   sandbox.storage_setValue = storage.setValue.bind(storage);
   sandbox.storage_getValue = storage.getValue.bind(storage);
@@ -74,7 +78,7 @@ function isRunnable(url, whitelist, blacklist) {
 
 function embedCheck(url) {
   let settings = storage.getValue("YouTubeCenterSettings");
-  if (settings && settings.embed_enabled === false && /^http(s)?:\/\/(www\.)?youtube\.com\/embed\//.test(url)) {
+  if (settings && !settings.embed_enabled && /^http(s)?:\/\/(www\.)?youtube\.com\/embed\//.test(url)) {
     return false;
   }
   
@@ -82,18 +86,16 @@ function embedCheck(url) {
 }
 
 function load(content, sandbox, filename) {
-  if (content !== null) {
+  if (content.length > 0) {
     return Cu.evalInSandbox(content, sandbox, "ECMAv5", filename, 0);
   } else {
     return Services.scriptloader.loadSubScript(filename, sandbox, "UTF-8");
   }
 }
 
-function loadScript(whitelist, blacklist, filename, content, wrappedContentWin, doc) {
-  if (isRunnable(doc.location.href, whitelist, blacklist) && embedCheck(doc.location.href)) {
-    let chromeWindow = getChromeWinForContentWin(wrappedContentWin);
-    let firebugConsole = getFirebugConsole(wrappedContentWin, chromeWindow);
-    let sandbox = createSandbox(wrappedContentWin, chromeWindow, firebugConsole);
+function loadScript(whitelist, blacklist, filename, content, wrappedContentWin, url) {
+  if (isRunnable(url, whitelist, blacklist) && embedCheck(url)) {
+    let sandbox = createSandbox(wrappedContentWin);
     
     load(content, sandbox, filename);
   }

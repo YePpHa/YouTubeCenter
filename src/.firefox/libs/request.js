@@ -1,7 +1,7 @@
 var {callUnsafeJSObject, isWindowClosed} = require("utils");
 
-function sendRequest(wrappedContentWin, chromeWin, sandbox, details) {
-  let req = new chromeWin.XMLHttpRequest();
+function sendRequest(wrappedContentWin, sandbox, details) {
+  let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
   let addEventReq = addEventListener.bind(this, wrappedContentWin, req);
   
   details = Cu.waiveXrays(details);
@@ -79,18 +79,20 @@ function addEventListener(wrappedContentWin, req, event, details){
   req.addEventListener(event, function(evt){
     var responseState = {
       __exposedProps__: {
-          context: "r",
-          finalUrl: "r",
-          lengthComputable: "r",
-          loaded: "r",
-          readyState: "r",
-          responseHeaders: "r",
-          responseText: "r",
-          status: "r",
-          statusText: "r",
-          total: "r"
-          },
+        context: "r",
+        finalUrl: "r",
+        lengthComputable: "r",
+        loaded: "r",
+        readyState: "r",
+        response: "r",
+        responseHeaders: "r",
+        responseText: "r",
+        status: "r",
+        statusText: "r",
+        total: "r"
+      },
       context: details.context || null,
+      response: req.response,
       responseText: req.responseText,
       readyState: req.readyState,
       responseHeaders: null,

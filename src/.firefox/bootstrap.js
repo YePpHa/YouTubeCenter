@@ -5,10 +5,11 @@ const Cu = Components.utils;
 
 const {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
 
-var evalInSandbox = true; // Use evalInSandbox (true) or The Sub-Script Loader (false)
-
 var addonData = null;
-var filename = "chrome://ytcenter/content/YouTubeCenter.js";
+var startupService = null;
+
+// Bug 1051238, https://bugzilla.mozilla.org/show_bug.cgi?id=1051238
+var frameScriptURL = "resource://ytcenter/libs/framescript.js?" + Math.random();
 
 var modules = {}; // The loaded modules (alike CommonJS)
 var unloadListeners = []; // The unload listeners which will be called when the add-on needs to be unloaded (uninstall, reinstall, shutdown).
@@ -34,24 +35,14 @@ function removeUnloadListener(listener) {
   }
 }
 
-/* Load a file */
-function loadFile(scriptName, onload) {
-  let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
-  request.open("GET", scriptName, true);
-  request.overrideMimeType("text/plain");
-  request.onload = onload;
-  
-  request.send(null);
-}
-
-/* Require a library file (alike CommonJS) */
 function require(module) {
   if (!(module in modules)) {
-    let principal = Components.classes["@mozilla.org/systemprincipal;1"].getService(Components.interfaces.nsIPrincipal);
-    let url = addonData.resourceURI.spec + "lib/" + module + ".js";
-    modules[module] = Components.utils.Sandbox(principal, {
+    let principal = Cc["@mozilla.org/systemprincipal;1"].getService(Ci.nsIPrincipal);
+    let url = "resource://ytcenter/libs/" + module + ".js";
+    modules[module] = Cu.Sandbox(principal, {
       sandboxName: url,
       sandboxPrototype: {
+        inFrameScript: false,
         require: require,
         exports: {},
         Cc: Cc,
@@ -68,41 +59,44 @@ function require(module) {
   return modules[module].exports;
 }
 
+/* Load a file */
+function loadFile(scriptName, onload) {
+  let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+  request.open("GET", scriptName, true);
+  request.overrideMimeType("text/plain");
+  //request.onload = onload;
+  
+  request.send(null);
+  
+  return request.responseText;
+}
+
 /* Initialize YouTube Center */
 function init() {
-  let sandbox = require("sandbox");
-  let {PolicyImplementation} = require("PolicyImplementation");
+  var service = require("service/StartupService");
   
-  let whitelist = [ /^http(s)?:\/\/(www\.)?youtube\.com\//, /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/ ];
-  let blacklist = [ ];
-  
-  if (evalInSandbox) {
-    loadFile(filename, function initPolicy(e) {
-      let policy = new PolicyImplementation(sandbox.loadScript.bind(sandbox, whitelist, blacklist, filename, e.target.responseText));
-      policy.init();
-    });
-  } else {
-    let policy = new PolicyImplementation(sandbox.loadScript.bind(sandbox, whitelist, blacklist, filename, null));
-    policy.init();
-  }
-  
-  /*loadFile(filename, function initPolicy(e) {
-    let loadScript = sandbox.loadScript.bind(sandbox, [
-      /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)/,
-      /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/
-    ], [
-      /^http(s)?:\/\/apiblog\.youtube\.com\//,
-      /^http(s)?:\/\/(((.*?)\.youtube\.com\/)|youtube\.com\/)subscribe_embed\?/
-    ], filename, e.target.responseText);
-    let policy = new PolicyImplementation(loadScript);
-    
-    policy.init();
-  });*/
+  startupService = new service.StartupService();
+  startupService.init();
+  //service.startup(startupService);
+}
+
+function createResourceAlias(aData, subAlias) {
+  let resource = Services.io.getProtocolHandler("resource").QueryInterface(Ci.nsIResProtocolHandler);
+  let alias = Services.io.newFileURI(aData.installPath);
+  if (!aData.installPath.isDirectory())
+    alias = Services.io.newURI("jar:" + alias.spec + "!/", null, null);
+  resource.setSubstitution(subAlias, alias);
+}
+
+function removeResourceAlias(subAlias) {
+  let resource = Services.io.getProtocolHandler("resource").QueryInterface(Ci.nsIResProtocolHandler);
+  resource.setSubstitution(subAlias, null);
 }
 
 /* On add-on startup */
 function startup(data, reason) {
   addonData = data;
+  createResourceAlias(addonData, "ytcenter");
   
   Services.tm.currentThread.dispatch(function(){
     init();
@@ -133,6 +127,9 @@ function shutdown(data, reason) {
   }
   
   modules = null; // Remove all references to the module
+  startupService = null;
+  
+  removeResourceAlias("ytcenter");
 }
 
 /* On add-on install */

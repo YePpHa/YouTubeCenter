@@ -34,6 +34,7 @@ function require(module) {
     modules[module] = Cu.Sandbox(principal, {
       sandboxName: url,
       sandboxPrototype: {
+        inFrameScript: true,
         require: require,
         exports: {},
         Cc: Cc,

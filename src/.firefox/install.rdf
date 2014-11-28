@@ -4,8 +4,8 @@
     <em:id>jid1-cwbvBTE216jjpg@jetpack</em:id>
     <em:version>@version@</em:version>
     <em:type>2</em:type>
-    <em:iconURL>chrome://ytcenter/content/icon32.png</em:iconURL>
-    <em:iconURL64>chrome://ytcenter/content/icon64.png</em:iconURL64>
+    <em:iconURL>resource://ytcenter/data/icon32.png</em:iconURL>
+    <em:iconURL64>resource://ytcenter/data/icon64.png</em:iconURL64>
     <em:homepageURL>https://github.com/YePpHa/YouTubeCenter/wiki</em:homepageURL>
     <em:optionsURL>http://www.youtube.com/#ytcenter.settings.open</em:optionsURL>
     <em:optionsType>3</em:optionsType>
