@@ -11,6 +11,9 @@ var startupRun = false;
 
 var filename = "resource://ytcenter/data/YouTubeCenter.js";
 
+// Bug 1051238, https://bugzilla.mozilla.org/show_bug.cgi?id=1051238
+var frameScriptURL = "resource://ytcenter/libs/framescript.js?" + Math.random();
+
 var whitelist = [ /^http(s)?:\/\/(www\.)?youtube\.com\//, /^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/ ];
 var blacklist = [ ];
 
@@ -42,10 +45,10 @@ function startup(aService) {
   
   var messageManager = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
   messageManager.addMessageListener("fileaccess-shim", shimFileAccess);
-  messageManager.loadFrameScript("resource://ytcenter/libs/framescript.js", true);
+  messageManager.loadFrameScript(frameScriptURL, true);
   
   unload(function(){
-    globalMM.removeMessageListener("fileaccess-shim", shimFileAccess);
+    messageManager.removeMessageListener("fileaccess-shim", shimFileAccess);
   });
 }
 
@@ -85,10 +88,13 @@ StartupService.prototype.init = function(){
   let catMan = Cc['@mozilla.org/categorymanager;1'].getService(Ci.nsICategoryManager);
   for each (let category in this.xpcom_categories)
     catMan.addCategoryEntry(category, this.contractID, this.contractID, false, true);
+  
+  
+  var observerService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
 
-  Services.obs.addObserver(this, "document-element-inserted", true);
-  Services.obs.addObserver(this, "xpcom-category-entry-removed", true);
-  Services.obs.addObserver(this, "xpcom-category-cleared", true);
+  observerService.addObserver(this, "document-element-inserted", true);
+  observerService.addObserver(this, "xpcom-category-entry-removed", true);
+  observerService.addObserver(this, "xpcom-category-cleared", true);
 };
 StartupService.prototype.unload = function(){
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
@@ -97,13 +103,13 @@ StartupService.prototype.unload = function(){
   }.bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
   
   try {
-    var observerService = Services.obs;
+    var observerService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
     
     observerService.removeObserver(this, "document-element-inserted");
     observerService.removeObserver(this, "xpcom-category-entry-removed");
     observerService.removeObserver(this, "xpcom-category-cleared");
   } catch (e) {
-    dump(e);
+    Cu.reportError(e);
   }
 
   let catMan = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
@@ -130,24 +136,28 @@ StartupService.prototype.shouldProcess = function(contentType, contentLocation, 
 };
 
 StartupService.prototype.observe = function(subject, topic, data, additional) {
-  switch (topic) {
-    case "document-element-inserted":
-      let doc = subject;
-      let win = doc && doc.defaultView;
-      
-      elementInserted(this, doc, win);
-      break;
-    case "xpcom-category-entry-removed":
-    case "xpcom-category-cleared": {
-      let category = data;
-      if (this.xpcom_categories.indexOf(category) < 0)
-        return;
-      if (topic == "xpcom-category-entry-removed" && subject instanceof Ci.nsISupportsCString && subject.data != this.contractID)
-        return;
-      let catMan = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);;
-      catMan.addCategoryEntry(category, this.contractID, this.contractID, false, true);
-      break;
+  try {
+    switch (topic) {
+      case "document-element-inserted":
+        let doc = subject;
+        let win = doc && doc.defaultView;
+        
+        elementInserted(this, doc, win);
+        break;
+      case "xpcom-category-entry-removed":
+      case "xpcom-category-cleared": {
+        let category = data;
+        if (this.xpcom_categories.indexOf(category) < 0)
+          return;
+        if (topic == "xpcom-category-entry-removed" && subject instanceof Ci.nsISupportsCString && subject.data != this.contractID)
+          return;
+        let catMan = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
+        catMan.addCategoryEntry(category, this.contractID, this.contractID, false, true);
+        break;
+      }
     }
+  } catch (e) {
+    Cu.reportError(e);
   }
 };
 StartupService.prototype.createInstance = function(outer, id) {

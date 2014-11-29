@@ -74,9 +74,10 @@ function sendRequest(wrappedContentWin, sandbox, details) {
 }
 
 function addEventListener(wrappedContentWin, req, event, details){
-  if (typeof details["on" + event] !== "number" && typeof details["on" + event] !== "function") return;
-  
-  req.addEventListener(event, function(evt){
+  function eventListener(evt) {
+    // If details isn't available then cancel this.
+    if (typeof details === "undefined") return;
+    
     var responseState = {
       __exposedProps__: {
         context: "r",
@@ -124,7 +125,12 @@ function addEventListener(wrappedContentWin, req, event, details){
     
     new XPCNativeWrapper(wrappedContentWin, "setTimeout()")
         .setTimeout(function(){ eventCallback.call(details, responseState) }, 0);
-  }, false);
+  }
+  
+  if (typeof details === "undefined") return;
+  if (typeof details["on" + event] !== "number" && typeof details["on" + event] !== "function") return;
+  
+  req.addEventListener(event, eventListener, false);
 }
 
 exports["sendRequest"] = sendRequest;

@@ -11,12 +11,12 @@ ContentService.prototype.QueryInterface = XPCOMUtils.generateQI([
   Ci.nsIObserver
 ]);
 ContentService.prototype.init = function(){
-  var observerService = Services.obs;
+  var observerService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
   observerService.addObserver(this, "document-element-inserted", false);
   unload(this.unload.bind(this));
 };
 ContentService.prototype.unload = function(){
-  var observerService = Services.obs;
+  var observerService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
   observerService.removeObserver(this, "document-element-inserted");
 };
 
@@ -35,22 +35,26 @@ ContentService.prototype.runScripts = function(aContentWin) {
 };
 
 ContentService.prototype.observe = function(aSubject, aTopic, aData) {
-  switch (aTopic) {
-    case 'document-element-inserted':
-      var doc = aSubject;
-      var url = doc.documentURI;
+  try {
+    switch (aTopic) {
+      case 'document-element-inserted':
+        var doc = aSubject;
+        var url = doc.documentURI;
 
-      var win = doc && doc.defaultView;
-      if (!doc || !win) break;
-      
-      try {
-        this.contentFrameMessageManager(win);
-      } catch (e) {
-        return;
-      }
-      
-      this.runScripts(win);
-      break;
+        var win = doc && doc.defaultView;
+        if (!doc || !win) break;
+        
+        try {
+          this.contentFrameMessageManager(win);
+        } catch (e) {
+          return;
+        }
+        
+        this.runScripts(win);
+        break;
+    }
+  } catch (e) {
+    Cu.reportError(e);
   }
 };
 
