@@ -64,6 +64,7 @@
   <property name="indentifier.userscript" value="0" />
   <property name="indentifier.chrome" value="1" />
   <property name="indentifier.maxthon" value="2" />
+  <!-- #3 is Firefox legacy -->
   <property name="indentifier.safari" value="4" />
   <property name="indentifier.opera" value="5" />
   <property name="indentifier.firefox" value="6" />

@@ -1,3 +1,11 @@
+/* Report Template */
+/*.ytc-copying .wrapper {
+  display: block !important;
+}*/
+/*.ytc-copying .preview {
+  display: none !important;
+}*/
+
 /* YouTube temporary style bug fix. Issue #1064 */
 .yt-uix-button.yt-uix-button-subscribe-branded,
 .yt-uix-button.yt-uix-button-subscribed-branded {
