@@ -10750,7 +10750,8 @@
           // will change them, if not then we relay whatever other arguments the
           // unknown function calls require
           var changed = b.apply(this, arguments);
-          if (changed.width && changed.height) {
+          var config = ytcenter.player.getConfig();
+          if (changed.width && changed.height && !(config && config.args && config.args.el !== "detailpage")) {
             // the variable "c" is just a way to distinguish between sizes for the video canvas
             // and sizes for the progressbar, and its components
             // TODO Try using clientWidth or the likes instead of bounding client rect as i.e. clientWidth is better supported.
@@ -20905,10 +20906,10 @@
       if (!config.args) config.args = {};
       con.log("[Player modifyConfig] => " + page);
       
-      /*if (document.getElementById("upsell-video")) {
+      if (document.getElementById("upsell-video")) {
         var swf_config = JSON.parse(document.getElementById("upsell-video").getAttribute("data-swf-config").replace(/&amp;/g, "&").replace(/&quot;/g, "\""));
         config = swf_config;
-      }*/
+      }
       
       if (loc.hash.indexOf("t=") !== -1) {
         var hashObject = ytcenter.utils.urlComponentToObject(loc.hash.substring(1)),
