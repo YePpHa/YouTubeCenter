@@ -24423,6 +24423,7 @@
             ytcenter.welcome.setVisibility(true);
         }
         
+        ytcenter.player.shortcuts();
         ytcenter.updateLogoLink();
         
         if (document.getElementById("page")

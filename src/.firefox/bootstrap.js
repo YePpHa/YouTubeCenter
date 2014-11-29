@@ -6,10 +6,6 @@ const Cu = Components.utils;
 const {Services} = Cu.import("resource://gre/modules/Services.jsm", null);
 
 var addonData = null;
-var startupService = null;
-
-// Bug 1051238, https://bugzilla.mozilla.org/show_bug.cgi?id=1051238
-var frameScriptURL = "resource://ytcenter/libs/framescript.js?" + Math.random();
 
 var modules = {}; // The loaded modules (alike CommonJS)
 var unloadListeners = []; // The unload listeners which will be called when the add-on needs to be unloaded (uninstall, reinstall, shutdown).
@@ -59,25 +55,11 @@ function require(module) {
   return modules[module].exports;
 }
 
-/* Load a file */
-function loadFile(scriptName, onload) {
-  let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
-  request.open("GET", scriptName, true);
-  request.overrideMimeType("text/plain");
-  //request.onload = onload;
-  
-  request.send(null);
-  
-  return request.responseText;
-}
-
 /* Initialize YouTube Center */
 function init() {
   var service = require("service/StartupService");
   
-  startupService = new service.StartupService();
-  startupService.init();
-  //service.startup(startupService);
+  (new service.StartupService()).init();
 }
 
 function createResourceAlias(aData, subAlias) {
@@ -127,7 +109,6 @@ function shutdown(data, reason) {
   }
   
   modules = null; // Remove all references to the module
-  startupService = null;
   
   removeResourceAlias("ytcenter");
 }
