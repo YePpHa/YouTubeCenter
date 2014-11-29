@@ -1611,27 +1611,286 @@
       return v > 4 ? v : !!document.documentMode;
     }());
     
+    /**
+     * UAParser.js v0.7.3
+     * Lightweight JavaScript-based User-Agent string parser
+     * https://github.com/faisalman/ua-parser-js
+     *
+     * Copyright © 2012-2014 Faisal Salman <fyzlman@gmail.com>
+     * Dual licensed under GPLv2 & MIT
+     */
+    (function(e,t){"use strict";var n="0.7.3",r="",i="?",s="function",o="undefined",u="object",a="major",f="model",l="name",c="type",h="vendor",p="version",d="architecture",v="console",m="mobile",g="tablet",y="smarttv",b="wearable",w="embedded";var E={extend:function(e,t){for(var n in t){if("browser cpu device engine os".indexOf(n)!==-1&&t[n].length%2===0){e[n]=t[n].concat(e[n])}}return e},has:function(e,t){if(typeof e==="string"){return t.toLowerCase().indexOf(e.toLowerCase())!==-1}},lowerize:function(e){return e.toLowerCase()}};var S={rgx:function(){var e,n=0,r,i,a,f,l,c,h=arguments;while(n<h.length&&!l){var p=h[n],d=h[n+1];if(typeof e===o){e={};for(a in d){f=d[a];if(typeof f===u){e[f[0]]=t}else{e[f]=t}}}r=i=0;while(r<p.length&&!l){l=p[r++].exec(this.getUA());if(!!l){for(a=0;a<d.length;a++){c=l[++i];f=d[a];if(typeof f===u&&f.length>0){if(f.length==2){if(typeof f[1]==s){e[f[0]]=f[1].call(this,c)}else{e[f[0]]=f[1]}}else if(f.length==3){if(typeof f[1]===s&&!(f[1].exec&&f[1].test)){e[f[0]]=c?f[1].call(this,c,f[2]):t}else{e[f[0]]=c?c.replace(f[1],f[2]):t}}else if(f.length==4){e[f[0]]=c?f[3].call(this,c.replace(f[1],f[2])):t}}else{e[f]=c?c:t}}}}n+=2}return e},str:function(e,n){for(var r in n){if(typeof n[r]===u&&n[r].length>0){for(var s=0;s<n[r].length;s++){if(E.has(n[r][s],e)){return r===i?t:r}}}else if(E.has(n[r],e)){return r===i?t:r}}return e}};var x={browser:{oldsafari:{major:{1:["/8","/1","/3"],2:"/4","?":"/"},version:{"1.0":"/8",1.2:"/1",1.3:"/3","2.0":"/412","2.0.2":"/416","2.0.3":"/417","2.0.4":"/419","?":"/"}}},device:{amazon:{model:{"Fire Phone":["SD","KF"]}},sprint:{model:{"Evo Shift 4G":"7373KT"},vendor:{HTC:"APA",Sprint:"Sprint"}}},os:{windows:{version:{ME:"4.90","NT 3.11":"NT3.51","NT 4.0":"NT4.0",2e3:"NT 5.0",XP:["NT 5.1","NT 5.2"],Vista:"NT 6.0",7:"NT 6.1",8:"NT 6.2",8.1:"NT 6.3",10:"NT 6.4",RT:"ARM"}}}};var T={browser:[[/(opera\smini)\/((\d+)?[\w\.-]+)/i,/(opera\s[mobiletab]+).+version\/((\d+)?[\w\.-]+)/i,/(opera).+version\/((\d+)?[\w\.]+)/i,/(opera)[\/\s]+((\d+)?[\w\.]+)/i],[l,p,a],[/\s(opr)\/((\d+)?[\w\.]+)/i],[[l,"Opera"],p,a],[/(kindle)\/((\d+)?[\w\.]+)/i,/(lunascape|maxthon|netfront|jasmine|blazer)[\/\s]?((\d+)?[\w\.]+)*/i,/(avant\s|iemobile|slim|baidu)(?:browser)?[\/\s]?((\d+)?[\w\.]*)/i,/(?:ms|\()(ie)\s((\d+)?[\w\.]+)/i,/(rekonq)((?:\/)[\w\.]+)*/i,/(chromium|flock|rockmelt|midori|epiphany|silk|skyfire|ovibrowser|bolt|iron)\/((\d+)?[\w\.-]+)/i],[l,p,a],[/(trident).+rv[:\s]((\d+)?[\w\.]+).+like\sgecko/i],[[l,"IE"],p,a],[/(yabrowser)\/((\d+)?[\w\.]+)/i],[[l,"Yandex"],p,a],[/(comodo_dragon)\/((\d+)?[\w\.]+)/i],[[l,/_/g," "],p,a],[/(chrome|omniweb|arora|[tizenoka]{5}\s?browser)\/v?((\d+)?[\w\.]+)/i,/(uc\s?browser|qqbrowser)[\/\s]?((\d+)?[\w\.]+)/i],[l,p,a],[/(dolfin)\/((\d+)?[\w\.]+)/i],[[l,"Dolphin"],p,a],[/((?:android.+)crmo|crios)\/((\d+)?[\w\.]+)/i],[[l,"Chrome"],p,a],[/version\/((\d+)?[\w\.]+).+?mobile\/\w+\s(safari)/i],[p,a,[l,"Mobile Safari"]],[/version\/((\d+)?[\w\.]+).+?(mobile\s?safari|safari)/i],[p,a,l],[/webkit.+?(mobile\s?safari|safari)((\/[\w\.]+))/i],[l,[a,S.str,x.browser.oldsafari.major],[p,S.str,x.browser.oldsafari.version]],[/(konqueror)\/((\d+)?[\w\.]+)/i,/(webkit|khtml)\/((\d+)?[\w\.]+)/i],[l,p,a],[/(navigator|netscape)\/((\d+)?[\w\.-]+)/i],[[l,"Netscape"],p,a],[/(swiftfox)/i,/(icedragon|iceweasel|camino|chimera|fennec|maemo\sbrowser|minimo|conkeror)[\/\s]?((\d+)?[\w\.\+]+)/i,/(firefox|seamonkey|k-meleon|icecat|iceape|firebird|phoenix)\/((\d+)?[\w\.-]+)/i,/(mozilla)\/((\d+)?[\w\.]+).+rv\:.+gecko\/\d+/i,/(polaris|lynx|dillo|icab|doris|amaya|w3m|netsurf)[\/\s]?((\d+)?[\w\.]+)/i,/(links)\s\(((\d+)?[\w\.]+)/i,/(gobrowser)\/?((\d+)?[\w\.]+)*/i,/(ice\s?browser)\/v?((\d+)?[\w\._]+)/i,/(mosaic)[\/\s]((\d+)?[\w\.]+)/i],[l,p,a]],cpu:[[/(?:(amd|x(?:(?:86|64)[_-])?|wow|win)64)[;\)]/i],[[d,"amd64"]],[/(ia32(?=;))/i],[[d,E.lowerize]],[/((?:i[346]|x)86)[;\)]/i],[[d,"ia32"]],[/windows\s(ce|mobile);\sppc;/i],[[d,"arm"]],[/((?:ppc|powerpc)(?:64)?)(?:\smac|;|\))/i],[[d,/ower/,"",E.lowerize]],[/(sun4\w)[;\)]/i],[[d,"sparc"]],[/((?:avr32|ia64(?=;))|68k(?=\))|arm(?:64|(?=v\d+;))|(?=atmel\s)avr|(?:irix|mips|sparc)(?:64)?(?=;)|pa-risc)/i],[[d,E.lowerize]]],device:[[/\((ipad|playbook);[\w\s\);-]+(rim|apple)/i],[f,h,[c,g]],[/applecoremedia\/[\w\.]+ \((ipad)/],[f,[h,"Apple"],[c,g]],[/(apple\s{0,1}tv)/i],[[f,"Apple TV"],[h,"Apple"]],[/(archos)\s(gamepad2?)/i,/(hp).+(touchpad)/i,/(kindle)\/([\w\.]+)/i,/\s(nook)[\w\s]+build\/(\w+)/i,/(dell)\s(strea[kpr\s\d]*[\dko])/i],[h,f,[c,g]],[/(kf[A-z]+)\sbuild\/[\w\.]+.*silk\//i],[f,[h,"Amazon"],[c,g]],[/(sd|kf)[0349hijorstuw]+\sbuild\/[\w\.]+.*silk\//i],[[f,S.str,x.device.amazon.model],[h,"Amazon"],[c,m]],[/\((ip[honed|\s\w*]+);.+(apple)/i],[f,h,[c,m]],[/\((ip[honed|\s\w*]+);/i],[f,[h,"Apple"],[c,m]],[/(blackberry)[\s-]?(\w+)/i,/(blackberry|benq|palm(?=\-)|sonyericsson|acer|asus|dell|huawei|meizu|motorola|polytron)[\s_-]?([\w-]+)*/i,/(hp)\s([\w\s]+\w)/i,/(asus)-?(\w+)/i],[h,f,[c,m]],[/\(bb10;\s(\w+)/i],[f,[h,"BlackBerry"],[c,m]],[/android.+(transfo[prime\s]{4,10}\s\w+|eeepc|slider\s\w+|nexus 7)/i],[f,[h,"Asus"],[c,g]],[/(sony)\s(tablet\s[ps])/i],[h,f,[c,g]],[/\s(ouya)\s/i,/(nintendo)\s([wids3u]+)/i],[h,f,[c,v]],[/android.+;\s(shield)\sbuild/i],[f,[h,"Nvidia"],[c,v]],[/(playstation\s[3portablevi]+)/i],[f,[h,"Sony"],[c,v]],[/(sprint\s(\w+))/i],[[h,S.str,x.device.sprint.vendor],[f,S.str,x.device.sprint.model],[c,m]],[/(lenovo)\s?(S(?:5000|6000)+(?:[-][\w+]))/i],[h,f,[c,g]],[/(htc)[;_\s-]+([\w\s]+(?=\))|\w+)*/i,/(zte)-(\w+)*/i,/(alcatel|geeksphone|huawei|lenovo|nexian|panasonic|(?=;\s)sony)[_\s-]?([\w-]+)*/i],[h,[f,/_/g," "],[c,m]],[/[\s\(;](xbox(?:\sone)?)[\s\);]/i],[f,[h,"Microsoft"],[c,v]],[/(kin\.[onetw]{3})/i],[[f,/\./g," "],[h,"Microsoft"],[c,m]],[/\s((milestone|droid(?:[2-4x]|\s(?:bionic|x2|pro|razr))?(:?\s4g)?))[\w\s]+build\//i,/(mot)[\s-]?(\w+)*/i],[[h,"Motorola"],f,[c,m]],[/android.+\s(mz60\d|xoom[\s2]{0,2})\sbuild\//i],[f,[h,"Motorola"],[c,g]],[/android.+((sch-i[89]0\d|shw-m380s|gt-p\d{4}|gt-n8000|sgh-t8[56]9|nexus 10))/i,/((SM-T\w+))/i],[[h,"Samsung"],f,[c,g]],[/((s[cgp]h-\w+|gt-\w+|galaxy\snexus|sm-n900))/i,/(sam[sung]*)[\s-]*(\w+-?[\w-]*)*/i,/sec-((sgh\w+))/i],[[h,"Samsung"],f,[c,m]],[/(samsung);smarttv/i],[h,f,[c,y]],[/\(dtv[\);].+(aquos)/i],[f,[h,"Sharp"],[c,y]],[/sie-(\w+)*/i],[f,[h,"Siemens"],[c,m]],[/(maemo|nokia).*(n900|lumia\s\d+)/i,/(nokia)[\s_-]?([\w-]+)*/i],[[h,"Nokia"],f,[c,m]],[/android\s3\.[\s\w-;]{10}(a\d{3})/i],[f,[h,"Acer"],[c,g]],[/android\s3\.[\s\w-;]{10}(lg?)-([06cv9]{3,4})/i],[[h,"LG"],f,[c,g]],[/(lg) netcast\.tv/i],[h,f,[c,y]],[/(nexus\s[45])/i,/lg[e;\s\/-]+(\w+)*/i],[f,[h,"LG"],[c,m]],[/android.+(ideatab[a-z0-9\-\s]+)/i],[f,[h,"Lenovo"],[c,g]],[/linux;.+((jolla));/i],[h,f,[c,m]],[/((pebble))app\/[\d\.]+\s/i],[h,f,[c,b]],[/android.+;\s(glass)\s\d/i],[f,[h,"Google"],[c,b]],[/(mobile|tablet);.+rv\:.+gecko\//i],[[c,E.lowerize],h,f]],engine:[[/(presto)\/([\w\.]+)/i,/(webkit|trident|netfront|netsurf|amaya|lynx|w3m)\/([\w\.]+)/i,/(khtml|tasman|links)[\/\s]\(?([\w\.]+)/i,/(icab)[\/\s]([23]\.[\d\.]+)/i],[l,p],[/rv\:([\w\.]+).*(gecko)/i],[p,l]],os:[[/microsoft\s(windows)\s(vista|xp)/i],[l,p],[/(windows)\snt\s6\.2;\s(arm)/i,/(windows\sphone(?:\sos)*|windows\smobile|windows)[\s\/]?([ntce\d\.\s]+\w)/i],[l,[p,S.str,x.os.windows.version]],[/(win(?=3|9|n)|win\s9x\s)([nt\d\.]+)/i],[[l,"Windows"],[p,S.str,x.os.windows.version]],[/\((bb)(10);/i],[[l,"BlackBerry"],p],[/(blackberry)\w*\/?([\w\.]+)*/i,/(tizen)[\/\s]([\w\.]+)/i,/(android|webos|palm\os|qnx|bada|rim\stablet\sos|meego|contiki)[\/\s-]?([\w\.]+)*/i,/linux;.+(sailfish);/i],[l,p],[/(symbian\s?os|symbos|s60(?=;))[\/\s-]?([\w\.]+)*/i],[[l,"Symbian"],p],[/\((series40);/i],[l],[/mozilla.+\(mobile;.+gecko.+firefox/i],[[l,"Firefox OS"],p],[/(nintendo|playstation)\s([wids3portablevu]+)/i,/(mint)[\/\s\(]?(\w+)*/i,/(mageia|vectorlinux)[;\s]/i,/(joli|[kxln]?ubuntu|debian|[open]*suse|gentoo|arch|slackware|fedora|mandriva|centos|pclinuxos|redhat|zenwalk|linpus)[\/\s-]?([\w\.-]+)*/i,/(hurd|linux)\s?([\w\.]+)*/i,/(gnu)\s?([\w\.]+)*/i],[l,p],[/(cros)\s[\w]+\s([\w\.]+\w)/i],[[l,"Chromium OS"],p],[/(sunos)\s?([\w\.]+\d)*/i],[[l,"Solaris"],p],[/\s([frentopc-]{0,4}bsd|dragonfly)\s?([\w\.]+)*/i],[l,p],[/(ip[honead]+)(?:.*os\s*([\w]+)*\slike\smac|;\sopera)/i],[[l,"iOS"],[p,/_/g,"."]],[/(mac\sos\sx)\s?([\w\s\.]+\w)*/i,/(macintosh|mac(?=_powerpc)\s)/i],[[l,"Mac OS"],[p,/_/g,"."]],[/((?:open)?solaris)[\/\s-]?([\w\.]+)*/i,/(haiku)\s(\w+)/i,/(aix)\s((\d)(?=\.|\)|\s)[\w\.]*)*/i,/(plan\s9|minix|beos|os\/2|amigaos|morphos|risc\sos|openvms)/i,/(unix)\s?([\w\.]+)*/i],[l,p]]};var N=function(t,n){if(!(this instanceof N)){return(new N(t,n)).getResult()}var i=t||(e&&e.navigator&&e.navigator.userAgent?e.navigator.userAgent:r);var s=n?E.extend(T,n):T;this.getBrowser=function(){return S.rgx.apply(this,s.browser)};this.getCPU=function(){return S.rgx.apply(this,s.cpu)};this.getDevice=function(){return S.rgx.apply(this,s.device)};this.getEngine=function(){return S.rgx.apply(this,s.engine)};this.getOS=function(){return S.rgx.apply(this,s.os)};this.getResult=function(){return{ua:this.getUA(),browser:this.getBrowser(),engine:this.getEngine(),os:this.getOS(),device:this.getDevice(),cpu:this.getCPU()}};this.getUA=function(){return i};this.setUA=function(e){i=e;return this};this.setUA(i)};N.VERSION=n;N.BROWSER={NAME:l,MAJOR:a,VERSION:p};N.CPU={ARCHITECTURE:d};N.DEVICE={MODEL:f,VENDOR:h,TYPE:c,CONSOLE:v,MOBILE:m,SMARTTV:y,TABLET:g,WEARABLE:b,EMBEDDED:w};N.ENGINE={NAME:l,VERSION:p};N.OS={NAME:l,VERSION:p};ytcenter.UAParser=N})(this)
+    
     ytcenter.reportIssue = (function(){
       function createSettingsCategory() {
-        /*var cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_REPORT");
+        cat = ytcenter.settingsPanel.createCategory("SETTINGS_CAT_REPORT");
         
+        createInstructions();
+        createIssueTemplate();
+      }
+      
+      function createInstructions() {
         var instructions = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_INSTRUCTIONS");
         cat.addSubCategory(instructions);
         
         var instructionElement = document.createElement("div");
+        instructionElement.textContent = "Coming soon.";
         
         
         
-        option = ytcenter.settingsPanel.createOption(
+        var option = ytcenter.settingsPanel.createOption(
           null,
-          "element",
+          "simpleElement",
           null,
           {
             "element": instructionElement
           }
         );
-        instructions.addOption(option);*/
+        instructions.addOption(option);
       }
+      
+      function createIssueTemplate() {
+        browserDetails = getBrowserDetails();
+        
+        var template = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_ISSUE_TEMPLATE");
+        cat.addSubCategory(template);
+        
+        var tempElement = document.createElement("div");
+        
+        template.addEventListener("click", function(){
+          generateTemplateElement(tempElement);
+        });
+        
+        tempElement.addEventListener("copy", function(){
+          var selection = window.getSelection();
+          var selectionRange = null;
+          if (selection.getRangeAt && selection.rangeCount) {
+            selectionRange = selection.getRangeAt(0);
+          }
+          
+          var clonedTemplate = tempElement.cloneNode(true);
+          clonedTemplate.className = "ytc-copying";
+          
+          var titles = clonedTemplate.getElementsByClassName("title");
+          for (var i = 0, len = titles.length; i < len; i++) {
+            titles[i].textContent = "__" + titles[i].textContent + "__";
+          }
+          
+          document.body.appendChild(clonedTemplate);
+          selection.selectAllChildren(clonedTemplate);
+          
+          ytcenter.settingsPanel.statusbar.setMessage("Copied", 1500); // TODO  Use translated locale
+          
+          setTimeout(function(){
+            selection.removeAllRanges();
+            selection.addRange(selectionRange);
+            
+            clonedTemplate.parentNode.removeChild(clonedTemplate);
+          }, 7);
+        });
+        
+        //generateTemplateElement(tempElement);
+        
+        var option = ytcenter.settingsPanel.createOption(
+          null,
+          "simpleElement",
+          null,
+          {
+            "element": tempElement
+          }
+        );
+        template.addOption(option);
+      }
+      
+      function generateTemplateElement(tempElement) {
+        tempElement.innerHTML = "";
+        var list = document.createElement("ul");
+        for (var i = 0, len = templateList.length; i < len; i++) {
+          var listItem = templateList[i];
+          var generatedContent = listItem.value();
+          if (listItem.emptyHide && generatedContent === "") continue;
+          
+          var item = document.createElement("li");
+          var title = document.createElement("span");
+          title.className = "title";
+          title.style.fontWeight = "bold";
+          title.textContent = listItem.title;
+          
+          item.appendChild(title);
+          
+          var split = document.createElement("span");
+          split.textContent = ":" + (listItem.addLines ? "" : " ");
+          item.appendChild(split);
+          
+          var content = null;
+          
+          if (listItem.wrapper) {
+            content = document.createElement("span");
+            if (gistURL) {
+              var link = document.createElement("a");
+              link.href = gistURL;
+              link.textContent = gistURL;
+              
+              content.appendChild(link);
+            } else {
+              content.textContent = "Uploading...";
+              content.style.fontStyle = "italic";
+              
+              var data = {
+                "description": null,
+                "public": false,
+                "files": {
+                  "debug_log.js": {
+                    "content": JSON.stringify(ytcenter.getDebug(false), undefined, 2)
+                  }
+                }
+              };
+              ytcenter.utils.xhr({
+                method: "POST",
+                url: "https://api.github.com/gists",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded"
+                },
+                data: JSON.stringify(data),
+                contentType: "application/x-www-form-urlencoded", // Firefox Addon
+                content: JSON.stringify(data), // Firefox Addon
+                onload: (function(content){
+                  return function(response) {
+                    var details = JSON.parse(response.responseText);
+                    gistURL = details.html_url;
+                    
+                    var link = document.createElement("a");
+                    link.href = gistURL;
+                    link.textContent = gistURL;
+                    
+                    content.innerHTML = "";
+                    content.style.fontStyle = "";
+                    content.appendChild(link);
+                  };
+                })(content)
+              });
+            }
+            
+            item.appendChild(content);
+            
+            /*content = document.createElement(listItem.wrapper);
+            content.className = "wrapper";
+            content.style.display = "none";
+            
+            generatedContent = generatedContent.split(/\n/);
+            for (var j = 0, lenj = generatedContent.length; j < lenj; j++) {
+              if (j > 0) content.appendChild(document.createElement("br"));
+              content.appendChild(document.createTextNode(generatedContent[j]));
+            }*/
+          } else {
+            content = document.createElement("span");
+            content.textContent = generatedContent;
+          }
+          item.appendChild(content);
+          
+          if (listItem.addSpace) {
+            item.appendChild(document.createElement("br"));
+            item.appendChild(document.createElement("br"));
+          }
+          
+          if (listItem.addLines) {
+            item.appendChild(document.createElement("br"));
+            item.appendChild(document.createElement("br"));
+            item.appendChild(document.createElement("br"));
+          }
+          
+          list.appendChild(item);
+        }
+        
+        tempElement.appendChild(list);
+      }
+      
+      function getBrowserDetails() {
+        var parser = new ytcenter.UAParser();
+        var results = parser.getResult();
+        
+        return results;
+      }
+      
+      function getBrowserName() {
+        return browserDetails.browser.name;
+      }
+      
+      function getBrowserVersion() {
+        return browserDetails.browser.version;
+      }
+      
+      function getBrowserEngine() {
+        return browserDetails.engine.name;
+      }
+      
+      function getOS() {
+        var name = browserDetails.os.name;
+        var version = browserDetails.os.version;
+        
+        var returns = "";
+        
+        if (name) {
+          returns += name;
+          if (version) {
+            returns += " " + version;
+          }
+        }
+        return returns;
+      }
+      
+      function getYTCVersion() {
+        if (devbuild) {
+          return "Developer Version - Build #" + devnumber;
+        } else {
+          return ytcenter.version;
+        }
+      }
+      
+      function getAddonType() {
+        switch (identifier) {
+          case 0:
+            return "Userscript";
+          case 1:
+            return "Chrome extension";
+          case 2:
+            return "Maxthon extension";
+          case 3:
+            return "Opera extension";
+          case 4:
+            return "Firefox addon";
+          case 5:
+            return "Userscript; Scriptish version";
+          case 6:
+            return "Chrome extension; Webstore edition";
+          default:
+            return "";
+        }
+      }
+      
+      function emptyTemplate() {
+        return "";
+      }
+      
+      function getDebugLog() {
+        return "```JavaScript\n" + JSON.stringify(ytcenter.getDebug(false), undefined, 2) + "\n```";
+      }
+      
+      var cat = null;
+      var browserDetails = null;
+      var gistURL = null;
+      
+      var templateList = [
+        { title: "Browser name", value: getBrowserName },
+        { title: "Browser version", value: getBrowserVersion },
+        { title: "Browser engine", value: getBrowserEngine, emptyHide: true },
+        { title: "OS", value: getOS, emptyHide: true },
+        { title: "YouTube Center version", value: getYTCVersion },
+        { title: "Addon type", value: getAddonType },
+        { title: "Debug log", value: getDebugLog, wrapper: "pre" },
+        { title: "Issue description", value: emptyTemplate, addLines: true },
+        { title: "How to reproduce the issue", value: emptyTemplate, addLines: true }
+      ];
       
       var exports = {};
       exports.createSettingsCategory = createSettingsCategory;
@@ -5712,8 +5971,10 @@
       return exports;
     })();
     
-    ytcenter.getDebug = function(){
+    ytcenter.getDebug = function(stringify){
+      if (typeof stringify !== "boolean") stringify = true;
       var debugText = "{}", dbg = {}, a;
+      var api = ytcenter.player.getAPI();
       try {
         dbg.htmlelements = {};
         if (document.body)
@@ -5769,7 +6030,7 @@
         }
         dbg.ytcenter.player.config = ytcenter.player.config;
         try {
-          dbg.ytcenter.player.apiinterface = ytcenter.player.getReference().api.getApiInterface();
+          dbg.ytcenter.player.apiinterface = api.getApiInterface();
         } catch (e) {
           dbg.ytcenter.player.apiinterface = {};
         }
@@ -5780,11 +6041,19 @@
         }
         
         try {
-          var tests = ["getAvailablePlaybackRates", "getAvailableQualityLevels", "getCurrentTime", "getDebugText", "getDuration", "getPlaybackQuality", "getPlaybackRate", "getPlayerState", "getPlayerType", "getVolume", "isMuted", "isReady"];
           dbg.player_test = {};
-          for (var i = 0; i < tests.length; i++) {
-            if (ytcenter.player.getReference().api[tests[i]])
-              dbg.player_test[tests[i]] = ytcenter.player.getReference().api[tests[i]]();
+          for (var key in api) {
+            if (key.indexOf("is") !== 0 && key.indexOf("get") !== 0) {
+              dbg.player_test[key] = "IGNORED";
+              continue;
+            }
+            if (api.hasOwnProperty(key)) {
+              try {
+                dbg.player_test[key] = api[key]();
+              } catch (e) {
+                dbg.player_test[key] = e;
+              }
+            }
           }
         } catch (e) {
           dbg.player_test_error = e.message;
@@ -5792,7 +6061,11 @@
         
         dbg.console = _console;
         
-        debugText = JSON.stringify(dbg);
+        if (stringify) {
+          debugText = JSON.stringify(dbg);
+        } else {
+          debugText = dbg;
+        }
       } catch (e) {
         con.error(e);
         con.log("[Debug Text]", dbg);
@@ -7166,11 +7439,14 @@
         hasLoadedOnce: function(){ return loadedOnce; }
       };
     };
-    ytcenter.modules.element = function(option){
+    ytcenter.modules.simpleElement = function(option){
       var exports = {};
+      
       exports.element = option.args.element;
       exports.bind = function(){};
       exports.update = function(){};
+      
+      return exports;
     };
     ytcenter.modules.aboutText = function(option){
       var elm = document.createElement("div"),
@@ -14215,6 +14491,8 @@
     ytcenter.settingsPanel = (function(){
       var a = {}, categories = [], subcategories = [], options = [];
       
+      var statusbarElement = null;
+      
       a.createCategory = function(label){
         var id = categories.length;
         categories.push({
@@ -14479,6 +14757,51 @@
         
         return frag;
       };
+      a.statusbar = (function(msg, delay){
+        function setMessage(msg, delay) {
+          statusbarElement.textContent = msg;
+          
+          if (typeof delay === "number") {
+            if (timer) {
+              clearTimeout(timer);
+              timer = null;
+            }
+            ytcenter.utils.addClass(statusbarElement, "visible");
+            if (delay > 0) {
+              timer = setTimeout(function(){
+                ytcenter.utils.removeClass(statusbarElement, "visible");
+                timer = null;
+              }, delay);
+            }
+          }
+        }
+        
+        function setVisible(visible, delay) {
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+          }
+          if (visible) {
+            ytcenter.utils.addClass(statusbarElement, "visible");
+            if (typeof delay === "number") {
+              timer = setTimeout(function(){
+                ytcenter.utils.removeClass(statusbarElement, "visible");
+                timer = null;
+              }, delay);
+            }
+          } else {
+            ytcenter.utils.removeClass(statusbarElement, "visible");
+          }
+        }
+        
+        var timer = null;
+        
+        var exports = {};
+        exports.setMessage = setMessage;
+        exports.setVisible = setVisible;
+        
+        return exports;
+      })();
       a.createLayout = function(){
         var frag = document.createDocumentFragment(),
             categoryList = document.createElement("ul"),
@@ -14678,61 +15001,38 @@
         rightPanelContent.appendChild(subcatTop);
         rightPanelContent.appendChild(subcatContent);
         
-        var statusbar = document.createElement("div");
-        statusbar.className = "ytcenter-settings-subcat-statusbar-wrapper";
-        statusbar.textContent = "";
+        statusbarElement = document.createElement("div");
+        statusbarElement.className = "ytcenter-settings-subcat-statusbar-wrapper";
+        statusbarElement.textContent = "";
         (function(){
-          var savedTimeout = null,
-              mode = 0;
+          var mode = 0;
           
           ytcenter.events.addEvent("language-refresh", function(){
             if (mode === 0) {
-              statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVING");
+              a.statusbar.setMessage(ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVING"));
             } else if (mode === 1) {
-              statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVED");
+              a.statusbar.setMessage(ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVED"));
             } else if (mode === -1) {
-              statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_ERROR");
+              a.statusbar.setMessage(ytcenter.language.getLocale("STATUSBAR_SETTINGS_ERROR"));
             }
           });
           
           ytcenter.events.addEvent("save", function(){
-            if (savedTimeout) {
-              uw.clearTimeout(savedTimeout);
-              savedTimeout = null;
-            }
             mode = 0;
-            statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVING");
-            ytcenter.utils.addClass(statusbar, "visible");
+            a.statusbar.setMessage(ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVING"));
+            a.statusbar.setVisible(true);
           });
           ytcenter.events.addEvent("save-complete", function(){
             mode = 1;
-            statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVED");
-            
-            if (savedTimeout) {
-              uw.clearTimeout(savedTimeout);
-              savedTimeout = null;
-            }
-            savedTimeout = uw.setTimeout(function(){
-              ytcenter.utils.removeClass(statusbar, "visible");
-              savedTimeout = null;
-            }, ytcenter.settings.saveStatusTimeout);
+            a.statusbar.setMessage(ytcenter.language.getLocale("STATUSBAR_SETTINGS_SAVED"), ytcenter.settings.saveStatusTimeout);
           });
           ytcenter.events.addEvent("save-error", function(){
             mode = -1;
-            statusbar.textContent = ytcenter.language.getLocale("STATUSBAR_SETTINGS_ERROR");
-            
-            if (savedTimeout) {
-              uw.clearTimeout(savedTimeout);
-              savedTimeout = null;
-            }
-            savedTimeout = uw.setTimeout(function(){
-              ytcenter.utils.removeClass(statusbar, "visible");
-              savedTimeout = null;
-            }, ytcenter.settings.saveErrorStatusTimeout);
+            a.statusbar.setMessage(ytcenter.language.getLocale("STATUSBAR_SETTINGS_ERROR"), ytcenter.settings.saveErrorStatusTimeout);
           });
         })();
         
-        rightPanelContent.appendChild(statusbar);
+        rightPanelContent.appendChild(statusbarElement);
         
         
         rightPanel.appendChild(rightPanelContent);
@@ -18711,10 +19011,10 @@
                     var content = document.createElement("div");
                     var data = {
                       "description": null,
-                      "public": true,
+                      "public": false,
                       "files": {
-                        "debug.txt": {
-                          "content": ytcenter.getDebug()
+                        "debug_log.js": {
+                          "content": JSON.stringify(ytcenter.getDebug(false), undefined, 2)
                         }
                       }
                     };
