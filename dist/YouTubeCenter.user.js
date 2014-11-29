@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         444
+// @version         445
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 444);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 445);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -10750,8 +10750,7 @@
           // will change them, if not then we relay whatever other arguments the
           // unknown function calls require
           var changed = b.apply(this, arguments);
-          var config = ytcenter.player.getConfig();
-          if (changed.width && changed.height && !(config && config.args && config.args.el !== "detailpage")) {
+          if (changed.width && changed.height && ytcenter.getPage() === "watch") {
             // the variable "c" is just a way to distinguish between sizes for the video canvas
             // and sizes for the progressbar, and its components
             // TODO Try using clientWidth or the likes instead of bounding client rect as i.e. clientWidth is better supported.
@@ -20906,11 +20905,6 @@
       if (!config.args) config.args = {};
       con.log("[Player modifyConfig] => " + page);
       
-      if (document.getElementById("upsell-video")) {
-        var swf_config = JSON.parse(document.getElementById("upsell-video").getAttribute("data-swf-config").replace(/&amp;/g, "&").replace(/&quot;/g, "\""));
-        config = swf_config;
-      }
-      
       if (loc.hash.indexOf("t=") !== -1) {
         var hashObject = ytcenter.utils.urlComponentToObject(loc.hash.substring(1)),
           value = null,
@@ -21277,9 +21271,6 @@
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", "#000000");
         } else if (ytcenter.settings.channel_bgcolor !== "default" && ytcenter.settings.channel_bgcolor.indexOf("#") === 0) {
           config.args.keywords = ytcenter.utils.setKeyword(config.args.keywords, "yt:bgcolor", ytcenter.settings.channel_bgcolor);
-        }
-        if (document.getElementById("upsell-video")) {
-          document.getElementById("upsell-video").setAttribute("data-swf-config", JSON.stringify(config).replace(/&/g, "&amp;").replace(/"/g, "&quot;"));
         }
       }
       
@@ -24575,7 +24566,16 @@
           }
         } else if (page === "channel") {
           ytcenter.page = "channel";
-          if (document.body.innerHTML.indexOf("data-video-id=\"") !== -1) {
+          var upsell = document.getElementById("upsell-video");
+          if (upsell) {
+            var swf_config = JSON.parse(upsell.getAttribute("data-swf-config").replace(/&amp;/g, "&").replace(/&quot;/g, "\""));
+            swf_config = ytcenter.player.modifyConfig(ytcenter.getPage(), swf_config);
+            //ytcenter.player.setConfig(swf_config);
+            
+            upsell.setAttribute("data-swf-config", JSON.stringify(swf_config).replace(/&/g, "&amp;").replace(/"/g, "&quot;"));
+          }
+          
+          /*if (document.body.innerHTML.indexOf("data-video-id=\"") !== -1) {
             id = document.body.innerHTML.match(/data-video-id=\"(.*?)\"/)[1];
           } else if (document.body.innerHTML.indexOf("/v/") !== -1) {
             id = document.body.innerHTML.match(/\/v\/([0-9a-zA-Z_-]+)/)[1];
@@ -24617,7 +24617,7 @@
                 ytcenter.video.streams = [];
               }
             });
-          }
+          }*/
         } else if (page === "search") {
           ytcenter.page = "search";
         } else {
