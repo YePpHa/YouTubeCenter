@@ -1894,6 +1894,7 @@
       
       var exports = {};
       exports.createSettingsCategory = createSettingsCategory;
+      exports.resetGistURL = function(){ gistURL = null; };
       
       return exports;
     })();
@@ -2097,7 +2098,7 @@
       }
       
       var customEventPrefix = "spf";
-      var spfEvents = [ "click", "cssbeforeunload", "cssunload", "done", "error", "history", "jsbeforeunload", "jsunload", "partdone", "partprocess", "process", "ready", "reload", "request" ];
+      var spfEvents = [ "cssbeforeunload", "cssunload", "done", "error", "history", "jsbeforeunload", "jsunload", "partdone", "partprocess", "process", "ready", "reload", "request" ];
       
       var attachedEvents = { };
       var events = [ ];
@@ -6056,7 +6057,7 @@
             }
           }
         } catch (e) {
-          dbg.player_test_error = e.message;
+          dbg.player_test_error = "ERROR";
         }
         
         dbg.console = _console;
@@ -24424,12 +24425,6 @@
         
         ytcenter.updateLogoLink();
         
-        if (loc.pathname !== "/watch")
-          ytcenter.player.turnLightOn();
-        else if (ytcenter.settings.lightbulbAutoOff)
-          ytcenter.player.turnLightOff();
-        ytcenter.player.shortcuts();
-        
         if (document.getElementById("page")
          && ytcenter.utils.hasClass(document.getElementById("page"), "channel")
          && document.getElementById("content")
@@ -24443,6 +24438,12 @@
         var page = ytcenter.getPage();
         
         ytcenter.channelPlaylistLinks.update();
+        
+        if (page !== "watch") {
+          ytcenter.player.turnLightOn();
+        } else if (ytcenter.settings.lightbulbAutoOff) {
+          ytcenter.player.turnLightOff();
+        }
         
         if (page === "watch") {
           if (!ytcenter.settings.enableComments) {
@@ -25058,6 +25059,7 @@
       
       ytcenter.spf.addEventListener("request", function(e) {
         var detail = e.detail;
+        ytcenter.reportIssue.resetGistURL();
         ytcenter.player.setConfig(null);
         ytcenter.html5PlayWrapper.setReady(false, true);
         ytcenter.descriptionTags.destroy();
