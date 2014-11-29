@@ -2126,6 +2126,7 @@
       } catch (e) {}
     })();
     if (loc.href.indexOf("http://apiblog.youtube.com/") === 0 || loc.href.indexOf("https://apiblog.youtube.com/") === 0) return;
+    ytcenter.protocol = loc.href.indexOf("https://") === 0 ? "https://" : "http://";
     if (typeof console !== "undefined" && typeof console.log !== "undefined") {
       con = {};
       for (var key in console) {
@@ -3692,7 +3693,7 @@
       
       a.getLanguageList = function(videoId, callback, error){
         ytcenter.utils.xhr({
-          url: "http://video.google.com/timedtext?type=list&v=" + encodeURIComponent(videoId),
+          url: ytcenter.protocol + "video.google.com/timedtext?type=list&v=" + encodeURIComponent(videoId),
           method: "GET",
           onload: function(response){
             var doc = ytcenter.utils.parseXML(response.responseText);
@@ -3706,7 +3707,7 @@
       };
       a.getTranslatedLanguageList = function(videoId, callback, error){
         ytcenter.utils.xhr({
-          url: "http://video.google.com/timedtext?type=list&tlangs=1&v=" + encodeURIComponent(videoId),
+          url: ytcenter.protocol + "video.google.com/timedtext?type=list&tlangs=1&v=" + encodeURIComponent(videoId),
           method: "GET",
           onload: function(response){
             var doc = ytcenter.utils.parseXML(response.responseText);
@@ -3720,7 +3721,7 @@
       };
       a.getSubtitleLanguage = function(videoId, langName, langCode, translateLang, callback, error){
         ytcenter.utils.xhr({
-          url: "http://video.google.com/timedtext?type=track&v=" + encodeURIComponent(videoId)
+          url: ytcenter.protocol + "video.google.com/timedtext?type=track&v=" + encodeURIComponent(videoId)
                + (langName ? "&name=" + encodeURIComponent(langName) : "")
                + (langCode ? "&lang=" + encodeURIComponent(langCode) : "")
                + (translateLang ? "&tlang=" + encodeURIComponent(translateLang) : ""),
@@ -4004,15 +4005,12 @@
           commentInfo.username = commentInfo.wrapper.getElementsByTagName("img")[0].getAttribute("title");
         }
         commentInfo.profileRedirectURL = commentInfo.wrapper.getElementsByTagName("img")[0].parentNode.href;
-        if (loc.href.indexOf("https://") === 0) {
-          // Profile Redirect URL has to be a secure connection
-          if (commentInfo.profileRedirectURL.indexOf("http://") === 0) {
-            commentInfo.profileRedirectURL = commentInfo.profileRedirectURL.replace(/http\:\/\//, "https://");
-          }
-        } else {
-          // Profile Redirect URL has to be an unsecure connection
-          if (commentInfo.profileRedirectURL.indexOf("https://") === 0) {
-            commentInfo.profileRedirectURL = commentInfo.profileRedirectURL.replace(/https\:\/\//, "http://");
+        
+        if (commentInfo.profileRedirectURL.indexOf(ytcenter.protocol) !== 0) {
+          if (ytcenter.protocol === "http://") {
+            commentInfo.profileRedirectURL = commentInfo.profileRedirectURL.replace(/^https/, "http");
+          } else if (ytcenter.protocol === "https://") {
+            commentInfo.profileRedirectURL = commentInfo.profileRedirectURL.replace(/^http/, "https");
           }
         }
         
@@ -4742,7 +4740,7 @@
           }
       }
       ytcenter.utils.xhr({
-        url: "http://www.youtube.com/profile_redirector/" + oId,
+        url: ytcenter.protocol + "www.youtube.com/profile_redirector/" + oId,
         method: "GET",
         onload: function(r){
           try {
@@ -4752,14 +4750,14 @@
               handleFinalUrl(r.finalUrl);
             }
           } catch (e) {
-            con.error("[Comments getGooglePlusUserData] Couldn't parse data from http://www.youtube.com/profile_redirector/" + oId);
+            con.error("[Comments getGooglePlusUserData] Couldn't parse data from " + ytcenter.protocol + "www.youtube.com/profile_redirector/" + oId);
             con.error(r);
             con.error(e);
             callback(null);
           }
         },
         onerror: function(){
-          con.error("[Comments getGooglePlusUserData] Couldn't fetch data from http://www.youtube.com/profile_redirector/" + oId);
+          con.error("[Comments getGooglePlusUserData] Couldn't fetch data from " + ytcenter.protocol + "www.youtube.com/profile_redirector/" + oId);
           callback(null);
         }
       });
