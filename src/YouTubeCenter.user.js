@@ -13615,10 +13615,10 @@
             } else if (uw.yt.config_.HL_LOCALE && ytcenter.languages.hasOwnProperty(uw.yt.config_.HL_LOCALE)) {
               lang = uw.yt.config_.HL_LOCALE;
             } else {
-              lang = defaultLang;
+              lang = ytcenter.settings.defaultLanguage || defaultLang;
             }
           } else {
-            lang = defaultLang;
+            lang = ytcenter.settings.defaultLanguage || defaultLang;
             if (!doNotRecurse) {
               con.log("Language set to " + lang + " because it could not be auto-detected yet");
               var languageUpdateCounter = 0;
@@ -13637,6 +13637,10 @@
           }
         }
         if (!ytcenter.languages[lang]) lang = defaultLang;
+        if (ytcenter.settings.defaultLanguage !== lang) {
+          ytcenter.settings.defaultLanguage = lang;
+          ytcenter.saveSettings();
+        }
         currentLang = ytcenter.languages[lang];
         for (var i = 0; i < db.length; i++) {
           __setElementText(currentLang, db[i][0], db[i][1], db[i][2], db[i][3]);
@@ -13650,6 +13654,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      defaultLanguage: null,
       hideWatchLaterOnPlayer: false,
       likedislikeUIEnabled: true,
       sparkbarEnabled: true,
