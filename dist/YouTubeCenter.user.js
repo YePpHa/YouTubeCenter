@@ -1936,11 +1936,16 @@
         isReady = ready;
         if (spf) isSPF = true;
       }
+      function setForcedPause(bool) {
+        forcePause = bool;
+      }
       function isInitialized() {
         return initialized;
       }
       function play() {
-        if (ytcenter.player.isPreventAutoPlay() && !isReady) {
+        if ((ytcenter.player.isPreventAutoPlay() && !isReady) || forcePause) {
+          HTMLVideoElement.prototype.pause.apply(this, arguments);
+          
           var api = ytcenter.player.getAPI();
           api && api.pauseVideo && api.pauseVideo();
           if (isSPF) {
@@ -1955,6 +1960,7 @@
       var originalPlayFunc = null;
       var isReady = false;
       var isSPF = false;
+      var forcePause = false;
       
       var initialized = false;
       
@@ -1963,6 +1969,7 @@
       var exports = {};
       exports.setReady = setReady;
       exports.isInitialized = isInitialized;
+      exports.setForcedPause = setForcedPause;
       
       return exports;
     })();
@@ -8371,6 +8378,16 @@
               }
             };
             
+            // Checking the filename
+            try {
+              if (file.name.indexOf(".ytcs") !== file.name.length - ".ytcs".length) {
+                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
+                return;
+              }
+            } catch (e) {
+              con.error(e);
+            }
+            
             reader.readAsText(file.slice(0, VALIDATOR_STRING.length));
           },
           readFile = function(file, hasPrefix){
@@ -8410,12 +8427,6 @@
               
               settingsPoolChecker();
             };
-            
-            // Checking the filename
-            if (file.name.indexOf(".ytcs") !== file.name.length - ".ytcs".length) {
-              pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
-              return;
-            }
             
             if (hasPrefix) {
               reader.readAsText(file.slice(VALIDATOR_STRING.length));
@@ -25002,12 +25013,20 @@
           if (ytcenter.settings.endOfVideoAutoSwitchToTab !== "none" && state === 0) {
             if (ytcenter.settings.endOfVideoAutoSwitchToTab === "mysubscriptions") {
               var url = "/feed/subscriptions";
-              // Checking if SPF navigate is defined
-              if (uw && uw.spf && uw.spf.navigate) {
-                uw.spf.navigate(url);
-              } else {
-                loc.href = url;
-              }
+              
+              var api = ytcenter.player.getAPI();
+              ytcenter.html5PlayWrapper.setForcedPause(true);
+              api.seekTo && api.seekTo(0);
+              api.pauseVideo && api.pauseVideo();
+              
+              setTimeout(function(){
+                // Checking if SPF navigate is defined
+                if (uw && uw.spf && uw.spf.navigate) {
+                  uw.spf.navigate(url);
+                } else {
+                  loc.href = url;
+                }
+              }, 7);
             } else {
               ytcenter.actionPanel.switchTo(ytcenter.settings.endOfVideoAutoSwitchToTab);
             }
@@ -25101,6 +25120,8 @@
       ytcenter.spf.addEventListener("process", function(e) {
         var detail = e.detail;
         
+        ytcenter.html5PlayWrapper.setForcedPause(false);
+        
         if (detail && detail.response && detail.response.title) {
           ytcenter.title.originalTitle = detail.response.title;
           ytcenter.title.update();
@@ -25108,6 +25129,9 @@
       });
       ytcenter.spf.addEventListener("partprocess", function(e) {
         var detail = e.detail;
+        
+        ytcenter.html5PlayWrapper.setForcedPause(false);
+        
         var url = detail.url;
         if (detail && detail.part) {
           var part = detail.part;
@@ -25137,6 +25161,9 @@
       
       ytcenter.spf.addEventListener("done", function(e) {
         var detail = e.detail;
+        
+        ytcenter.html5PlayWrapper.setForcedPause(false);
+        
         var url = detail.url;
         
         ytcenter.classManagement.applyClasses(url);
