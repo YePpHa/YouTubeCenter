@@ -12437,12 +12437,20 @@
     ytcenter.utils.each = function(obj, callback){
       if (ytcenter.utils.isArray(obj)) {
         for (var i = 0; i < obj.length; i++) {
-          if (callback(i, obj[i]) === true) break;
+          try {
+            if (callback(i, obj[i]) === true) break;
+          } catch (e) {
+            con.error(e);
+          }
         }
       } else {
         for (var key in obj) {
-          if (obj.hasOwnProperty(key)) {
-            if (callback(key, obj[key]) === true) break;
+          try {
+            if (obj.hasOwnProperty(key)) {
+              if (callback(key, obj[key]) === true) break;
+            }
+          } catch (e) {
+            con.error(e);
           }
         }
       }
@@ -24827,6 +24835,7 @@
         });
         ytcenter.player.listeners.addEventListener("onReady", function(api){
           ytcenter.html5PlayWrapper.setReady(true);
+          
           var config = ytcenter.player.getConfig();          
           if (ytcenter.player.isAutoResolutionEnabled()) {
             ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false)));
