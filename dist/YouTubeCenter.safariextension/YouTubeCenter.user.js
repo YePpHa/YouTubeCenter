@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         447
+// @version         448
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 447);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 448);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -8364,16 +8364,16 @@
             };
             reader.onload = function(e){
               if (e.target.result === VALIDATOR_STRING) {
-                readFile(file);
+                readFile(file, true);
               } else {
-                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
-                
+                readFile(file, false);
+                //pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
               }
             };
             
             reader.readAsText(file.slice(0, VALIDATOR_STRING.length));
           },
-          readFile = function(file){
+          readFile = function(file, hasPrefix){
             pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_LOADING"));
             
             var reader = new FileReader();
@@ -8397,11 +8397,31 @@
               pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_ERROR_ABORT"), "#ff0000", 10000);
             };
             reader.onload = function(e){
-              settingsPool.value = e.target.result;
+              var content = e.target.result;
+              try {
+                // Validate JSON
+                JSON.parse(content);
+              } catch (e) {
+                pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
+                return;
+              }
+              settingsPool.value = content;
               pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_IMPORT_MESSAGE"), "", 10000);
+              
+              settingsPoolChecker();
             };
             
-            reader.readAsText(file.slice(VALIDATOR_STRING.length));
+            // Checking the filename
+            if (file.name.indexOf(".ytcs") !== file.name.length - ".ytcs".length) {
+              pushMessage(ytcenter.language.getLocale("SETTINGS_IMEX_VALIDATE_ERROR_NOT_VALID"), "#ff0000", 3500);
+              return;
+            }
+            
+            if (hasPrefix) {
+              reader.readAsText(file.slice(VALIDATOR_STRING.length));
+            } else {
+              reader.readAsText(file);
+            }
           },
           exportFileButtonLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_EXPORT_AS_FILE"),
           exportFileButton = ytcenter.gui.createYouTubeDefaultButton("", [exportFileButtonLabel]),
@@ -8526,7 +8546,7 @@
       
       ytcenter.utils.addEventListener(exportFileButton, "click", function(){
         try {
-          var blob = new ytcenter.unsafe.io.Blob([VALIDATOR_STRING + settingsPool.value], { "type": "application/octet-stream" });
+          var blob = new ytcenter.unsafe.io.Blob([settingsPool.value], { "type": "application/octet-stream" });
           ytcenter.unsafe.io.saveAs(blob, "ytcenter-settings.ytcs");
         } catch (e) {
           con.error(e);
