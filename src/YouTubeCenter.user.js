@@ -10866,6 +10866,7 @@
           
           con.log("ytplayer.load() has been called.");
           playerInstance = uw.yt.player.Application.create("player-api", uw.ytplayer.config);
+          uw.myPlayerInstance = playerInstance;
         }
         
         !createWrapped && patchDetour();
@@ -10891,7 +10892,7 @@
             addPropertyWrapper(uw.yt, "player.Application.create", function(instance){
               console.log("yt.player.Application.create has been called");
               playerInstance = instance;
-              
+              uw.myPlayerInstance = playerInstance;
               patchDetour();
             }, function(){
               createWrapped = true;
