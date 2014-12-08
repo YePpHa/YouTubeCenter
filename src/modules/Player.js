@@ -1,3 +1,6 @@
+// TODO Clean this up and split it into multiple files for easy management.
+// TODO Create an event manager that can easily be added to a scope.
+
 (function(){
   function inject(func) {
     var script = document.createElement("script");
@@ -42,14 +45,43 @@
       };
     }
     
+    /**
+     * Checking if {@stack} starts with {@needle}
+     *
+     * @method startsWith
+     * @param {String} stack The stack that will be compared.
+     * @param {String} needle The part that will be checked if it's in the start of {@stack}.
+     * @return {Boolean} Returns true if the {@needle} is in the start of {@stack}.
+    **/
     function startsWith(stack, needle) {
       return stack.indexOf(needle) === 0;
     }
     
+    /**
+     * Checking if {@stack} ends with {@needle}
+     *
+     * @method startsWith
+     * @param {String} stack The stack that will be compared.
+     * @param {String} needle The part that will be checked if it's in the end of {@stack}.
+     * @return {Boolean} Returns true if the {@needle} is in the end of {@stack}.
+    **/
     function endsWith(stack, needle) {
       return stack.indexOf(needle) === stack.length - needle.length;
     }
-
+    
+    /**
+     * This beauty of a function is used to iterate through an object and match the values
+     * to find values in the object that might be obfuscated or just random. So by using
+     * patterns to find the values we're not limitted by how the object is structered and
+     * the names of the keys.
+     *
+     * @method traverse
+     * @param {Object} parent The parent object where the traverse function will start from.
+     * @param {Function} callback The function that will do a match and if it returns true it will stop the traverse.
+     * @param {Number} deepLimit A limit set to limit how deep you can go in the object. Useful for infinite loops (we really don't like them).
+     * @param {Number} deepCount We need to keep track on how far in {@parent} we are.
+     * @return {Boolean} Returns true if {@callback} returns true otherwise returns false.
+    **/
     function traverse(parent, callback, deepLimit, deepCount) {
       deepCount = deepCount || 0;
       
@@ -76,10 +108,12 @@
       function waitObject(parent, token) {
         var value;
         var loaded = false;
+        // We are going to add this here to act as a listener so that we
+        // can continue the iteration when it has been written to.
         defineProperty(parent, token, function(aValue){
           value = aValue; // Always set the value as it's supposed to act like a normal property.
           if (!loaded) {
-            loaded = true;
+            loaded = true; // We really don't want the iteration function to be called a second time.
             iterate(); // Let's start the iteration again.
           }
         }, function(){
@@ -105,21 +139,40 @@
       
       function addWrapper() {
         var func = parent[tokens[0]];
+        
+        // We finally got to the end of the iteration and the wrapper is
+        // then added for the function.
         defineProperty(parent, tokens[tokens.length - 1], function(value){
+          // We really need to have this act as a normal property.
+          // Therefore, we simply write to a variable to keep track
+          // of the current property value.
           func = value;
         }, function(){
           return function(){
             if (typeof func === "function") {
               var args = Array.prototype.slice.call(arguments, 0);
               
+              // We want to create the player wrapper as soon as possible.
+              // This includes adding the configuration on creation.
               var playerInstance = construct(Player, args);
+              // Publishing the event `onConfig` to listeners that the config
+              // has changed.
               player.publish("onConfig", playerInstance, args[1]);
               
+              // Call the original `yt.player.Application.create` function.
+              // This function will return an instance of the player that
+              // can be used. Observations says that it's mostly for the
+              // HTML5 player, but it could be useful for the flash player
+              // too.
               var html5Instance = func.apply(this, args);
+              // Add the HTML5 instance to the player wrapper.
               playerInstance.setHTML5Instance(html5Instance);
               
+              // Add the player wrapper to an array where the player wrapper
+              // can be retrieved for later use.
               arr.push(playerInstance);
               
+              // Return the HTML5 instance to not break anything.
               return html5Instance;
             }
             
@@ -127,6 +180,10 @@
           };
         });
         
+        // We will call the callback function if available
+        // when the wrapper has been added.
+        // Fun note: was only useful for me when I was
+        // debugging this.
         typeof callback === "function" && callback();
       }
       
@@ -136,14 +193,25 @@
       // Let's start our iteration
       iterate();
     }
-
+    
+    // IE is a special kid. He needs special treatment.
     function isIE() {
       for (var v = 3, el = document.createElement('b'), all = el.all || []; el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];);
       return v > 4 ? v : !!document.documentMode;
     }
-
+    
+    // Could just as well use the window variable, but I'm difficult and
+    // want the `uw`, because this needs to be integrated into YTC at some
+    // point and therefore the integratino will be easier if I keep the
+    // same structure.
     var uw = window;
     
+    /**
+     * Define Property function has been modified to keep
+     * a cache of the object and its setter and getters.
+     * This is to not make it fail if `defineProperty` is
+     * used on an object multiple times.
+    **/
     var defineProperty = (function(){
       function setterFunc(obj, key) {
         for (var i = 0, len = setterGetterMap.length; i < len; i++) {
@@ -180,6 +248,7 @@
       
       function exports(obj, key, setter, getter) {
         if (updateSetterGetter(obj, key, setter, getter)) {
+          // Have I told anyone how much I like the bind method?
           if (isIE() || (typeof Object.defineProperty === "function" && !obj.__defineGetter__)) {
             Object.defineProperty(obj, key, {
               get: getterFunc.bind(null, obj, key),
@@ -220,6 +289,7 @@
         
         var id = null;
         
+        // Let's go search for something in the instance.
         traverse(instance, match, 5);
         
         return id;
@@ -227,6 +297,15 @@
       
       var findPlayerIdMethod2 = (function(){
         function findPlayerIdMethod2() {
+          // If we haven't been given an ID by
+          // any of the other methods we are going
+          // to improvise and try getting it from
+          // the exposed listeners in the window
+          // object.
+          // Keeping a cache of the already found
+          // IDs to make sure that a player wrapper
+          // does not have the same ID as another
+          // player wrapper.
           for (var key in uw) {
             var io = key.indexOf("player_uid_");
             if (uw.hasOwnProperty(key) && startsWith(key, "ytPlayer") && io !== -1) {
@@ -271,6 +350,12 @@
       function findExposedListeners(id) {
         var prefix = "ytPlayer";
         var listeners = {};
+        // We know the ID of the player and therefore we can
+        // just check for the prefix and check if the key ends
+        // with the ID. If that's the case we have us a listener.
+        // That listener is then added to the listener object, which
+        // will be returned when we have gone through the window
+        // object.
         for (var key in uw) {
           if (uw.hasOwnProperty(key) && startsWith(key, prefix) && endsWith(key, id)) {
             var myKey = key.substring(prefix.length, key.indexOf(id));
@@ -321,6 +406,7 @@
         return null;
       }
       
+      // TODO Enhance the compatibility with SPF.
       function spfProcess(e) {
         e = e || window.event;
         var detail = e.detail;
@@ -373,6 +459,15 @@
         this.instance = null;
       }
       
+      // We need to do something when the player is ready
+      // and that is to call every listener attached
+      // to the player wrapper. Also the local scope
+      // seems to be some kind of player instance
+      // that is consistent for both the flash and the
+      // HTML5 player. However, this function is not
+      // called when not on the `/watch` page.
+      // Another method has been found.
+      // See: onYouTubePlayerReady
       Player.onReady = function onReady(player) {
         player.setInstance(this);
         
@@ -380,12 +475,12 @@
       };
       
       Player.prototype.setInstance = function setInstance(instance) {
-        /*function idMatch(parent, key, value, deep) {
+        function idMatch(parent, key, value, deep) {
           if (typeof value === "string" && value.indexOf("player_uid_") === 0) {
             self.id = value;
             return true;
           }
-        }*/
+        }
         function publicListenersMatch(parent, key, value, deep) {
           if (typeof value === "string" && startsWith(value, "ytPlayer") && endsWith(value, self.id)) {
             self.publicListeners = parent;
@@ -398,11 +493,17 @@
             return true;
           }
         }
-        var self = this;
+        var self = this; // let's just expose the local scope.
         
         this.instance = instance;
-        this.id = this.instance.getId();
-        //traverse(this.instance, idMatch, 0);
+        
+        // There's a chance that YouTube removes the `getId` function
+        // and therefore we will fallback on the `traverse` method.
+        if (typeof this.instance.getId === "function") {
+          this.id = this.instance.getId();
+        } else {
+          traverse(this.instance, idMatch, 0);
+        }
         traverse(this.instance, publicListenersMatch, 1);
         traverse(this.instance, apiMatch, 1);
         
@@ -578,7 +679,7 @@
       return exports;
     })();
     
-    // Testing
+    // Testing, I love my testing
     player.addEventListener("onConfig", function(player, config){
       player.setType("html5");
       
@@ -587,6 +688,8 @@
       config.args.ytcenter = "1";
     });
     
+    // Well, this part is useful when debugging and testing. As I
+    // do not need to use the exposed object as much.
     player.addEventListener("onReady", function(player){
       console.log("My custom onReady listener", player);
     });
