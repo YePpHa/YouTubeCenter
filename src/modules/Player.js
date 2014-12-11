@@ -669,7 +669,7 @@
       
       // Exports
       var exports = {};
-      exports.Player = Player;
+      exports.Player = Player; // This probably doesn't need to be exposed.
       exports.players = players;
       exports.getPlayerById = getPlayerById;
       exports.getPlayerByAPIId = getPlayerByAPIId;
