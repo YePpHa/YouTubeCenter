@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         449
+// @version         450
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 449);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 450);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -19740,49 +19740,54 @@
               if (!ytcenter.utils.inArray(feedItems, details.wrapper)) {
                 feedItems.push(details.wrapper);
                 
-                if (details.ownerElement) {
-                  ownerElm = details.ownerElement.cloneNode(true);
-                  if (details.ownerElementListItem) {
-                    details.ownerElement.parentNode.removeChild(details.ownerElement);
-                  }
-                  if (details.usernamePrefixNode) {
-                    ownerElm.removeChild(ownerElm.firstChild);
-                  }
-                } else {
-                  ownerElm = createOwnerElement(items[i]);
-                }
-                ownerWrapper = document.createElement("div");
-                ownerWrapper.className = "ytcenter-grid-subscriptions-username";
-                var ownerElmChildren = null;
-                if (details.ownerElementListItem) {
-                  var frag = document.createDocumentFragment();
-                  ownerElmChildren = ytcenter.utils.toArray(ownerElm.children);
-                  
-                  var j;
-                  for (j = 0; j < ownerElmChildren.length; j++) {
-                    frag.appendChild(ownerElmChildren[j]);
-                  }
-                  
-                  ownerElm = frag;
-                }
-                ownerWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": ownerElm}));
-                ytcenter.events.addEvent("language-refresh", (function(oW, oE, oEC){
-                  return function(){
-                    if (oEC) {
-                      var frag = document.createDocumentFragment();
-                      var j;
-                      for (j = 0; j < oEC.length; j++) {
-                        frag.appendChild(oEC[j]);
-                      }
-                      oE = frag;
+                var lockupContent = details.metadata.parentNode;
+                if ((ownerWrapper = lockupContent.getElementsByClassName("yt-lockup-byline").length) === 0) {
+                  if (details.ownerElement) {
+                    ownerElm = details.ownerElement.cloneNode(true);
+                    if (details.ownerElementListItem) {
+                      details.ownerElement.parentNode.removeChild(details.ownerElement);
                     }
-                    oW.innerHTML = "";
-                    oW.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": oE}));
-                  };
-                })(ownerWrapper, ownerElm, ownerElmChildren));
-                
-                details.ownerWrapper = ownerWrapper;
-                details.metadata.parentNode.insertBefore(ownerWrapper, details.metadata);
+                    if (details.usernamePrefixNode) {
+                      ownerElm.removeChild(ownerElm.firstChild);
+                    }
+                  } else {
+                    ownerElm = createOwnerElement(items[i]);
+                  }
+                  ownerWrapper = document.createElement("div");
+                  ownerWrapper.className = "ytcenter-grid-subscriptions-username";
+                  var ownerElmChildren = null;
+                  if (details.ownerElementListItem) {
+                    var frag = document.createDocumentFragment();
+                    ownerElmChildren = ytcenter.utils.toArray(ownerElm.children);
+                    
+                    var j;
+                    for (j = 0; j < ownerElmChildren.length; j++) {
+                      frag.appendChild(ownerElmChildren[j]);
+                    }
+                    
+                    ownerElm = frag;
+                  }
+                  ownerWrapper.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": ownerElm}));
+                  ytcenter.events.addEvent("language-refresh", (function(oW, oE, oEC){
+                    return function(){
+                      if (oEC) {
+                        var frag = document.createDocumentFragment();
+                        var j;
+                        for (j = 0; j < oEC.length; j++) {
+                          frag.appendChild(oEC[j]);
+                        }
+                        oE = frag;
+                      }
+                      oW.innerHTML = "";
+                      oW.appendChild(ytcenter.utils.replaceText(ytcenter.language.getLocale("SUBSCRIPTIONSGRID_BY_USERNAME"), {"{username}": oE}));
+                    };
+                  })(ownerWrapper, ownerElm, ownerElmChildren));
+                  
+                  details.ownerWrapper = ownerWrapper;
+                  details.metadata.parentNode.insertBefore(ownerWrapper, details.metadata);
+                } else {
+                  details.ownerWrapper = ownerWrapper;
+                }
               }
             }
           }
