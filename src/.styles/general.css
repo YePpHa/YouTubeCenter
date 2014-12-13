@@ -1,3 +1,7 @@
+body.static-yt-logo #yt-masthead #logo {
+  background-position: -48px -478px !important;
+}
+
 /* Report Template */
 /*.ytc-copying .wrapper {
   display: block !important;

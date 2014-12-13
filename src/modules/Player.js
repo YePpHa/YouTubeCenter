@@ -2,23 +2,26 @@
 // TODO Create an event manager that can easily be added to a scope.
 
 (function(){
+  // Boring stuff.
   function inject(func) {
+    var parent = document.body || document.head || document.documentElement;
+    
     var script = document.createElement("script");
-    var p = document.body || document.head || document.documentElement;
-    if (!p) {
-      setTimeout(bind(null, inject, func, true), 0);
-      return;
-    }
     script.setAttribute("type", "text/javascript");
-    if (typeof func === "string") {
-      func = "function(){" + func + "}";
-    }
     script.appendChild(document.createTextNode("(" + func + ")();\n//# sourceURL=YouTubeCenter.js"));
-    p.appendChild(script);
-    p.removeChild(script);
+    
+    // Add/remove the script element to execute it in the window scope and
+    // to not clutter the DOM tree.
+    parent.appendChild(script);
+    parent.removeChild(script);
   }
   
+  // Let the real fun start.
   function main() {
+    // We all like the `.apply` prototype function
+    // for functions. However, this is not available
+    // when creating an instance. Therefore, this
+    // function is needed to replicate it.
     function construct(constructor, args) {
       function Class() {
         return constructor.apply(this, args);
@@ -27,9 +30,11 @@
       
       return new Class();
     }
+    
     function isArray(arr) {
       return Object.prototype.toString.call(arr) === "[object Array]";
     }
+    
     function inArray(arr, value) {
       for (var i = 0, len = arr.length; i < len; i++) {
         if (arr[i] === value) {
@@ -38,6 +43,7 @@
       }
       return false;
     }
+    
     function bindArguments(func) {
       var args = Array.prototype.slice.call(arguments, 1);
       return function(){
@@ -105,51 +111,17 @@
     }
     
     function wrapFunction(parent, property, Player, arr, callback) {
-      function waitObject(parent, token) {
-        var value;
-        var loaded = false;
-        // We are going to add this here to act as a listener so that we
-        // can continue the iteration when it has been written to.
-        defineProperty(parent, token, function(aValue){
-          value = aValue; // Always set the value as it's supposed to act like a normal property.
-          if (!loaded) {
-            loaded = true; // We really don't want the iteration function to be called a second time.
-            iterate(); // Let's start the iteration again.
-          }
-        }, function(){
-          return value;
-        });
-      }
-      
-      function iterate() {
-        var token;
-        // Make sure that at least one item is in the tokens array.
-        while (tokens.length > 1 && (token = tokens.shift())) {
-          // If the next token doesn't exists as a property then attach a `getter and setter` and wait for it to be written to.
-          if (!parent[token]) {
-            waitObject(parent, token);
-            tokens = [token].concat(tokens); // We attach the token at the start of the array because we removed it in while.
-            return; // I will return one day...
-          }
-          parent = parent[token];
-        }
-        // We got to the end and we will then add the wrapper.
-        addWrapper();
-      }
-      
-      function addWrapper() {
-        var func = parent[tokens[0]];
-        
+      propertyTrigger(parent, property, function(parent, token, value){
         // We finally got to the end of the iteration and the wrapper is
         // then added for the function.
-        defineProperty(parent, tokens[tokens.length - 1], function(value){
+        defineProperty(parent, token, function(aValue){
           // We really need to have this act as a normal property.
           // Therefore, we simply write to a variable to keep track
           // of the current property value.
-          func = value;
+          value = aValue;
         }, function(){
           return function(){
-            if (typeof func === "function") {
+            if (typeof value === "function") {
               var args = Array.prototype.slice.call(arguments, 0);
               
               // We want to create the player wrapper as soon as possible.
@@ -164,7 +136,7 @@
               // can be used. Observations says that it's mostly for the
               // HTML5 player, but it could be useful for the flash player
               // too.
-              var html5Instance = func.apply(this, args);
+              var html5Instance = value.apply(this, args);
               // Add the HTML5 instance to the player wrapper.
               playerInstance.setHTML5Instance(html5Instance);
               
@@ -175,24 +147,103 @@
               // Return the HTML5 instance to not break anything.
               return html5Instance;
             }
-            
-            return value;
           };
         });
         
-        // We will call the callback function if available
-        // when the wrapper has been added.
-        // Fun note: was only useful for me when I was
-        // debugging this.
-        typeof callback === "function" && callback();
+        typeof callback === "function" && callback(parent, token, value);
+      });
+    }
+    
+    var propertyTrigger = (function(){
+      function propertyTrigger(parent, property, callback) {
+        function iterate() {
+          var token;
+          // Make sure that at least one item is in the tokens array.
+          while (tokens.length > 1 && (token = tokens.shift())) {
+            // If the next token doesn't exists as a property then attach a `getter and setter` and wait for it to be written to.
+            if (!isObjectDefined(parent, token)) {
+              addObject(parent, token, iterate);
+              tokens = [token].concat(tokens); // We attach the token at the start of the array because we removed it in while.
+              return; // I will return one day...
+            }
+            parent = parent[token];
+          }
+          // We got to the end and we will then add the wrapper.
+          addWrapper();
+        }
+        
+        function addWrapper() {
+          var func = parent[tokens[0]];
+
+          // We will call the callback function if available
+          // when the wrapper has been added.
+          // Fun note: was only useful for me when I was
+          // debugging this.
+          typeof callback === "function" && callback(parent, tokens[0], parent[tokens[0]]);
+        }
+        
+        // Creating the tokens from property
+        var tokens = property.split(".");
+        
+        // Let's start our iteration
+        iterate();
+      }
+      function addObject(parent, token, iterate) {
+        var item = getCachedItem(parent, token);
+        if (!item) {
+          item = { };
+          item.parent = parent;
+          item.token = token;
+          item.listeners = [];
+          item.called = false;
+          
+          var value;
+          // We are going to add this here to act as a listener so that we
+          // can continue the iteration when it has been written to.
+          defineProperty(parent, token, function(aValue){
+            value = aValue; // Always set the value as it's supposed to act like a normal property.
+            if (!item.called) {
+              item.called = true; // We really don't want the iteration function to be called a second time.
+              for (var i = 0, len = item.listeners.length; i < len; i++) {
+                item.listeners[i](); // Let's start the iteration again.
+              }
+              item.listeners = null; // Purge references to the listeners
+            }
+          }, function(){
+            return value;
+          });
+          
+          definedCallbacks.push(item);
+        }
+        if (item.called) {
+          iterate(); // Call the iteration, because object has already been triggered.
+        } else {
+          item.listeners.push(iterate);
+        }
       }
       
-      // Creating the tokens from property
-      var tokens = property.split(".");
+      function isObjectDefined(parent, token) {
+        if (!parent[token]) return false;
+        
+        var item = getCachedItem(parent, token);
+        if (!item || !item.called) return false;
+        
+        return true;
+      }
       
-      // Let's start our iteration
-      iterate();
-    }
+      function getCachedItem(parent, token) {
+        for (var i = 0, len = definedCallbacks.length; i < len; i++) {
+          if (definedCallbacks[i].parent === parent && definedCallbacks[i].token === token) {
+            return definedCallbacks[i];
+          }
+        }
+        return false;
+      }
+      
+      var definedCallbacks = [];
+      
+      return propertyTrigger;
+    })();
     
     // IE is a special kid. He needs special treatment.
     function isIE() {
@@ -630,12 +681,46 @@
         this.api.loadVideoByPlayerVars(this.config.args);
       };
       
+      /**
+       * Get the purpose of the player: detailpage, embed.
+       *
+       * @method getElementType
+       * @return {String} Returns the element type.
+      **/
+      Player.prototype.getElementType = function getElementType() {
+        return (this.config && this.config.args && this.config.args.el) || "detailpage";
+      };
+      
       // Scope properties
       var players = [];
       var listeners = [];
       
       // If `yt.player.Application.create` is called then it will automatically create a new class and append it to the `players` array.
       wrapFunction(uw, "yt.player.Application.create", Player, players);
+      
+      // This part is only for debugging not for functionality.
+      /*
+      propertyTrigger(uw, "yt.pubsub.subscribe", function(parent, token, subscribe){
+        if (typeof subscribe === "function") {
+          subscribe("player-added", function(){
+            console.log("[player-added]", arguments);
+          });
+        } else {
+          var typeofFunction = false;
+          defineProperty(parent, token, function(aValue){
+            subscribe = aValue;
+            if (!typeofFunction && typeof subscribe === "function") {
+              typeofFunction = true;
+              subscribe("player-added", function(){
+                console.log("[player-added]", arguments);
+                //onYouTubePlayerReady.apply(this, arguments);
+              });
+            }
+          }, function(){
+            return subscribe;
+          });
+        }
+      });*/
       
       // Make sure that it will call a onReady listener
       addEventListener("onConfig", function(player, config){
@@ -644,7 +729,8 @@
       });
       
       // Add `onYouTubePlayerReady` to window to make sure that the onReady listeners are called.
-      uw.onYouTubePlayerReady = function(api){
+      uw.onYouTubePlayerReady = function onYouTubePlayerReady(api){
+        console.log("[onYouTubePlayerReady]", arguments);
         if (typeof api === "object") {
           // We need to figure out what player this is.
           if (typeof api.getUpdatedConfigurationData === "function") {
@@ -658,6 +744,40 @@
               // Publish the onReady event
               publish("onReady", player);
             }
+          } else if (typeof api.getCurrentVideoConfig === "function") {
+            var config = api.getCurrentVideoConfig();
+            var player = players[players.length - 1]; // TODO Search for an empty player
+            
+            // We got the API and configuration for an empty Player instance and we are
+            // anticipating an API callback on `onYouTubePlayerReady` for an empty Player
+            // instance. We can then asume that these two parts fit together until
+            // otherwise proven.
+            // The empty Player instance has a valid ID and its configuration is undefined.
+            if (!player.config && player.id) {
+              player.api = api;
+              player.publicListeners = findExposedListeners(player.id);
+              
+              // This function will automatically set the configuration and call the onConfig listeners.
+              player.setConfig(config);
+              
+              // Publish the onReady event
+              publish("onReady", player);
+            }
+          }
+        } else if (typeof api === "string") {
+          var id = api;
+          var player = getPlayerByAPIId(id);
+          
+          // We only know the ID of the player and not the API. Therefore, we
+          // just create an empty Player instance with only the ID as the rest
+          // will probably appear at some point.
+          if (!player) {
+            // We could just call `new Player()`, but as it's annoying to look at two objects
+            // with different namespaces: `Player` and `Class`. I should probably use `Player`,
+            // but it's not that important.
+            player = construct(Player, []);
+            player.id = id;
+            players.push(player);
           }
         }
       };
