@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         452
+// @version         453
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 452);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 453);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -1980,7 +1980,7 @@
         url = ytcenter.settings.logoLink;
       if (logoContainer && logoContainer.tagName === "A") {
         if (ytcenter.updateLogoLink_ === null) {
-          ytcenter.updateLogoLink_ = document.getElementById("logo-container").getAttribute("href");
+          ytcenter.updateLogoLink_ = logoContainer.getAttribute("href");
         }
         if (ytcenter.updateLogoLink_ !== "/" && (url.indexOf("http://") === 0 || url.indexOf("https://") === 0)) {
           url = ytcenter.updateLogoLink_.substring(0, ytcenter.updateLogoLink_.indexOf("http")) + url;
@@ -1988,7 +1988,7 @@
           if (url.indexOf("/") === 0) url = url.substring(1);
           url = ytcenter.updateLogoLink_ + url;
         }
-        document.getElementById("logo-container").setAttribute("href", url);
+        logoContainer.setAttribute("href", url);
       } else if (logoContainer) {
         var map = logoContainer.getElementsByTagName("map");
         if (map && map.length > 0 && map[0] && map[0].children && map[0].children.length > 0) {
@@ -24472,7 +24472,6 @@
         }
         
         ytcenter.player.shortcuts();
-        ytcenter.updateLogoLink();
         
         if (document.getElementById("page")
          && ytcenter.utils.hasClass(document.getElementById("page"), "channel")
@@ -24771,17 +24770,33 @@
             ytcenter.utils.removeClass(logoContainer, "doodle");
             ytcenter.utils.removeClass(parent, "doodle");
             
+            if (doodleMap && doodleMap.length > 0 && doodleMap[0] && doodleMap[0].parentNode) {
+              doodleMap[0].parentNode.removeChild(doodleMap[0]);
+            }
+            
+            logoContainerA = document.createElement("a");
+            logoContainerA.setAttribute("id", logoContainer.getAttribute("id"));
+            logoContainerA.setAttribute("class", logoContainer.getAttribute("class"));
+            logoContainerA.setAttribute("href", "/");
+            
+            var children = ytcenter.utils.toArray(logoContainer.children);
+            for (var i = 0, len = children.length; i < len; i++) {
+              logoContainer.removeChild(children[i]);
+              logoContainerA.appendChild(children[i]);
+            }
+            
+            logoContainer.parentNode.replaceChild(logoContainerA, logoContainer);
+            
+            logoContainer = logoContainerA;
+            
             var logo = document.getElementById("logo");
             logo.removeAttribute("usemap");
             logo.removeAttribute("style");
             
             ytcenter.utils.addClass(document.body, "static-yt-logo");
-            
-            if (doodleMap && doodleMap.length > 0 && doodleMap[0] && doodleMap[0].parentNode) {
-              doodleMap[0].parentNode.removeChild(doodleMap[0]);
-            }
           }
         }
+        ytcenter.updateLogoLink();
         
         ytcenter.unsafe.subtitles = ytcenter.subtitles;
         ytcenter.pageSetup();
