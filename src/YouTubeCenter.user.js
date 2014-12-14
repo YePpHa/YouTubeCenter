@@ -14252,7 +14252,7 @@
         ytcenter.tabEvents.fireEvent("settings", ytcenter.settings);
       }
       
-      var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 5000);
+      var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 1000);
       var throttleAnnounceSettingStored = ytcenter.utils.throttle(announceSettingStored, 7500);
       
       return save;
