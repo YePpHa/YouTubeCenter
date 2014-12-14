@@ -3074,6 +3074,7 @@
       }
       function scroll(e, delta, deltaX, deltaY) {
         if (!enabled || inTransition) return;
+        if (ytcenter.settingsPanelDialog && ytcenter.settingsPanelDialog.isVisible()) return;
         
         if (ytcenter.html5) {
           var playlistPlayerTray = document.getElementsByClassName("ytp-playlist-tray-container");
@@ -6455,8 +6456,7 @@
       };
     })();
     ytcenter.events = (function(){
-      var db = {},
-          exports = {};
+      var db = {}, exports = {};
       exports.addEvent = function(event, callback){
         if (!db.hasOwnProperty(event)) db[event] = [];
         db[event].push(callback);
@@ -6486,6 +6486,35 @@
       
       return exports;
     })();
+    
+    (function(){
+      function onBeforeUnload(e) {
+        e = e || window.event;
+        
+        if (saving) {
+          var msg = ytcenter.language.getLocale("WINDOW_CLOSE_MSG");
+          
+          e && (e.returnValue = msg);
+          return msg;
+        }
+      }
+      
+      function save() {
+        saving = true;
+      }
+      
+      function saveComplete() {
+        saving = false;
+      }
+      
+      var saving = false;
+      
+      ytcenter.events.addEvent("save", save);
+      ytcenter.events.addEvent("save-complete", saveComplete);
+      
+      window.addEventListener("beforeunload", onBeforeUnload, false);
+    })();
+    
     ytcenter._dialogVisible = null
     ytcenter.dialog = function(titleLabel, content, actions, alignment){
       var exports = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer, eventListeners = {}, actionButtons = {}, _visible = false;
@@ -6674,6 +6703,9 @@
             if (document.body) ytcenter.utils.removeClass(document.body, "ytcenter-dialog-active");
           }
         }
+      };
+      exports.isVisible = function(){
+        return _visible;
       };
       return exports;
     };
