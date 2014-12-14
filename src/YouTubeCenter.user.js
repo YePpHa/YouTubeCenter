@@ -24774,9 +24774,9 @@
               doodleMap[0].parentNode.removeChild(doodleMap[0]);
             }
             
-            logoContainerA = document.createElement("a");
+            var logoContainerA = document.createElement("a");
             logoContainerA.setAttribute("id", logoContainer.getAttribute("id"));
-            logoContainerA.setAttribute("class", logoContainer.getAttribute("class"));
+            logoContainerA.className = logoContainer.className;
             logoContainerA.setAttribute("href", "/");
             
             var children = ytcenter.utils.toArray(logoContainer.children);
