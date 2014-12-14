@@ -24487,6 +24487,10 @@
         
         ytcenter.channelPlaylistLinks.update();
         
+        if (ytcenter.settings.useStaticLogo) {
+          ytcenter.utils.addClass(document.body, "static-yt-logo");
+        }
+        
         if (page !== "watch") {
           ytcenter.player.turnLightOn();
         } else if (ytcenter.settings.lightbulbAutoOff) {
