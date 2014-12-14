@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         458
+// @version         459
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 458);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 459);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -24521,6 +24521,14 @@
         
         if (ytcenter.settings.useStaticLogo) {
           ytcenter.utils.addClass(document.body, "static-yt-logo");
+        }
+        
+        // Fix missing tooltip for videos
+        var titleLinks = document.getElementsByClassName("yt-uix-tile-link");
+        for (var i = 0, len = titleLinks.length; i < len; i++) {
+          var titleLink = titleLinks[i];
+          
+          titleLink.setAttribute("title", titleLink.textContent);
         }
         
         if (page !== "watch") {
