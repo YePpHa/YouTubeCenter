@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         453
+// @version         455
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 453);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 455);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -24774,9 +24774,9 @@
               doodleMap[0].parentNode.removeChild(doodleMap[0]);
             }
             
-            logoContainerA = document.createElement("a");
+            var logoContainerA = document.createElement("a");
             logoContainerA.setAttribute("id", logoContainer.getAttribute("id"));
-            logoContainerA.setAttribute("class", logoContainer.getAttribute("class"));
+            logoContainerA.className = logoContainer.className;
             logoContainerA.setAttribute("href", "/");
             
             var children = ytcenter.utils.toArray(logoContainer.children);
