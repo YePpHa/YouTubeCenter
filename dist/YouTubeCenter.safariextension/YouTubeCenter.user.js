@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         457
+// @version         458
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 457);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 458);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -14252,7 +14252,7 @@
         ytcenter.tabEvents.fireEvent("settings", ytcenter.settings);
       }
       
-      var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 5000);
+      var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 1000);
       var throttleAnnounceSettingStored = ytcenter.utils.throttle(announceSettingStored, 7500);
       
       return save;
