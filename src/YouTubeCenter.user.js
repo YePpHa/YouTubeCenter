@@ -24523,6 +24523,14 @@
           ytcenter.utils.addClass(document.body, "static-yt-logo");
         }
         
+        // Fix missing tooltip for videos
+        var titleLinks = document.getElementsByClassName("yt-uix-tile-link");
+        for (var i = 0, len = titleLinks.length; i < len; i++) {
+          var titleLink = titleLinks[i];
+          
+          titleLink.setAttribute("title", titleLink.textContent);
+        }
+        
         if (page !== "watch") {
           ytcenter.player.turnLightOn();
         } else if (ytcenter.settings.lightbulbAutoOff) {
