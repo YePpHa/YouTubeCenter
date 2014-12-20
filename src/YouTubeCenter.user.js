@@ -24838,6 +24838,7 @@
             logo.removeAttribute("style");
             
             ytcenter.utils.addClass(document.body, "static-yt-logo");
+            ytcenter.utils.addClass(logoContainer, "doodle-removed");
           }
         }
         ytcenter.updateLogoLink();
