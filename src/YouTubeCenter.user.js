@@ -6518,6 +6518,8 @@
     ytcenter._dialogVisible = null
     ytcenter.dialog = function(titleLabel, content, actions, alignment){
       var exports = {}, ___parent_dialog = null, bgOverlay, root, base, fg, fgContent, footer, eventListeners = {}, actionButtons = {}, _visible = false;
+      var buttons = [];
+      
       alignment = alignment || "center";
       
       bgOverlay = ytcenter.dialogOverlay();
@@ -6577,6 +6579,7 @@
          */
         for (var i = 0; i < actions.length; i++) {
           var btn = document.createElement("button");
+          buttons.push(btn);
           btn.setAttribute("type", "button");
           btn.setAttribute("role", "button");
           btn.setAttribute("onclick", ";return false;");
@@ -6596,6 +6599,7 @@
         }
       } else { // Default
         var closeBtn = document.createElement("button");
+        buttons.push(closeBtn);
         closeBtn.setAttribute("type", "button");
         closeBtn.setAttribute("role", "button");
         closeBtn.setAttribute("onclick", ";return false;");
@@ -6702,6 +6706,11 @@
             ytcenter._dialogVisible = null;
             if (document.body) ytcenter.utils.removeClass(document.body, "ytcenter-dialog-active");
           }
+        }
+      };
+      exports.setButtonsEnabled = function(enabled){
+        for (var i = 0, len = buttons.length; i < len; i++) {
+          buttons[i].disabled = !enabled;
         }
       };
       exports.isVisible = function(){
@@ -8341,8 +8350,10 @@
               callback: function(){
                 if (!saveEnabled) return;
                 ytcenter.settings = JSON.parse(settingsPool.value);
-                ytcenter.saveSettings();
-                loc.reload();
+                ytcenter.saveSettings(false, function(){
+                  loc.reload();
+                });
+                dialog.setButtonsEnabled(false);
               }
             }
           ]),
@@ -15349,11 +15360,10 @@
                         primary: true,
                         callback: function(){
                           ytcenter.settings = ytcenter._settings;
-                          ytcenter.saveSettings(false);
-                          uw.setTimeout(function(){
+                          ytcenter.saveSettings(false, function(){
                             loc.reload();
-                            dialog.setVisibility(false);
-                          }, 500);
+                          });
+                          dialog.setButtonsEnabled(false);
                         }
                       }
                     ]);
@@ -15421,8 +15431,8 @@
                           ytcenter.settings.notwatchedVideos = [];
                           ytcenter.saveSettings(false, function(){
                             loc.reload();
-                            dialog.setVisibility(false);
                           });
+                          dialog.setButtonsEnabled(false);
                         }
                       }
                     ]);
