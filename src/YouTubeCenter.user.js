@@ -6491,7 +6491,7 @@
       function onBeforeUnload(e) {
         e = e || window.event;
         
-        if (saving) {
+        if (saving && ytcenter.settings.warnWhenSaving) {
           var msg = ytcenter.language.getLocale("WINDOW_CLOSE_MSG");
           
           e && (e.returnValue = msg);
@@ -13726,6 +13726,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      warnWhenSaving: true,
       useStaticLogo: true,
       defaultLanguage: null,
       hideWatchLaterOnPlayer: false,
@@ -13797,7 +13798,6 @@
       playerDarkSideBGRetro: false,
       playerDarkSideBGColor: "#1b1b1b",
       playerDarkSideBG: false,
-      useSecureProtocol: true,
       videoThumbnailRatingsBarHeight: 2,
       sparkbarHeight: 2,
       sparkbarLikesColor: "#590",
@@ -14252,7 +14252,7 @@
         ytcenter.tabEvents.fireEvent("settings", ytcenter.settings);
       }
       
-      var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 1000);
+      var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 200);
       var throttleAnnounceSettingStored = ytcenter.utils.throttle(announceSettingStored, 7500);
       
       return save;
@@ -14758,7 +14758,7 @@
             if (option.help && option.help !== "") {
               help = document.createElement("a");
               help.className = "ytcenter-settings-help";
-              help.setAttribute("target", "_blank");
+              help.setAttribute("target", "ytc-settings-wiki");
               help.setAttribute("href", option.help);
               help.appendChild(document.createTextNode('?'));
               replaceHelp = { "{option}": function() { return ytcenter.language.getLocale(option.label); } };
@@ -15208,13 +15208,11 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Multiple_Languages" // help
           );
           subcat.addOption(option);
-
+          
           option = ytcenter.settingsPanel.createOption(
-            "useSecureProtocol", // defaultSetting
-            "bool", // module
-            "SETTINGS_USESECUREPROTOCOL_LABEL", // label
-            null, // args
-            "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Use_Secure_Protocol" // help
+            "warnWhenSaving",
+            "bool",
+            "SETTINGS_WARN_WHEN_SAVING"
           );
           subcat.addOption(option);
 
@@ -24307,13 +24305,6 @@
       };
       
       ytcenter.pageReadinessListener.addEventListener("headerInitialized", function(page){
-        if (ytcenter.settings.useSecureProtocol && page !== "comments") {
-          if (loc.href.indexOf("http://") === 0) {
-            loc.replace(loc.href.replace(/^http/, "https"));
-            return;
-          }
-        }
-        
         ytcenter.unsafeInit();
         
         ytcenter.language.update();
