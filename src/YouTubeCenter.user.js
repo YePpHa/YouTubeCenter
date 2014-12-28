@@ -1725,63 +1725,98 @@
           var content = null;
           
           if (listItem.wrapper) {
-            content = document.createElement("span");
+            contentGist = contentGist || document.createElement("span");
+            contentGist.innerHTML = "";
+            
+            if (!uploadLink) {
+              uploadLink = document.createElement("a");
+              uploadLink.textContent = "Upload";
+              uploadLink.setAttribute("href", "#");
+              uploadLink.addEventListener("click", function(e){
+                e = e || window.event;
+                
+                contentGist.textContent = "Uploading...";
+                contentGist.style.fontStyle = "italic";
+                
+                var data = {
+                  "description": null,
+                  "public": false,
+                  "files": {
+                    "debug_log.js": {
+                      "content": JSON.stringify(ytcenter.getDebug(false), undefined, 2)
+                    }
+                  }
+                };
+                ytcenter.utils.xhr({
+                  method: "POST",
+                  url: "https://api.github.com/gists",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                  },
+                  data: JSON.stringify(data),
+                  contentType: "application/x-www-form-urlencoded", // Firefox Addon
+                  content: JSON.stringify(data), // Firefox Addon
+                  onload: (function(contentGist){
+                    return function(response) {
+                      var details = JSON.parse(response.responseText);
+                      gistURL = details.html_url;
+                      
+                      var link = document.createElement("a");
+                      link.href = gistURL;
+                      link.textContent = gistURL;
+                      
+                      contentGist.innerHTML = "";
+                      contentGist.style.fontStyle = "";
+                      contentGist.appendChild(link);
+                    };
+                  })(contentGist)
+                });
+                
+                e && e.preventDefault && e.preventDefault();
+                return false;
+              }, false);
+            }
+            if (!orSpan) {
+              orSpan = document.createElement("span");
+              orSpan.textContent = " or ";
+            }
+            if (!useExistingLink) {
+              useExistingLink = document.createElement("a");
+              useExistingLink.textContent = "use last Gist";
+              useExistingLink.setAttribute("href", "#");
+            
+              useExistingLink.addEventListener("click", function(e){
+                e = e || window.event;
+                
+                var link = document.createElement("a");
+                link.href = gistURL;
+                link.textContent = gistURL;
+                
+                contentGist.innerHTML = "";
+                contentGist.appendChild(link);
+                
+                e && e.preventDefault && e.preventDefault();
+                return false;
+              }, false);
+            }
+            
+            //contentGist.appendChild(uploadLink);
             if (gistURL) {
+              //contentGist.appendChild(orSpan);
+              //contentGist.appendChild(useExistingLink);
               var link = document.createElement("a");
               link.href = gistURL;
               link.textContent = gistURL;
               
-              content.appendChild(link);
+              contentGist.appendChild(link);
             } else {
-              content.textContent = "Uploading...";
-              content.style.fontStyle = "italic";
+              contentGist.appendChild(uploadLink);
               
-              var data = {
-                "description": null,
-                "public": false,
-                "files": {
-                  "debug_log.js": {
-                    "content": JSON.stringify(ytcenter.getDebug(false), undefined, 2)
-                  }
-                }
-              };
-              ytcenter.utils.xhr({
-                method: "POST",
-                url: "https://api.github.com/gists",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded"
-                },
-                data: JSON.stringify(data),
-                contentType: "application/x-www-form-urlencoded", // Firefox Addon
-                content: JSON.stringify(data), // Firefox Addon
-                onload: (function(content){
-                  return function(response) {
-                    var details = JSON.parse(response.responseText);
-                    gistURL = details.html_url;
-                    
-                    var link = document.createElement("a");
-                    link.href = gistURL;
-                    link.textContent = gistURL;
-                    
-                    content.innerHTML = "";
-                    content.style.fontStyle = "";
-                    content.appendChild(link);
-                  };
-                })(content)
-              });
             }
             
-            item.appendChild(content);
+            item.appendChild(contentGist);
             
-            /*content = document.createElement(listItem.wrapper);
-            content.className = "wrapper";
-            content.style.display = "none";
-            
-            generatedContent = generatedContent.split(/\n/);
-            for (var j = 0, lenj = generatedContent.length; j < lenj; j++) {
-              if (j > 0) content.appendChild(document.createElement("br"));
-              content.appendChild(document.createTextNode(generatedContent[j]));
-            }*/
+            content = contentGist;
           } else {
             content = document.createElement("span");
             content.textContent = generatedContent;
@@ -1879,6 +1914,12 @@
       var cat = null;
       var browserDetails = null;
       var gistURL = null;
+      
+      // Gist URL action elements
+      var contentGist = null;
+      var uploadLink = null;
+      var orSpan = null;
+      var useExistingLink = null;
       
       var templateList = [
         { title: "Browser name", value: getBrowserName },
@@ -13737,7 +13778,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
-      warnWhenSaving: true,
+      warnWhenSaving: false,
       useStaticLogo: true,
       defaultLanguage: null,
       hideWatchLaterOnPlayer: false,
@@ -14230,8 +14271,6 @@
       }
     });
     
-    ytcenter.saveSettings_timeout_obj = null;
-    ytcenter.saveSettings_timeout = 300;
     ytcenter.saveSettings = (function(){
       function save(throttle, callback) {
         if (typeof throttle !== "boolean") throttle = true;
