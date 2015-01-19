@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         463
+// @version         464
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 463);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 464);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -22609,18 +22609,20 @@
 
         var appbarPlaylist = document.getElementById('watch-appbar-playlist');
         var autoscrollList = document.getElementById('playlist-autoscroll-list');
-        if (large) {
-          ytcenter.utils.removeClass(appbarPlaylist, "player-height");
-          autoscrollList.style.maxHeight = "";
-          appbarPlaylist.style.height = "";
-        } else {
-          ytcenter.utils.addClass(appbarPlaylist, "player-height");
-          if (ytcenter.settings.ytOnlyStageMode) {
+        if (appbarPlaylist && autoscrollList) {
+          if (large) {
+            ytcenter.utils.removeClass(appbarPlaylist, "player-height");
             autoscrollList.style.maxHeight = "";
             appbarPlaylist.style.height = "";
           } else {
-            autoscrollList.style.maxHeight = (playerHeight - 100) + 'px';
-            appbarPlaylist.style.height = playerHeight + 'px';
+            ytcenter.utils.addClass(appbarPlaylist, "player-height");
+            if (ytcenter.settings.ytOnlyStageMode) {
+              autoscrollList.style.maxHeight = "";
+              appbarPlaylist.style.height = "";
+            } else {
+              autoscrollList.style.maxHeight = (playerHeight - 100) + 'px';
+              appbarPlaylist.style.height = playerHeight + 'px';
+            }
           }
         }
         
