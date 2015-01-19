@@ -20188,7 +20188,7 @@
         updateLikedTint();
         updateDislikedTint();
         updateLikedHoverTint();
-        updateDislikeHoverTint();
+        updateDislikedHoverTint();
       }
       
       function updateLikeTint() {
