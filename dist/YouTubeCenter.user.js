@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         468
+// @version         469
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 468);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 469);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -14292,7 +14292,7 @@
           if (storage === "[object Object]") storage = {};
           if (typeof storage === "string") storage = JSON.parse(storage);
 
-          if (!storage.lastUpdated || storage.lastUpdated >= ytcenter.settings.lastUpdated) {
+          if (!storage.lastUpdated || storage.lastUpdated <= ytcenter.settings.lastUpdated) {
             con.log("[Storage] Saving Settings");
             ytcenter.settings.lastUpdated = ytcenter.utils.now();
             ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], ytcenter.utils.bind(null, saveComplete, callback));
@@ -20379,13 +20379,13 @@
         playerOffset && playerOffset.parentNode && playerOffset.parentNode.removeChild && playerOffset.parentNode.removeChild(playerOffset);
 
         playerOffset = document.createElement("div");
-        playerOffset.className = "player-dock-offset";
-        var playerAPI = document.getElementById('player-api');
-        if (playerAPI) {
-          if (playerAPI.nextElementSibling) {
-            playerAPI.parentNode.insertBefore(playerOffset, playerAPI.nextElementSibling);
+        playerOffset.setAttribute("id", "player-dock-offset");
+        var player = document.getElementById('player');
+        if (player) {
+          if (player.nextElementSibling) {
+            player.parentNode.insertBefore(playerOffset, player.nextSibling);
           } else {
-            playerAPI.parentNode.appendChild(playerOffset);
+            player.parentNode.appendChild(playerOffset);
           }
         }
 
