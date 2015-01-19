@@ -22609,18 +22609,20 @@
 
         var appbarPlaylist = document.getElementById('watch-appbar-playlist');
         var autoscrollList = document.getElementById('playlist-autoscroll-list');
-        if (large) {
-          ytcenter.utils.removeClass(appbarPlaylist, "player-height");
-          autoscrollList.style.maxHeight = "";
-          appbarPlaylist.style.height = "";
-        } else {
-          ytcenter.utils.addClass(appbarPlaylist, "player-height");
-          if (ytcenter.settings.ytOnlyStageMode) {
+        if (appbarPlaylist && autoscrollList) {
+          if (large) {
+            ytcenter.utils.removeClass(appbarPlaylist, "player-height");
             autoscrollList.style.maxHeight = "";
             appbarPlaylist.style.height = "";
           } else {
-            autoscrollList.style.maxHeight = (playerHeight - 100) + 'px';
-            appbarPlaylist.style.height = playerHeight + 'px';
+            ytcenter.utils.addClass(appbarPlaylist, "player-height");
+            if (ytcenter.settings.ytOnlyStageMode) {
+              autoscrollList.style.maxHeight = "";
+              appbarPlaylist.style.height = "";
+            } else {
+              autoscrollList.style.maxHeight = (playerHeight - 100) + 'px';
+              appbarPlaylist.style.height = playerHeight + 'px';
+            }
           }
         }
         
