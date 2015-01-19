@@ -13760,6 +13760,8 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      hideHeaderWhenPlayerPlayingTransition: true,
+      hideHeaderWhenPlayerPlaying: false,
       limitSearchRowWidthEnabled: false,
       limitSearchRowWidth: 700,
       useStaticLogo: true,
@@ -15811,6 +15813,20 @@
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Enable_Annotations"
           );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideHeaderWhenPlayerPlaying", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_PLAYING_HIDE_HEADER"
+          );
+          option.addEventListener("update", ytcenter.hideHeaderWhenPlayerPlaying.update);
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideHeaderWhenPlayerPlayingTransition", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_TRANSITION"
+          );
+          option.addEventListener("update", ytcenter.hideHeaderWhenPlayerPlaying.update);
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
@@ -20254,6 +20270,37 @@
       }
 
       var exports = {};
+      exports.update = update;
+
+      return exports;
+    })();
+
+    ytcenter.hideHeaderWhenPlayerPlaying = (function(){
+      function init() {
+        ytcenter.player.listeners.addEventListener("onStateChange", update);
+        update();
+      }
+      function update(state) {
+        if (ytcenter.settings.hideHeaderWhenPlayerPlaying) {
+          state = (typeof state === 'number' ? state : ytcenter.player.getAPI().getPlayerState());
+
+          if (ytcenter.settings.hideHeaderWhenPlayerPlayingTransition) {
+            ytcenter.utils.addClass(document.body, "hide-header-transition");
+          } else {
+            ytcenter.utils.removeClass(document.body, "hide-header-transition");
+          }
+
+          if (state === 0 || state === 2 || state === 5) {
+            ytcenter.utils.removeClass(document.body, "hide-header");
+          } else {
+            ytcenter.utils.addClass(document.body, "hide-header");
+          }
+        }
+      }
+
+      var exports = {};
+
+      exports.init = init;
       exports.update = update;
 
       return exports;
@@ -25017,6 +25064,7 @@
             }
           }
         };
+        ytcenter.hideHeaderWhenPlayerPlaying.init();
         var apiChangedEnabled = true;
         ytcenter.player.listeners.addEventListener("onApiChange", function(){
           /*if (!apiChangedEnabled) {
