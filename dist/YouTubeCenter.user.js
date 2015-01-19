@@ -19959,6 +19959,7 @@
             ytcenter.utils.addEventListener(toggleButton, "click", onToggleButtonClick, false);
           }
           initState();
+          initAutoPlayManipulation();
         }
         
       }
@@ -20024,6 +20025,29 @@
           } else {
             con.log("[Playlist] getState not found!");
             setTimeout(initState, 2500);
+          }
+        }
+      }
+
+      function initAutoPlayManipulation() {
+        var www = window._yt_www;
+        if (www) {
+          for (var key in www) {
+            if (www.hasOwnProperty(key)) {
+              var prop = www[key];
+              if (typeof prop === 'function' && ('' + prop).indexOf('window.spf.navigate') !== -1) {
+                www[key] = autoPlayManipulation(prop);
+              }
+            }
+          }
+        }
+      }
+
+      function autoPlayManipulation(fn) {
+        return function() {
+          var args = arguments;
+          if (!args[1] || toggled || (!toggled && args[1].feature && args[1].feature !== 'autoplay')) {
+            fn.apply(this, arguments);
           }
         }
       }
