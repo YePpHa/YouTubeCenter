@@ -13760,6 +13760,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      enablePlayerDocking: false,
       hideHeaderWhenPlayerPlayingTransition: true,
       hideHeaderWhenPlayerPlaying: false,
       limitSearchRowWidthEnabled: false,
@@ -15623,6 +15624,13 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Endscreen"
           );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "enablePlayerDocking", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_DOCK_ENABLE"
+          );
+          option.addEventListener("update", ytcenter.playerDocking.update);
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "enableEndscreenAutoplay", // defaultSetting
@@ -20332,7 +20340,14 @@
       }
       function update(state) {
         if (ytcenter.settings.hideHeaderWhenPlayerPlaying) {
-          state = (typeof state === 'number' ? state : ytcenter.player.getAPI().getPlayerState());
+          if (typeof state !== 'number') {
+            var api = ytcenter.player.getAPI();
+            if (api && api.getPlayerState && typeof api.getPlayerState === 'function') {
+              state = ytcenter.player.getAPI().getPlayerState();
+            } else {
+              state = -1;
+            }
+          }
 
           if (ytcenter.settings.hideHeaderWhenPlayerPlayingTransition) {
             ytcenter.utils.addClass(document.body, "hide-header-transition");
@@ -20340,11 +20355,14 @@
             ytcenter.utils.removeClass(document.body, "hide-header-transition");
           }
 
-          if (state === 0 || state === 2 || state === 5) {
+          if (state === 0 || state === 2 || state === 5 || ytcenter.getPage() !== 'watch') {
             ytcenter.utils.removeClass(document.body, "hide-header");
           } else {
             ytcenter.utils.addClass(document.body, "hide-header");
           }
+        } else {
+          ytcenter.utils.removeClass(document.body, "hide-header-transition");
+          ytcenter.utils.removeClass(document.body, "hide-header");
         }
       }
 
@@ -20352,6 +20370,45 @@
 
       exports.init = init;
       exports.update = update;
+
+      return exports;
+    })();
+
+    ytcenter.playerDocking = (function(){
+      function init() {
+        playerOffset && playerOffset.parentNode && playerOffset.parentNode.removeChild && playerOffset.parentNode.removeChild(playerOffset);
+
+        playerOffset = document.createElement("div");
+        playerOffset.className = "player-dock-offset";
+        var playerAPI = document.getElementById('player-api');
+        if (playerAPI) {
+          if (playerAPI.nextElementSibling) {
+            playerAPI.parentNode.insertBefore(playerOffset, playerAPI.nextElementSibling);
+          } else {
+            playerAPI.parentNode.appendChild(playerOffset);
+          }
+        }
+
+        update();
+      }
+      function updateSize(width, height) {
+        playerOffset.style.width = width + 'px';
+        playerOffset.style.height = height + 'px';
+      }
+      function update() {
+        if (ytcenter.settings.enablePlayerDocking) {
+          ytcenter.utils.addClass(document.body, 'player-dock');
+        } else {
+          ytcenter.utils.removeClass(document.body, 'player-dock');
+        }
+      }
+
+      var playerOffset = null;
+
+      var exports = {};
+      exports.update = update;
+      exports.init = init;
+      exports.updateSize = updateSize;
 
       return exports;
     })();
@@ -22641,6 +22698,8 @@
             }
           }
         }
+
+        ytcenter.playerDocking.updateSize(playerWidth, playerHeight);
         
         document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size
         document.documentElement.setAttribute("data-ytc-player-size-height", height); // The height of the player as given by the player size
@@ -24726,6 +24785,7 @@
             ytcenter.commentsLoader.setup();
           }
           ytcenter.playlistAutoPlay.init();
+          ytcenter.playerDocking.init();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
           ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
