@@ -13778,6 +13778,8 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      limitSearchRowWidthEnabled: false,
+      limitSearchRowWidth: 700,
       warnWhenSaving: false,
       useStaticLogo: true,
       defaultLanguage: null,
@@ -17766,6 +17768,28 @@
           );
           subcat.addOption(option);
         
+        subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_SEARCH"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "limitSearchRowWidthEnabled", // defaultSetting
+            "bool", // module
+            "SETTINGS_SEARCH_LIMIT_WIDTH_ENABLED"
+          );
+          option.addEventListener("update", ytcenter.searchRowLimit.update);
+          subcat.addOption(option);
+
+           option = ytcenter.settingsPanel.createOption(
+            "limitSearchRowWidth", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_SEARCH_LIMIT_WIDTH", // label
+            {
+              "min": 100,
+              "max": 10000,
+              "suffix": "px"
+            }
+          );
+          option.addEventListener("update", ytcenter.searchRowLimit.update);
+          subcat.addOption(option);
+
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LIKEDISLIKEBUTTON"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
             "likedislikeUIEnabled", // defaultSetting
@@ -20230,6 +20254,24 @@
       
       exports.update = update;
       
+      return exports;
+    })();
+
+    ytcenter.searchRowLimit = (function(){
+      function update() {
+        if (ytcenter.getPage() === 'search') {
+          var resultsElement = document.getElementById("results");
+          if (ytcenter.settings.limitSearchRowWidthEnabled) {
+            resultsElement.style.width = ytcenter.settings.limitSearchRowWidth + 'px';
+          } else {
+            resultsElement.style.width = "";
+          }
+        }
+      }
+
+      var exports = {};
+      exports.update = update;
+
       return exports;
     })();
     
@@ -24558,6 +24600,7 @@
         var page = ytcenter.getPage();
         
         ytcenter.channelPlaylistLinks.update();
+        ytcenter.searchRowLimit.update();
         
         if (ytcenter.settings.useStaticLogo) {
           ytcenter.utils.addClass(document.body, "static-yt-logo");
