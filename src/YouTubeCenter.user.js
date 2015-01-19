@@ -20379,13 +20379,13 @@
         playerOffset && playerOffset.parentNode && playerOffset.parentNode.removeChild && playerOffset.parentNode.removeChild(playerOffset);
 
         playerOffset = document.createElement("div");
-        playerOffset.className = "player-dock-offset";
-        var playerAPI = document.getElementById('player-api');
-        if (playerAPI) {
-          if (playerAPI.nextElementSibling) {
-            playerAPI.parentNode.insertBefore(playerOffset, playerAPI.nextElementSibling);
+        playerOffset.setAttribute("id", "player-dock-offset");
+        var player = document.getElementById('player');
+        if (player) {
+          if (player.nextElementSibling) {
+            player.parentNode.insertBefore(playerOffset, player.nextSibling);
           } else {
-            playerAPI.parentNode.appendChild(playerOffset);
+            player.parentNode.appendChild(playerOffset);
           }
         }
 
