@@ -6531,27 +6531,9 @@
     (function(){
       function onBeforeUnload(e) {
         e = e || window.event;
-        
-        if (saving && ytcenter.settings.warnWhenSaving) {
-          var msg = ytcenter.language.getLocale("WINDOW_CLOSE_MSG");
-          
-          e && (e.returnValue = msg);
-          return msg;
-        }
+
+        ytcenter.saveSettings(false);
       }
-      
-      function save() {
-        saving = true;
-      }
-      
-      function saveComplete() {
-        saving = false;
-      }
-      
-      var saving = false;
-      
-      ytcenter.events.addEvent("save", save);
-      ytcenter.events.addEvent("save-complete", saveComplete);
       
       window.addEventListener("beforeunload", onBeforeUnload, false);
     })();
@@ -13780,7 +13762,6 @@
     ytcenter._settings = {
       limitSearchRowWidthEnabled: false,
       limitSearchRowWidth: 700,
-      warnWhenSaving: false,
       useStaticLogo: true,
       defaultLanguage: null,
       hideWatchLaterOnPlayer: false,
@@ -14279,9 +14260,11 @@
         
         ytcenter.events.performEvent("save");
         if (throttle) {
+          doingThrottle = true;
           throttleStoreSettings(callback);
         } else {
           storeSettings(callback);
+          if (doingThrottle) throttleCancel = true;
         }
       }
       
@@ -14295,6 +14278,11 @@
       }
       
       function storeSettings(callback) {
+        if (doingThrottle && throttleCancel) {
+          doingThrottle = false;
+          throttleCancel = false;
+          return;
+        }
         con.log("[Storage] Saving Settings");
         ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], ytcenter.utils.bind(null, saveComplete, callback));
       }
@@ -14303,6 +14291,9 @@
         con.log("[Tab Events] Sending new settings to other open tabs.");
         ytcenter.tabEvents.fireEvent("settings", ytcenter.settings);
       }
+
+      var throttleCancel = false;
+      var doingThrottle = false;
       
       var throttleStoreSettings = ytcenter.utils.throttle(storeSettings, 200);
       var throttleAnnounceSettingStored = ytcenter.utils.throttle(announceSettingStored, 7500);
@@ -15258,13 +15249,6 @@
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Multiple_Languages" // help
-          );
-          subcat.addOption(option);
-          
-          option = ytcenter.settingsPanel.createOption(
-            "warnWhenSaving",
-            "bool",
-            "SETTINGS_WARN_WHEN_SAVING"
           );
           subcat.addOption(option);
 
