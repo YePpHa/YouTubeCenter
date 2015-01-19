@@ -392,7 +392,7 @@
   "EMBED_RESIZEITEMLIST_CUSTOMNAME": "Custom name",
   "SETTINGS_PLAYERGLOW_OPACITY": "Opacity",
   "COUNTRY_ISO3166-1_CODES_RE": "Réunion",
-  "SETTINGS_RESIZE_ONLY_STAGE_MODE": "Only stage mode",
+  "SETTINGS_RESIZE_ONLY_STAGE_MODE": "Allow YouTube dynamic resizing",
   "SETTINGS_DISLIKEDBUTTON_COLOR": "Disliked button color",
   "SETTINGS_RESIZE_DEFAULT": "Default player size",
   "SETTINGS_COMMENTS_COUNTRY_BUTTON_LOAD": "Load by button",
