@@ -759,7 +759,7 @@
         }[stream.quality];
         btn1.title = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
           stream_name: stream_name,
-          stream_resolution: stream.dimension.split("x")[1] + "p",
+          stream_resolution: (stream.dimension ? stream.dimension.split("x")[1] + "p" : "N/A"),
           stream_dimension: stream.dimension,
           stream_3d: (stream.stereo3d && stream.stereo3d == 1 ? "&nbsp;3D" : ""),
           stream_type: (function(stream){
@@ -798,7 +798,7 @@
           
           btn1.title = ytcenter.utils.replaceTextAsString(ytcenter.language.getLocale("BUTTON_DOWNLOAD_TOOLTIP"), {
             stream_name: stream_name,
-            stream_resolution: stream.dimension.split("x")[1] + "p",
+            stream_resolution: (stream.dimension ? stream.dimension.split("x")[1] + "p" : "N/A"),
             stream_dimension: stream.dimension,
             stream_3d: (stream.stereo3d && stream.stereo3d == 1 ? " 3D" : ""),
             stream_type: (function(stream){
@@ -5575,7 +5575,7 @@
           text = tableQuality[stream.quality];
           background = tableBackground[stream.quality];
           color = tableColor[stream.quality];
-        } else if (stream && stream.quality) {
+        } else if (stream && stream.quality && stream.dimension) {
           text = stream.dimension.split("x")[1] + "p";
           background = tableBackground[stream.quality];
           color = tableColor[stream.quality];
