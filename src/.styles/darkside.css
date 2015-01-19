@@ -29,3 +29,7 @@ body.ytcenter-player-darkside-bg.ytcenter-player-darkside-bg-retro #player #thea
   background-image: -webkit-gradient(linear, left top, left bottom, from(#555), to(#333));
   filter: progid:DXImageTransform.Microsoft.Gradient(gradientType=0, startColorStr='#555555', endColorStr='#333333');
 }
+
+body.ytcenter-player-darkside-bg #player {
+  background-color: #1B1B1B;
+}
