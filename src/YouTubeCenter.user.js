@@ -14292,7 +14292,7 @@
           if (storage === "[object Object]") storage = {};
           if (typeof storage === "string") storage = JSON.parse(storage);
 
-          if (!storage.lastUpdated || storage.lastUpdated >= ytcenter.settings.lastUpdated) {
+          if (!storage.lastUpdated || storage.lastUpdated <= ytcenter.settings.lastUpdated) {
             con.log("[Storage] Saving Settings");
             ytcenter.settings.lastUpdated = ytcenter.utils.now();
             ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], ytcenter.utils.bind(null, saveComplete, callback));
@@ -17806,7 +17806,7 @@
             "rangetext", // module
             "SETTINGS_SEARCH_LIMIT_WIDTH", // label
             {
-              "min": 100,
+              "min": 700,
               "max": 10000,
               "suffix": "px"
             }
