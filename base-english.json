@@ -1,4 +1,5 @@
 {
+  "SETTINGS_PLAYER_DOCK_ENABLE": "Enable player docking",
   "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_TRANSITION": "Hide header when video is playing transition",
   "SETTINGS_PLAYER_PLAYING_HIDE_HEADER": "Hide header when video is playing",
   "SETTINGS_SEARCH_LIMIT_WIDTH_ENABLED": "Enable row width limit",

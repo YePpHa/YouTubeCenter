@@ -1,3 +1,16 @@
+body.player-dock #player-api {
+  position: fixed !important;
+  z-index: 10 !important;
+}
+
+body.player-dock #player-dock-offset {
+  display: block !important;
+}
+
+#player-dock-offset {
+  display: none;
+}
+
 body.hide-header-transition #masthead-positioner {
   transition: top .6s;
   -moz-transition: top .6s;
