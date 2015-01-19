@@ -1,3 +1,28 @@
+body.hide-header-transition #masthead-positioner {
+  transition: top .6s;
+  -moz-transition: top .6s;
+  -ms-transition: top .6s;
+  -o-transition: top .6s;
+  -webkit-transition: top .6s;
+}
+
+body.hide-header-transition #masthead-positioner-height-offset {
+  transition: height .6s;
+  -moz-transition: height .6s;
+  -ms-transition: height .6s;
+  -o-transition: height .6s;
+  -webkit-transition: height .6s;
+}
+
+body.hide-header #masthead-positioner {
+  top: -50px;
+}
+body.hide-header #masthead-positioner-height-offset,
+body.hide-header.appbar-hidden.ytcenter-ticker-hidden #masthead-positioner-height-offset {
+  height: 0!important;
+  overflow: hidden;
+}
+
 .watch-stage-mode-fix #watch-appbar-playlist.watch-playlist .playlist-videos-list {
   position: relative;
   max-height: 390px;
