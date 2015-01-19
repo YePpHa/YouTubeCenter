@@ -20382,7 +20382,7 @@
         playerOffset.setAttribute("id", "player-dock-offset");
         var player = document.getElementById('player');
         if (player) {
-          if (player.nextElementSibling) {
+          if (player.nextSibling) {
             player.parentNode.insertBefore(playerOffset, player.nextSibling);
           } else {
             player.parentNode.appendChild(playerOffset);
@@ -22698,8 +22698,6 @@
             }
           }
         }
-
-        ytcenter.playerDocking.updateSize(playerWidth, playerHeight);
         
         document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size
         document.documentElement.setAttribute("data-ytc-player-size-height", height); // The height of the player as given by the player size
@@ -22773,6 +22771,7 @@
           if (large) {
             player.style.setProperty("margin-bottom", "28px", "important");
           }
+          ytcenter.playerDocking.updateSize(playerWidth, playerHeight);
           
           if (playerAPI) {
             playerAPI.style.width = playerWidth + "px";
