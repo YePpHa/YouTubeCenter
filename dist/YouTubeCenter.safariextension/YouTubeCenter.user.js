@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         464
+// @version         465
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 464);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 465);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -14285,8 +14285,24 @@
           throttleCancel = false;
           return;
         }
-        con.log("[Storage] Saving Settings");
-        ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], ytcenter.utils.bind(null, saveComplete, callback));
+
+        con.log("[Storage] Checking if settings have expired.");
+        ytcenter.unsafeCall("load", [ytcenter.storageName], function(storage){
+          if (storage === "[object Object]") storage = {};
+          if (typeof storage === "string") storage = JSON.parse(storage);
+
+          if (!storage.lastUpdated || storage.lastUpdated >= ytcenter.settings.lastUpdated) {
+            con.log("[Storage] Saving Settings");
+            ytcenter.settings.lastUpdated = ytcenter.utils.now();
+            ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], ytcenter.utils.bind(null, saveComplete, callback));
+          } else {
+            for (var key in storage) {
+              if (storage.hasOwnProperty(key)) {
+                ytcenter.settings[key] = storage[key];
+              }
+            }
+          }
+        });
       }
       
       function announceSettingStored() {

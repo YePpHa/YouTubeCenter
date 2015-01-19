@@ -14285,8 +14285,24 @@
           throttleCancel = false;
           return;
         }
-        con.log("[Storage] Saving Settings");
-        ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], ytcenter.utils.bind(null, saveComplete, callback));
+
+        con.log("[Storage] Checking if settings have expired.");
+        ytcenter.unsafeCall("load", [ytcenter.storageName], function(storage){
+          if (storage === "[object Object]") storage = {};
+          if (typeof storage === "string") storage = JSON.parse(storage);
+
+          if (!storage.lastUpdated || storage.lastUpdated >= ytcenter.settings.lastUpdated) {
+            con.log("[Storage] Saving Settings");
+            ytcenter.settings.lastUpdated = ytcenter.utils.now();
+            ytcenter.unsafeCall("save", [ytcenter.storageName, JSON.stringify(ytcenter.settings)], ytcenter.utils.bind(null, saveComplete, callback));
+          } else {
+            for (var key in storage) {
+              if (storage.hasOwnProperty(key)) {
+                ytcenter.settings[key] = storage[key];
+              }
+            }
+          }
+        });
       }
       
       function announceSettingStored() {
