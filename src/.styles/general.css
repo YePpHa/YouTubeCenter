@@ -1,3 +1,7 @@
+#watch-header {
+  margin-top: 0!important;
+}
+
 body.player-dock #player-api {
   position: fixed !important;
   z-index: 10 !important;
