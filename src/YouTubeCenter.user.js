@@ -22318,6 +22318,7 @@
           }
         } else {
           ytcenter.utils.removeClass(page, "watch-stage-mode watch-non-stage-mode");
+          ytcenter.utils.addClass(page, "watch-stage-mode-fix");
         }
         var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1294 <= innerWidth && 680 <= innerHeight;
         var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && 1294 <= innerWidth && 630 <= innerHeight;
@@ -22539,6 +22540,23 @@
         
         if (theaterBackground) {
           theaterBackground.style.height = playerHeight + "px";
+        }
+
+        var appbarPlaylist = document.getElementById('watch-appbar-playlist');
+        var autoscrollList = document.getElementById('playlist-autoscroll-list');
+        if (large) {
+          ytcenter.utils.removeClass(appbarPlaylist, "player-height");
+          autoscrollList.style.maxHeight = "";
+          appbarPlaylist.style.height = "";
+        } else {
+          ytcenter.utils.addClass(appbarPlaylist, "player-height");
+          if (ytcenter.settings.ytOnlyStageMode) {
+            autoscrollList.style.maxHeight = "";
+            appbarPlaylist.style.height = "";
+          } else {
+            autoscrollList.style.maxHeight = (playerHeight - 100) + 'px';
+            appbarPlaylist.style.height = playerHeight + 'px';
+          }
         }
         
         document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size

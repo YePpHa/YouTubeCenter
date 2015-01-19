@@ -1,3 +1,8 @@
+.watch-stage-mode-fix #watch-appbar-playlist.watch-playlist .playlist-videos-list {
+  position: relative;
+  max-height: 390px;
+}
+
 body.static-yt-logo #yt-masthead .doodle-removed #logo {
   background-position: -48px -478px !important;
 }
@@ -826,19 +831,25 @@ body > #page {
 .ytcenter-thumbnail-timecode-visible-never .video-time,
 .ytcenter-thumbnail-watchlater-visible-hide_hover a:hover .addto-watch-later-button,
 .ytcenter-thumbnail-watchlater-visible-hide_hover a:hover .addto-watch-later-button-sign-in,
-.ytcenter-thumbnail-timecode-visible-hide_hover a:hover .video-time {
+.ytcenter-thumbnail-timecode-visible-hide_hover a:hover .video-time,
+.ytcenter-thumbnail-watchlater-visible-hide_hover div.thumb-wrapper:hover .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-hide_hover div.thumb-wrapper:hover .addto-watch-later-button-sign-in,
+.ytcenter-thumbnail-timecode-visible-hide_hover div.thumb-wrapper:hover .video-time {
   display: none!important;
   opacity: 0 !important;
   filter: alpha(opacity=0) !important;
 }
 
 .ytcenter-thumbnail-watchlater-visible-show_hover a:hover .addto-watch-later-button,
-.ytcenter-thumbnail-watchlater-visible-show_hover a:hover .addto-watch-later-button-sign-in {
+.ytcenter-thumbnail-watchlater-visible-show_hover a:hover .addto-watch-later-button-sign-in,
+.ytcenter-thumbnail-watchlater-visible-show_hover div.thumb-wrapper:hover .addto-watch-later-button,
+.ytcenter-thumbnail-watchlater-visible-show_hover div.thumb-wrapper:hover .addto-watch-later-button-sign-in {
   display: block !important;
   opacity: 1 !important;
   filter: alpha(opacity=100) !important;
 }
-.ytcenter-thumbnail-timecode-visible-show_hover a:hover .video-time {
+.ytcenter-thumbnail-timecode-visible-show_hover a:hover .video-time,
+.ytcenter-thumbnail-timecode-visible-show_hover div.thumb-wrapper:hover .video-time {
   display: block !important;
   opacity: 0.75 !important;
   filter: alpha(opacity=75) !important;
