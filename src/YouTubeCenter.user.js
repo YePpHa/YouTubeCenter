@@ -20029,6 +20029,10 @@
         }
       }
 
+      /**
+       * Initialize @Yonezpt's method to intercept auto-play navigation.
+       * @source http://openuserjs.org/scripts/ParticleCore/Playlist_Autoplay_Control_for_YouTube
+       */
       function initAutoPlayManipulation() {
         var www = window._yt_www;
         if (www) {
@@ -20036,14 +20040,20 @@
             if (www.hasOwnProperty(key)) {
               var prop = www[key];
               if (typeof prop === 'function' && ('' + prop).indexOf('window.spf.navigate') !== -1) {
-                www[key] = autoPlayManipulation(prop);
+                www[key] = autoPlayManipulationWrapper(prop);
               }
             }
           }
         }
       }
 
-      function autoPlayManipulation(fn) {
+      /**
+       * Wrapper for the navigate function. It will check if auto-play is toggled
+       * and prevent calling of original fn.
+       * @param {Function} fn The original function.
+       * @return {Function} Returns a wrapper.
+       */
+      function autoPlayManipulationWrapper(fn) {
         return function() {
           var args = arguments;
           if (!args[1] || toggled || (!toggled && args[1].feature && args[1].feature !== 'autoplay')) {
