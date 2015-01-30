@@ -1,15 +1,10 @@
 /* $Topbar Static */
 .ytcenter-exp-topbar-static #masthead-positioner {
-  position: relative !important;
-  top: 0 !important;
+  position: relative;
+  top: 0;
 }
 .ytcenter-lights-off #masthead-positioner {
-  position: static !important;
-  top: 0 !important;
-}
-.ytcenter-lights-off #masthead-positioner-height-offset,
-.ytcenter-exp-topbar-static #masthead-positioner-height-offset {
-  display: none !important;
+  z-index: 0;
 }
 .ytcenter-exp-topbar-static #appbar-guide-menu {
   top: 0px!important;
