@@ -20232,7 +20232,7 @@
       }
       
       function setButtonColor(id, rule, icon, color) {
-        var rule1 = rule + ":before";
+        var rule1 = rule + ":before," + rule + ":after";
         var rule2 = rule + " .yt-uix-button-content { color: "  + color + "!important; }";
         
         var rgb = ytcenter.utils.hexToColor(color);
@@ -20411,6 +20411,16 @@
       exports.updateSize = updateSize;
 
       return exports;
+    })();
+
+    (function(){
+      function whyDoYouScrollDotCOM(e) {
+        if (ytcenter.utils.scrollTop() === 50) {
+          ytcenter.utils.scrollTop(0);
+          window.removeEventListener('scroll', whyDoYouScrollDotCOM, true);
+        }
+      }
+      window.addEventListener('scroll', whyDoYouScrollDotCOM, true);
     })();
     
     ytcenter.player = {};
@@ -22769,7 +22779,7 @@
             player.style.width = (large ? playerWidth + "px" : "auto");
           }
           if (large) {
-            player.style.setProperty("margin-bottom", "28px", "important");
+            player.style.setProperty("margin-bottom", "10px", "important");
           }
           ytcenter.playerDocking.updateSize(playerWidth, playerHeight);
           
