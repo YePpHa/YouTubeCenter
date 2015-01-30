@@ -32,6 +32,7 @@ body.hide-header-transition #masthead-positioner-height-offset {
 }
 
 body.hide-header #masthead-positioner {
+  position: fixed;
   top: -50px;
 }
 body.hide-header #masthead-positioner-height-offset,
