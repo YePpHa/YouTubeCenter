@@ -13760,6 +13760,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      hideFooter: false,
       enablePlayerDocking: false,
       hideHeaderWhenPlayerPlayingTransition: true,
       hideHeaderWhenPlayerPlaying: false,
@@ -15490,6 +15491,15 @@
           
 
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LAYOUT"); cat.addSubCategory(subcat);
+          option = ytcenter.settingsPanel.createOption(
+            "hideFooter", // defaultSetting
+            "bool", // module
+            "SETTINGS_HIDE_FOOTER"
+          );
+          option.addEventListener('update', function(){
+            ytcenter.classManagement.updateClassesByGroup(["page"]);
+          });
+          subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
             "flexWidthOnPage", // defaultSetting
             "bool", // module
@@ -24180,7 +24190,8 @@
       {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-livestream", condition: function(){return ytcenter.player.isLiveStream();}},
       {groups: ["page"], element: function(){return document.getElementById("watch-appbar-playlist");}, className: "player-height", condition: function(){return false;}},
-      {groups: ["page", "html5player"], element: function(){return document.body;}, className: "ytcenter-hide-watch-later-on-player", condition: function(){return ytcenter.settings.hideWatchLaterOnPlayer;}}
+      {groups: ["page", "html5player"], element: function(){return document.body;}, className: "ytcenter-hide-watch-later-on-player", condition: function(){return ytcenter.settings.hideWatchLaterOnPlayer;}},
+      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-hide-footer", condition: function(){return ytcenter.settings.hideFooter;}}
     ];
     ytcenter.intelligentFeed = (function(){
       var exports = {}, observer, config = { attributes: true }, feed;

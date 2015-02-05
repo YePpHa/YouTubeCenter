@@ -1,3 +1,7 @@
+body.ytcenter-hide-footer #footer-container {
+  display: none;
+}
+
 #watch-header {
   margin-top: 0!important;
 }
