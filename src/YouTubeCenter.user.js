@@ -11179,9 +11179,11 @@
         return document.querySelectorAll(query);
       }
       function isElementParent(el, parent) {
-        var found = false;
+        /*var found = false;
         while (el && !(found = el === parent)) el = el.parentElement;
-        return found;
+        return found;*/
+
+        return parent.contains(el);
       }
       function handleElements(elements, e, listener) {
         var i;
@@ -13762,6 +13764,11 @@
     ytcenter._settings = {
       hideFooter: false,
       enablePlayerDocking: false,
+      hideHeaderWhenPlayerPlayingTransitionTime: 600,
+      hideHeaderWhenPlayerPlayingKeepScrollPosition: false,
+      hideHeaderWhenPlayerPlayingFocus: true,
+      hideHeaderWhenPlayerPlayingMouseThreshold: 90,
+      hideHeaderWhenPlayerPlayingMouseVisibility: true,
       hideHeaderWhenPlayerPlayingTransition: true,
       hideHeaderWhenPlayerPlaying: false,
       limitSearchRowWidthEnabled: false,
@@ -15849,6 +15856,11 @@
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
             "hideHeaderWhenPlayerPlaying", // defaultSetting
             "bool", // module
             "SETTINGS_PLAYER_PLAYING_HIDE_HEADER"
@@ -15860,8 +15872,51 @@
             "bool", // module
             "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_TRANSITION"
           );
-          option.addEventListener("update", ytcenter.hideHeaderWhenPlayerPlaying.update);
+          option.addEventListener("update", ytcenter.hideHeaderWhenPlayerPlaying.updateTransition);
           subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideHeaderWhenPlayerPlayingTransitionTime", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_TRANSITION_TIME",
+            {
+              "min": 0,
+              "max": 5000,
+              "suffix": " ms"
+            }
+          );
+          option.addEventListener("update", ytcenter.hideHeaderWhenPlayerPlaying.updateTransitionTime);
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideHeaderWhenPlayerPlayingMouseVisibility", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_MOUSE_ENABLED"
+          );
+          option.addEventListener("update", ytcenter.hideHeaderWhenPlayerPlaying.updateEventListeners);
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideHeaderWhenPlayerPlayingMouseThreshold", // defaultSetting
+            "rangetext", // module
+            "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_MOUSE_THRESHOLD",
+            {
+              "min": 0,
+              "max": 500,
+              "suffix": "px"
+            }
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "hideHeaderWhenPlayerPlayingFocus", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_FOCUS_ENABLED"
+          );
+          option.addEventListener("update", ytcenter.hideHeaderWhenPlayerPlaying.updateEventListeners);
+          subcat.addOption(option);
+          /*option = ytcenter.settingsPanel.createOption(
+            "hideHeaderWhenPlayerPlayingKeepScrollPosition", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_KEEP_SCROLL_POSITION"
+          );
+          subcat.addOption(option);*/
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             "line"
@@ -20345,10 +20400,95 @@
 
     ytcenter.hideHeaderWhenPlayerPlaying = (function(){
       function init() {
-        ytcenter.player.listeners.addEventListener("onStateChange", update);
+        ytcenter.player.listeners.addEventListener("onStateChange", _update);
+
+        updateEventListeners();
         update();
+        updateTransitionTime();
+        updateTransition();
       }
-      function update(state) {
+
+      function onFocus(e) {
+        e = e || window.event;
+        var target = e.target;
+
+        var _focusTriggered = focusTriggered;
+        focusTriggered = true;
+        if (focusTriggered !== _focusTriggered) {
+          update();
+        }
+      }
+
+      function onBlur(e) {
+        e = e || window.event;
+        var target = e.target;
+
+        var _focusTriggered = focusTriggered;
+        focusTriggered = false;
+        if (focusTriggered !== _focusTriggered) {
+          update();
+        }
+      }
+
+      function onMouseMove(e) {
+        // hideHeaderWhenPlayerPlayingMouseVisibility true
+        // hideHeaderWhenPlayerPlayingMouseThreshold 90
+        if (!ytcenter.settings.hideHeaderWhenPlayerPlaying) return;
+
+        e = e || window.event;
+        var threshold = ytcenter.settings.hideHeaderWhenPlayerPlayingMouseThreshold || 90;
+
+        var _mouseTriggered = mouseTriggered;
+        if (ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility && e.clientY <= threshold) {
+          mouseTriggered = true;
+        } else {
+          mouseTriggered = false;
+        }
+        if (mouseTriggered !== _mouseTriggered) {
+          update();
+        }
+      }
+
+      function updateTransitionTime() {
+        var seconds = (ytcenter.settings.hideHeaderWhenPlayerPlayingTransitionTime || 600)/1000;
+        ytcenter.utils.setCustomCSS("ytcenter-hide-header-transition", "body.hide-header-transition #masthead-positioner {\
+          transition: top " + seconds + "s !important;\
+          -moz-transition: top " + seconds + "s !important;\
+          -ms-transition: top " + seconds + "s !important;\
+          -o-transition: top " + seconds + "s !important;\
+          -webkit-transition: top " + seconds + "s !important;\
+        }\
+        body.hide-header-transition #masthead-positioner-height-offset {\
+          transition: height " + seconds + "s !important;\
+          -moz-transition: height " + seconds + "s !important;\
+          -ms-transition: height " + seconds + "s !important;\
+          -o-transition: height " + seconds + "s !important;\
+          -webkit-transition: height " + seconds + "s !important;\
+        }");
+      }
+
+      function updateTransition() {
+        if (ytcenter.settings.hideHeaderWhenPlayerPlayingTransition) {
+          ytcenter.utils.addClass(document.body, "hide-header-transition");
+        } else {
+          ytcenter.utils.removeClass(document.body, "hide-header-transition");
+        }
+      }
+
+      function update() {
+        var state = -1;
+        var api = ytcenter.player.getAPI();
+
+        if (api && api.getPlayerState && typeof api.getPlayerState === 'function') {
+          state = ytcenter.player.getAPI().getPlayerState();
+        } else {
+          state = -1;
+        }
+
+        _update(state);
+      }
+
+      function _update(state) {
         if (ytcenter.settings.hideHeaderWhenPlayerPlaying) {
           if (typeof state !== 'number') {
             var api = ytcenter.player.getAPI();
@@ -20358,28 +20498,74 @@
               state = -1;
             }
           }
-
-          if (ytcenter.settings.hideHeaderWhenPlayerPlayingTransition) {
-            ytcenter.utils.addClass(document.body, "hide-header-transition");
-          } else {
-            ytcenter.utils.removeClass(document.body, "hide-header-transition");
+          var header = document.getElementById('masthead-positioner');
+          var headerHeight = 50;
+          if (header) {
+            headerHeight = header.clientHeight || header.offsetHeight || headerHeight;
           }
 
-          if (state === 0 || state === 2 || state === 5 || ytcenter.getPage() !== 'watch') {
-            ytcenter.utils.removeClass(document.body, "hide-header");
+          var hc = ytcenter.utils.hasClass(document.body, "hide-header");
+          if (state === 0 || state === 2 || state === 5 || ytcenter.getPage() !== 'watch' || mouseTriggered
+              || (ytcenter.settings.hideHeaderWhenPlayerPlayingFocus && ((header && header.contains(document.activeElement)) || focusTriggered))) {
+            hc && ytcenter.utils.removeClass(document.body, "hide-header");
+            /*if (hc && ytcenter.settings.hideHeaderWhenPlayerPlayingKeepScrollPosition) {
+              ytcenter.utils.scrollTop(ytcenter.utils.scrollTop() - headerHeight);
+            }*/
           } else {
-            ytcenter.utils.addClass(document.body, "hide-header");
+            !hc && ytcenter.utils.addClass(document.body, "hide-header");
+            /*if (!hc && ytcenter.settings.hideHeaderWhenPlayerPlayingKeepScrollPosition) {
+              ytcenter.utils.scrollTop(ytcenter.utils.scrollTop() + headerHeight);
+            }*/
           }
         } else {
-          ytcenter.utils.removeClass(document.body, "hide-header-transition");
           ytcenter.utils.removeClass(document.body, "hide-header");
         }
       }
+
+      function updateEventListeners() {
+        var header = document.getElementById('masthead-positioner');
+        if (header) {
+          if (!focusListenersAdded) {
+            if (ytcenter.settings.hideHeaderWhenPlayerPlayingFocus) {
+              header.addEventListener('focus', onFocus, true);
+              header.addEventListener('blur', onBlur, true);
+              focusListenersAdded = true;
+            }
+          } else {
+            header.removeEventListener('focus', onFocus, true);
+            header.removeEventListener('blur', onBlur, true);
+            focusListenersAdded = false;
+          }
+        }
+        if (!mouseListenersAdded) {
+          if (ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility) {
+            window.addEventListener('mousemove', onMouseMoveThrottled, false);
+            mouseListenersAdded = true;
+          }
+        } else {
+          window.removeEventListener('mousemove', onMouseMoveThrottled, false);
+          mouseListenersAdded = false;
+        }
+      }
+
+      // Throttled functions
+      var onMouseMoveThrottled = ytcenter.utils.throttle(onMouseMove, 50);
+
+      var forceVisibility = false;
+
+      var focusTriggered = false;
+      var mouseTriggered = false;
+
+      var focusListenersAdded = false;
+      var mouseListenersAdded = false;
 
       var exports = {};
 
       exports.init = init;
       exports.update = update;
+      exports.updateEventListeners = updateEventListeners;
+      exports.updateTransition = updateTransition;
+      exports.updateTransitionTime = updateTransitionTime;
 
       return exports;
     })();
@@ -20425,7 +20611,11 @@
 
     (function(){
       function whyDoYouScrollDotCOM(e) {
-        if (ytcenter.utils.scrollTop() === 50) {
+        var header = document.getElementById('masthead-positioner');
+        var defaultHeight = 50;
+        var height = header.clientHeight || header.offsetHeight || defaultHeight;
+
+        if (ytcenter.utils.scrollTop() === height) {
           ytcenter.utils.scrollTop(0);
           window.removeEventListener('scroll', whyDoYouScrollDotCOM, true);
         }

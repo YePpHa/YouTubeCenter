@@ -1,4 +1,9 @@
 {
+  "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_TRANSITION_TIME": "Transition time",
+  "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_KEEP_SCROLL_POSITION": "Keep scroll position",
+  "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_MOUSE_ENABLED": "Show header when mouse is in proximity to the top",
+  "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_MOUSE_THRESHOLD": "Mouse proximity value",
+  "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_FOCUS_ENABLED": "Show header when an element in the header is focused",
   "SETTINGS_HIDE_FOOTER": "Hide footer",
   "SETTINGS_PLAYER_DOCK_ENABLE": "Enable player docking",
   "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_TRANSITION": "Hide header when video is playing transition",
