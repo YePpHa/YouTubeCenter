@@ -20431,21 +20431,38 @@
       }
 
       function onMouseMove(e) {
-        // hideHeaderWhenPlayerPlayingMouseVisibility true
-        // hideHeaderWhenPlayerPlayingMouseThreshold 90
         if (!ytcenter.settings.hideHeaderWhenPlayerPlaying) return;
 
         e = e || window.event;
         var threshold = ytcenter.settings.hideHeaderWhenPlayerPlayingMouseThreshold || 90;
 
+        mouseLeaveTimeout !== null && clearTimeout(mouseLeaveTimeout);
+
         var _mouseTriggered = mouseTriggered;
-        if (ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility && e.clientY <= threshold) {
+        if (ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility && e.clientY <= threshold && e.clientY >= 0) {
           mouseTriggered = true;
         } else {
           mouseTriggered = false;
         }
         if (mouseTriggered !== _mouseTriggered) {
           update();
+        }
+      }
+      function onMouseOut(e) {
+        e = e || window.event;
+
+        var from = e.relatedTarget || e.toElement;
+        if (!from || from.nodeName === "HTML") {
+          var obj = {};
+          obj.clientY = -1;
+
+          onMouseMoveThrottled(obj);
+
+          /*mouseLeaveTimeout !== null && clearTimeout(mouseLeaveTimeout);
+          mouseLeaveTimeout = setTimeout(function(){
+            mouseLeaveTimeout = null;
+            onMouseMoveThrottled(obj);
+          }, 200);*/
         }
       }
 
@@ -20540,10 +20557,12 @@
         if (!mouseListenersAdded) {
           if (ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility) {
             window.addEventListener('mousemove', onMouseMoveThrottled, false);
+            document.addEventListener('mouseout', onMouseOut, false);
             mouseListenersAdded = true;
           }
         } else {
           window.removeEventListener('mousemove', onMouseMoveThrottled, false);
+          document.removeEventListener('mouseout', onMouseOut, false);
           mouseListenersAdded = false;
         }
       }
@@ -20558,6 +20577,8 @@
 
       var focusListenersAdded = false;
       var mouseListenersAdded = false;
+
+      var mouseLeaveTimeout = null;
 
       var exports = {};
 
