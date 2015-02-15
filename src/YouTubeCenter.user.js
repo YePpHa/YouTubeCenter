@@ -8373,6 +8373,7 @@
               callback: function(){
                 if (!saveEnabled) return;
                 ytcenter.settings = JSON.parse(settingsPool.value);
+                ytcenter.settings.lastUpdated = ytcenter.utils.now();
                 ytcenter.saveSettings(false, function(){
                   loc.reload();
                 });
@@ -15412,6 +15413,7 @@
                         primary: true,
                         callback: function(){
                           ytcenter.settings = ytcenter._settings;
+                          ytcenter.settings.lastUpdated = ytcenter.utils.now();
                           ytcenter.saveSettings(false, function(){
                             loc.reload();
                           });
