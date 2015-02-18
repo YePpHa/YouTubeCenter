@@ -20477,6 +20477,7 @@
       function onFocus(e) {
         e = e || window.event;
         var target = e.target;
+        if (target && target.tagName === "BUTTON") return;
 
         var _focusTriggered = focusTriggered;
         focusTriggered = true;
@@ -20488,6 +20489,7 @@
       function onBlur(e) {
         e = e || window.event;
         var target = e.target;
+        if (target && target.tagName === "BUTTON") return;
 
         var _focusTriggered = focusTriggered;
         focusTriggered = false;
@@ -20589,19 +20591,20 @@
 
           var hc = ytcenter.utils.hasClass(document.body, "hide-header");
           if (state === 0 || state === 2 || state === 5 || ytcenter.getPage() !== 'watch' || mouseTriggered
-              || (ytcenter.settings.hideHeaderWhenPlayerPlayingFocus && ((header && header.contains(document.activeElement)) || focusTriggered))) {
-            hc && ytcenter.utils.removeClass(document.body, "hide-header");
-            /*if (hc && ytcenter.settings.hideHeaderWhenPlayerPlayingKeepScrollPosition) {
-              ytcenter.utils.scrollTop(ytcenter.utils.scrollTop() - headerHeight);
-            }*/
+              || (ytcenter.settings.hideHeaderWhenPlayerPlayingFocus && ((header && document.activeElement && header.contains(document.activeElement) && document.activeElement.tagName !== "BUTTON") || focusTriggered))) {
+            if (hc) {
+              ytcenter.utils.removeClass(document.body, "hide-header");
+              ytcenter.player._updateResize();
+            }
           } else {
-            !hc && ytcenter.utils.addClass(document.body, "hide-header");
-            /*if (!hc && ytcenter.settings.hideHeaderWhenPlayerPlayingKeepScrollPosition) {
-              ytcenter.utils.scrollTop(ytcenter.utils.scrollTop() + headerHeight);
-            }*/
+            if (!hc) {
+              ytcenter.utils.addClass(document.body, "hide-header");
+              ytcenter.player._updateResize();
+            }
           }
         } else {
           ytcenter.utils.removeClass(document.body, "hide-header");
+          ytcenter.player._updateResize();
         }
       }
 
@@ -20675,8 +20678,10 @@
         update();
       }
       function updateSize(width, height) {
-        playerOffset.style.width = width + 'px';
-        playerOffset.style.height = height + 'px';
+        if (playerOffset && playerOffset.style) {
+          playerOffset.style.width = width + 'px';
+          playerOffset.style.height = height + 'px';
+        }
       }
       function update() {
         if (ytcenter.settings.enablePlayerDocking) {
@@ -22472,7 +22477,11 @@
             posY += scrollElm.offsetTop;
             scrollElm = scrollElm.offsetParent;
           }
-          ytcenter.utils.scrollTop(posY - mp.offsetHeight);
+          var top = posY;
+          if (!ytcenter.utils.hasClass(document.body, "hide-header")) {
+            top = top - mp.offsetHeight;
+          }
+          ytcenter.utils.scrollTop(top);
         }
       }
       
@@ -22542,7 +22551,7 @@
       scrollToPlayerButton.className = "yt-uix-button yt-uix-button-default yt-uix-button-size-default yt-uix-button-has-icon yt-uix-button-empty flip yt-uix-tooltip ";
       scrollToPlayerButton.style.display = "inline-block";
       scrollToPlayerButton.style.position = "absolute";
-      ytcenter.utils.addEventListener(scrollToPlayerButton, "click", function(){
+      ytcenter.utils.addEventListener(scrollToPlayerButton, "click", function(e){
         scrollToPlayer();
       }, false);
       
@@ -22882,7 +22891,7 @@
         if (height.match(/%$/) && height.length > 1) {
           var mp = document.getElementById("masthead-positioner");
           calcHeight = parseInt(height)/100*clientHeight;
-          if (mp && !ytcenter.settings.staticHeader) {
+          if (mp && !ytcenter.settings.staticHeader && !ytcenter.utils.hasClass(document.body, "hide-header")) {
             calcHeight -= mp.offsetHeight || mp.clientHeight;
           }
           pbh = 0;
