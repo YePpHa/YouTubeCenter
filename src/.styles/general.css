@@ -2,9 +2,9 @@ body.ytcenter-hide-footer #footer-container {
   display: none;
 }
 
-#watch-header {
+/*#watch-header {
   margin-top: 0!important;
-}
+}*/
 
 body.player-dock #player-api {
   position: fixed !important;
@@ -45,10 +45,10 @@ body.hide-header.appbar-hidden.ytcenter-ticker-hidden #masthead-positioner-heigh
   overflow: hidden;
 }
 
-.watch-stage-mode-fix #watch-appbar-playlist.watch-playlist .playlist-videos-list {
+/*.watch-stage-mode-fix #watch-appbar-playlist.watch-playlist .playlist-videos-list {
   position: relative;
   max-height: 390px;
-}
+}*/
 
 body.static-yt-logo #yt-masthead .doodle-removed #logo {
   background-position: -48px -478px !important;
