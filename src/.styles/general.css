@@ -1,3 +1,7 @@
+div#page.watch-non-stage-mode #watch-appbar-playlist.watch-playlist.radio-playlist .playlist-videos-list {
+  top: 100px;
+}
+
 body.ytcenter-hide-footer #footer-container {
   display: none;
 }
