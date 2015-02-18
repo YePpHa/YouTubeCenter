@@ -11049,18 +11049,6 @@
     })();
     
     // @utils
-    ytcenter.utils.isInDOM = function(node) {
-      function findAncestor(node) {
-        while (node.parentNode) {
-          node = node.parentNode;
-        }
-        return node;
-      }
-
-      node = findAncestor(node);
-
-      return !!(node && node.body);
-    };
     ytcenter.utils.getViewPort = function() {
       var width = 0;
       var height = 0;
@@ -20119,7 +20107,7 @@
         if (playlist) {
           var toggleAutoplayButton = getToggleAutoPlayButton();
           
-          if (toggleAutoplayButton && isInDOM(toggleAutoplayButton)) {
+          if (toggleAutoplayButton) {
             if (toggled) {
               ytcenter.utils.addClass(toggleAutoplayButton, "yt-uix-button-toggled");
             } else {
@@ -22989,14 +22977,25 @@
             ytcenter.utils.removeClass(appbarPlaylist, "player-height");
             autoscrollList.style.maxHeight = "";
             appbarPlaylist.style.height = "";
-          } else {
-            ytcenter.utils.addClass(appbarPlaylist, "player-height");
+
             if (ytcenter.settings.ytOnlyStageMode) {
               autoscrollList.style.maxHeight = "";
-              appbarPlaylist.style.height = "";
             } else {
-              autoscrollList.style.maxHeight = (playerHeight - 100) + 'px';
-              appbarPlaylist.style.height = playerHeight + 'px';
+              var height = 390;
+              if (ytcenter.utils.hasClass(appbarPlaylist, "radio-playlist")) {
+                height += 40;
+              }
+
+              autoscrollList.style.maxHeight = height + 'px';
+            }
+          } else {
+            ytcenter.utils.addClass(appbarPlaylist, "player-height");
+
+            appbarPlaylist.style.height = playerHeight + 'px';
+            if (ytcenter.settings.ytOnlyStageMode) {
+              autoscrollList.style.maxHeight = "";
+            } else {
+              autoscrollList.style.maxHeight = (playerHeight - 100) + "px";
             }
           }
         }
