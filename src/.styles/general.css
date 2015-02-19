@@ -1,3 +1,7 @@
+body.ytcenter-site-watch.flex-width-enabled>* #page {
+  max-width: none !important;
+}
+
 div#page.watch-non-stage-mode #watch-appbar-playlist.watch-playlist.radio-playlist .playlist-videos-list {
   top: 100px;
 }
