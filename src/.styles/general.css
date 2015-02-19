@@ -589,13 +589,6 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
   border-top: 0!important;
 }
 
-.ltr .watch-sidebar {
-  margin-right: 0!important;
-}
-.rtl .watch-sidebar {
-  margin-left: 0!important;
-}
-
 #movie_player {
   overflow: hidden!important;
 }
@@ -606,17 +599,6 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 #movie_player,
 #movie_player *:focus {
   outline: 0!important;
-}
-
-.watch-playlist-collapsed #watch7-playlist-tray-container {
-  height: 0!important;
-  top: 0 !important;
-}
-.ltr .watch-playlist-collapsed #watch7-playlist-tray-container {
-  left: auto!important;
-}
-.rtl .watch-playlist-collapsed #watch7-playlist-tray-container {
-  right: auto!important;
 }
 
 .ytcenter-site-center #page,
@@ -662,48 +644,6 @@ ul.ytcenter-menu-3d-hide li.ytcenter-menu-item-3d {
 .flex-width-enabled #header #masthead-subnav,
 .flex-width-enabled #header #masthead-subnav ul {
   width: 100%!important;
-}
-
-/*.ytcenter-site-watch #page,
-.ytcenter-site-watch #player,
-.ytcenter-site-watch #player-legacy,
-.ytcenter-site-watch #content {
-  left: auto!important;
-  margin-left: 0!important;
-  margin-right: 0!important;
-}*/
-
-.ltr.ytcenter-site-watch.ytcenter-site-center #page,
-.ltr.ytcenter-site-watch.ytcenter-site-center #player,
-.ltr.ytcenter-site-watch.ytcenter-site-center #player-legacy,
-.ltr.ytcenter-site-watch.ytcenter-site-center #content,
-.ltr.ytcenter-site-watch.site-center-aligned #page,
-.ltr.ytcenter-site-watch.site-center-aligned #player,
-.ltr.ytcenter-site-watch.site-center-aligned #player-legacy,
-.ltr.ytcenter-site-watch.site-center-aligned #content,
-.ltr.ytcenter-site-watch.ytcenter-resize-disaligned.ytcenter-site-center #player,
-.ltr.ytcenter-site-watch.ytcenter-resize-disaligned.ytcenter-site-center #player-legacy,
-.ltr.ytcenter-site-watch.ytcenter-resize-algined.ytcenter-site-center #player,
-.ltr.ytcenter-site-watch.ytcenter-resize-algined.ytcenter-site-center #player-legacy {
-  left: auto!important;
-  margin-left: auto!important;
-  margin-right: auto!important;
-}
-.rtl.ytcenter-site-watch.ytcenter-site-center #page,
-.rtl.ytcenter-site-watch.ytcenter-site-center #player,
-.rtl.ytcenter-site-watch.ytcenter-site-center #player-legacy,
-.rtl.ytcenter-site-watch.ytcenter-site-center #content,
-.rtl.ytcenter-site-watch.site-center-aligned #page,
-.rtl.ytcenter-site-watch.site-center-aligned #player,
-.rtl.ytcenter-site-watch.site-center-aligned #player-legacy,
-.rtl.ytcenter-site-watch.site-center-aligned #content,
-.rtl.ytcenter-site-watch.ytcenter-resize-disaligned.ytcenter-site-center #player,
-.rtl.ytcenter-site-watch.ytcenter-resize-disaligned.ytcenter-site-center #player-legacy,
-.rtl.ytcenter-site-watch.ytcenter-resize-algined.ytcenter-site-center #player,
-.rtl.ytcenter-site-watch.ytcenter-resize-algined.ytcenter-site-center #player-legacy {
-  right: auto!important;
-  margin-left: auto!important;
-  margin-right: auto!important;
 }
 
 body > #page {

@@ -439,6 +439,7 @@
         }
       }
       function getItemSubText(item) {
+        item.config.align = false;
         if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
           return (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
@@ -8194,13 +8195,12 @@
         }
       }
       function getItemSubText(item) {
-        try{
+        item.config.align = false;
         if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
           return (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
           return (item.config.large ? ytcenter.language.getLocale("SETTINGS_RESIZE_LARGE") : ytcenter.language.getLocale("SETTINGS_RESIZE_SMALL")) + " - " + (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         }
-        }catch(e){con.error(e)}
       }
       function setValue(id) {
         selectedId = id;
@@ -8799,6 +8799,8 @@
           sc2.textContent = s.options[s.selectedIndex].textContent;
         });
         ytcenter.utils.addEventListener(s, "change", function(){
+          sc2.textContent = s.options[s.selectedIndex].textContent;
+
           if (cCallback) cCallback(s.value);
           if (option && option.args && option.args.listeners) {
             for (var i = 0; i < option.args.listeners.length; i++) {
@@ -9331,6 +9333,7 @@
         }
       }
       function getItemSubText(item) {
+        item.config.align = false;
         if (isNaN(parseInt(item.config.width)) && isNaN(parseInt(item.config.height))) {
           return (item.config.align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.config.scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
@@ -9556,7 +9559,7 @@
           if (original.width !== __getWidth()) return true;
           if (original.height !== __getHeight()) return true;
           if (original.large !== largeInput.isSelected()) return true;
-          if (original.align !== alignInput.isSelected()) return true;
+          //if (original.align !== alignInput.isSelected()) return true;
           if (original.scrollToPlayer !== scrollToPlayerInput.isSelected()) return true;
           if (original.scrollToPlayerButton !== scrollToPlayerButtonInput.isSelected()) return true;
           if (original.customName !== customNameInput.value) return true;
@@ -9758,7 +9761,7 @@
         largeInput.fixHeight();
         largeWrapper.appendChild(largeInput.element);
         
-        var alignWrapper = document.createElement("div");
+        /*var alignWrapper = document.createElement("div");
         alignWrapper.className = "ytcenter-panel-label";
         var alignLabel = document.createElement("label");
         alignLabel.textContent = "Align";
@@ -9768,7 +9771,7 @@
         var alignInput = ytcenter.modules.checkbox();
         alignInput.element.style.background = "#fff";
         alignInput.fixHeight();
-        alignWrapper.appendChild(alignInput.element);
+        alignWrapper.appendChild(alignInput.element);*/
         
         var scrollToPlayerWrapper = document.createElement("div");
         scrollToPlayerWrapper.className = "ytcenter-panel-label";
@@ -9845,7 +9848,7 @@
         wrp.appendChild(customNameWrapper);
         wrp.appendChild(dimensionWrapper);
         wrp.appendChild(largeWrapper);
-        wrp.appendChild(alignWrapper);
+        //wrp.appendChild(alignWrapper);
         wrp.appendChild(scrollToPlayerWrapper);
         wrp.appendChild(scrollToPlayerButtonWrapper);
         
@@ -9947,11 +9950,12 @@
           },
           setAlign: function(align){
             state = 1;
-            alignInput.update(align);
-            original.align = alignInput.isSelected();
+            /*alignInput.update(align);
+            original.align = alignInput.isSelected();*/
           },
           getAlign: function(){
-            return alignInput.isSelected();
+            //return alignInput.isSelected();
+            return false;
           },
           setScrollToPlayer: function(scrollToPlayer){
             state = 1;
@@ -10015,6 +10019,7 @@
         }
       }
       function getItemSubText(item) {
+        item.config.align = false;
         if (isNaN(parseInt(item.getConfig().width)) && isNaN(parseInt(item.getConfig().height))) {
           return (item.getConfig().align ? ytcenter.language.getLocale("SETTINGS_RESIZE_ALIGN") : ytcenter.language.getLocale("SETTINGS_RESIZE_CENTER")) + (item.getConfig().scrollToPlayer ? " - " + ytcenter.language.getLocale("SETTINGS_RESIZE_SCROLLTOPLAYER") : "");
         } else {
@@ -16307,7 +16312,7 @@
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Player_Aspect"
           );
           subcat.addOption(option);
-          option = ytcenter.settingsPanel.createOption(
+          /*option = ytcenter.settingsPanel.createOption(
             "ytOnlyStageMode", // defaultSetting
             "bool", // module
             "SETTINGS_RESIZE_ONLY_STAGE_MODE",
@@ -16323,7 +16328,7 @@
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#Only_stage_mode"
           );
-          subcat.addOption(option);
+          subcat.addOption(option);*/
           option = ytcenter.settingsPanel.createOption(
             null, // defaultSetting
             null, // module
@@ -21417,16 +21422,9 @@
     };
     ytcenter.player.calculateRatio = function(dash, predefinedAspect){
       var i, a;
-      /*predefinedAspect = predefinedAspect || ytcenter.settings['aspectValue'];
-      // Checking if the ratio is predefined
-      if (predefinedAspect && predefinedAspect.indexOf("=") !== -1) {
-        a = predefinedAspect.split("=")[1];
-        if (a.indexOf(":") !== -1) {
-          a = a.split(":");
-          a = parseInt(a[0])/parseInt(a[1]);
-          if (!isNaN(a)) return a;
-        }
-      }*/
+
+      var priority = [];
+
       predefinedAspect = predefinedAspect || ytcenter.settings['playerSizeAspect'];
       // Checking if the ratio is predefined
       if (predefinedAspect && predefinedAspect !== "default") {
@@ -21434,7 +21432,7 @@
         if (a.indexOf(":") !== -1) {
           a = a.split(":");
           a = parseInt(a[0])/parseInt(a[1]);
-          if (!isNaN(a)) return a;
+          if (!isNaN(a)) priority.push(a);
         }
       }
       
@@ -21456,11 +21454,13 @@
       }
       if (a) {
         a = parseInt(a[0])/parseInt(a[1]);
-        if (isNaN(a)) return 16/9;
-        return a;
+        if (isNaN(a)) priority.push(16/9);
+        priority.push(a);
       } else {
-        return 16/9;
+        priority.push(16/9);
       }
+
+      return priority;
     };
     ytcenter.player.experiments = (function(){
       function add(exp, config) {
@@ -22099,7 +22099,6 @@
         var returnVal = null;
         
         ytcenter.player._update_onYouTubeReady = true; // The listener got called therefore the player is here.
-        
         if (enabled && origin === 0 && (!events.hasOwnProperty(event) || (events.hasOwnProperty(event) && !events[event].override))) {
           /* Override is false and the origin is from the player; call the @name@ listeners */
           if (events.hasOwnProperty(event)) {
@@ -22155,6 +22154,7 @@
       function setupGlobalListeners() {
         if (globalListenersInitialized) return; // Make sure that this function is only called once.
         globalListenersInitialized = true;
+        con.log("Setting up global listeners");
         for (var event in events) {
           if (events.hasOwnProperty(event)) {
             var ytEvent = "ytPlayer" + event + "player" + getPlayerId();
@@ -22617,7 +22617,7 @@
         if (!ytcenter.settings.enableResize) return;
         ytcenter.player.resize(ytcenter.player.getPlayerSize(lastResizeId));
         ytcenter.player.updateResize_updateVisibility();
-        ytcenter.playersResize_updatePosition();
+        ytcenter.player.updateResize_updatePosition();
       };
       ytcenter.player.isSelectedPlayerSizeById = function(id){
         if (!ytcenter.settings.enableResize) return;
@@ -22659,11 +22659,31 @@
       };
     })();
     ytcenter.player.ratio = 16/9;
+    ytcenter.player.streamRatio = 16/9;
     ytcenter.player.setRatio = function(ratio){
       con.log("[Player Ratio] Player ratio set to " + ratio);
-      ytcenter.player.ratio = ratio;
+      ytcenter.player.ratio = ratio[0];
+      ytcenter.player.streamRatio = ratio[1] || ratio[0];
     };
     ytcenter.player._resize = (function(){
+      function getStage() {
+        var innerWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        var innerHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+        var isWatchStage = ytcenter.utils.hasClass(page, "watch-stage-mode");
+        var isWatchNonStage = ytcenter.utils.hasClass(page, "watch-non-stage-mode");
+
+        var config = (isWatchStage ? stageConfiguration : (isWatchNonStage ? nonStageConfiguration : []));
+
+        for (var i = 0, len = config.length; i < len; i++) {
+          if (config[i].minWidth <= innerWidth && config[i].minHeight <= innerHeight) {
+            return config[i];
+          }
+        }
+
+        return null;
+      }
+
       var _width = "";
       var _height = "";
       var _large = true;
@@ -22672,29 +22692,7 @@
       var _playerHeight = 0;
       
       var player_ratio = 16/9;
-      var playerBarHeight = 30;
-      var playerBarHeightNone = 0;
-      var playerBarHeightProgress = 3;
-      var playerBarHeightBoth = 35;
-      var maxInsidePlayerWidth = 1066;
-      var minInsidePlayerWidth = 1003;
-      
-      var minSmallPlayer = 640;
-      
-      var maxWatchNonStageWidth0 = 1280;
-      var maxWatchNonStageWidth1 = 1280;
-      var maxWatchNonStageWidth2 = 1415;
-      var maxWatchNonStageWidth3 = 1706;
-      
-      var maxWatchStageWidth0 = 1706;
-      
-      var maxWatchNonStagePlayerWidth0 = 854;
-      var maxWatchNonStagePlayerWidth1 = 854;
-      var maxWatchNonStagePlayerWidth2 = 960;
-      var maxWatchNonStagePlayerWidth3 = 1280;
-      
-      var maxWatchStagePlayerWidth0 = 1280;
-      
+
       ytcenter.player._updateResize = function(){
         if (!ytcenter.settings.enableResize || ytcenter.getPage() !== "watch") return;
         ytcenter.player._resize(_width, _height, _large, _align);
@@ -22728,46 +22726,270 @@
           }, 100);
         };
       })(), false);
+
+      var stageConfiguration = [
+        {
+          minWidth: 1320,
+          minHeight: 870,
+          playerWidth: 1280
+        }
+      ];
+
+      var nonStageConfiguration = [
+        {
+          minWidth: 1720,
+          minHeight: 980,
+          playerWidth: 1706
+        }, {
+          minWidth: 1294,
+          minHeight: 630,
+          playerWidth: 1280
+        }, {
+          minWidth: 1080,
+          minHeight: 560,
+          playerWidth: 1066
+        }
+      ];
+
+      var defaultPlayerMinWidth = 1003;
+      var defaultPlayerMaxWidth = 1066;
+
+      var sidebarWidth = 426;
+
+      function resize(width, height, large) {
+        var innerWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        var innerHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+        // Configurations
+        var stageMode = null;
+        var invalidDimensions = isNaN(parseInt(width)) && isNaN(parseInt(height));
+
+        // Element references
+        var page = document.getElementById("page");
+        var player = document.getElementById("player");
+        var playerAPI = document.getElementById("player-api");
+        var content = document.getElementById("content");
+        var sidebar = document.getElementById("watch7-sidebar");
+        var wContent = document.getElementById("watch7-content");
+        var container = document.getElementById("watch7-container");
+        var playlist = document.getElementById("watch-appbar-playlist");
+
+        if (large) {
+          ytcenter.utils.addClass(player, "watch-large");
+          ytcenter.utils.removeClass(player, "watch-small");
+
+          ytcenter.utils.addClass(container, "watch-wide");
+          playlist && ytcenter.utils.removeClass(playlist, "player-height");
+        } else {
+          ytcenter.utils.addClass(player, "watch-small");
+          ytcenter.utils.removeClass(player, "watch-large");
+
+          ytcenter.utils.removeClass(container, "watch-wide");
+          playlist && ytcenter.utils.addClass(playlist, "player-height");
+        }
+
+        // non-stage mode is present when the player is small
+        // stage mode is present when the player is large
+        //if (ytcenter.settings.ytOnlyStageMode) {
+          if (large) {
+            ytcenter.utils.addClass(page, "watch-stage-mode");
+              ytcenter.utils.removeClass(page, "watch-non-stage-mode");
+              stageMode = 0;
+          } else {
+            ytcenter.utils.removeClass(page, "watch-stage-mode");
+              ytcenter.utils.addClass(page, "watch-non-stage-mode");
+              stageMode = 1;
+          }
+        /*} else {
+          // TODO decide to support legacy sizes
+        }*/
+
+        if (invalidDimensions) {
+          var conf = null;
+
+          if (stageMode === 0) { // large
+            conf = getStageConfiguration(innerWidth, innerHeight);
+          } else if (stageMode === 1) { // small
+            conf = getNonStageConfiguration(innerWidth, innerHeight);
+          }
+
+          if (conf !== null) {
+            width = (conf.playerWidth - (stageMode === 1 ? sidebarWidth : 0)) + "px";
+          } else {
+            width = large ? "854px" : "640px";
+          }
+          height = ""; // let YouTube Center calculate the height
+        }
+
+        var playerDimension = getPlayerDimension(width, height);
+        if (ytcenter.utils.hasClass(player, "watch-multicamera")) {
+          playerDimension[1] += 80;
+        }
+        if (ytcenter.utils.hasClass(document.body, "exp-watch-controls-overlay")) {
+          playerDimension[1] -= 30;
+        }
+
+        var playerWidth = playerDimension[0];
+        var playerHeight = playerDimension[1] + getPlayerBarHeight();
+
+        // Applying style data to #player
+        if (large) {
+          player.style.width = playerWidth + "px";
+          player.style.maxWidth = "";
+          content.style.width = "";
+          content.style.maxWidth = "";
+          wContent.style.width = "";
+          sidebar.style.marginLeft = "";
+        } else {
+          var contentWidth = playerWidth + sidebarWidth;
+
+          // The content should have the width range of 1003px to 1066px (or larger)
+          if (defaultPlayerMaxWidth < contentWidth) {
+            player.style.maxWidth = contentWidth + "px";
+            content.style.maxWidth = contentWidth + "px";
+            wContent.style.width = playerWidth + "px";
+            sidebar.style.marginLeft = (playerWidth + 10) + "px";
+          } else {
+            player.style.maxWidth = "";
+            content.style.maxWidth = "";
+            wContent.style.width = "";
+            sidebar.style.marginLeft = "";
+          }
+
+          if (defaultPlayerMaxWidth < contentWidth && contentWidth > innerWidth) {
+            content.style.width = contentWidth + "px";
+          } else {
+            content.style.width = "";
+          }
+
+          player.style.width = ""; // The #player should not have a width
+        }
+
+        // Applying style data to #player-api
+        playerAPI.style.width = playerWidth + "px";
+        playerAPI.style.height = playerHeight + "px";
+        if (large) {
+          sidebar.style.top = "";
+        } else {
+          sidebar.style.top = -(playerHeight - 390) + "px";
+        }
+        ytcenter.utils.setCustomCSS("player-width", ".player-width { width: " + playerWidth + "px!important; }");
+        ytcenter.utils.setCustomCSS("player-height", ".player-height { height: " + playerHeight + "px!important; }");
+
+        // Add metadat to html
+        document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size
+        document.documentElement.setAttribute("data-ytc-player-size-height", height); // The height of the player as given by the player size
+        document.documentElement.setAttribute("data-ytc-player-size-calc-width", playerWidth); // The calculated width of the player in pixels.
+        document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
+        document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
+      }
+
+      function getPlayerDimension(width, height) {
+        var mastheadPositioner = document.getElementById("masthead-positioner");
+        var clientWidth = document.documentElement.clientWidth || window.innerWidth || document.body.clientWidth;
+        var clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
+
+        var calculatedWidth = convertToPixels(width, clientWidth);
+        var calculatedHeight = convertToPixels(height, clientHeight);
+
+        var playerRatio = ytcenter.player.ratio || 1;
+        var barheight = getPlayerBarHeight();
+
+        var heightUnit = getNumberUnit(width);
+        if (heightUnit === "%") {
+          if (mastheadPositioner && !ytcenter.settings.staticHeader && !ytcenter.utils.hasClass(document.body, "hide-header")) {
+            calculatedHeight -= mastheadPositioner.offsetHeight || mastheadPositioner.clientHeight;
+          }
+          calculatedHeight -= barheight;
+        }
+
+        if (!isNaN(calculatedWidth) && isNaN(calculatedHeight)) {
+          calculatedHeight = Math.round(calculatedWidth/playerRatio);
+        } else if (isNaN(calculatedWidth) && !isNaN(calculatedHeight)) {
+          if (heightUnit === "%") {
+            calculatedWidth = Math.round((calculatedHeight - barheight)*playerRatio);
+          } else {
+            calculatedWidth = Math.round(calculatedHeight*playerRatio);
+          }
+        }
+        
+        if (isNaN(calculatedWidth)) calculatedWidth = 0;
+        if (isNaN(calculatedHeight)) calculatedHeight = 0;
+
+        return [calculatedWidth, calculatedHeight];
+      }
+
+      function getNumberUnit(n) {
+        if ((n + '').match(/%$/)) return "%";
+        return "px";
+      }
+
+      function convertToPixels(n, scaleNumber) {
+        if ((!n && n !== 0) || n === "" || (typeof n === "number" && isNaN(n))) return NaN;
+
+        var unit = getNumberUnit(n);
+        if (unit === "px" && typeof n !== "number") return Math.round(parseInt(n, 10));
+
+        if (unit === "%") {
+          return Math.round(parseInt(n, 10)/100*scaleNumber);
+        }
+      }
+
+      function getStageConfiguration(width, height) {
+        for (var i = 0, len = stageConfiguration.length; i < len; i++) {
+          if (stageConfiguration[i].minWidth <= width && stageConfiguration[i].minHeight <= height) {
+            return stageConfiguration[i];
+          }
+        }
+
+        return null;
+      }
+
+      function getNonStageConfiguration(width, height) {
+        for (var i = 0, len = nonStageConfiguration.length; i < len; i++) {
+          if (nonStageConfiguration[i].minWidth <= width && nonStageConfiguration[i].minHeight <= height) {
+            return nonStageConfiguration[i];
+          }
+        }
+
+        return null;
+      }
+
+      function getPlayerBarHeight() {
+        var autohide = ytcenter.settings.autohide;
+        if (ytcenter.html5) {
+          if (ytcenter.player.ratio < 1.35 && autohide === "-1") {
+            autohide = "3"
+          }
+        } else {
+          if (ytcenter.player.config && ytcenter.player.config.args && (typeof ytcenter.player.config.args.autohide === "string" || typeof ytcenter.player.config.args.autohide === "number")) {
+            autohide = ytcenter.player.config.args.autohide;
+          } else {
+            autohide = "3";
+          }
+        }
+
+        var playerBarHeight = 30;
+        var playerBarHeightNone = 0;
+        var playerBarHeightProgress = 3;
+        var playerBarHeightBoth = 35;
+
+        if (autohide === "0") {
+          return playerBarHeightBoth;
+        } else if (autohide === "1") {
+          return playerBarHeightNone;
+        } else if (autohide === "2") {
+          return playerBarHeight;
+        } else if (autohide === "3") {
+          return playerBarHeightProgress;
+        } else {
+          return playerBarHeight;
+        }
+      }
+
       return function(width, height, large, align){
         if (!ytcenter.settings.enableResize) return;
         if (ytcenter.getPage() !== "watch") return;
-        
-        var innerWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        var innerHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-        
-        var clientWidth = document.documentElement.clientWidth || window.innerWidth || document.body.clientWidth;
-        var clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
-        
-        var page = document.getElementById("page");
-        var player = document.getElementById("player-legacy") || document.getElementById("player");
-        if (ytcenter.settings.ytOnlyStageMode) {
-          if (large) {
-            ytcenter.utils.addClass(page, "watch-stage-mode");
-            ytcenter.utils.removeClass(page, "watch-non-stage-mode");
-          } else {
-            ytcenter.utils.addClass(page, "watch-non-stage-mode");
-            ytcenter.utils.removeClass(page, "watch-stage-mode");
-          }
-        } else {
-          ytcenter.utils.removeClass(page, "watch-stage-mode watch-non-stage-mode");
-          ytcenter.utils.addClass(page, "watch-stage-mode-fix");
-        }
-        var isWatchNonStage101 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1294 <= innerWidth && 680 <= innerHeight;
-        var isWatchNonStage102 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-mini") && 1294 <= innerWidth && 630 <= innerHeight;
-        var isWatchNonStage201 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540") && 1400 <= innerWidth && 740 <= innerHeight;
-        var isWatchNonStage202 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-540-mini") && 1400 <= innerWidth && 690 <= innerHeight;
-        var isWatchNonStage301 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch") && 1720 <= innerWidth && 920 <= innerHeight;
-        var isWatchNonStage302 = ytcenter.utils.hasClass(document.body, "appbar-flexwatch-720-mini") && 1720 <= innerWidth && 920 <= innerHeight;
-        
-        var isWatchStage = ytcenter.utils.hasClass(page, "watch-stage-mode");
-        var isWatchNonStage = ytcenter.utils.hasClass(page, "watch-non-stage-mode");
-        
-        var isWatchStage0 = 1320 <= innerWidth && 870 <= innerHeight && isWatchStage && large;
-        
-        var isWatchNonStage0 = 1294 <= innerWidth && 630 <= innerHeight && isWatchNonStage && !large;
-        var isWatchNonStage1 = (isWatchNonStage101 || isWatchNonStage102) && isWatchNonStage && !large;
-        var isWatchNonStage2 = (isWatchNonStage201 || isWatchNonStage202) && isWatchNonStage && !large;
-        var isWatchNonStage3 = (isWatchNonStage301 || isWatchNonStage302) && isWatchNonStage && !large;
         
         width = width || "";
         height = height || "";
@@ -22783,422 +23005,8 @@
         } else {
           ytcenter.utils.removeClass(document.body, "ytcenter-player-darkside-bg");
         }
-        
-        // Class Assignment
-        var wc = document.getElementById("watch7-container");
-        if (wc) {
-          if (large) {
-            ytcenter.utils.addClass(wc, "watch-wide");
-          } else {
-            ytcenter.utils.removeClass(wc, "watch-wide");
-          }
-        }
-        if (player) {
-          if (large) {
-            ytcenter.utils.addClass(player, "watch-medium");
-            if (!_playlist_toggled) {
-              ytcenter.utils.addClass(player, "watch-playlist-collapsed");
-            }
-          } else {
-            ytcenter.utils.removeClass(player, "watch-medium");
-            if (ytcenter.utils.hasClass(player, "watch-playlist-collapsed")) {
-              _playlist_toggled = false;
-            } else {
-              _playlist_toggled = true;
-            }
-            ytcenter.utils.removeClass(player, "watch-playlist-collapsed");
-          }
-        }
-        if (align) {
-          ytcenter.utils.addClass(document.body, "ytcenter-resize-aligned");
-          ytcenter.utils.removeClass(document.body, "ytcenter-resize-disaligned");
-        } else {
-          ytcenter.utils.removeClass(document.body, "ytcenter-resize-aligned");
-          ytcenter.utils.addClass(document.body, "ytcenter-resize-disaligned");
-        }
-        
-        // Settings the sizes for small and large. If width and height is undefined
-        var stageSize = isNaN(parseInt(width)) && isNaN(parseInt(height));
-        if (stageSize) {
-          if (isWatchStage0) {
-            width = maxWatchStagePlayerWidth0 + "px";
-          } else if (isWatchNonStage3) {
-            width = maxWatchNonStagePlayerWidth3 + "px";
-          } else if (isWatchNonStage2) {
-            width = maxWatchNonStagePlayerWidth2 + "px";
-          } else if (isWatchNonStage1) {
-            width = maxWatchNonStagePlayerWidth1 + "px";
-          } else if (isWatchNonStage0) {
-            width = maxWatchNonStagePlayerWidth0 + "px";
-          } else {
-            width = large ? "854px" : "640px";
-          }
-          height = "";
-        }
-        
-        var pbh = 0;
-        var _pbh = 0;
-        var pbh_changed = false;
-        var autohide = ytcenter.settings.autohide;
-        if (ytcenter.html5) {
-          if (ytcenter.player.ratio < 1.35 && autohide === "-1") {
-            autohide = "3"
-          }
-        } else {
-          if (ytcenter.player.config && ytcenter.player.config.args && (typeof ytcenter.player.config.args.autohide === "string" || typeof ytcenter.player.config.args.autohide === "number")) {
-            autohide = ytcenter.player.config.args.autohide;
-          } else {
-            autohide = "3";
-          }
-        }
-        if (autohide === "0") {
-          pbh = playerBarHeightBoth;
-          _pbh = playerBarHeightBoth;
-        } else if (autohide === "1") {
-          pbh = playerBarHeightNone;
-          _pbh = playerBarHeightNone;
-        } else if (autohide === "2") {
-          pbh = playerBarHeight;
-          _pbh = playerBarHeight;
-        } else if (autohide === "3") {
-          pbh = playerBarHeightProgress;
-          _pbh = playerBarHeightProgress;
-        } else {
-          pbh = playerBarHeight;
-          _pbh = playerBarHeight;
-        }
-        
-        var calcWidth, calcHeight,
-            calcedWidth = false, calcedHeight = false;
-        if (width.match(/%$/) && width.length > 1) {
-          calcWidth = parseInt(width)/100*clientWidth;
-        } else if (width.length > 1) {
-          calcWidth = parseInt(width);
-        }
-        
-        if (height.match(/%$/) && height.length > 1) {
-          var mp = document.getElementById("masthead-positioner");
-          calcHeight = parseInt(height)/100*clientHeight;
-          if (mp && !ytcenter.settings.staticHeader && !ytcenter.utils.hasClass(document.body, "hide-header")) {
-            calcHeight -= mp.offsetHeight || mp.clientHeight;
-          }
-          pbh = 0;
-          pbh_changed = true;
-        } else if (height.length > 1) {
-          calcHeight = parseInt(height);
-        }
-        
-        if (!isNaN(calcWidth) && isNaN(calcHeight) && !calcedHeight) {
-          calcedHeight = true;
-          if (ytcenter.player.ratio !== 0) calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
-          else calcHeight = calcWidth;
-        } else if (isNaN(calcWidth) && !isNaN(calcHeight) && !calcedWidth) {
-          calcedWidth = true;
-          if (height.indexOf("%") !== -1 && height.match(/%$/) && height !== "%") {
-            calcWidth = Math.round((calcHeight - _pbh)*ytcenter.player.ratio);
-          } else {
-            calcWidth = Math.round(calcHeight*ytcenter.player.ratio);
-          }
-        }
-        if (!isNaN(calcWidth) && align && large) {
-          var ratio = calcWidth/calcHeight;
-          var maxWidth = Math.min(calcWidth, maxInsidePlayerWidth);
-          var minWidth = Math.min(calcWidth, minInsidePlayerWidth);
-          if (clientWidth > maxWidth) {
-            calcWidth = maxWidth;
-          } else if (clientWidth < minWidth) {
-            calcWidth = minWidth;
-          } else {
-            calcWidth = clientWidth;
-          }
-          
-          if (!isNaN(calcHeight) && typeof calcHeight === "number") {
-            if (ratio !== 0 && isFinite(ratio)) {
-              calcHeight = Math.round(calcWidth/ratio);
-            }
-          } else {
-            if (ytcenter.player.ratio !== 0) {
-              calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
-            } else {
-              calcHeight = calcWidth;
-            }
-          }
-        }
-        
-        if (isNaN(calcWidth)) calcWidth = 0;
-        if (isNaN(calcHeight)) calcHeight = 0;
-        
-        // Player Dimension
-        var sidebar = document.getElementById("watch7-sidebar"),
-            playerAPI = document.getElementById("player-api-legacy") || document.getElementById("player-api"),
-            theaterBackground = document.getElementById("theater-background"),
-            content = document.getElementById("watch7-main-container"),
-            contentMain = document.getElementById("watch7-main"),
-            playlist = document.getElementById("watch7-playlist-tray-container"),
-            playerWidth = Math.round(calcWidth),
-            playerHeight = Math.round(calcHeight + pbh),
-            playlist_el = document.getElementById("playlist-legacy") || document.getElementById("playlist");
-        
-        if (stageSize && (isWatchStage0 || isWatchNonStage3 || isWatchNonStage2 || isWatchNonStage1 || isWatchNonStage0)) {
-          var maxWidth = minSmallPlayer;
-          var minWidth = minSmallPlayer;
-          if (isWatchStage0) {
-            maxWidth = maxWatchStagePlayerWidth0;
-          } else if (isWatchNonStage3) {
-            maxWidth = maxWatchNonStagePlayerWidth3;
-          } else if (isWatchNonStage2) {
-            maxWidth = maxWatchNonStagePlayerWidth2;
-          } else if (isWatchNonStage1) {
-            maxWidth = maxWatchNonStagePlayerWidth1;
-          } else if (isWatchNonStage0) {
-            maxWidth = maxWatchNonStagePlayerWidth0;
-          }
-          
-          if (clientWidth > maxWidth) {
-            calcWidth = maxWidth;
-          } else {
-            calcWidth = minWidth;
-          }
-          if (ytcenter.player.ratio !== 0) {
-            calcHeight = Math.round(calcWidth/ytcenter.player.ratio);
-          } else {
-            calcHeight = calcWidth;
-          }
-        }
-        
-        if (player && player.className && player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5) {
-          playerHeight = playerHeight + 80;
-        }
 
-        var appbarPlaylist = document.getElementById('watch-appbar-playlist');
-        var autoscrollList = document.getElementById('playlist-autoscroll-list');
-        if (appbarPlaylist && autoscrollList) {
-          if (large) {
-            ytcenter.utils.removeClass(appbarPlaylist, "player-height");
-            autoscrollList.style.maxHeight = "";
-            appbarPlaylist.style.height = "";
-
-            if (ytcenter.settings.ytOnlyStageMode) {
-              autoscrollList.style.maxHeight = "";
-            } else {
-              var height = 390;
-              if (ytcenter.utils.hasClass(appbarPlaylist, "radio-playlist")) {
-                height += 40;
-              }
-
-              autoscrollList.style.maxHeight = height + 'px';
-            }
-          } else {
-            ytcenter.utils.addClass(appbarPlaylist, "player-height");
-
-            appbarPlaylist.style.height = playerHeight + 'px';
-            if (ytcenter.settings.ytOnlyStageMode) {
-              autoscrollList.style.maxHeight = "";
-            } else {
-              autoscrollList.style.maxHeight = (playerHeight - 100) + "px";
-            }
-          }
-        }
-        
-        document.documentElement.setAttribute("data-ytc-player-size-width", width); // The width of the player as given by the player size
-        document.documentElement.setAttribute("data-ytc-player-size-height", height); // The height of the player as given by the player size
-        document.documentElement.setAttribute("data-ytc-player-size-calc-width", playerWidth); // The calculated width of the player in pixels.
-        document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
-        document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
-        document.documentElement.setAttribute("data-ytc-player-size-aligned", align); // Whether the player should be aligned with the content element (description, comments, recommended videos and etc).
-        
-        /* Handle the YouTube player size classes (@name@ doesn't differentiate between watch-medium and watch-large
-           as the difference is only the size of the player and that is handled by @name@). */
-        ytcenter.utils.removeClass(player, "watch-small watch-medium watch-large");
-        if (player) {
-          if (large) {
-            ytcenter.utils.addClass(player, "watch-large");
-            player.style.marginTop = "10px";
-          } else {
-            ytcenter.utils.addClass(player, "watch-small");
-            player.style.marginTop = "";
-          }
-        }
-        
-        if (playlist_el) {
-          playlist_el.style.width = (large ? (align && playerWidth < maxInsidePlayerWidth ? maxInsidePlayerWidth : playerWidth) : maxInsidePlayerWidth) + "px";
-          if (large) {
-            playlist_el.style.width = "auto";
-            playlist_el.style.minWidth = "1003px";
-            playlist_el.style.maxWidth = "1066px";
-          } else {
-            playlist_el.style.minWidth = "";
-            playlist_el.style.maxWidth = "";
-          }
-        }
-        if (player) {
-          player.style.position = "";
-          player.style.left = "";
-          player.style.marginBottom = "";
-          if (playerAPI) {
-            playerAPI.style.cssFloat = "";
-          }
-          
-          if (large && isWatchStage0 && stageSize) {
-            player.style.width = "auto";
-            player.style.minWidth = minInsidePlayerWidth + "px";
-            player.style.maxWidth = maxWatchStageWidth0 + "px";
-          } else if (!large && stageSize) {
-            player.style.width = "auto";
-            player.style.minWidth = minInsidePlayerWidth + "px";
-            if (isWatchNonStage3) {
-              player.style.maxWidth = maxWatchNonStageWidth3 + "px";
-            } else if (isWatchNonStage2) {
-              player.style.maxWidth = maxWatchNonStageWidth2 + "px";
-            } else if (isWatchNonStage1) {
-              player.style.maxWidth = maxWatchNonStageWidth1 + "px";
-            } else if (isWatchNonStage0) {
-              player.style.maxWidth = maxWatchNonStageWidth0 + "px";
-            } else {
-              player.style.maxWidth = maxInsidePlayerWidth + "px";
-            }
-          } else if (align) {
-            player.style.maxWidth = maxInsidePlayerWidth + "px";
-            player.style.minWidth = minInsidePlayerWidth + "px";
-            player.style.width = "auto";
-            if (playerAPI) {
-              playerAPI.style.cssFloat = "left";
-            }
-          } else {
-            player.style.maxWidth = "";
-            player.style.minWidth = "";
-            player.style.width = (large ? playerWidth + "px" : "auto");
-          }
-          ytcenter.playerDocking.updateSize(playerWidth, playerHeight);
-          
-          if (playerAPI) {
-            playerAPI.style.width = playerWidth + "px";
-            playerAPI.style.height = playerHeight + "px";
-            _playerHeight = playerHeight;
-          }
-        }
-        
-        // Sidebar
-        if (sidebar) {
-          if (!large && !document.getElementById("watch7-playlist-data")) {
-            var mt = calcHeight + pbh + (document.getElementById("watch7-creator-bar") ? 48 : 0) - 390;
-            if (ytcenter.utils.hasClass(document.getElementById("watch7-container"), "watch-branded-banner") && !ytcenter.settings.removeBrandingBanner)
-              mt += 70;
-            sidebar.style.top = "-" + mt + "px";
-          } else {
-            sidebar.style.top = "";
-          }
-        }
-        
-        // Playlist
-        if (playlist) {
-          var playlistElement = document.getElementById("watch7-playlist-data"),
-              playlistBar,
-              __playlistWidth = Math.round(calcWidth),
-              __playlistRealWidth = __playlistWidth*0.5;
-          if (__playlistRealWidth < 275) __playlistRealWidth = 275;
-          else if (__playlistRealWidth > 400) __playlistRealWidth = 400;
-          playlist.style.width = (large ? __playlistRealWidth + "px" : "auto");
-          playlist.style.height = Math.round(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh)) + "px";
-          
-          if (playlistElement) playlistBar = playlistElement.children[0];
-          
-          if (playlistBar && playlistBar.children[0] && playlistBar.children[1]) {
-            playlistBar.style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
-            playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
-            playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
-          }
-        
-        
-          if (document.getElementById("playlist-tray") || document.getElementById("playlist-tray-legacy")) {
-            (document.getElementById("playlist-tray") || document.getElementById("playlist-tray-legacy")).style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
-          }
-          
-          playlist.style.right = "0";
-          playlist.style.left = "auto";
-        }
-        
-        // Player
-        if (playerAPI) {
-          if (width !== "" || height !== "") {
-            playerAPI.style.width = Math.round(calcWidth) + "px";
-            playerAPI.style.height = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0)) + "px";
-            _playerHeight = Math.round(calcHeight + pbh + (player.className.indexOf("watch-multicamera") !== -1 && !ytcenter.html5 ? 80 : 0));
-          } else {
-            playerAPI.style.width = "";
-            playerAPI.style.height = "";
-            document.getElementById("playlist-tray").style.top = "";
-          }
-          if (calcWidth > maxInsidePlayerWidth) {
-            playerAPI.style.margin = "";
-            if (align) {
-              playerAPI.style.marginLeft = "";
-            } else {
-              var wvOffset = ytcenter.utils.getAbsolutePosition(player);
-              var mLeft = Math.round(-(calcWidth - maxInsidePlayerWidth)/2);
-              if (-mLeft > wvOffset[0]) mLeft = -wvOffset[0];
-              playerAPI.style.marginLeft = mLeft + "px";
-            }
-          } else {
-            playerAPI.style.marginLeft = "";
-            playerAPI.style.margin = "";
-          }
-        
-          if (width === "100%") {
-            playerAPI.style.setProperty("margin-left", "0px", "important");
-            playerAPI.style.setProperty("margin-right", "0px", "important");
-          } else {
-            playerAPI.style.marginLeft = "";
-            playerAPI.style.marginRight = "";
-          }
-        }
-        
-        if (theaterBackground) {
-          theaterBackground.style.height = playerAPI.style.height;
-        }
-        
-        var playlistElement = document.getElementById("watch7-playlist-data"),
-            playlistBar;
-        if (playlistElement) playlistBar = playlistElement.children[0];
-        if (playlistBar && playlistBar.children[0] && playlistBar.children[1]) {
-          playlistBar.style.width = (large ? __playlistWidth : maxInsidePlayerWidth) + "px";
-          playlistBar.children[0].style.width = ((large ? __playlistWidth - __playlistRealWidth : __playlistWidth)) + "px";
-          playlistBar.children[1].style.width = (large ? "auto" : (maxInsidePlayerWidth - __playlistWidth) + "px");
-          
-          var playlistTrayContainer = document.getElementById("watch7-playlist-tray-container");
-          if (playlistTrayContainer) {
-            var __h = Math.round(calcHeight - (large ? (playerBarHeight - pbh) - 3 : -pbh));
-            playlistTrayContainer.style.height = __h + "px";
-            var playlistTray = document.getElementById("watch7-playlist-tray");
-            if (playlistTray) {
-              playlistTray.style.height = Math.round(__h - (large ? 0 : 27)) + "px";
-            }
-            playlistTrayContainer.style.width = (large ? __playlistRealWidth : maxInsidePlayerWidth - __playlistWidth) + "px";
-            
-            if (large) {
-              playlistTrayContainer.style.left = (large ? __playlistWidth - __playlistRealWidth : __playlistWidth) + "px";
-            } else {
-              playlistTrayContainer.style.left = "";
-            }
-            
-            var playlistTrayPositioning = document.getElementById("watch7-playlist-tray-positioning");
-            if (playlistTrayPositioning) {
-              playlistTrayPositioning.style.width = __playlistWidth + "px";
-              if (align) {
-                playlistTrayPositioning.style.margin = "";
-              } else {
-                playlistTrayPositioning.style.margin = "0 auto";
-              }
-            }
-          }
-        }
-        
-        if (!align || !large) {
-          uw.setTimeout(function(){
-            var player = document.getElementById("player");
-            player.style.left = "";
-          }, 0);
-        }
+        return resize(width, height, large);
       };
     })();
     ytcenter.player.getFPSArray = function(streams){
