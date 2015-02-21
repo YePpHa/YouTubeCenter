@@ -1,4 +1,5 @@
 body.ytcenter-site-watch.flex-width-enabled>* #page {
+  min-width: 0px !important;
   max-width: none !important;
 }
 

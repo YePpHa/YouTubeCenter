@@ -12633,8 +12633,9 @@
       return _o;
     };
     ytcenter.utils.cleanClasses = function(elm){
-      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
-      var classNames = elm.className.split(" "),
+      if (!elm) return;
+      var classes = elm.className + '';
+      var classNames = classes.split(" "),
           i, _new = [];
       for (i = 0; i < classNames.length; i++) {
         if (classNames[i] !== "" && !ytcenter.utils.inArray(_new, classNames[i])) {
@@ -12644,8 +12645,9 @@
       elm.className = _new.join(" ");
     };
     ytcenter.utils.hasClass = function(elm, className){
-      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
-      var classNames = elm.className.split(" "),
+      if (!elm) return;
+      var classes = elm.className + '';
+      var classNames = classes.split(" "),
           i;
       for (i = 0; i < classNames.length; i++) {
         if (classNames[i] === className) return true;
@@ -12653,7 +12655,7 @@
       return false;
     };
     ytcenter.utils.toggleClass = function(elm, className){
-      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
+      if (!elm) return;
       if (ytcenter.utils.hasClass(elm, className)) {
         ytcenter.utils.removeClass(elm, className);
       } else {
@@ -12661,8 +12663,9 @@
       }
     };
     ytcenter.utils.addClass = function(elm, className){
-      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
-      var classNames = elm.className.split(" "),
+      if (!elm) return;
+      var classes = elm.className + '';
+      var classNames = classes.split(" "),
           addClassNames = className.split(" "),
           _new = [],
           i, j, found;
@@ -12682,8 +12685,9 @@
       ytcenter.utils.cleanClasses(elm);
     };
     ytcenter.utils.removeClass = function(elm, className){
-      if (typeof elm === "undefined" || typeof elm.className === "undefined") return;
-      var classNames = elm.className.split(" "),
+      if (!elm) return;
+      var classes = elm.className + '';
+      var classNames = classes.split(" "),
           remClassNames = className.split(" "),
           _new = [],
           i, j, found;
@@ -24247,7 +24251,7 @@
       {groups: ["thumbnail"], element: function(){return document.body;}, className: "ytcenter-thumbnail-timecode-visible-never", condition: function(loc){return ytcenter.settings.videoThumbnailTimeCodeVisible === "never";}},
       {groups: ["hide-ticker", "page"], element: function(){return document.body;}, className: "ytcenter-ticker-hidden", condition: function(loc){
         if (ytcenter.settings["hideTicker"]) {
-          ytcenter.utils.removeClass("sitewide-ticker-visible", document.body);
+          ytcenter.utils.removeClass(document.body, "sitewide-ticker-visible");
           return true;
         } else {
           return false;
