@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         486
+// @version         487
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 486);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 487);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -25172,8 +25172,14 @@
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
         var page = ytcenter.getPage();
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+
         /* Only need to handle the Google+ comments */
         if (page === "comments") {
+          var widgetBounds = document.getElementById("widget_bounds");
+          if (widgetBounds) {
+            widgetBounds.style.width = ((document.body.clientWidth || document.body.offsetWidth || document.body.scrollWidth) - 1) + "px";
+          }
+
           ytcenter.commentsPlus.setup();
           return;
         }

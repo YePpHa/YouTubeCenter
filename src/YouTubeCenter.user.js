@@ -25172,8 +25172,14 @@
       ytcenter.pageReadinessListener.addEventListener("bodyInteractive", function(){
         var page = ytcenter.getPage();
         if (page === "embed" && !ytcenter.settings.embed_enabled) return;
+
         /* Only need to handle the Google+ comments */
         if (page === "comments") {
+          var widgetBounds = document.getElementById("widget_bounds");
+          if (widgetBounds) {
+            widgetBounds.style.width = ((document.body.clientWidth || document.body.offsetWidth || document.body.scrollWidth) - 1) + "px";
+          }
+
           ytcenter.commentsPlus.setup();
           return;
         }
