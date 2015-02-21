@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         482
+// @version         483
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 482);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 483);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -6497,37 +6497,37 @@
       };
     })();
     ytcenter.events = (function(){
-      function Event(type, fn) {
+      function SubscriptionEvent(type, fn) {
         this.type = type;
         this.fn = fn;
 
         this.flag = Event.FLAG_DEFAULT;
       }
-      Event.FLAG_DEFAULT = "default";
-      Event.FLAG_DOM_UNLOAD = "unload";
+      SubscriptionEvent.FLAG_DEFAULT = "default";
+      SubscriptionEvent.FLAG_DOM_UNLOAD = "unload";
 
-      Event.prototype.dispatch = function dispatch(scope) {
+      SubscriptionEvent.prototype.dispatch = function dispatch(scope) {
         var args = Array.prototype.splice.call(arguments, 1, arguments.length);
         this.fn.apply(scope, args);
 
         return this;
       }
-      Event.prototype.addEvent = function addEvent() {
+      SubscriptionEvent.prototype.addEvent = function addEvent() {
         db.push(this);
 
         return this;
       }
-      Event.prototype.removeEvent = function removeEvent() {
+      SubscriptionEvent.prototype.removeEvent = function removeEvent() {
         removeEvent(this.type, this.fn);
 
         return this;
       }
-      Event.prototype.setFlag = function setFlag(flag) {
+      SubscriptionEvent.prototype.setFlag = function setFlag(flag) {
         this.flag = flag;
       }
 
       function addEvent(type, fn) {
-        return (new Event(type, fn)).addEvent();
+        return (new SubscriptionEvent(type, fn)).addEvent();
       }
 
       function removeEvent(type, fn) {
@@ -6554,7 +6554,7 @@
 
       function onDOMUnload() {
         for (var i = 0, len = db.length; i < len; i++) {
-          if (db[i].flag === Event.FLAG_DOM_UNLOAD) {
+          if (db[i].flag === SubscriptionEvent.FLAG_DOM_UNLOAD) {
             db.splice(i, 1);
             i--; len--;
           }
