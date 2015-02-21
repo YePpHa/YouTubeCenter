@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         485
+// @version         486
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 485);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 486);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -15561,7 +15561,12 @@
             "SETTINGS_HIDE_FOOTER"
           );
           option.addEventListener('update', function(){
-            ytcenter.classManagement.updateClassesByGroup(["page"]);
+            if (ytcenter.settings.hideFooter) {
+              ytcenter.utils.addClass(document.body, "ytcenter-hide-footer");
+            } else {
+              ytcenter.utils.removeClass(document.body, "ytcenter-hide-footer");
+            }
+            //ytcenter.classManagement.updateClassesByGroup(["page"]);
           });
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -20659,10 +20664,13 @@
 
     ytcenter.playerDocking = (function(){
       function init() {
-        playerOffset && playerOffset.parentNode && playerOffset.parentNode.removeChild && playerOffset.parentNode.removeChild(playerOffset);
+        if (playerOffset && playerOffset.parentNode && typeof playerOffset.parentNode.removeChild === "function") {
+          playerOffset.parentNode.removeChild(playerOffset);
+        }
 
         playerOffset = document.createElement("div");
         playerOffset.setAttribute("id", "player-dock-offset");
+        playerOffset.className = "player-width player-height";
         var player = document.getElementById('player');
         if (player) {
           if (player.nextSibling) {
@@ -20675,7 +20683,7 @@
         update();
       }
       function updateSize(width, height) {
-        if (playerOffset && playerOffset.style) {
+        if (playerOffset) {
           playerOffset.style.width = width + 'px';
           playerOffset.style.height = height + 'px';
         }
@@ -22778,6 +22786,11 @@
         var container = document.getElementById("watch7-container");
         var playlist = document.getElementById("watch-appbar-playlist");
 
+        if (!player) {
+          con.error("Player element (#player) could not be found.");
+          return;
+        }
+
         if (large) {
           ytcenter.utils.addClass(player, "watch-large");
           ytcenter.utils.removeClass(player, "watch-small");
@@ -22870,8 +22883,11 @@
         }
 
         // Applying style data to #player-api
-        playerAPI.style.width = playerWidth + "px";
-        playerAPI.style.height = playerHeight + "px";
+        if (playerAPI) {
+          playerAPI.style.width = playerWidth + "px";
+          playerAPI.style.height = playerHeight + "px";
+        }
+        ytcenter.playerDocking.updateSize(playerWidth, playerHeight);
         if (large) {
           sidebar.style.top = "";
         } else {
@@ -24187,7 +24203,8 @@
       var i, j, k, elm = null;
       
       if (ytcenter.page === "embed") return;
-      url = url || ytcenter.utils.getURL(url);
+      if (url) url = ytcenter.utils.getURL(url);
+      else url = loc;
       
       if (!ytcenter.utils.isArray(groups)) {
         groups = [groups];
@@ -25165,38 +25182,42 @@
         /** YT Logo - Doodle Edition **/
         if (ytcenter.settings.useStaticLogo) {
           var logoContainer = document.getElementById("logo-container");
-          var parent = logoContainer.parentNode;
-          var doodleMap = logoContainer.getElementsByTagName("map");
-          
-          if (ytcenter.utils.hasClass(logoContainer, "doodle")) {
-            ytcenter.utils.removeClass(logoContainer, "doodle");
-            ytcenter.utils.removeClass(parent, "doodle");
+          if (logoContainer) {
+            var parent = logoContainer.parentNode;
+            var doodleMap = logoContainer.getElementsByTagName("map");
             
-            if (doodleMap && doodleMap.length > 0 && doodleMap[0] && doodleMap[0].parentNode) {
-              doodleMap[0].parentNode.removeChild(doodleMap[0]);
+            if (ytcenter.utils.hasClass(logoContainer, "doodle")) {
+              ytcenter.utils.removeClass(logoContainer, "doodle");
+              ytcenter.utils.removeClass(parent, "doodle");
+              
+              if (doodleMap && doodleMap.length > 0 && doodleMap[0] && doodleMap[0].parentNode) {
+                doodleMap[0].parentNode.removeChild(doodleMap[0]);
+              }
+              
+              var logoContainerA = document.createElement("a");
+              logoContainerA.setAttribute("id", logoContainer.getAttribute("id"));
+              logoContainerA.className = logoContainer.className;
+              logoContainerA.setAttribute("href", "/");
+              
+              var children = ytcenter.utils.toArray(logoContainer.children);
+              for (var i = 0, len = children.length; i < len; i++) {
+                logoContainer.removeChild(children[i]);
+                logoContainerA.appendChild(children[i]);
+              }
+              
+              logoContainer.parentNode.replaceChild(logoContainerA, logoContainer);
+              
+              logoContainer = logoContainerA;
+              
+              var logo = document.getElementById("logo");
+              logo.removeAttribute("usemap");
+              logo.removeAttribute("style");
+              
+              ytcenter.utils.addClass(document.body, "static-yt-logo");
+              ytcenter.utils.addClass(logoContainer, "doodle-removed");
             }
-            
-            var logoContainerA = document.createElement("a");
-            logoContainerA.setAttribute("id", logoContainer.getAttribute("id"));
-            logoContainerA.className = logoContainer.className;
-            logoContainerA.setAttribute("href", "/");
-            
-            var children = ytcenter.utils.toArray(logoContainer.children);
-            for (var i = 0, len = children.length; i < len; i++) {
-              logoContainer.removeChild(children[i]);
-              logoContainerA.appendChild(children[i]);
-            }
-            
-            logoContainer.parentNode.replaceChild(logoContainerA, logoContainer);
-            
-            logoContainer = logoContainerA;
-            
-            var logo = document.getElementById("logo");
-            logo.removeAttribute("usemap");
-            logo.removeAttribute("style");
-            
-            ytcenter.utils.addClass(document.body, "static-yt-logo");
-            ytcenter.utils.addClass(logoContainer, "doodle-removed");
+          } else {
+            ytcenter.utils.removeClass(document.body, "static-yt-logo");
           }
         }
         ytcenter.updateLogoLink();
