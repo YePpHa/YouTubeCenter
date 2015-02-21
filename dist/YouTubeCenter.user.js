@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         483
+// @version         485
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 483);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 0, true, 485);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -6501,7 +6501,12 @@
         this.type = type;
         this.fn = fn;
 
-        this.flag = Event.FLAG_DEFAULT;
+        this.flag = SubscriptionEvent.FLAG_DEFAULT;
+
+        this.dispatch = ytcenter.utils.bind(this, this.dispatch);
+        this.addEvent = ytcenter.utils.bind(this, this.addEvent);
+        this.removeEvent = ytcenter.utils.bind(this, this.removeEvent);
+        this.setFlag = ytcenter.utils.bind(this, this.setFlag);
       }
       SubscriptionEvent.FLAG_DEFAULT = "default";
       SubscriptionEvent.FLAG_DOM_UNLOAD = "unload";
@@ -6518,19 +6523,21 @@
         return this;
       }
       SubscriptionEvent.prototype.removeEvent = function removeEvent() {
-        removeEvent(this.type, this.fn);
+        _removeEvent(this.type, this.fn);
 
         return this;
       }
       SubscriptionEvent.prototype.setFlag = function setFlag(flag) {
         this.flag = flag;
+
+        return this;
       }
 
-      function addEvent(type, fn) {
+      function _addEvent(type, fn) {
         return (new SubscriptionEvent(type, fn)).addEvent();
       }
 
-      function removeEvent(type, fn) {
+      function _removeEvent(type, fn) {
         for (var i = 0, len = db.length; i < len; i++) {
           if (db[i].type === type && db[i].fn === fn) {
             db.splice(i, 1);
@@ -6540,14 +6547,12 @@
         return false;
       }
 
-      function performEvent(type) {
+      function _performEvent(type) {
         var staticArguments = Array.prototype.splice.call(arguments, 1, arguments.length);
         for (var i = 0, len = db.length; i < len; i++) {
           if (db[i].type === type) {
             try { db[i].dispatch.apply(db[i], [this].concat(staticArguments)); }
-            catch (e) {
-              con.error(e);
-            }
+            catch (e) { con.error(e); }
           }
         }
       }
@@ -6564,12 +6569,12 @@
       var db = [];
 
       ytcenter.spf.addEventListener("request", onDOMUnload);
-      window.addEventListener("unload", onDOMUnload, false);
+      //window.addEventListener("unload", onDOMUnload, false);
 
       var exports = {};
-      exports.addEvent = addEvent;
-      exports.removeEvent = removeEvent;
-      exports.performEvent = performEvent;
+      exports.addEvent = _addEvent;
+      exports.removeEvent = _removeEvent;
+      exports.performEvent = _performEvent;
       
       return exports;
     })();
@@ -7475,9 +7480,8 @@
         }
       }
       function unloadEvents() {
-        var i;
-        for (i = 0; i < unloadEventList.length; i++) {
-          ytcenter.events.removeEvent(unloadEventList[i][0], unloadEventList[i][1]);
+        for (var i = 0, len = unloadEventList.length; i < len; i++) {
+          unloadEventList[i].removeEvent();
         }
         unloadEventList = [];
       }
@@ -18290,9 +18294,9 @@
             "newline"
           );
           option.setVisibility(ytcenter.getPage() === "watch");
-          ytcenter.events.addEvent("ui-refresh", function(){
+          ytcenter.events.addEvent("ui-refresh", ytcenter.utils.bind(option, function(){
             this.setVisibility(ytcenter.getPage() === "watch");
-          }.bind(option));
+          }));
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
@@ -18343,9 +18347,9 @@
             }
           });
           option.setVisibility(ytcenter.getPage() === "watch");
-          ytcenter.events.addEvent("ui-refresh", function(){
+          ytcenter.events.addEvent("ui-refresh", ytcenter.utils.bind(option, function(){
             this.setVisibility(ytcenter.getPage() === "watch");
-          }.bind(option));
+          }));
           subcat.addOption(option);
           
           option = ytcenter.settingsPanel.createOption(
@@ -18360,9 +18364,9 @@
             }
           );
           option.setVisibility(ytcenter.getPage() === "watch");
-          ytcenter.events.addEvent("ui-refresh", function(){
+          ytcenter.events.addEvent("ui-refresh", ytcenter.utils.bind(option, function(){
             this.setVisibility(ytcenter.getPage() === "watch");
-          }.bind(option));
+          }));
           subcat.addOption(option);
 
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_SUBCAT_LIGHTSOFF"); cat.addSubCategory(subcat);
@@ -19157,13 +19161,13 @@
           if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6 || identifier === 8) {
             cat.setVisibility(false);
           }
-          ytcenter.events.addEvent("ui-refresh", function(){
+          ytcenter.events.addEvent("ui-refresh", ytcenter.utils.bind(cat, function(){
             if ((identifier === 1 && (uw.navigator.userAgent.indexOf("Opera") !== -1 || uw.navigator.userAgent.indexOf("OPR/") !== -1)) || identifier === 6 || identifier === 8) {
               this.setVisibility(false);
             } else {
               this.setVisibility(true);
             }
-          }.bind(cat));
+          }));
         }
         subcat = ytcenter.settingsPanel.createSubCategory("SETTINGS_TAB_GENERAL"); cat.addSubCategory(subcat);
           option = ytcenter.settingsPanel.createOption(
@@ -25932,15 +25936,8 @@
   function callUnsafeWindowEvent(id) {
     if (typeof id === "number" || typeof id === "string") {
       var args = Array.prototype.slice.call(arguments, 1);
-      
-      // Firefox 30 or newer
-      /*if (support.cloneInto) {
-        args = cloneInto(args, window);
-        console.log(args);
-      }*/
-      
       var detail = { id: id, arguments: args };
-      
+
       var e = document.createEvent("CustomEvent");
       e.initCustomEvent("ytc-page-call", true, true, JSON.stringify(detail));
       document.documentElement.dispatchEvent(e);
