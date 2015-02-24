@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         487
+// @version         488
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 487);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 488);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -8400,6 +8400,29 @@
       };
     };
     ytcenter.modules.importexport = function(){
+      function settingsPoolChecker(){
+        function success() {
+            dialog.getActionButton("save").disabled = false;
+            settingsPool.style.background = "";
+            saveEnabled = true;
+        }
+        function fail() {
+          dialog.getActionButton("save").disabled  = true;
+          settingsPool.style.background = "#FFAAAA";
+          saveEnabled = false;
+        }
+        try {
+          var data = JSON.parse(settingsPool.value);
+          if (typeof data === "object" && !!data) {
+            success();
+          } else {
+            fail();
+          }
+        } catch (e) {
+          fail();
+        }
+      }
+      
       var textLabel = ytcenter.gui.createYouTubeButtonTextLabel("SETTINGS_IMEX_TITLE"),
           content = document.createElement("div"),
           VALIDATOR_STRING = "YTCSettings=>",
@@ -8647,19 +8670,6 @@
       
       dialog.setWidth("490px");
       
-      var settingsPoolChecker = function(){
-        try {
-          JSON.parse(settingsPool.value);
-          dialog.getActionButton("save").disabled = false;
-          settingsPool.style.background = "";
-          saveEnabled = true;
-        } catch (e) {
-          dialog.getActionButton("save").disabled  = true;
-          settingsPool.style.background = "#FFAAAA";
-          saveEnabled = false;
-        }
-      };
-      
       ytcenter.utils.addEventListener(settingsPool, "input", settingsPoolChecker, false);
       ytcenter.utils.addEventListener(settingsPool, "keyup", settingsPoolChecker, false);
       ytcenter.utils.addEventListener(settingsPool, "paste", settingsPoolChecker, false);
@@ -8668,11 +8678,13 @@
       dialog.addEventListener("visibility", function(visible){
         if (visible) settingsPool.value = JSON.stringify(ytcenter.settings);
         else settingsPool.value = "";
+
+        settingsPoolChecker();
       });
       
       ytcenter.utils.addEventListener(exportFileButton, "click", function(){
         try {
-          var blob = new ytcenter.unsafe.io.Blob([settingsPool.value], { "type": "application/octet-stream" });
+          var blob = new ytcenter.unsafe.io.Blob([ JSON.stringify(ytcenter.settings) ], { "type": "application/octet-stream" });
           ytcenter.unsafe.io.saveAs(blob, "ytcenter-settings.ytcs");
         } catch (e) {
           con.error(e);
@@ -22805,21 +22817,15 @@
           playlist && ytcenter.utils.addClass(playlist, "player-height");
         }
 
-        // non-stage mode is present when the player is small
-        // stage mode is present when the player is large
-        //if (ytcenter.settings.ytOnlyStageMode) {
-          if (large) {
-            ytcenter.utils.addClass(page, "watch-stage-mode");
-              ytcenter.utils.removeClass(page, "watch-non-stage-mode");
-              stageMode = 0;
-          } else {
-            ytcenter.utils.removeClass(page, "watch-stage-mode");
-              ytcenter.utils.addClass(page, "watch-non-stage-mode");
-              stageMode = 1;
-          }
-        /*} else {
-          // TODO decide to support legacy sizes
-        }*/
+        if (large) {
+          ytcenter.utils.addClass(page, "watch-stage-mode");
+            ytcenter.utils.removeClass(page, "watch-non-stage-mode");
+            stageMode = 0;
+        } else {
+          ytcenter.utils.removeClass(page, "watch-stage-mode");
+            ytcenter.utils.addClass(page, "watch-non-stage-mode");
+            stageMode = 1;
+        }
 
         if (invalidDimensions) {
           var conf = null;
@@ -22861,7 +22867,7 @@
           var contentWidth = playerWidth + sidebarWidth;
 
           // The content should have the width range of 1003px to 1066px (or larger)
-          if (defaultPlayerMaxWidth < contentWidth) {
+          if (!invalidDimensions) {
             player.style.maxWidth = contentWidth + "px";
             content.style.maxWidth = contentWidth + "px";
             wContent.style.width = playerWidth + "px";
