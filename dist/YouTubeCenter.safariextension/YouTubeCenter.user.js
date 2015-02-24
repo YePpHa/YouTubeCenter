@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         488
+// @version         489
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 488);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 489);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -22376,20 +22376,59 @@
       };
     })();
     ytcenter.player.setAutoHide = function(autohide){
-      if (!ytcenter.html5 || autohide === "-1") return;
-      con.log("[HTML5 Player] Setting autohide to " + autohide);
+      if (!ytcenter.html5) return;
       var target = ytcenter.player.getReference().target;
       if (target) {
-        ytcenter.utils.removeClass(target, "ytcenter-autohide-both ytcenter-autohide-controlbar ytcenter-autohide-progressbar ytcenter-autohide-none autohide-controlbar autominimize-controls-aspect autohide-controls-fullscreenonly autohide-controls hide-controls-when-cued autominimize-progress-bar autominimize-progress-bar-fullscreenonly autohide-controlbar-fullscreenonly");
+        if (autohide === "-1") {
+          if (ytcenter.utils.hasClass(target, "autohide-controls-aspect")) {
+            ytcenter.utils.addClass(target, "autohide-controls");
+          } else if (ytcenter.utils.hasClass(target, "autohide-controls")) {
+            ytcenter.utils.addClass(target, "autohide-controls-aspect");
+          }
+          if (ytcenter.utils.hasClass(target, "autominimize-controls-aspect")) {
+            ytcenter.utils.addClass(target, "autominimize-controls");
+          } else if (ytcenter.utils.hasClass(target, "utominimize-controls")) {
+            ytcenter.utils.addClass(target, "autominimize-controls-aspect");
+          }
+          if (ytcenter.utils.hasClass(target, "autominimize-progress-bar-aspect")) {
+            ytcenter.utils.addClass(target, "autominimize-progress-bar");
+          } else if (ytcenter.utils.hasClass(target, "autominimize-progress-bar")) {
+            ytcenter.utils.addClass(target, "autominimize-progress-bar-aspect");
+          }
+
+          ytcenter.utils.removeClass(target, "autominimize-progress-bar-non-aspect");
+          return;
+        }
+        // Default:
+        // autohide-controls
+        // autominimize-controls
+        // autominimize-progress-bar
+        // 
+        // Non ideal aspect:
+        // autominimize-progress-bar-non-aspect
+        // 
+        // Ideal aspect:
+        // autohide-controls-aspect
+        // autominimize-controls-aspect
+        // autominimize-progress-bar-aspect
+        // 
+        // Fullscreen:
+        // autominimize-progress-bar-fullscreen
+        // autohide-controls-fullscreen
+        // autohide-controls-fullscreenonly
+        // 
+        
+        con.log("[HTML5 Player] Setting autohide to " + autohide);
+        ytcenter.utils.removeClass(target, "autohide-controls autominimize-controls autominimize-progress-bar autominimize-progress-bar-non-aspect autohide-controls-aspect autominimize-controls-aspect autominimize-progress-bar-aspect");
         
         if (autohide === "0") { // None
-          ytcenter.utils.addClass(target, "ytcenter-autohide-none autohide-controls-fullscreenonly autominimize-progress-bar-fullscreenonly");
+          //ytcenter.utils.addClass(target, "");
         } else if (autohide === "1") { // Both
-          ytcenter.utils.addClass(target, "ytcenter-autohide-both autominimize-progress-bar autohide-controls hide-controls-when-cued");
+          ytcenter.utils.addClass(target, "autominimize-progress-bar autominimize-progress-bar-aspect autohide-controls autohide-controls-aspect");
         } else if (autohide === "2") { // Progressbar
-          ytcenter.utils.addClass(target, "ytcenter-autohide-progressbar autominimize-progress-bar autominimize-controls-aspect autohide-controls-fullscreenonly");
+          ytcenter.utils.addClass(target, "autominimize-progress-bar autominimize-progress-bar-aspect autominimize-controls autominimize-controls-aspect");
         } else if (autohide === "3") { // Controlbar
-          ytcenter.utils.addClass(target, "ytcenter-autohide-controlbar autohide-controlbar autohide-controls-fullscreenonly autominimize-progress-bar");
+          ytcenter.utils.addClass(target, "autohide-controlbar autohide-controls-aspect autominimize-progress-bar autominimize-progress-bar-aspect");
         }
         ytcenter.events.performEvent("resize-update");
       }
@@ -22983,17 +23022,41 @@
 
       function getPlayerBarHeight() {
         var autohide = ytcenter.settings.autohide;
-        if (ytcenter.html5) {
-          if (ytcenter.player.ratio < 1.35 && autohide === "-1") {
-            autohide = "3"
+        var target = ytcenter.player.getReference().target;
+
+        if (target) {
+          if (ytcenter.utils.hasClass(target, "ideal-aspect autominimize-progress-bar-aspect autohide-controls-aspect") || ytcenter.utils.hasClass(target, "autominimize-progress-bar autohide-controls")) {
+            return 0;
+          } else if (ytcenter.utils.hasClass(target, "ideal-aspect autominimize-progress-bar-aspect autominimize-controls-aspect") || ytcenter.utils.hasClass(target, "autominimize-progress-bar autominimize-controls")) {
+            return 30;
+          } else if (ytcenter.utils.hasClass(target, "ideal-aspect autohide-controls-aspect") || ytcenter.utils.hasClass(target, "autohide-controls")) {
+            return 0;
+          } else {
+            return 35;
           }
         } else {
-          if (ytcenter.player.config && ytcenter.player.config.args && (typeof ytcenter.player.config.args.autohide === "string" || typeof ytcenter.player.config.args.autohide === "number")) {
-            autohide = ytcenter.player.config.args.autohide;
+          if (ytcenter.html5) {
+            if (ytcenter.player.ratio < 1.35 && autohide === "-1") {
+              autohide = "3"
+            }
           } else {
-            autohide = "3";
+            if (ytcenter.player.config && ytcenter.player.config.args && (typeof ytcenter.player.config.args.autohide === "string" || typeof ytcenter.player.config.args.autohide === "number")) {
+              autohide = ytcenter.player.config.args.autohide;
+            } else {
+              autohide = "3";
+            }
           }
         }
+
+        /*if (autohide === "0") { // None
+          //ytcenter.utils.addClass(target, "");
+        } else if (autohide === "1") { // Both
+          ytcenter.utils.addClass(target, "autominimize-progress-bar autominimize-progress-bar-aspect autohide-controls autohide-controls-aspect");
+        } else if (autohide === "2") { // Progressbar
+          ytcenter.utils.addClass(target, "autominimize-progress-bar autominimize-progress-bar-aspect autominimize-controls autominimize-controls-aspect");
+        } else if (autohide === "3") { // Controlbar
+          ytcenter.utils.addClass(target, "autohide-controlbar autohide-controls-aspect autominimize-progress-bar autominimize-progress-bar-aspect");
+        }*/
 
         var playerBarHeight = 30;
         var playerBarHeightNone = 0;
