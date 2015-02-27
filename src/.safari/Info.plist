@@ -41,17 +41,16 @@
 		<array>
 			<string>http://*.youtube.com/*</string>
 			<string>https://*.youtube.com/*</string>
-			<string>http://userscripts.org/scripts/source/114002.meta.js</string>
 			<string>http://s.ytimg.com/yts/jsbin/*</string>
 			<string>https://s.ytimg.com/yts/jsbin/*</string>
 			<string>http://apis.google.com/*/widget/render/comments?*</string>
 			<string>https://apis.google.com/*/widget/render/comments?*</string>
 			<string>http://plus.googleapis.com/*/widget/render/comments?*</string>
 			<string>https://plus.googleapis.com/*/widget/render/comments?*</string>
-      <string>http://github.com/YePpHa/YouTubeCenter/blob/master/*</string>
-      <string>https://github.com/YePpHa/YouTubeCenter/blob/master/*</string>
-      <string>http://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*</string>
-      <string>https://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*</string>
+			<string>http://github.com/YePpHa/YouTubeCenter/blob/master/*</string>
+			<string>https://github.com/YePpHa/YouTubeCenter/blob/master/*</string>
+			<string>http://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*</string>
+			<string>https://raw.githubusercontent.com/YePpHa/YouTubeCenter/master/*</string>
 		</array>
 	</dict>
 	<key>Description</key>

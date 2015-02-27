@@ -4,5 +4,10 @@
     "description": {
       "raw": "The default YouTube layout"
     }
+  }, {
+  	"codes": [ "SR64eWDDWNU" ],
+  	"description": {
+  		"raw": "Auto-hide controls on player"
+  	}
   }
 ]
