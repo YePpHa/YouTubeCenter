@@ -23024,7 +23024,7 @@
         var autohide = ytcenter.settings.autohide;
         var target = ytcenter.player.getReference().target;
 
-        if (target) {
+        if (target && autohide === "-1") {
           if (ytcenter.utils.hasClass(target, "ideal-aspect autominimize-progress-bar-aspect autohide-controls-aspect") || ytcenter.utils.hasClass(target, "autominimize-progress-bar autohide-controls")) {
             return 0;
           } else if (ytcenter.utils.hasClass(target, "ideal-aspect autominimize-progress-bar-aspect autominimize-controls-aspect") || ytcenter.utils.hasClass(target, "autominimize-progress-bar autominimize-controls")) {
@@ -25959,7 +25959,6 @@
     }
     
     if (e.name === "call") {
-      console.log("call from Safari with " + d.id);
       if (d.id < 0) {
         var id = (d.id * -1) - 1;
         _callback[id].apply(null, d.arguments);

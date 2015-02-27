@@ -44,9 +44,21 @@ body.hide-header-transition #masthead-positioner-height-offset {
   -webkit-transition: height .6s;
 }
 
+body.hide-header-transition .appbar-guide-menu-layout {
+  transition: margin-top .6s;
+  -moz-transition: margin-top .6s;
+  -ms-transition: margin-top .6s;
+  -o-transition: margin-top .6s;
+  -webkit-transition: margin-top .6s;
+}
+
 body.hide-header #masthead-positioner {
   position: fixed;
   top: -50px;
+}
+
+body.hide-header .appbar-guide-menu-layout {
+  margin-top: 0;
 }
 body.hide-header #masthead-positioner-height-offset,
 body.hide-header.appbar-hidden.ytcenter-ticker-hidden #masthead-positioner-height-offset {
