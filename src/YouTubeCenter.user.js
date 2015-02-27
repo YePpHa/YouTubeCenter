@@ -14665,6 +14665,9 @@
     
     ytcenter.mp3services = [
       {
+        label: 'SETTINGS_MP3SERVICES_PEGGO',
+        value: 'http://peggo.co/dvr/{videoid}'
+      }, {
         label: 'SETTINGS_MP3SERVICES_VIDEO2MP3',
         value: 'http://www.video2mp3.net/index.php?url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&hq=0'
       }, {
