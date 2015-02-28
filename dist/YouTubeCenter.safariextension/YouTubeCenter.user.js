@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         491
+// @version         492
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -98,7 +98,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 491);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 492);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -14693,7 +14693,7 @@
         value: 'http://www.hddownloader.com/index.php?act=do&url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D{videoid}&dldtype=256&outFormat=mp3'
       }, {
         label: 'SETTINGS_MP3SERVICES_YOUTUBEMP3PRO',
-        value: 'http://www.youtubemp3pro.com/#{videoid}'
+        value: 'http://www.youtubemp3pro.com/convert/https://www.youtube.com/watch?v={videoid}'
       }, {
         label: 'SETTINGS_MP3SERVICES_YOUTUBEMP3',
         value: 'http://www.youtube-mp3.org/#v={videoid}'
@@ -20677,6 +20677,64 @@
       return exports;
     })();
 
+    ytcenter.autoplayRecommendedVideo = (function(){
+      function init() {
+        autoplayCheckbox = document.getElementById("autoplay-checkbox");
+        initListeners();
+        initInterval();
+
+        setChecked(ytcenter.settings.enableEndscreenAutoplay);
+      }
+
+      function initListeners() {
+        if (autoplayCheckbox) {
+          autoplayCheckbox.addEventListener("change", onChange, false);
+        }
+      }
+
+      function initInterval() {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+        interval = setInterval(update, 500);
+      }
+
+      function onChange() {
+        toggled = !toggled;
+      }
+
+      function isChecked() {
+        return autoplayCheckbox && autoplayCheckbox.checked;
+      }
+
+      function setChecked(checked) {
+        if (autoplayCheckbox) {
+          autoplayCheckbox.checked = toggled = !!checked;
+        }
+      }
+
+      function update() {
+        if (autoplayCheckbox && autoplayCheckbox.checked !== toggled) {
+          setChecked(toggled);
+        }
+      }
+
+      var autoplayCheckbox = null;
+      var toggled = false;
+
+      var interval = null;
+
+      var exports = {};
+
+      exports.init = init;
+      exports.isChecked = isChecked;
+      exports.setChecked = setChecked;
+      exports.update = update;
+
+      return exports;
+    })();
+
     ytcenter.playerDocking = (function(){
       function init() {
         if (playerOffset && playerOffset.parentNode && typeof playerOffset.parentNode.removeChild === "function") {
@@ -24989,6 +25047,7 @@
           }
           ytcenter.playlistAutoPlay.init();
           ytcenter.playerDocking.init();
+          ytcenter.autoplayRecommendedVideo.init();
           
           ytcenter.effects.playerGlow.setOption("pixelInterval", ytcenter.settings.playerGlowPixelInterval);
           ytcenter.effects.playerGlow.setOption("factor", ytcenter.settings.playerGlowFactor);
@@ -25485,6 +25544,8 @@
               ytcenter.player.network.pause();
             }
           }
+
+          ytcenter.autoplayRecommendedVideo.update();
         });
         ytcenter.player.listeners.addEventListener("onStateChange", function(state){
           if (ytcenter.player.setPlaybackState.preferredState !== null) state = ytcenter.player.setPlaybackState.preferredState;
@@ -25494,6 +25555,8 @@
               ytcenter.player.network.pause();
             }
           }
+
+          ytcenter.autoplayRecommendedVideo.update();
         });
         
         if (page === "embed") {
@@ -25654,6 +25717,8 @@
         if (page !== "watch" && page !== "embed" && page !== "comments") {
           ytcenter.player.update();
         }
+
+        ytcenter.autoplayRecommendedVideo.update();
         
         ytcenter.classManagement.applyClassesForElement(document.body);
         
