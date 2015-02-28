@@ -86,7 +86,7 @@
   "SETTINGS_DONATE_TEXT": "If you want to donate you can do it by selecting one of the other tabs in this category or by going to the {wiki-donate}.",
   "SETTINGS_AUTOHIDECONTROLBAR_LIST_PROGRESSBAR": "Only progressbar",
   "SETTINGS_UPDATE_ENABLE": "Enable update checker",
-  "SETTINGS_ENDSCREEN_AUTOPLAY": "Auto-play first video in endscreen",
+  "SETTINGS_ENDSCREEN_AUTOPLAY": "Auto-play first recommended video",
   "SETTINGS_FILENAME_LABEL": "Filename",
   "SETTINGS_TAB_RESIZE": "Resize",
   "TRANSLATOR_CONTRIBUTORS": "Contributors",
