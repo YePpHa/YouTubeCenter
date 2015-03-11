@@ -7500,7 +7500,7 @@
         setButtonInput.style.width = "85px";
         setButtonInput.style.height = "15px";
         setButtonInput.style.verticalAlign = "middle";
-        setButtonInput.value = ytcenter.utils.getCookie("VISITOR_INFO1_LIVE");
+        setButtonInput.value = ytcenter.utils.getCookie("VISITOR_INFO1_LIVE") || "";
         
         setCodeWrapper.appendChild(setButton.element);
         setCodeWrapper.appendChild(setButtonInput);
@@ -20494,7 +20494,7 @@
       function onFocus(e) {
         e = e || window.event;
         var target = e.target;
-        if (target && target.tagName === "BUTTON") return;
+        //if (target && target.tagName === "BUTTON") return;
 
         var _focusTriggered = focusTriggered;
         focusTriggered = true;
@@ -20506,7 +20506,7 @@
       function onBlur(e) {
         e = e || window.event;
         var target = e.target;
-        if (target && target.tagName === "BUTTON") return;
+        //if (target && target.tagName === "BUTTON") return;
 
         var _focusTriggered = focusTriggered;
         focusTriggered = false;
@@ -21251,7 +21251,7 @@
       ytcenter.utils.addEventListener(document, "keydown", function(e){
         e = e || window.event;
         if (ytcenter.settings.enableYouTubeShortcuts && ytcenter.settings.enableShortcuts && ytcenter.getPage() === "watch" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          if (document.activeElement.tagName.toLowerCase() === "input" || document.activeElement.tagName.toLowerCase() === "textarea" || document.activeElement.tagName.toLowerCase() === "object" || document.activeElement.tagName.toLowerCase() === "embed" || document.activeElement.tagName.toLowerCase() === "button") return;
+          if (document.activeElement.tagName.toLowerCase() === "input" || document.activeElement.tagName.toLowerCase() === "textarea" || document.activeElement.tagName.toLowerCase() === "object" || document.activeElement.tagName.toLowerCase() === "embed" || document.activeElement.tagName.toLowerCase() === "button" || document.activeElement.tagName.toLowerCase() === "iframe") return;
           if (document.activeElement.id === "movie_player" && ytcenter.utils.hasClass(document.activeElement, "html5-video-player")) return;
           if (ytcenter.utils.isParent(document.getElementById("movie_player"), document.activeElement)) return;
           var player = ytcenter.player.getAPI();
