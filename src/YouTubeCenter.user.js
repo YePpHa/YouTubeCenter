@@ -78,7 +78,9 @@
 // @updateVersion   @ant-revision@
 // @run-at          document-start
 // @priority        9001
+// @homepageURL     https://github.com/YePpHa/YouTubeCenter/wiki
 // @contributionURL https://github.com/YePpHa/YouTubeCenter/wiki/Donate
+// @supportURL      https://github.com/YePpHa/YouTubeCenter/issues
 // @license         MIT
 // ==/UserScript==
 
@@ -20189,7 +20191,7 @@
             }
           }
           
-          if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
+          /*if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
             if (uw.yt.www.watch.lists.getState !== getState) {
               getStateFunction = uw.yt.www.watch.lists.getState;
               uw.yt.www.watch.lists.getState = getState;
@@ -20197,7 +20199,7 @@
           } else {
             con.log("[Playlist] getState not found!");
             setTimeout(initState, 2500);
-          }
+          }*/
         }
       }
 

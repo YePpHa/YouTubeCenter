@@ -40,6 +40,9 @@
 // @updateURL       @updateURL@
 // @downloadURL     @downloadURL@
 // @updateVersion   @ant-revision@
+// @homepageURL     https://github.com/YePpHa/YouTubeCenter/wiki
+// @contributionURL https://github.com/YePpHa/YouTubeCenter/wiki/Donate
+// @supportURL      https://github.com/YePpHa/YouTubeCenter/issues
 // @run-at          document-start
 // @priority        9001
 // ==/UserScript==
