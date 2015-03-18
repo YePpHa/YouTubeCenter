@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         493
+// @version         494
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -78,7 +78,9 @@
 // @updateVersion   155
 // @run-at          document-start
 // @priority        9001
+// @homepageURL     https://github.com/YePpHa/YouTubeCenter/wiki
 // @contributionURL https://github.com/YePpHa/YouTubeCenter/wiki/Donate
+// @supportURL      https://github.com/YePpHa/YouTubeCenter/issues
 // @license         MIT
 // ==/UserScript==
 
@@ -98,7 +100,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 493);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 494);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -10958,7 +10960,7 @@
                 // in this case both our functions contain the return"detailpage" text
                 // so we will be looking for that line in each function.
                 // we also only want to look for functions, the rest will only be a waste of time
-                if (typeof playerInstance[i][j] === 'function' && /return"detailpage"/.test(playerInstance[i][j].toString())) {
+                if (typeof playerInstance[i][j] === 'function' && /"detailpage"!=/.test(playerInstance[i][j].toString())) {
                   // now that we find one of the two functions we will check which one
                   // we detect so we can manipulate it accordingly.
                   // there are two functions: one relays the dimensions to the progressbar
@@ -20189,7 +20191,7 @@
             }
           }
           
-          if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
+          /*if (uw.yt && uw.yt.www && uw.yt.www.watch && uw.yt.www.watch.lists && uw.yt.www.watch.lists.getState) {
             if (uw.yt.www.watch.lists.getState !== getState) {
               getStateFunction = uw.yt.www.watch.lists.getState;
               uw.yt.www.watch.lists.getState = getState;
@@ -20197,7 +20199,7 @@
           } else {
             con.log("[Playlist] getState not found!");
             setTimeout(initState, 2500);
-          }
+          }*/
         }
       }
 

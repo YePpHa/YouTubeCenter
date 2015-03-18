@@ -10960,7 +10960,7 @@
                 // in this case both our functions contain the return"detailpage" text
                 // so we will be looking for that line in each function.
                 // we also only want to look for functions, the rest will only be a waste of time
-                if (typeof playerInstance[i][j] === 'function' && /return"detailpage"/.test(playerInstance[i][j].toString())) {
+                if (typeof playerInstance[i][j] === 'function' && /"detailpage"!=/.test(playerInstance[i][j].toString())) {
                   // now that we find one of the two functions we will check which one
                   // we detect so we can manipulate it accordingly.
                   // there are two functions: one relays the dimensions to the progressbar
