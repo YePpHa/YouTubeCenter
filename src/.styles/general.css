@@ -449,7 +449,7 @@ body.ytcenter-branding-remove-background #guide-container.branded {
 .ytcenter-lights-off #player-api-legacy,
 .ytcenter-lights-off #movie_player {
   position: relative;
-  z-index: 70!important;
+  z-index: 200000!important;
 }
 
 .ytcenter-lights-off #page-container {
@@ -469,7 +469,7 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   top: 0;
   width: 100%;
   height: 100%;
-  z-index: 49;
+  z-index: 199999;
   -moz-transform: translateZ(0);
   -ms-transform: translateZ(0);
   -webkit-transform: translateZ(0);
