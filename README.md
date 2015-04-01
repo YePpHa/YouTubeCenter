@@ -67,11 +67,13 @@ The keys in this file have the prefix and suffix `@`.
  * `chrome-id` -- The id of the Chrome extension. The id can be found in `chrome://extensions/` or calculated from the signing key.
  * `chrome-update-xml` -- The location of the file, which Chrome uses to check if a new version of the developer version of YouTube Center is available.
  * `chrome-update-file` -- The location of the newest version of the developer version of YouTube Center for Chrome is located.
+ * `chrome-webstore-name` -- The name of the extension in the Chrome Web Store.
+ * `chrome-webstore-name-dev` -- Same as the regular Chrome Web Store name, except for the dev builds of YouTube Center.
 
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2014 Jeppe Rune Mortensen
+Copyright © 2015 Jeppe Rune Mortensen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
