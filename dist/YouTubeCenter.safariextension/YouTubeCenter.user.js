@@ -1,7 +1,7 @@
-/**
+﻿/**
   The MIT License (MIT)
 
-  Copyright (c) 2014 Jeppe Rune Mortensen
+  Copyright © 2015 Jeppe Rune Mortensen
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of
   this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         496
+// @version         497
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -100,7 +100,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 496);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 497);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -12862,6 +12862,7 @@
       return false;
     };
     ytcenter.utils.arrayCompare = function(arr1, arr2) {
+      if (arr1.length !== arr2.length) return false;
       for (var i = 0; i < arr1.length; i++) {
         if (!ytcenter.utils.indexOf(arr2, arr1[i])) {
           return false;
@@ -26132,7 +26133,7 @@
   }
 
   function jsonReplacer(key, value) {
-    if (value instanceof EventTarget) {
+    if (value instanceof Node) {
       return value.toString();
     }
     return value;
