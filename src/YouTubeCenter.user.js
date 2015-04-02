@@ -12862,6 +12862,7 @@
       return false;
     };
     ytcenter.utils.arrayCompare = function(arr1, arr2) {
+      if (arr1.length !== arr2.length) return false;
       for (var i = 0; i < arr1.length; i++) {
         if (!ytcenter.utils.indexOf(arr2, arr1[i])) {
           return false;
@@ -26132,7 +26133,7 @@
   }
 
   function jsonReplacer(key, value) {
-    if (value instanceof EventTarget) {
+    if (value instanceof Node) {
       return value.toString();
     }
     return value;
