@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         498
+// @version         499
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -100,7 +100,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 498);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 499);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -10989,6 +10989,18 @@
         }
       }
       
+      function isNewPlayer() {
+        return (ytcenter.player.config && ytcenter.player.config.assets && ytcenter.player.config.assets.js && ytcenter.player.config.assets.js.indexOf("//s.ytimg.com/yts/jsbin/html5player-new-") === 0);
+      }
+      
+      function fixPlayerSize() {
+        if (isNewPlayer()) {
+          window.matchMedia = null;
+        } else {
+          patchDetour();
+        }
+      }
+      
       /* End Yonezpt glorious workaround */
       
       function load() {
@@ -11001,7 +11013,7 @@
           uw.myPlayerInstance = playerInstance;
         }
         
-        !createWrapped && patchDetour();
+        !createWrapped && fixPlayerSize();
         
         uw.ytplayer.config.loaded = true;
       }
@@ -11025,7 +11037,7 @@
               console.log("yt.player.Application.create has been called");
               playerInstance = instance;
               uw.myPlayerInstance = playerInstance;
-              patchDetour();
+              fixPlayerSize();
             }, function(){
               createWrapped = true;
             });
@@ -26017,7 +26029,7 @@
     if (chrome && chrome.storage && chrome.storage.local) {
       var storage = chrome.storage.local;
       var value = null;
-      if ((value = localStorage.getItem(key) || null) !== null) {
+      if (support.localStorage && (value = localStorage.getItem(key) || null) !== null) {
         console.log("[Chrome] Moving settings from old method to new method for " + key);
         var details = {};
         details[key] = value;
@@ -26048,7 +26060,7 @@
     if (chrome && chrome.storage && chrome.storage.local) {
       var storage = chrome.storage.local;
       var value = null;
-      if ((value = localStorage.getItem(key) || null) !== null) {
+      if (support.localStorage && (value = localStorage.getItem(key) || null) !== null) {
         console.log("[Chrome] Moving settings from old method to new method for " + key);
         var details = {};
         details[key] = value;

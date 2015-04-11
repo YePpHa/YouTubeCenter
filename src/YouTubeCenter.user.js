@@ -10989,6 +10989,18 @@
         }
       }
       
+      function isNewPlayer() {
+        return (ytcenter.player.config && ytcenter.player.config.assets && ytcenter.player.config.assets.js && ytcenter.player.config.assets.js.indexOf("//s.ytimg.com/yts/jsbin/html5player-new-") === 0);
+      }
+      
+      function fixPlayerSize() {
+        if (isNewPlayer()) {
+          window.matchMedia = null;
+        } else {
+          patchDetour();
+        }
+      }
+      
       /* End Yonezpt glorious workaround */
       
       function load() {
@@ -11001,7 +11013,7 @@
           uw.myPlayerInstance = playerInstance;
         }
         
-        !createWrapped && patchDetour();
+        !createWrapped && fixPlayerSize();
         
         uw.ytplayer.config.loaded = true;
       }
@@ -11025,7 +11037,7 @@
               console.log("yt.player.Application.create has been called");
               playerInstance = instance;
               uw.myPlayerInstance = playerInstance;
-              patchDetour();
+              fixPlayerSize();
             }, function(){
               createWrapped = true;
             });
