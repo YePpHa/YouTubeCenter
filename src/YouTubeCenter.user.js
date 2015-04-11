@@ -26017,7 +26017,7 @@
     if (chrome && chrome.storage && chrome.storage.local) {
       var storage = chrome.storage.local;
       var value = null;
-      if ((value = localStorage.getItem(key) || null) !== null) {
+      if (support.localStorage && (value = localStorage.getItem(key) || null) !== null) {
         console.log("[Chrome] Moving settings from old method to new method for " + key);
         var details = {};
         details[key] = value;
@@ -26048,7 +26048,7 @@
     if (chrome && chrome.storage && chrome.storage.local) {
       var storage = chrome.storage.local;
       var value = null;
-      if ((value = localStorage.getItem(key) || null) !== null) {
+      if (support.localStorage && (value = localStorage.getItem(key) || null) !== null) {
         console.log("[Chrome] Moving settings from old method to new method for " + key);
         var details = {};
         details[key] = value;
