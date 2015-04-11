@@ -60,6 +60,16 @@
   vertical-align: top;
 }
 
+.ytcenter-gridview #browse-items-primary .section-list > li {
+  float: left;
+  height: 229px;
+  overflow: hidden;
+}
+
+.ytcenter-gridview .feed-item-container .yt-lockup-thumbnail {
+  float: none !important;
+}
+
 .ytcenter-gridview .feed-item-header {
   display: none!important;
   position: absolute!important;
