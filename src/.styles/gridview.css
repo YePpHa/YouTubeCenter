@@ -15,7 +15,7 @@
   display: none!important;
 }
 
-.ytcenter-gridview ul.feed-list {
+.ytcenter-gridview ol.section-list {
   margin: 0 auto;
 }
 
@@ -23,12 +23,12 @@
   padding: 3px;
 }
 .ltr.ytcenter-gridview.cardified-page .yt-lockup-thumbnail,
-.ltr.ytcenter-gridview.cardified-page .feed-item-action-menu {
+.ltr.ytcenter-gridview.cardified-page .menu-container {
   margin-left: -3px;
   margin-top: -3px;
 }
 .rtl.ytcenter-gridview.cardified-page .yt-lockup-thumbnail,
-.rtl.ytcenter-gridview.cardified-page .feed-item-action-menu {
+.rtl.ytcenter-gridview.cardified-page .menu-container {
   margin-right: -3px;
   margin-top: -3px;
 }
@@ -43,6 +43,11 @@
 .ytcenter-gridview .feed-item-container .yt-lockup-thumbnail {
   width: 196px!important;
 }
+
+.ytcenter-gridview .feed-item-container .yt-lockup-thumbnail {
+  height: 112px!important;
+}
+
 .ytcenter-gridview .expanded-shelf-content-list,
 .ytcenter-gridview .expanded-shelf-content-item {
   margin-bottom: 0!important;
@@ -53,7 +58,7 @@
   margin-right: -15px;
   font-size: 0;
 }
-.ytcenter-gridview .feed-item-container {
+.ytcenter-gridview ol.section-list > li {
   display: inline-block;
   margin-right: 10px;
   margin-bottom: 20px;
@@ -74,11 +79,11 @@
   display: none!important;
 }
 
-.ltr.ytcenter-gridview .feed-item-action-menu {
+.ltr.ytcenter-gridview .menu-container {
   top: 8px!important;
   right: 0px!important;
 }
-.rtl.ytcenter-gridview .feed-item-action-menu {
+.rtl.ytcenter-gridview .menu-container {
   top: 8px!important;
   left: 0px!important;
 }
@@ -88,16 +93,16 @@
 }
 
 /* Removes margin from item main div */
-.ytcenter-gridview .feed-item-container .feed-item-main {
+.ytcenter-gridview .feed-item-container .feed-item-dismissable {
   margin: 0!important;
   border: 0!important;
 }
 
-.ltr.ytcenter-gridview .feed-item-container .feed-item-main .yt-lockup-content {
+.ltr.ytcenter-gridview .feed-item-container .feed-item-dismissable .yt-lockup-content {
   float: left!important;
   width: 100%!important;
 }
-.rtl.ytcenter-gridview .feed-item-container .feed-item-main .yt-lockup-content {
+.rtl.ytcenter-gridview .feed-item-container .feed-item-dismissable .yt-lockup-content {
   float: right!important;
   width: 100%!important;
 }
