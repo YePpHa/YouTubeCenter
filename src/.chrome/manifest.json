@@ -26,6 +26,7 @@
   "options_page": "options.html",
   @chrome-update-install-part@
   "permissions": [
+    "cookies",
     "storage",
     "unlimitedStorage",
     "http://*.youtube.com/*",
