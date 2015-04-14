@@ -19,6 +19,10 @@
   margin: 0 auto;
 }
 
+.ytcenter-gridview .feed-item-container .menu-container {
+  z-index: 1;
+}
+
 .ytcenter-gridview.cardified-page .feed-item-dismissable   {
   padding: 3px;
 }
