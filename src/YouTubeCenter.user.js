@@ -26145,7 +26145,7 @@
   }
 
   function jsonReplacer(key, value) {
-    if (value instanceof Node) {
+    if (typeof key === "string" && key !== "" && typeof value === "function") {
       return value.toString();
     }
     return value;
@@ -26183,7 +26183,7 @@
       try {
         var detailString = JSON.stringify(detail, jsonReplacer);
       } catch (e) {
-        console.log(detail);
+        console.log(detail, typeof Node);
         console.error(e);
       }
 
@@ -26481,6 +26481,26 @@
     }
   }
   
+  function setCookieChrome(key, value, expires, callback) {
+    chrome.cookies.set({
+      'url': location.href,
+      'name': key,
+      'value': value,
+      'domain': '.youtube.com',
+      'path': '/',
+      'httpOnly': false,
+      'secure': false,
+      'expirationDate': expires
+    }, callback);
+  }
+  
+  function getCookieChrome(key, callback) {
+    chrome.cookies.set({
+      'url': location.href,
+      'name': key
+    }, callback);
+  }
+  
   function windowUnload() {
     window.removeEventListener("message", messageListener, false);
     window.removeEventListener("unload", windowUnload, false);
@@ -26555,6 +26575,7 @@
     console.log("Domain registered " + document.domain + ".");
     
     if (isEmbeddedVideo() && isCookieEnabled()) {
+      console.log("cookie");
       try {
         var cookies = getCookies();
         var cookie = ("ytc_embed" in cookies ? cookies["ytc_embed"] : null);
@@ -26585,6 +26606,7 @@
         inject(main_function);
       }
     } else {
+      console.log("default");
       /* Continue normally */
       initListeners();
       initExtensionListeners();
