@@ -5963,7 +5963,7 @@
           if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
             updateWatchedClass(vt[i]);
           }
-          if ((loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
+          if (((loc.pathname.indexOf("/user/") === 0 && loc.pathname.indexOf("/videos") !== -1) || loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
             updateWatchedMessage(vt[i]);
           }
         }
@@ -6008,7 +6008,7 @@
             if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
               updateWatchedClass(videoThumbs[i]);
             }
-            if ((loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
+            if (((loc.pathname.indexOf("/user/") === 0 && loc.pathname.indexOf("/videos") !== -1) || loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) && ytcenter.settings.watchedVideosIndicator) {
               updateWatchedMessage(videoThumbs[i]);
             }
           }
