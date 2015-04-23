@@ -5662,7 +5662,7 @@
             watchedElement.className = "watched-badge";
             watchedElement.textContent = ytcenter.language.getLocale("SETTINGS_WATCHED");
             ytcenter.language.addLocaleElement(watchedElement, "SETTINGS_WATCHED", "@textContent");
-            item.content.insertBefore(watchedElement, item.content.children[0]);
+            item.content.insertBefore(watchedElement, item.content.children[1]);
           }
           ytcenter.utils.addClass(item.content, "watched");
         } else {
