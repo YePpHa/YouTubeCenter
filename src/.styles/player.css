@@ -1,3 +1,12 @@
+#placeholder-player .player-api {
+  max-width: 0;
+}
+
+.watch-stage-mode #player-api{
+  left: initial !important;
+  margin: 0 auto !important;
+}
+
 #player-api {
   position: relative;
 }
