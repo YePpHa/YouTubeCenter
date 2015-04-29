@@ -25,7 +25,9 @@ body.ytcenter-scrolled-top {
 }
 
 .ytcenter-scrolled-top #player-mole-container,
-.ytcenter-scrolled-top-player-pre #player-mole-container {
+.ytcenter-scrolled-top-player-pre #player-mole-container,
+.ytcenter-scrolled-top #player,
+.ytcenter-scrolled-top-player-pre #player {
   position: static !important;
 }
 
