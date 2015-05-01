@@ -21326,6 +21326,7 @@
           if (document.activeElement.tagName.toLowerCase() === "input" || document.activeElement.tagName.toLowerCase() === "textarea" || document.activeElement.tagName.toLowerCase() === "object" || document.activeElement.tagName.toLowerCase() === "embed" || document.activeElement.tagName.toLowerCase() === "button" || document.activeElement.tagName.toLowerCase() === "iframe") return;
           if (document.activeElement.id === "movie_player" && ytcenter.utils.hasClass(document.activeElement, "html5-video-player")) return;
           if (ytcenter.utils.isParent(document.getElementById("movie_player"), document.activeElement)) return;
+          if (document.activeElement.isContentEditable === true) return;
           var player = ytcenter.player.getAPI();
           switch (e.keyCode) {
             case 32: // Space
