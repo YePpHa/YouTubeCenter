@@ -23029,7 +23029,7 @@
 
         // Applying style data to #player
         if (large) {
-          player.style.width = playerWidth + "px";
+          //player.style.width = playerWidth + "px";
           player.style.maxWidth = "";
           content.style.width = "";
           content.style.maxWidth = "";
@@ -23057,7 +23057,7 @@
             content.style.width = "";
           }
 
-          player.style.width = ""; // The #player should not have a width
+          //player.style.width = ""; // The #player should not have a width
         }
 
         // Applying style data to #player-api
@@ -24501,6 +24501,7 @@
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-site-channel", condition: function(){return ytcenter.getPage() === "channel";}},
       {groups: ["header", "page"], element: function(){return document.body;}, className: "static-header", condition: function(){return ytcenter.settings.staticHeader;}},
       {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-non-resize", condition: function(loc){return loc.pathname === "/watch" && !ytcenter.settings.enableResize;}},
+      {groups: ["player-resize", "page"], element: function(){return document.body;}, className: "ytcenter-resize", condition: function(loc){return loc.pathname === "/watch" && ytcenter.settings.enableResize;}},
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-livestream", condition: function(){return ytcenter.player.isLiveStream();}},
       {groups: ["page"], element: function(){return document.getElementById("watch-appbar-playlist");}, className: "player-height", condition: function(){return !ytcenter.settings.enableResize;}},
       {groups: ["page", "html5player"], element: function(){return document.body;}, className: "ytcenter-hide-watch-later-on-player", condition: function(){return ytcenter.settings.hideWatchLaterOnPlayer;}},
