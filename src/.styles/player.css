@@ -2,13 +2,28 @@
   max-width: 0;
 }
 
-.watch-stage-mode #player-api{
+.ytcenter-resize .watch-stage-mode #player-api,
+.ytcenter-resize .watch-stage-mode #player-unavailable{
   left: initial !important;
   margin: 0 auto !important;
+  position: relative !important;
 }
 
-#player-api {
+.ytcenter-resize .exp-watch-controls-overlay #watch-sidebar-spacer {
+  height: 0 !important;
+}
+
+.ytcenter-resize #player-api {
   position: relative;
+}
+
+.ytcenter-resize #player {
+  width: 100% !important;
+}
+
+.ytcenter-resize #player-mole-container {
+  position: absolute;
+  width: 100%;
 }
 
 body.ytcenter-scrolled-top {

@@ -15,14 +15,6 @@ body.ytcenter-player-darkside-bg #player #theater-background {
   background-color: #1B1B1B; /* Yes, we have cookies */
 }
 
-body.ytcenter-player-darkside-bg.ytcenter-non-resize #player.watch-medium #theater-background {
-  height: 510px;
-}
-
-body.ytcenter-player-darkside-bg.ytcenter-non-resize #player.watch-large #theater-background {
-  height: 750px;
-}
-
 body.ytcenter-player-darkside-bg.ytcenter-player-darkside-bg-retro #player #theater-background {
   background-color: #444;
   background-image: -moz-linear-gradient(top, #555, #333);
