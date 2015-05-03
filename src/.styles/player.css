@@ -6,7 +6,7 @@
 .ytcenter-resize .watch-stage-mode #player-unavailable{
   left: initial !important;
   margin: 0 auto !important;
-  position: relative !important;
+  position: relative;
 }
 
 .ytcenter-resize .exp-watch-controls-overlay #watch-sidebar-spacer {
