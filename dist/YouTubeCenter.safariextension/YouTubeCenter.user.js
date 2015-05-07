@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         508
+// @version         509
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -100,7 +100,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 508);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 509);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -20676,7 +20676,7 @@
         mouseLeaveTimeout !== null && clearTimeout(mouseLeaveTimeout);
 
         var _mouseTriggered = mouseTriggered;
-        if (ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility && e.clientY <= threshold && e.clientY >= 0) {
+        if ((ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility && e.clientY <= threshold && e.clientY >= 0) || document.getElementById("guide").contains(e.target)) {
           mouseTriggered = true;
         } else {
           mouseTriggered = false;

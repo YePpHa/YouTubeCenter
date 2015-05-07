@@ -20676,7 +20676,7 @@
         mouseLeaveTimeout !== null && clearTimeout(mouseLeaveTimeout);
 
         var _mouseTriggered = mouseTriggered;
-        if (ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility && e.clientY <= threshold && e.clientY >= 0) {
+        if ((ytcenter.settings.hideHeaderWhenPlayerPlayingMouseVisibility && e.clientY <= threshold && e.clientY >= 0) || document.getElementById("guide").contains(e.target)) {
           mouseTriggered = true;
         } else {
           mouseTriggered = false;
