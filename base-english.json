@@ -1,4 +1,6 @@
 {
+  "SETTINGS_GOOGLE_API_KEY": "API key",
+  "SETTINGS_GOOGLE_USE_V3": "Use v3 API for requests",
   "SETTINGS_MP3SERVICES_PEGGO": "Peggo.co (Silence removal, Volume normalization, Optimal sound quality)",
   "PLAYLIST_AUTOPLAY": "Autoplay",
   "SETTINGS_PLAYER_PLAYING_HIDE_HEADER_TRANSITION_TIME": "Transition time",

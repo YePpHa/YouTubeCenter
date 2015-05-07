@@ -5194,16 +5194,31 @@
         if (item.likes && item.dislikes) {
           callback(item.likes, item.dislikes);
         } else if (item.id) {
-          ytcenter.utils.xhr({
-            url: "https://gdata.youtube.com/feeds/api/videos/" + item.id + "?v=2&alt=json",
+          var url;
+          if (ytcenter.settings.google_usev3) {
+            var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
+            url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + encodeURIComponent(item.id) + "&key=" + encodeURIComponent(apikey);
+          } else {
+            url = "https://gdata.youtube.com/feeds/api/videos/" + item.id + "?v=2&alt=json";
+          }
+          
+          (ytcenter.settings.google_usev3 ? ytcenter.utils.browser_xhr : ytcenter.utils.xhr)({
+            url: url,
             method: "GET",
             onload: function(r){
               try {
                 if (!r.responseText) throw "unavailable";
-                var videoData = JSON.parse(r.responseText).entry,
-                    ratings = videoData.yt$rating;
-                item.likes = parseInt(ratings ? ratings.numLikes : 0);
-                item.dislikes = parseInt(ratings ? ratings.numDislikes : 0);
+                if (ytcenter.settings.google_usev3) {
+                  var videoData = JSON.parse(r.responseText).items[0];
+                  var statistics = videoData.statistics;
+                  item.likes = parseInt(statistics ? statistics.likeCount : 0);
+                  item.dislikes = parseInt(statistics ? statistics.dislikeCount : 0);
+                } else {
+                  var videoData = JSON.parse(r.responseText).entry,
+                      ratings = videoData.yt$rating;
+                  item.likes = parseInt(ratings ? ratings.numLikes : 0);
+                  item.dislikes = parseInt(ratings ? ratings.numDislikes : 0);
+                }
                 if (isInCache(item)) {
                   updateItemInCache(item);
                 } else {
@@ -12069,6 +12084,47 @@
     ytcenter.utils.xhr = function(details){
       ytcenter.unsafeCall("xhr", [details], null);
     };
+    ytcenter.utils.browser_xhr = function(details){
+      var xmlhttp;
+      if (typeof XMLHttpRequest != "undefined") {
+        xmlhttp = new XMLHttpRequest();
+      } else {
+        details["onerror"](responseState);
+      }
+      xmlhttp.onreadystatechange = function(){
+        var responseState = {
+          responseXML: '',
+          responseText: (xmlhttp.readyState == 4 ? xmlhttp.responseText : ''),
+          readyState: xmlhttp.readyState,
+          responseHeaders: (xmlhttp.readyState == 4 ? xmlhttp.getAllResponseHeaders() : ''),
+          status: (xmlhttp.readyState == 4 ? xmlhttp.status : 0),
+          statusText: (xmlhttp.readyState == 4 ? xmlhttp.statusText : ''),
+          finalUrl: (xmlhttp.readyState == 4 ? xmlhttp.finalUrl : '')
+        };
+        if (details["onreadystatechange"]) {
+          details["onreadystatechange"](responseState);
+        }
+        if (xmlhttp.readyState == 4) {
+          if (details["onload"] && xmlhttp.status >= 200 && xmlhttp.status < 300) {
+            details["onload"](responseState);
+          }
+          if (details["onerror"] && (xmlhttp.status < 200 || xmlhttp.status >= 300)) {
+            details["onerror"](responseState);
+          }
+        }
+      };
+      try {
+        xmlhttp.open(details.method, details.url);
+      } catch(e) {
+        details["onerror"]();
+      }
+      if (details.headers) {
+        for (var prop in details.headers) {
+          xmlhttp.setRequestHeader(prop, details.headers[prop]);
+        }
+      }
+      xmlhttp.send((typeof(details.data) !== 'undefined') ? details.data : null);
+    };
     ytcenter.utils.getScrollOffset = function(){
       var top = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
       var left = Math.max(document.body.scrollLeft, document.documentElement.scrollLeft);
@@ -13901,6 +13957,8 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      google_usev3: false,
+      google_apikey: '',
       placementTransformation: [],
       hideFooter: false,
       enablePlayerDocking: false,
@@ -15513,6 +15571,28 @@
             "SETTINGS_PLAYER_ONLY_ONE_INSTANCE_PLAYING",
             null,
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Only_One_Player_Instance_Playing"
+          );
+          subcat.addOption(option);
+
+          option = ytcenter.settingsPanel.createOption(
+            null, // defaultSetting
+            "line"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "google_usev3", // defaultSetting
+            "bool", // module
+            "SETTINGS_GOOGLE_USE_V3"
+          );
+          subcat.addOption(option);
+          
+          option = ytcenter.settingsPanel.createOption(
+            "google_apikey", // defaultSetting
+            "textfield", // module
+            "SETTINGS_GOOGLE_API_KEY",
+            null,
+            "https://developers.google.com/api-client-library/python/guide/aaa_apikeys"
           );
           subcat.addOption(option);
 
