@@ -13957,6 +13957,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
+      player_gap: false,
       google_usev3: true,
       google_apikey: '',
       placementTransformation: [],
@@ -15869,6 +15870,22 @@
               ]
             },
             "https://github.com/YePpHa/YouTubeCenter/wiki/Features#wiki-Remove_Endscreen"
+          );
+          subcat.addOption(option);
+          option = ytcenter.settingsPanel.createOption(
+            "player_gap", // defaultSetting
+            "bool", // module
+            "SETTINGS_PLAYER_GAP", // label
+            {
+              "listeners": [
+                {
+                  "event": "click",
+                  "callback": function(){
+                    ytcenter.events.performEvent("ui-refresh");
+                  }
+                }
+              ]
+            }
           );
           subcat.addOption(option);
           option = ytcenter.settingsPanel.createOption(
@@ -20936,11 +20953,10 @@
         var header = document.getElementById('masthead-positioner');
         var defaultHeight = 50;
         var height = header.clientHeight || header.offsetHeight || defaultHeight;
-
-        if (ytcenter.utils.scrollTop() === height) {
-          ytcenter.utils.scrollTop(0);
-          window.removeEventListener('scroll', whyDoYouScrollDotCOM, true);
-        }
+        
+        ytcenter.utils.scrollTop(0);
+        
+        window.removeEventListener('scroll', whyDoYouScrollDotCOM, true);
       }
       window.addEventListener('scroll', whyDoYouScrollDotCOM, true);
     })();
@@ -24602,7 +24618,8 @@
       {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-livestream", condition: function(){return ytcenter.player.isLiveStream();}},
       {groups: ["page"], element: function(){return document.getElementById("watch-appbar-playlist");}, className: "player-height", condition: function(){return !ytcenter.settings.enableResize;}},
       {groups: ["page", "html5player"], element: function(){return document.body;}, className: "ytcenter-hide-watch-later-on-player", condition: function(){return ytcenter.settings.hideWatchLaterOnPlayer;}},
-      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-hide-footer", condition: function(){return ytcenter.settings.hideFooter;}}
+      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-hide-footer", condition: function(){return ytcenter.settings.hideFooter;}},
+      {groups: ["page"], element: function(){return document.body;}, className: "ytcenter-player-gap", condition: function(){return ytcenter.settings.player_gap;}}
     ];
     ytcenter.intelligentFeed = (function(){
       var exports = {}, observer, config = { attributes: true }, feed;

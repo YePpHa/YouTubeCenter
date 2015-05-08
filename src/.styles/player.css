@@ -1,3 +1,8 @@
+body.ytcenter-player-gap .watch-stage-mode #player,
+body.ytcenter-player-gap .watch-stage-mode #placeholder-player {
+  margin-top: 0;
+}
+
 .watch-stage-mode #player-playlist .radio-playlist .playlist-videos-list {
   max-height: 390px !important;
 }
