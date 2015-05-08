@@ -1990,7 +1990,7 @@
       }
       function play() {
         if ((ytcenter.player.isPreventAutoBuffering() && !isReady) || forceStop) {
-          //HTMLVideoElement.prototype.pause.apply(this, arguments);
+          HTMLVideoElement.prototype.pause.apply(this, arguments);
           
           var api = ytcenter.player.getAPI();
           if (api && api.stopVideo) {
@@ -25859,17 +25859,21 @@
           var api, state;
           if (ytcenter.player.getAPI) api = ytcenter.player.getAPI();
           if (api && api.getPlayerState) state = ytcenter.player.getAPI().getPlayerState();
+          if (state === 3) state = -1;
           if (state === 1) {
             ytcenter.title.addPlayIcon();
           } else {
             ytcenter.title.removePlayIcon();
           }
           ytcenter.title.update();
-          ytcenter.player.fixThumbnailOverlay();
+          
+          console.log("onStateChange", state);
+          ytcenter.player.fixThumbnailOverlay(state);
         });
         
         var tmpFixRepeatAtEnd = false;
         ytcenter.player.listeners.addEventListener("onStateChange", function(state, b) {
+          console.log("onStateChange", state);
           ytcenter.player.fixThumbnailOverlay(state);
           
           if (state === 1) {
