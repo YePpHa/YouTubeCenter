@@ -78,12 +78,16 @@ body.ytcenter-scrolled-top {
 .ltr.ytcenter-scrolled-top #player-api,
 .ltr.ytcenter-scrolled-top #player-api-legacy {
   left: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 .rtl.ytcenter-scrolled-top-player-pre #player-api,
 .rtl.ytcenter-scrolled-top-player-pre #player-api-legacy,
 .rtl.ytcenter-scrolled-top #player-api,
 .rtl.ytcenter-scrolled-top #player-api-legacy {
   right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .ytcenter-scrolled-top #player-api,

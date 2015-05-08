@@ -22788,7 +22788,7 @@
       }
       var updatescrollToPlayerButtonPosition = function(){
         if (!ytcenter.settings.enableResize) return;
-        var appbar = document.getElementById("appbar-onebar-upload-group");
+        var appbar = document.getElementById("appbar-onebar-upload-group") || document.getElementById("yt-masthead-user");
         if (appbar && !scrollToPlayerButton.parentNode) {
           appbar.insertBefore(scrollToPlayerButton, appbar.children[0]);
         }
@@ -24865,7 +24865,7 @@
       } else {
         ytcenter.utils.removeClass(document.body, "ytcenter-branding-remove-background");
       }
-      ytcenter.classManagement.updateClassesByGroup(["player-branding"]);
+      ytcenter.classManagement.updateClassesByGroup(["player-branding", "page"]);
     });
     
     ytcenter.cssElements = {};
