@@ -400,7 +400,10 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   cursor: pointer;
 }
 
-.ytcenter-settings-header a.yt-uix-button.yt-uix-button-epic-nav-item, .ytcenter-settings-header button.yt-uix-button-epic-nav-item, .ytcenter-settings-header .epic-nav-item, .ytcenter-settings-header .epic-nav-item-heading {
+.ytcenter-settings-header a.yt-uix-button.yt-uix-button-epic-nav-item,
+.ytcenter-settings-header button.yt-uix-button-epic-nav-item,
+.ytcenter-settings-header .epic-nav-item,
+.ytcenter-settings-header .epic-nav-item-heading {
   border: none;
   padding: 0 3px 3px 3px;
   cursor: pointer;
@@ -443,12 +446,10 @@ body.ytcenter-branding-remove-background #guide-container.branded {
   display: inline-block;
 }
 
-.ytcenter-lights-off #watch7-video, 
-.ytcenter-lights-off #p, 
+.ytcenter-lights-off #watch7-video,
 .ytcenter-lights-off #player-api,
 .ytcenter-lights-off #player-api-legacy,
 .ytcenter-lights-off #movie_player {
-  position: relative;
   z-index: 200000!important;
 }
 
