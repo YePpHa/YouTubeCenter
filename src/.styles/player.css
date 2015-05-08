@@ -30,6 +30,11 @@ body.ytcenter-scrolled-top {
   overflow: hidden;
 }
 
+.ytcenter-scrolled-top #player-playlist,
+.ytcenter-scrolled-top-player-pre #player-playlist {
+  display: none;
+}
+
 .ytcenter-scrolled-top .watch-sidebar {
   top: 0!important;
 }
