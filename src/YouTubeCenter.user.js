@@ -13957,7 +13957,7 @@
     ytcenter.languages = @ant-database-language@;
     
     ytcenter._settings = {
-      google_usev3: false,
+      google_usev3: true,
       google_apikey: '',
       placementTransformation: [],
       hideFooter: false,
