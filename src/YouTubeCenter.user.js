@@ -23045,6 +23045,7 @@
         var page = document.getElementById("page");
         var player = document.getElementById("player");
         var playerAPI = document.getElementById("player-api");
+        var playerPlaylist = document.getElementById("player-playlist");
         var content = document.getElementById("content");
         var sidebar = document.getElementById("watch7-sidebar");
         var wContent = document.getElementById("watch7-content");
@@ -23061,12 +23062,14 @@
           ytcenter.utils.removeClass(player, "watch-small");
 
           ytcenter.utils.addClass(container, "watch-wide");
+          ytcenter.utils.addClass(page, "watch-wide");
           playlist && ytcenter.utils.removeClass(playlist, "player-height");
         } else {
           ytcenter.utils.addClass(player, "watch-small");
           ytcenter.utils.removeClass(player, "watch-large");
 
           ytcenter.utils.removeClass(container, "watch-wide");
+          ytcenter.utils.removeClass(page, "watch-wide");
           playlist && ytcenter.utils.addClass(playlist, "player-height");
         }
 
@@ -23100,9 +23103,6 @@
         var playerDimension = getPlayerDimension(width, height);
         if (ytcenter.utils.hasClass(player, "watch-multicamera")) {
           playerDimension[1] += 80;
-        }
-        if (ytcenter.utils.hasClass(document.body, "exp-watch-controls-overlay")) {
-          playerDimension[1] -= 30;
         }
 
         var playerWidth = playerDimension[0];
@@ -23146,12 +23146,22 @@
           playerAPI.style.width = playerWidth + "px";
           playerAPI.style.height = playerHeight + "px";
         }
+        if (playerPlaylist) {
+          playerPlaylist.style.marginTop = -playerHeight + "px";
+        }
+        if (playlist) {
+          if (large) {
+            playlist.style.top = (playerHeight - (isExperimentalPlayer() ? 360 : 390)) + "px";
+          } else {
+            playlist.style.top = "";
+          }
+        }
         ytcenter.playerDocking.updateSize(playerWidth, playerHeight);
-        if (large) {
+        /*if (large) {
           sidebar.style.top = "";
         } else {
           sidebar.style.top = -(playerHeight - 390) + "px";
-        }
+        }*/
         ytcenter.utils.setCustomCSS("player-width", ".player-width { width: " + playerWidth + "px!important; }");
         ytcenter.utils.setCustomCSS("player-height", ".player-height { height: " + playerHeight + "px!important; }");
 
@@ -23233,8 +23243,14 @@
 
         return null;
       }
+      
+      function isExperimentalPlayer() {
+        return (ytcenter.utils.hasClass(document.body, "exp-watch-controls-overlay"));
+      }
 
       function getPlayerBarHeight() {
+        if (isExperimentalPlayer()) return 0;
+        
         var autohide = ytcenter.settings.autohide;
         var target = ytcenter.player.getReference().target;
 
