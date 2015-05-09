@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         518
+// @version         519
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -100,7 +100,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 518);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 519);\n//# sourceURL=YouTubeCenter.js"));
     p.appendChild(script);
     p.removeChild(script);
   }
@@ -3934,230 +3934,82 @@
           observer.disconnect();
         }
       });
-      exports.filters = {};
-      exports.filters.repeat = function(condition, obj){
-        return (new RegExp("(.)\\1{" + parseInt(condition.amount, 10) + ",}")).test(obj.contentElement.textContent);
-      };
-      exports.filters.biggerThan = function(condition, obj){
-        var len = obj.contentElement.textContent.length;
-        if (len < parseInt(condition.length, 10))
-          return true;
-        return false;
-      };
-      exports.filters.smallerThan = function(condition, obj){
-        var len = obj.contentElement.textContent.length;
-        if (len > parseInt(condition.length, 10))
-          return true;
-        return false;
-      };
-      exports.filters.equals = function(condition, obj){
-        var len = obj.contentElement.textContent.length;
-        if (len === parseInt(condition.length, 10))
-          return true;
-        return false;
-      };
-      exports.filters.text = function(condition, obj){
-        var regex = new RegExp(ytcenter.utils.replaceTextToText(condition.regex, {
-          "${username}": ytcenter.utils.escapeRegExp(obj.username),
-          "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
-          "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
-        }));
-        return regex.test(obj.contentElement.textContent);
-      };
-      exports.filters.links = function(condition, obj){
-        var regex, regexString = ytcenter.utils.replaceTextToText(condition.regex, {
-              "${username}": ytcenter.utils.escapeRegExp(obj.username),
-              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
-              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
-            }), attr = condition.attr || "href", links = obj.contentElement.getElementsByTagName("a"), i;
-        for (i = 0; i < links.length; i++) {
-          regex = new RegExp(ytcenter.utils.replaceTextToText(regexString, { "${linkContent}": links[i].textContent }));
-          if (ytcenter.utils.hasClass(links[i], "ot-anchor") && regex.test(links[i][attr]))
-            return true;
-        }
-        return false;
-      };
-      exports.filters.profilelinks = function(condition, obj){
-        var regex, regexString = ytcenter.utils.replaceTextToText(condition.regex, {
-              "${username}": ytcenter.utils.escapeRegExp(obj.username),
-              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
-              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
-            }), attr = condition.attr || "href",
-            links = obj.contentElement.getElementsByTagName("a"), i;
-        for (i = 0; i < links.length; i++) {
-          regex = new RegExp(ytcenter.utils.replaceTextToText(regexString, { "${linkContent}": links[i].textContent }));
-          if (ytcenter.utils.hasClass(links[i], "proflink") && regex.test(links[i][attr]))
-            return true;
-        }
-        return false;
-      };
-      exports.filters.hashlinks = function(condition, obj){
-        var regex, regexString = ytcenter.utils.replaceTextToText(condition.regex, {
-              "${username}": ytcenter.utils.escapeRegExp(obj.username),
-              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
-              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
-            }), attr = condition.attr || "href",
-            links = obj.contentElement.getElementsByTagName("a"), i;
-        for (i = 0; i < links.length; i++) {
-          regex = new RegExp(ytcenter.utils.replaceTextToText(regexString, { "${linkContent}": links[i].textContent }));
-          if (ytcenter.utils.hasClass(links[i], "ot-hashtag") && regex.test(links[i][attr]))
-            return true;
-        }
-        return false;
-      };
-      exports.filters.username = function(condition, obj){
-        var regex = new RegExp(ytcenter.utils.replaceTextToText(condition.regex, {
-              "${username}": ytcenter.utils.escapeRegExp(obj.username),
-              "${textContent}": ytcenter.utils.escapeRegExp(obj.textContent),
-              "${isReply}": ytcenter.utils.escapeRegExp(obj.isReply ? "1" : "0")
-            })), img = obj.wrapper.getElementsByTagName("img")[0];
-        if (regex.test(img.getAttribute("title")))
-          return true;
-        return false;
-      };
-      
-      exports.testFilters = function(list, obj){
-        var i;
-        for (i = 0; i < list.length; i++) {
-          if (list[i].type in exports.filters) {
-            if (exports.filters[list[i].type](list[i], obj))
-              return true;
-          }
-        }
-        return false;
-      };
       exports.__commentInfoIdNext = 0;
-      exports.getCommentObjectByWrapper = function(wrapper){
+      exports.getCommentByElement = function(element){
         var i;
         for (i = 0; i < exports.comments.length; i++) {
-          if (exports.comments[i].wrapper === wrapper) return exports.comments[i];
+          if (exports.comments[i].element === element) return exports.comments[i];
         }
         return null;
       };
-      exports.getCommentObject = function(contentElement, reshared){
-        var commentInfo = {}, tmp;
-        commentInfo.isShared = (typeof reshared === "boolean" ? reshared : false);
+      exports.getCommentObject = function(element){
+        var detail = {};
+        detail.element = element;
+        detail.entryElement = element.parentNode;
+        detail.contentElement = element.getElementsByClassName("content")[0];
         
-        if (!contentElement) {
-          con.error("[CommentsPlus:getCommentObject] contentElement is undefined!");
-          return commentInfo;
+        detail.headerElement = detail.contentElement.getElementsByClassName("comment-header")[0];
+        detail.textElement = detail.contentElement.getElementsByClassName("comment-text")[0];
+        
+        detail.isReply = ytcenter.utils.hasClass(element, "reply");
+        detail.hasSource = element.getElementsByClassName("comment-source").length > 0;
+        
+        detail.parentComment = null;
+        if (detail.isReply) {
+          detail.parentComment = exports.getCommentByElement(element.parentNode.previousElementSibling);
         }
         
-        commentInfo.inDOM = true;
-        commentInfo.contentElement = contentElement;
-        commentInfo.textContent = contentElement.textContent;
-        commentInfo.shared = commentInfo.textContent === "";
-        commentInfo.children = ytcenter.utils.toArray(contentElement.childNodes); // We don't want the array to change
+        detail.url = element.getElementsByTagName("a")[0].getAttribute("href");
+        console.log(detail.url);
+        detail.protocol = detail.url.indexOf("https://") === 0 ? "https" : "http";
         
-        commentInfo.isReply = !commentInfo.isShared && contentElement && contentElement.parentNode && contentElement.parentNode.className.indexOf("Pm") === -1;
-        commentInfo.isOrignalSharedReference = !commentInfo.isShared &&
-                                               contentElement &&
-                                               contentElement.parentNode &&
-                                               contentElement.parentNode.parentNode &&
-                                               contentElement.parentNode.parentNode.parentNode &&
-                                               contentElement.parentNode.parentNode.parentNode.parentNode &&
-                                               contentElement.parentNode.parentNode.parentNode.parentNode.className.indexOf("dga") !== -1;
-        if (commentInfo.isReply) {
-          commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode;
-          commentInfo.parentId = exports.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.firstChild).id;
-        } else if (commentInfo.isOrignalSharedReference) {
-          try {
-            exports.addCommentObject(exports.getCommentObject(contentElement, true));
-          } catch (e) {
-            con.error(e);
-          }
-          commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode;
-          var parent = exports.getCommentObjectByWrapper(commentInfo.wrapper.parentNode.parentNode);
-          commentInfo.parentId = (parent !== null ? parent.id : null);
-        } else {
-          if (commentInfo.isShared) {
-            commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
-          } else {
-            commentInfo.wrapper = contentElement.parentNode.parentNode.parentNode.parentNode.parentNode;
-          }
-          commentInfo.parentId = -1;
-        }
-        if (commentInfo.isOrignalSharedReference) {
-          commentInfo.username = commentInfo.wrapper.children[1].textContent;
-        } else {
-          commentInfo.username = commentInfo.wrapper.getElementsByTagName("img")[0].getAttribute("title");
-        }
-        commentInfo.profileRedirectURL = commentInfo.wrapper.getElementsByTagName("img")[0].parentNode.href;
-        
-        if (commentInfo.profileRedirectURL.indexOf(ytcenter.protocol) !== 0) {
+        if (detail.url.indexOf(ytcenter.protocol) !== 0) {
           if (ytcenter.protocol === "http://") {
-            commentInfo.profileRedirectURL = commentInfo.profileRedirectURL.replace(/^https/, "http");
+            detail.url = detail.url.replace(/^https/, "http");
           } else if (ytcenter.protocol === "https://") {
-            commentInfo.profileRedirectURL = commentInfo.profileRedirectURL.replace(/^http/, "https");
+            detail.url = detail.url.replace(/^http/, "https");
           }
         }
         
-        if (commentInfo.profileRedirectURL.indexOf("youtube.com/profile_redirector/") !== -1) {
-          commentInfo.profileRedirectId = commentInfo.profileRedirectURL.split("youtube.com/profile_redirector/")[1];
-          commentInfo.channelRedirectId = null;
-          commentInfo.googlePlusRedirectId = null;
-        } else if (commentInfo.profileRedirectURL.indexOf("youtube.com/channel/") !== -1) {
-          commentInfo.channelRedirectId = commentInfo.profileRedirectURL.split("youtube.com/channel/")[1];
-          commentInfo.profileRedirectId = null;
-          commentInfo.googlePlusRedirectId = null;
-        } else if (commentInfo.profileRedirectURL.indexOf("youtube.com/user/") !== -1) {
-          commentInfo.channelRedirectId = commentInfo.profileRedirectURL.split("youtube.com/user/")[1];
-          commentInfo.profileRedirectId = null;
-          commentInfo.googlePlusRedirectId = null;
-        } else if (commentInfo.profileRedirectURL.indexOf("apis.google.com/u/") !== -1) {
-          var s = commentInfo.profileRedirectURL.split("/");
-          commentInfo.googlePlusRedirectId = s[s.length - 1];
-          commentInfo.channelRedirectId = null;
-          commentInfo.profileRedirectId = null;
+        detail.channelId = null;
+        detail.googleId = null;
+        detail.profileId = null;
+        
+        if (detail.url.indexOf("youtube.com/profile_redirector/") !== -1) {
+          detail.profileId = detail.url.split("youtube.com/profile_redirector/")[1];
+        } else if (detail.url.indexOf("youtube.com/channel/") !== -1) {
+          detail.channelId = detail.url.split("youtube.com/channel/")[1];
+        } else if (detail.url.indexOf("/channel/") !== -1) {
+          detail.channelId = detail.url.split("/channel/")[1];
+        } else if (detail.url.indexOf("youtube.com/user/") !== -1) {
+          detail.channelId = detail.url.split("youtube.com/user/")[1];
+        } else if (detail.url.indexOf("/user/") !== -1) {
+          detail.channelId = detail.url.split("/user/")[1];
+        } else if (detail.url.indexOf("apis.google.com/u/") !== -1) {
+          var tokens = detail.url.split("/");
+          detail.googleId = tokens[tokens.length - 1];
+        }
+        
+        detail.country = ytcenter.cache.getItem("profile_country", detail.profileId || detail.channelId);
+        
+        if (detail.country) {
+          detail.country = detail.country.data;
         } else {
-          commentInfo.profileRedirectId = null;
-          commentInfo.channelRedirectId = null;
-          commentInfo.googlePlusRedirectId = null;
+          detail.country = null;
         }
         
-        if (commentInfo.isReply) {
-          commentInfo.headerElement = commentInfo.wrapper.getElementsByClassName("fR")[0];
-        } else if (commentInfo.isOrignalSharedReference) {
-          commentInfo.headerElement = commentInfo.wrapper;
-        } else {
-          commentInfo.headerElement = commentInfo.wrapper.getElementsByClassName("Mpa")[0];
-        }
-        if (!commentInfo.headerElement) {
-          con.error("[Comment Info] headerElement is undefined");
-        }
+        detail.flagAdded = false;
         
-        if (commentInfo.isReply || commentInfo.isOrignalSharedReference) {
-          commentInfo.headerUserDataElement = commentInfo.headerElement;
-        } else {
-          commentInfo.headerUserDataElement = commentInfo.headerElement.parentNode;
-        }
-        
-        if (commentInfo.isReply) {
-          commentInfo.viaGooglePlus = commentInfo.headerElement && commentInfo.headerElement.children && commentInfo.headerElement.children.length === 3 ? false : true;
-        } else if (commentInfo.isOrignalSharedReference) {
-          commentInfo.viaGooglePlus = true;
-        } else {
-          commentInfo.viaGooglePlus = commentInfo.headerElement && commentInfo.headerElement.children && commentInfo.headerElement.children.length === 1 ? false : true;
-        }
-        
-        commentInfo.country = ytcenter.cache.getItem("profile_country", commentInfo.profileRedirectId || commentInfo.channelRedirectId);
-        
-        if (commentInfo.country) commentInfo.country = commentInfo.country.data;
-        else commentInfo.country = null;
-        
-        commentInfo.flagAdded = false;
-        
-        return commentInfo;
+        return detail;
       };
       exports.comments = [];
       exports.commentLoaded = function(commentObject){
         var i;
         for (i = 0; i < exports.comments.length; i++) {
           /* Make sure that a comment won't be added multiple times */
-          if (exports.comments[i].isOrignalSharedReference === commentObject.isOrignalSharedReference &&
-              exports.comments[i].isShared === commentObject.isShared &&
-              (exports.comments[i].contentElement === commentObject.contentElement || exports.comments[i].wrapper === commentObject.wrapper))
+          if (exports.comments[i].element === commentObject.element) {
             return true;
+          }
         }
         return false;
       };
@@ -4172,70 +4024,12 @@
         exports.comments.push(commentObject);
       };
       exports.loadComments = function(){
-        var a = document.getElementsByClassName("Ct"), i;
-        for (i = 0; i < a.length; i++) {
+        var comments = document.getElementsByClassName("comment-item");
+        for (var i = 0; i < comments.length; i++) {
           try {
-            exports.addCommentObject(exports.getCommentObject(a[i]));
+            exports.addCommentObject(exports.getCommentObject(comments[i]));
           } catch (e) {
             con.error(e);
-          }
-        }
-      };
-      exports.filter = function(){
-        var i, obj, blockedElement;
-        for (i = 0; i < exports.comments.length; i++) {
-          if (ytcenter.utils.hasClass(exports.comments[i].contentElement, "ytcenter-comments-loaded")) continue;
-          exports.comments[i].contentElement.className += " ytcenter-comments-loaded";
-          obj = exports.comments[i];
-          
-          if (exports.testFilters(ytcenter.settings.commentsPlusWhitelist, obj))
-            continue;
-          
-          /* Blacklist */
-          if (exports.testFilters(ytcenter.settings.commentsPlusBlacklist, obj)) {
-            blockedElement = document.createElement("div");
-            
-            blockedElement.textContent = "Comment Blocked by YouTube Center Developer Build!"; // This is only temporary
-            /*blockedElement.addEventListener("click", (function(obj, blockedElement, wrap){
-              function blockedElementListener(){
-                ytcenter.utils.removeClass(wrap, "ytcenter-comments-blocked");
-                blockedElement.parentNode.removeChild(blockedElement);
-                blockedElement.removeEventListener("click", blockedElementListener, false);
-              }
-              return blockedElementListener;
-            })(obj, blockedElement, obj.contentElement.parentNode.parentNode), false);*/
-            obj.contentElement.parentNode.parentNode.className += " ytcenter-comments-blocked";
-            obj.contentElement.parentNode.parentNode.insertBefore(blockedElement, obj.contentElement.parentNode);
-            if (obj.wrapper) {
-              obj.wrapper.lastChild.style.display = "none";
-            }
-          }
-        }
-      };
-      exports.commentDuplicates = function(){
-        var i, j, duplicates, msg;
-        for (i = 0; i < exports.comments.length; i++) {
-          if (typeof exports.comments[i].duplicateId === "number" || !exports.comments[i].inDOM) continue;
-          if (!ytcenter.utils.contains(document, exports.comments[i].wrapper)) {
-            exports.comments[i].inDOM = false;
-            continue;
-          }
-          duplicates = 0;
-          for (j = 0; j < exports.comments.length; j++) {
-            if (i === j || exports.comments[j].duplicateId === "number" || exports.comments[j].duplicates || !exports.comments[j].inDOM) continue;
-            if (!ytcenter.utils.contains(document, exports.comments[j].wrapper)) {
-              exports.comments[j].inDOM = false;
-              continue;
-            }
-            if (exports.comments[i].username === exports.comments[j].username
-             && exports.comments[i].textContent === exports.comments[j].textContent) {
-              duplicates += 1;
-              exports.comments[j].duplicateId = i;
-              exports.comments[j].wrapper.style.display = "none";
-            }
-          }
-          if (duplicates > 0) {
-            exports.comments[i].duplicates = duplicates;
           }
         }
       };
@@ -4248,7 +4042,7 @@
         }
         comment && comment.unloadLoadButton && comment.unloadLoadButton();
         
-        var metadata = comment.headerUserDataElement;
+        var metadata = comment.headerElement;
         
         var container = document.createElement("span");
         container.className = "country";
@@ -4319,7 +4113,7 @@
           btn.element.setAttribute("data-tooltip-text", title);
         }
         var countryContainer = document.createElement("span"),
-            metadata = comment.headerUserDataElement, btn = null,
+            metadata = comment.headerElement, btn = null,
             btn_text = "COMMENTS_COUNTRY_BUTTON_LOAD";
         countryContainer.className = "country";
         btn = ytcenter.modules.button({
@@ -4359,27 +4153,21 @@
       exports.addElement = function(metadata, container, comment){
         if (ytcenter.settings.commentCountryPosition === "before_username") {
           container.style.marginRight = "10px";
-          if (comment.isOrignalSharedReference) {
+          if (comment.hasSource) {
             metadata.insertBefore(container, metadata.children[1]);
           } else {
             metadata.insertBefore(container, metadata.children[0]);
           }
         } else if (ytcenter.settings.commentCountryPosition === "after_username") {
-          if (comment.isOrignalSharedReference) {
-            container.style.marginLeft = "4px";
-          } else if (!comment.isReply) {
-            container.style.marginLeft = "10px";
-          } else {
-            container.style.marginRight = "8px";
-          }
-          if (comment.isOrignalSharedReference) {
+          container.style.marginLeft = "6px";
+          if (comment.hasSource) {
             metadata.insertBefore(container, metadata.childNodes[2]);
           } else {
             metadata.insertBefore(container, metadata.children[1]);
           }
         } else if (ytcenter.settings.commentCountryPosition === "last") {
           container.style.marginLeft = "10px";
-          if (comment.isOrignalSharedReference) {
+          if (comment.hasSource) {
             metadata.insertBefore(container, metadata.lastChild);
           } else if (!comment.isReply) {
             if (metadata.children.length > 2) {
@@ -4398,10 +4186,10 @@
       };
       exports.handleFlagWorker = function(comment){
         exports.addFlagPlaceholder(comment);
-        ytcenter.jobs.createWorker(comment.profileRedirectId || comment.channelRedirectId || comment.googlePlusRedirectId, function(args){
+        ytcenter.jobs.createWorker(comment.profileId || comment.channelId || comment.googleId, function(args){
           try {
-            if (comment.profileRedirectId || comment.googlePlusRedirectId) {
-              ytcenter.getGooglePlusUserData(comment.profileRedirectId || comment.googlePlusRedirectId, function(data){
+            if (comment.profileId || comment.googleId) {
+              ytcenter.getGooglePlusUserData(comment.profileId || comment.googleId, function(data){
                 if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
                   comment.country = data.entry.yt$location.$t;
                 } else {
@@ -4410,8 +4198,8 @@
                 }
                 args.complete(comment.country || null);
               });
-            } else if (comment.channelRedirectId) {
-              ytcenter.getUserData(comment.channelRedirectId, function(data){
+            } else if (comment.channelId) {
+              ytcenter.getUserData(comment.channelId, function(data){
                 if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
                   comment.country = data.entry.yt$location.$t;
                 } else {
@@ -4420,6 +4208,9 @@
                 }
                 args.complete(comment.country || null);
               });
+            } else {
+              comment && comment.unloadLoadButton && comment.unloadLoadButton();
+              args.complete(null);
             }
           } catch (e) {
             comment && comment.unloadLoadButton && comment.unloadLoadButton();
@@ -4428,8 +4219,8 @@
           }
         }, function(data){
           if (!data) data = "unknown";
-          if (comment.profileRedirectId || comment.channelRedirectId) {
-            ytcenter.cache.putItem("profile_country", comment.profileRedirectId || comment.channelRedirectId, data, 2678400000 /* 31 days */);
+          if (comment.profileId || comment.channelId) {
+            ytcenter.cache.putItem("profile_country", comment.profileId || comment.channelId, data, 2678400000 /* 31 days */);
           }
           
           comment.country = data;
@@ -4446,7 +4237,7 @@
           exports.addLoadButton(comment);
         } else {
           if (ytcenter.settings.commentCountryLazyLoad) {
-            ytcenter.domEvents.addEvent(comment.wrapper, "enterview", function(){
+            ytcenter.domEvents.addEvent(comment.element, "enterview", function(){
               exports.handleFlagWorker(comment);
             }, true);
           } else {
@@ -4466,13 +4257,11 @@
         if (!ytcenter.settings.commentCountryEnabled) return;
         
         exports.loadComments();
-        /*exports.filter();
-        exports.commentDuplicates();*/
         exports.addFlags();
       };
       exports.setupObserver = function(){
         try {
-          observer = ytcenter.mutation.observe(document.body, { childList: true, subtree: true }, exports.update);
+          observer = ytcenter.mutation.observe(document.getElementById("watch-discussion"), { childList: true, subtree: true }, exports.update);
         } catch (e) {
           con.error(e);
         }
@@ -25569,6 +25358,8 @@
 
           ytcenter.commentsPlus.setup();
           return;
+        } else if (page === "watch") {
+          ytcenter.commentsPlus.setup();
         }
         ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
         
@@ -25868,6 +25659,7 @@
           ytcenter.title.update();
           
           console.log("onStateChange", state);
+          ytcenter.html5PlayWrapper.setReady(true);
           ytcenter.player.fixThumbnailOverlay(state);
         });
         
