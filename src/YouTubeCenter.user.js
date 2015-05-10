@@ -5010,77 +5010,86 @@
       }
       function loadRatings(items, callback) {
         var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
-        var ratings = [];
         var ids = [];
         var ids_item = [];
+        
+        var pendingItems = [];
+        
         for (var i = 0; i < items.length; i++) {
-          if (items[i].likes && items[i].dislikes) {
-            ratings.push(items[i]);
-          } else {
-            ids_item.push(items[i]);
-            ids.push(items[i].id);
+          if (!items[i].processing && !ytcenter.utils.inArray(processedVideoIds, items[i].id)) {
+            if ((!items[i].likes || !items[i].dislikes)) {
+              processedVideoIds.push(items[i].id);
+              items[i].processing = true;
+              ids_item.push(items[i]);
+              ids.push(items[i].id);
+            }
+            pendingItems.push(items[i]);
           }
         }
         
-        var url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + encodeURIComponent(ids.join(",")) + "&key=" + encodeURIComponent(apikey);
-        ytcenter.utils.browser_xhr({
-          url: url,
-          method: "GET",
-          onload: function(detail){
-            try {
-              var data = JSON.parse(detail.responseText);
-              for (var i = 0; i < data.items.length; i++) {
-                try {
-                  var statistics = data.items[i].statistics;
-                  
-                  var index = ytcenter.utils.indexOf(ids, data.items[i].id);
-                  var item = ids_item[index];
-                  
-                  item.likes = parseInt(statistics ? statistics.likeCount : 0);
-                  item.dislikes = parseInt(statistics ? statistics.dislikeCount : 0);
-                  
-                  if (isInCache(item)) {
-                    updateItemInCache(item);
-                  } else {
-                    addNewDataToCache(item);
-                  }
-                } catch (e) {
-                  con.error("Internal error", e);
-                }
-              }
-              callback(items);
-            } catch (e) {
-              var msg = "";
-              if (e === "unavailable") {
-                msg = "Unavailable!";
-              } else {
-                if (r.responseText.indexOf("<errors xmlns='http://schemas.google.com/g/2005'><error><domain>GData</domain>") === 0) {
-                  msg = "Error!";
-                  if (r.responseText.indexOf("<internalReason>") !== -1 && r.responseText.indexOf("</internalReason>") !== -1) {
-                    msg = ytcenter.utils.unescapeXML(r.responseText.split("<internalReason>")[1].split("</internalReason>")[0]) + "!";
-                  }
-                } else if (r.responseText.indexOf("<code>too_many_recent_calls</code>") !== -1 && r.responseText.indexOf("<domain>yt:quota</domain>") !== -1) {
-                  msg = "Too many requests!";
-                } else {
-                  msg = "Error!";
-                  con.error(e);
+        if (ids.length > 0) {
+          var url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + encodeURIComponent(ids.join(",")) + "&key=" + encodeURIComponent(apikey);
+          ytcenter.utils.browser_xhr({
+            url: url,
+            method: "GET",
+            onload: function(detail){
+              try {
+                var data = JSON.parse(detail.responseText);
+                for (var i = 0; i < data.items.length; i++) {
                   try {
-                    con.error(JSON.parse(r.responseText));
+                    var statistics = data.items[i].statistics;
+                    
+                    var index = ytcenter.utils.indexOf_(ids, data.items[i].id);
+                    var item = ids_item[index];
+                    
+                    item.likes = parseInt(statistics ? statistics.likeCount : 0);
+                    item.dislikes = parseInt(statistics ? statistics.dislikeCount : 0);
+                    
+                    if (isInCache(item)) {
+                      updateItemInCache(item);
+                    } else {
+                      addNewDataToCache(item);
+                    }
                   } catch (e) {
-                    con.error(r.responseText);
+                    con.error("Internal error", e);
                   }
                 }
+                callback(pendingItems);
+              } catch (e) {
+                var msg = "";
+                if (e === "unavailable") {
+                  msg = "Unavailable!";
+                } else {
+                  if (r.responseText.indexOf("<errors xmlns='http://schemas.google.com/g/2005'><error><domain>GData</domain>") === 0) {
+                    msg = "Error!";
+                    if (r.responseText.indexOf("<internalReason>") !== -1 && r.responseText.indexOf("</internalReason>") !== -1) {
+                      msg = ytcenter.utils.unescapeXML(r.responseText.split("<internalReason>")[1].split("</internalReason>")[0]) + "!";
+                    }
+                  } else if (r.responseText.indexOf("<code>too_many_recent_calls</code>") !== -1 && r.responseText.indexOf("<domain>yt:quota</domain>") !== -1) {
+                    msg = "Too many requests!";
+                  } else {
+                    msg = "Error!";
+                    con.error(e);
+                    try {
+                      con.error(JSON.parse(r.responseText));
+                    } catch (e) {
+                      con.error(r.responseText);
+                    }
+                  }
+                }
+                con.error("[VideoThumbnail Ratings] IO Error => " + msg);
+                callback("error", msg);
               }
-              con.error("[VideoThumbnail Ratings] IO Error => " + msg);
+            },
+            onerror: function(){
+              var msg = "Connection failed!";
+              con.error("[VideoThumbnail Quality] IO Error => " + msg);
               callback("error", msg);
             }
-          },
-          onerror: function(){
-            var msg = "Connection failed!";
-            con.error("[VideoThumbnail Quality] IO Error => " + msg);
-            callback("error", msg);
-          }
-        });
+          });
+        } else {
+          callback(pendingItems);
+        }
       }
       function loadVideoData(item, callback) {
         if (item.likes && item.dislikes) {
@@ -5246,8 +5255,8 @@
           var numLikesDislikes = document.createElement("span"),
               likesCount = document.createElement("span"),
               dislikesCount = document.createElement("span"),
-              likeIcon = document.createElement("img"),
-              dislikeIcon = document.createElement("img");
+              likeIcon = document.createElement("div"),
+              dislikeIcon = document.createElement("div");
           numLikesDislikes.className = "video-extras-likes-dislikes"
                                      + (ytcenter.settings.videoThumbnailRatingsCountVisible === "show_hover" ? " ytcenter-video-thumb-show-hover" : "")
                                      + (ytcenter.settings.videoThumbnailRatingsCountVisible === "hide_hover" ? " ytcenter-video-thumb-hide-hover" : "")
@@ -5282,17 +5291,15 @@
               dislikesCount.style.fontSize = "11px";
             }
             
-            likeIcon.className = ""; // icon-watch-stats-like
+            likeIcon.className = "ytcenter-icon-thumbs-like"; // icon-watch-stats-like
             likeIcon.setAttribute("alt", "Like");
-            likeIcon.src = ytcenter.icon.smallThumbsUpWhite;
             likeIcon.style.position = "relative";
             likeIcon.style.marginRight = "2px";
             likeIcon.style.marginTop = "4px";
             likeIcon.style.top = "-2px";
             likeIcon.style.verticalAlign = "middle";
-            dislikeIcon.className = ""; // icon-watch-stats-dislike
+            dislikeIcon.className = "ytcenter-icon-thumbs-dislike"; // icon-watch-stats-dislike
             dislikeIcon.setAttribute("alt", "Dislike");
-            dislikeIcon.src = ytcenter.icon.smallThumbsDownWhite;
             dislikeIcon.style.position = "relative";
             dislikeIcon.style.marginRight = "2px";
             dislikeIcon.style.marginTop = "4px";
@@ -5664,81 +5671,124 @@
           });
         }
       }
+      function processItems(items) {
+        if (!ytcenter.settings.videoThumbnailRatingsCount && !ytcenter.settings.videoThumbnailRatingsBar) return;
+        var options = [ "hover_thumbnail", "scroll_into_view", "page_start" ];
+        var optionIndex = -1;
+        if (ytcenter.settings.videoThumbnailRatingsBar) {
+          optionIndex = Math.max(ytcenter.utils.indexOf_(options, ytcenter.settings.videoThumbnailRatingsBarDownloadAt), optionIndex);
+        }
+        if (ytcenter.settings.videoThumbnailRatingsCount) {
+          optionIndex = Math.max(ytcenter.utils.indexOf_(options, ytcenter.settings.videoThumbnailRatingsCountDownloadAt), optionIndex);
+        }
+        
+        if (optionIndex === -1) return;
+        
+        var option = options[optionIndex];
+        var countEnabled = ytcenter.settings.videoThumbnailRatingsCount;
+        var barEnabled = ytcenter.settings.videoThumbnailRatingsBar;
+        
+        if (option === "page_start") {
+          loadRatings(items, function(items){
+            for (var i = 0; i < items.length; i++) {
+              if (countEnabled) {
+                appendRatingCount(items[i], items[i].likes, items[i].dislikes);
+              }
+              if (barEnabled) {
+                appendRatingBar(items[i], items[i].likes, items[i].dislikes);
+              }
+            }
+          });
+        } else if (option === "scroll_into_view") {
+          ytcenter.domEvents.addEvent(items, "enterview", function(items){
+            console.log(items);
+            loadRatings(items, function(items){
+              for (var i = 0; i < items.length; i++) {
+                if (countEnabled) {
+                  appendRatingCount(items[i], items[i].likes, items[i].dislikes);
+                }
+                if (barEnabled) {
+                  appendRatingBar(items[i], items[i].likes, items[i].dislikes);
+                }
+              }
+            });
+          }, true);
+        } else if (option === "hover_thumbnail") {
+          for (var i = 0; i < items.length; i++) {
+            ytcenter.utils.addEventListener(items[i].wrapper, "mouseover", (function(item){
+              var fn = function(){
+                ytcenter.utils.removeEventListener(item.wrapper, "mouseover", fn, false);
+                
+                loadVideoData(item, function(likes, dislikes){
+                  if (countEnabled) {
+                    appendRatingCount(item, likes, dislikes);
+                  }
+                  if (barEnabled) {
+                    appendRatingBar(item, likes, dislikes);
+                  }
+                });
+              };
+              return fn;
+            })(items[i]), false);
+          }
+        }
+      }
+      
       function processItem(item) {
         if (!ytcenter.settings.videoThumbnailRatingsCount && !ytcenter.settings.videoThumbnailRatingsBar) return;
+        var options = [ "hover_thumbnail", "scroll_into_view", "page_start" ];
+        var optionIndex = -1;
+        if (ytcenter.settings.videoThumbnailRatingsBar) {
+          optionIndex = Math.max(ytcenter.utils.indexOf_(options, ytcenter.settings.videoThumbnailRatingsBarDownloadAt), optionIndex);
+        }
+        if (ytcenter.settings.videoThumbnailRatingsCount) {
+          optionIndex = Math.max(ytcenter.utils.indexOf_(options, ytcenter.settings.videoThumbnailRatingsCountDownloadAt), optionIndex);
+        }
         
-        if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "hover_thumbnail") {
+        if (optionIndex === -1) return;
+        
+        var option = options[optionIndex];
+        var countEnabled = ytcenter.settings.videoThumbnailRatingsCount;
+        var barEnabled = ytcenter.settings.videoThumbnailRatingsBar;
+        
+        if (option === "page_start") {
+          loadVideoData(item, function(likes, dislikes){
+            if (countEnabled) {
+              appendRatingCount(item, likes, dislikes);
+            }
+            if (barEnabled) {
+              appendRatingBar(item, likes, dislikes);
+            }
+          });
+        } else if (option === "scroll_into_view") {
+          ytcenter.domEvents.addEvent(item.wrapper, "enterview", function(){
+            loadVideoData(item, function(likes, dislikes){
+              if (countEnabled) {
+                appendRatingCount(item, likes, dislikes);
+              }
+              if (barEnabled) {
+                appendRatingBar(item, likes, dislikes);
+              }
+            });
+          }, true);
+        } else if (option === "hover_thumbnail") {
           ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
             var added = false;
             return function(){
               if (added) return;
               added = true;
               loadVideoData(item, function(likes, dislikes){
-                if (ytcenter.settings.videoThumbnailRatingsCount) {
+                if (countEnabled) {
                   appendRatingCount(item, likes, dislikes);
                 }
-                if (ytcenter.settings.videoThumbnailRatingsBar) {
+                if (barEnabled) {
                   appendRatingBar(item, likes, dislikes);
                 }
               });
             };
           })(), false);
         } else {
-          if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "page_start" || ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "page_start") {
-            loadVideoData(item, function(likes, dislikes){
-              if (ytcenter.settings.videoThumbnailRatingsCount) {
-                appendRatingCount(item, likes, dislikes);
-              }
-              if (ytcenter.settings.videoThumbnailRatingsBar) {
-                appendRatingBar(item, likes, dislikes);
-              }
-            });
-          } else {
-            if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "scroll_into_view" && ytcenter.settings.videoThumbnailRatingsBar) {
-              ytcenter.domEvents.addEvent(item.wrapper, "enterview", function(){
-                loadVideoData(item, function(likes, dislikes){
-                  appendRatingBar(item, likes, dislikes);
-                });
-              }, true);
-            } else if (ytcenter.settings.videoThumbnailRatingsBarDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsBar) {
-              ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
-                var added = false;
-                return function(){
-                  if (added) return;
-                  added = true;
-                  loadVideoData(item, function(likes, dislikes){
-                    appendRatingBar(item, likes, dislikes);
-                  });
-                };
-              })(), false);
-            } else if (ytcenter.settings.videoThumbnailRatingsBar) {
-              loadVideoData(item, function(likes, dislikes){
-                appendRatingBar(item, likes, dislikes);
-              });
-            }
-            if (ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "scroll_into_view" && ytcenter.settings.videoThumbnailRatingsCount) {
-              ytcenter.domEvents.addEvent(item.wrapper, "enterview", function(){
-                loadVideoData(item, function(likes, dislikes){
-                  appendRatingCount(item, likes, dislikes);
-                });
-              }, true);
-            } else if (ytcenter.settings.videoThumbnailRatingsCountDownloadAt === "hover_thumbnail" && ytcenter.settings.videoThumbnailRatingsCount) {
-              ytcenter.utils.addEventListener(item.wrapper, "mouseover", (function(){
-                var added = false;
-                return function(){
-                  if (added) return;
-                  added = true;
-                  loadVideoData(item, function(likes, dislikes){
-                    appendRatingCount(item, likes, dislikes);
-                  });
-                };
-              })(), false);
-            } else if (ytcenter.settings.videoThumbnailRatingsCount) {
-              loadVideoData(item, function(likes, dislikes){
-                appendRatingCount(item, likes, dislikes);
-              });
-            }
-          }
+          con.error("Unknown option for video thumbnail", option);
         }
       }
       function compareDifference(newData, oldData) {
@@ -5850,6 +5900,7 @@
         ytcenter.channelPlaylistLinks.update();
         
         var vt = compareDifference(getVideoThumbs(), videoThumbs), i;
+        ytcenter.settings.google_usev3 && processItems(vt);
         for (i = 0; i < vt.length; i++) {
           ytcenter.utils.addEventListener(vt[i].wrapper, "mouseover", (function(item){
             return function(){ item.mouseover = true; };
@@ -5865,7 +5916,7 @@
             vt[i].thumbnailImage.src = vt[i].thumbnailImage.getAttribute("data-thumb");
           }*/
           
-          processItem(vt[i]);
+          !ytcenter.settings.google_usev3 && processItem(vt[i]);
           processItemHeavyLoad(vt[i]);
           if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
             updateWatchedClass(vt[i]);
@@ -5902,6 +5953,7 @@
           cacheChecker();
           ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
           videoThumbs = getVideoThumbs();
+          ytcenter.settings.google_usev3 && processItems(videoThumbs);
           for (i = 0; i < videoThumbs.length; i++) {
             ytcenter.utils.addEventListener(videoThumbs[i].wrapper, "mouseover", (function(item){
               return function(){ item.mouseover = true; };
@@ -5910,7 +5962,7 @@
               return function(){ item.mouseover = false; };
             })(videoThumbs[i]), false);
             updateReuse(videoThumbs[i]);
-            processItem(videoThumbs[i]);
+            !ytcenter.settings.google_usev3 && processItem(videoThumbs[i]);
             processItemHeavyLoad(videoThumbs[i]);
             if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
               updateWatchedClass(videoThumbs[i]);
@@ -5924,6 +5976,8 @@
           con.error(e);
         }
       };
+      
+      var processedVideoIds = [];
       
       return exports;
     })();
@@ -6170,32 +6224,54 @@
         }
       }
       function processEnterViewUpdate(item) {
-        var inView = ytcenter.utils.isElementPartlyInView(item.element, offset, windowDim);
-        if (!inView) {
-          item.inview = false;
-          return false;
+        if (item.element) {
+          var inView = ytcenter.utils.isElementPartlyInView(item.element, offset, windowDim);
+          if (!inView) {
+            item.inview = false;
+            return false;
+          }
+          if (!("inview" in item)) item.inview = false;
+          if (item.inview) return false;
+          item.inview = true;
+          item.callback.apply(item.element, []);
+          return true;
+        } else if (item.collection) {
+          var items = item.collection;
+          
+          var inViewItems = [];
+          for (var i = 0, len = item.collection.length; i < len; i++) {
+            var inview = ytcenter.utils.isElementPartlyInView(items[i].wrapper, offset, windowDim);
+            if (inview) {
+              inViewItems.push(item.collection[i]);
+              item.collection.splice(i, 1);
+              i--; len--;
+            }
+          }
+          
+          item.callback.call(null, inViewItems);
+          
+          return (item.collection.length === 0);
         }
-        if (!("inview" in item)) item.inview = false;
-        if (item.inview) return false;
-        item.inview = true;
-        item.callback.apply(item.element, []);
-        return true;
       }
       function processExitViewUpdate(item) {
-        var inView = ytcenter.utils.isElementPartlyInView(item.element, offset, windowDim);
-        if (inView) {
-          item.inview = true;
-          return false;
-        }
-        if (!("inview" in item)) {
+        if (item.element) {
+          var inView = ytcenter.utils.isElementPartlyInView(item.element, offset, windowDim);
+          if (inView) {
+            item.inview = true;
+            return false;
+          }
+          if (!("inview" in item)) {
+            item.inview = inView;
+            return false;
+          }
+          if (item.inview && !inView) {
+            item.callback.apply(item.element, []);
+          }
           item.inview = inView;
+          return true;
+        } else if (item.collection) {
           return false;
         }
-        if (item.inview && !inView) {
-          item.callback.apply(item.element, []);
-        }
-        item.inview = inView;
-        return true;
       }
       var exports = {}, db = {}, _buffer = null, onViewUpdateBuffer = null, offset = null, windowDim = null;
       
@@ -6205,11 +6281,21 @@
       exports.addEvent = function(elm, event, callback, once){
         if (!elm) return;
         if (!db[event]) db[event] = [];
-        db[event].push({
-          element: elm,
-          callback: callback,
-          once: once || false
-        });
+        
+        if (ytcenter.utils.isArray(elm)) {
+          db[event].push({
+            collection: elm,
+            callback: callback,
+            once: once || false
+          });
+        } else {
+          db[event].push({
+            element: elm,
+            inview: false,
+            callback: callback,
+            once: once || false
+          });
+        }
       };
       
       exports.ready = function(){
@@ -12820,6 +12906,14 @@
         }
       }
       return false;
+    };
+    ytcenter.utils.indexOf_ = function(arr, value) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === value) {
+          return i;
+        }
+      }
+      return -1;
     };
     ytcenter.utils.arrayCompare = function(arr1, arr2) {
       if (arr1.length !== arr2.length) return false;
