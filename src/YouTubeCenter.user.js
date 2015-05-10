@@ -4634,6 +4634,8 @@
       var pathname = (url && url.split("youtube.com")[1]) || loc.pathname;
       if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/watch\?/)) {
         ytcenter.page = "watch";
+      } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/all_comments\?/)) {
+        ytcenter.page = "all_comments";
       } else if (!!url.match(/^http(s)?:\/\/(www\.)?youtube\.com\/edit\?/)) {
         ytcenter.page = "edit";
       } else if (!!url.match(/^http(s)?:\/\/((apis\.google\.com)|(plus\.googleapis\.com))\/([0-9a-zA-Z-_\/]+)\/widget\/render\/comments\?/)) {
@@ -25358,7 +25360,7 @@
 
           ytcenter.commentsPlus.setup();
           return;
-        } else if (page === "watch") {
+        } else if (page === "watch" || page === "all_comments") {
           ytcenter.commentsPlus.setup();
         }
         ytcenter.spf.setEnabled(ytcenter.settings.ytspf);
