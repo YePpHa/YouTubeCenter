@@ -44,12 +44,12 @@ body.player-dock #player-dock-offset {
   display: none;
 }
 
-body.hide-header-transition #masthead-positioner {
-  transition: top .6s;
-  -moz-transition: top .6s;
-  -ms-transition: top .6s;
-  -o-transition: top .6s;
-  -webkit-transition: top .6s;
+body.hide-header-transition #masthead-positioner > * {
+  transition: margin-top .6s;
+  -moz-transition: margin-top .6s;
+  -ms-transition: margin-top .6s;
+  -o-transition: margin-top .6s;
+  -webkit-transition: margin-top .6s;
 }
 
 body.hide-header-transition #masthead-positioner-height-offset {
@@ -68,9 +68,8 @@ body.hide-header-transition .appbar-guide-menu-layout {
   -webkit-transition: margin-top .6s;
 }
 
-body.hide-header #masthead-positioner {
-  position: fixed;
-  top: -51px;
+body.hide-header #masthead-positioner > * {
+  margin-top: -51px;
 }
 
 body.hide-header .appbar-guide-menu-layout {

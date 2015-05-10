@@ -5701,7 +5701,6 @@
           });
         } else if (option === "scroll_into_view") {
           ytcenter.domEvents.addEvent(items, "enterview", function(items){
-            console.log(items);
             loadRatings(items, function(items){
               for (var i = 0; i < items.length; i++) {
                 if (countEnabled) {
@@ -20934,19 +20933,6 @@
       exports.updateSize = updateSize;
 
       return exports;
-    })();
-
-    (function(){
-      function whyDoYouScrollDotCOM(e) {
-        var header = document.getElementById('masthead-positioner');
-        var defaultHeight = 50;
-        var height = header.clientHeight || header.offsetHeight || defaultHeight;
-        
-        ytcenter.utils.scrollTop(0);
-        
-        window.removeEventListener('scroll', whyDoYouScrollDotCOM, true);
-      }
-      window.addEventListener('scroll', whyDoYouScrollDotCOM, true);
     })();
     
     ytcenter.player = {};
