@@ -12,8 +12,9 @@ body.ytcenter-player-gap .watch-stage-mode #placeholder-player {
 }
 
 .ytcenter-resize .watch-stage-mode #player-api,
-.ytcenter-resize .watch-stage-mode #player-unavailable{
+.ytcenter-resize .watch-stage-mode #player-unavailable {
   left: initial !important;
+  right: initial !important;
   margin: 0 auto !important;
   position: relative;
 }

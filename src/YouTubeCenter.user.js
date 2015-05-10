@@ -5008,6 +5008,80 @@
           });
         }
       }
+      function loadRatings(items, callback) {
+        var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
+        var ratings = [];
+        var ids = [];
+        var ids_item = [];
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].likes && items[i].dislikes) {
+            ratings.push(items[i]);
+          } else {
+            ids_item.push(items[i]);
+            ids.push(items[i].id);
+          }
+        }
+        
+        var url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + encodeURIComponent(ids.join(",")) + "&key=" + encodeURIComponent(apikey);
+        ytcenter.utils.browser_xhr({
+          url: url,
+          method: "GET",
+          onload: function(detail){
+            try {
+              var data = JSON.parse(detail.responseText);
+              for (var i = 0; i < data.items.length; i++) {
+                try {
+                  var statistics = data.items[i].statistics;
+                  
+                  var index = ytcenter.utils.indexOf(ids, data.items[i].id);
+                  var item = ids_item[index];
+                  
+                  item.likes = parseInt(statistics ? statistics.likeCount : 0);
+                  item.dislikes = parseInt(statistics ? statistics.dislikeCount : 0);
+                  
+                  if (isInCache(item)) {
+                    updateItemInCache(item);
+                  } else {
+                    addNewDataToCache(item);
+                  }
+                } catch (e) {
+                  con.error("Internal error", e);
+                }
+              }
+              callback(items);
+            } catch (e) {
+              var msg = "";
+              if (e === "unavailable") {
+                msg = "Unavailable!";
+              } else {
+                if (r.responseText.indexOf("<errors xmlns='http://schemas.google.com/g/2005'><error><domain>GData</domain>") === 0) {
+                  msg = "Error!";
+                  if (r.responseText.indexOf("<internalReason>") !== -1 && r.responseText.indexOf("</internalReason>") !== -1) {
+                    msg = ytcenter.utils.unescapeXML(r.responseText.split("<internalReason>")[1].split("</internalReason>")[0]) + "!";
+                  }
+                } else if (r.responseText.indexOf("<code>too_many_recent_calls</code>") !== -1 && r.responseText.indexOf("<domain>yt:quota</domain>") !== -1) {
+                  msg = "Too many requests!";
+                } else {
+                  msg = "Error!";
+                  con.error(e);
+                  try {
+                    con.error(JSON.parse(r.responseText));
+                  } catch (e) {
+                    con.error(r.responseText);
+                  }
+                }
+              }
+              con.error("[VideoThumbnail Ratings] IO Error => " + msg);
+              callback("error", msg);
+            }
+          },
+          onerror: function(){
+            var msg = "Connection failed!";
+            con.error("[VideoThumbnail Quality] IO Error => " + msg);
+            callback("error", msg);
+          }
+        });
+      }
       function loadVideoData(item, callback) {
         if (item.likes && item.dislikes) {
           callback(item.likes, item.dislikes);
