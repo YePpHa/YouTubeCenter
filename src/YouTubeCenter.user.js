@@ -4190,8 +4190,8 @@
           try {
             if (comment.profileId || comment.googleId) {
               ytcenter.getGooglePlusUserData(comment.profileId || comment.googleId, function(data){
-                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                  comment.country = data.entry.yt$location.$t;
+                if (data) {
+                  comment.country = data;
                 } else {
                   comment && comment.unloadLoadButton && comment.unloadLoadButton();
                   con.error("[Comment Country] Unknown Location", data);
@@ -4200,8 +4200,8 @@
               });
             } else if (comment.channelId) {
               ytcenter.getUserData(comment.channelId, function(data){
-                if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                  comment.country = data.entry.yt$location.$t;
+                if (data) {
+                  comment.country = data;
                 } else {
                   comment && comment.unloadLoadButton && comment.unloadLoadButton();
                   con.error("[Comment Country] Unknown Location", data);
@@ -4312,13 +4312,7 @@
       function work(id) {
         ytcenter.jobs.createWorker(id, function(args){
           try {
-            ytcenter.getUserData(id, function(data){
-              var country = null;
-              if (data && data.entry && data.entry.yt$location && data.entry.yt$location.$t) {
-                country = data.entry.yt$location.$t;
-              } else {
-                con.error("[Comment Country] Unknown Location", data);
-              }
+            ytcenter.getUserData(id, function(country){
               args.complete(country);
             });
           } catch (e) {
@@ -4570,27 +4564,29 @@
       
       return exports;
     })();
-    ytcenter.getUserData = function(userId, callback){
+    ytcenter.getUserData = function(userId, callback) {
       ytcenter.utils.xhr({
-        url: "https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json",
+        url: "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=" + encodeURIComponent(userId) + "&key=" + encodeURIComponent(apikey),
         method: "GET",
-        onload: function(r){
+        onload: function(r) {
           var data = null;
           try {
             data = JSON.parse(r.responseText);
           } catch (e) {
-            con.error("[Comments getUserData] Couldn't parse data from https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json");
             con.error(e);
           }
-          callback(data);
+		  var country = null;
+		  if (data && data.items && data.items.length > 0 && data.items[0] && data.items[0].snippet) {
+			  country = data.items[0].snippet.country;
+		  }
+          callback(country);
         },
         onerror: function(){
-          con.error("[Comments getUserData] Couldn't fetch data from https://gdata.youtube.com/feeds/api/users/" + userId + "?alt=json");
           callback(null);
         }
       });
     };
-    ytcenter.getGooglePlusUserData = function(oId, callback){
+    ytcenter.getGooglePlusUserData = function(oId, callback) {
       function handleFinalUrl(url) {
           var userId = null;
           if (url.indexOf("youtube.com/channel/") !== -1) {
@@ -10986,11 +10982,11 @@
       }
       
       function fixPlayerSize() {
-        if (isNewPlayer()) {
+        /*if (isNewPlayer()) {*/
           window.matchMedia = null;
-        } else {
+        /*} else {
           patchDetour();
-        }
+        }*/
       }
       
       /* End Yonezpt glorious workaround */
@@ -14341,6 +14337,8 @@
       ]
     };
     ytcenter.settings = $Clone(ytcenter._settings);
+	ytcenter.settings.google_usev3 = true;
+	
     ytcenter.doRepeat = false;
     ytcenter.html5 = false;
     ytcenter.html5flash = false;
@@ -15566,12 +15564,12 @@
           );
           subcat.addOption(option);
           
-          option = ytcenter.settingsPanel.createOption(
+          /*option = ytcenter.settingsPanel.createOption(
             "google_usev3", // defaultSetting
             "bool", // module
             "SETTINGS_GOOGLE_USE_V3"
           );
-          subcat.addOption(option);
+          subcat.addOption(option);*/
           
           option = ytcenter.settingsPanel.createOption(
             "google_apikey", // defaultSetting
