@@ -71,7 +71,8 @@
   <property name="indentifier.scriptish" value="7" />
   <property name="indentifier.chrome-webstore" value="8" />
   
-  <target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, safari, opera, clean" />
+  <target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, opera, safari, clean" />
+  <target name="all-no-cert" depends="preinit, userscript, userscript-meta, chrome-webstore, maxthon, firefox, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
     <mkdir dir="${dist}" />
