@@ -1,3 +1,10 @@
+.ytcenter-gridview .shelf-title-table {
+	position: absolute;
+}
+
+.ytcenter-gridview .shelf-item .shelf-title-table .shelf-title-row .menu-container {
+	left: 0 !important;
+}
 
 .ytcenter-grid-subscriptions-username,
 .ytcenter-gridview #browse-items-primary .branded-page-module-title {
