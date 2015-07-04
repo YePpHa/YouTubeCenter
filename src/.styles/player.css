@@ -19,6 +19,10 @@ body.ytcenter-player-gap .watch-stage-mode #placeholder-player {
   position: relative;
 }
 
+#player-unavailable:not(.hid) + #player-api {
+  display: none;
+}
+
 .ytcenter-resize .exp-watch-controls-overlay #watch-sidebar-spacer {
   height: 0 !important;
 }
