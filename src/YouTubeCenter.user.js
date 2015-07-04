@@ -4565,6 +4565,7 @@
       return exports;
     })();
     ytcenter.getUserData = function(userId, callback) {
+		var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
       ytcenter.utils.xhr({
         url: "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=" + encodeURIComponent(userId) + "&key=" + encodeURIComponent(apikey),
         method: "GET",
@@ -5091,31 +5092,20 @@
         if (item.likes && item.dislikes) {
           callback(item.likes, item.dislikes);
         } else if (item.id) {
-          var url;
-          if (ytcenter.settings.google_usev3) {
-            var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
-            url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + encodeURIComponent(item.id) + "&key=" + encodeURIComponent(apikey);
-          } else {
-            url = "https://gdata.youtube.com/feeds/api/videos/" + item.id + "?v=2&alt=json";
-          }
+			var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
+			var url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + encodeURIComponent(item.id) + "&key=" + encodeURIComponent(apikey);
           
-          (ytcenter.settings.google_usev3 ? ytcenter.utils.browser_xhr : ytcenter.utils.xhr)({
+          ytcenter.utils.browser_xhr({
             url: url,
             method: "GET",
             onload: function(r){
               try {
                 if (!r.responseText) throw "unavailable";
-                if (ytcenter.settings.google_usev3) {
-                  var videoData = JSON.parse(r.responseText).items[0];
-                  var statistics = videoData.statistics;
-                  item.likes = parseInt(statistics ? statistics.likeCount : 0);
-                  item.dislikes = parseInt(statistics ? statistics.dislikeCount : 0);
-                } else {
-                  var videoData = JSON.parse(r.responseText).entry,
-                      ratings = videoData.yt$rating;
-                  item.likes = parseInt(ratings ? ratings.numLikes : 0);
-                  item.dislikes = parseInt(ratings ? ratings.numDislikes : 0);
-                }
+				  var videoData = JSON.parse(r.responseText).items[0];
+				  var statistics = videoData.statistics;
+				  item.likes = parseInt(statistics ? statistics.likeCount : 0);
+				  item.dislikes = parseInt(statistics ? statistics.dislikeCount : 0);
+                
                 if (isInCache(item)) {
                   updateItemInCache(item);
                 } else {
@@ -5895,7 +5885,7 @@
         ytcenter.channelPlaylistLinks.update();
         
         var vt = compareDifference(getVideoThumbs(), videoThumbs), i;
-        ytcenter.settings.google_usev3 && processItems(vt);
+        processItems(vt);
         for (i = 0; i < vt.length; i++) {
           ytcenter.utils.addEventListener(vt[i].wrapper, "mouseover", (function(item){
             return function(){ item.mouseover = true; };
@@ -5911,7 +5901,6 @@
             vt[i].thumbnailImage.src = vt[i].thumbnailImage.getAttribute("data-thumb");
           }*/
           
-          !ytcenter.settings.google_usev3 && processItem(vt[i]);
           processItemHeavyLoad(vt[i]);
           if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
             updateWatchedClass(vt[i]);
@@ -5948,7 +5937,7 @@
           cacheChecker();
           ytcenter.videoHistory.loadWatchedVideosFromYouTubePage();
           videoThumbs = getVideoThumbs();
-          ytcenter.settings.google_usev3 && processItems(videoThumbs);
+          processItems(videoThumbs);
           for (i = 0; i < videoThumbs.length; i++) {
             ytcenter.utils.addEventListener(videoThumbs[i].wrapper, "mouseover", (function(item){
               return function(){ item.mouseover = true; };
@@ -5957,7 +5946,6 @@
               return function(){ item.mouseover = false; };
             })(videoThumbs[i]), false);
             updateReuse(videoThumbs[i]);
-            !ytcenter.settings.google_usev3 && processItem(videoThumbs[i]);
             processItemHeavyLoad(videoThumbs[i]);
             if (loc.pathname === "/" || loc.pathname === "/results" || loc.pathname.indexOf("/feed/") === 0) {
               updateWatchedClass(videoThumbs[i]);
@@ -13939,7 +13927,6 @@
     
     ytcenter._settings = {
       player_gap: false,
-      google_usev3: true,
       google_apikey: '',
       placementTransformation: [],
       hideFooter: false,
@@ -14337,7 +14324,6 @@
       ]
     };
     ytcenter.settings = $Clone(ytcenter._settings);
-	ytcenter.settings.google_usev3 = true;
 	
     ytcenter.doRepeat = false;
     ytcenter.html5 = false;
@@ -15563,13 +15549,6 @@
             "line"
           );
           subcat.addOption(option);
-          
-          /*option = ytcenter.settingsPanel.createOption(
-            "google_usev3", // defaultSetting
-            "bool", // module
-            "SETTINGS_GOOGLE_USE_V3"
-          );
-          subcat.addOption(option);*/
           
           option = ytcenter.settingsPanel.createOption(
             "google_apikey", // defaultSetting
