@@ -5306,7 +5306,8 @@
           con.error(e);
         }
       }
-      function appendAnimatedThumbnail(item, storyboard, errorMessage){
+	  var addedThumbnails = [];
+      function appendAnimatedThumbnail(item, storyboard, errorMessage) {
         function preload(images) {
           var i, img;
           for (i = 0; i < images.length; i++) {
@@ -5339,7 +5340,7 @@
           function moi() {
             if (level) {
               a.src = "//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif";
-              a.parentNode.style.backgroundColor = "#000";
+              a.parentNode.style.backgroundColor = "#000000";
               
               if (frame >= level.frames) frame = 0;
               rect = level.getRect(frame, box);
@@ -5391,6 +5392,15 @@
           a.parentNode.style.backgroundColor = "";
           frame = 0;
         }
+		if (item && item.wrapper) {
+			if (ytcenter.utils.inArray(addedThumbnails, item.wrapper)) {
+				return;
+			} else {
+				addedThumbnails.push(item.wrapper);
+			}
+		} else {
+			return;
+		}
         try {
           var a = item.wrapper.getElementsByTagName("img")[0],
               b = ytcenter.player.parseThumbnailStream(storyboard || ""),
@@ -12561,13 +12571,13 @@
         return (prefix ? prefix : "") + ___count + (timestamp);
       };
     })();
-    ytcenter.utils.inArrayIndex = function(a, v){
+    ytcenter.utils.inArrayIndex = function(a, v) {
       for (var i = 0; i < a.length; i++) {
         if (a[i] === v) return i;
       }
       return -1;
     };
-    ytcenter.utils.inArray = function(array, value){
+    ytcenter.utils.inArray = function(array, value) {
       for (var i = 0, len = array.length; i < len; i++) {
         if (array[i] === value) {
           return true;
