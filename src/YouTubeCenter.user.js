@@ -20929,7 +20929,6 @@
               
               thumbOverlay.removeAttribute("aria-hidden");
               playIcon.removeAttribute("aria-hidden");
-              k = true;
               
               if (typeof state !== "number") {
                 var api = ytcenter.player.getAPI();
