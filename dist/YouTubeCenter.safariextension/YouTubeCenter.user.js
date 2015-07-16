@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         528
+// @version         529
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -90,19 +90,22 @@
     if (hasInjected && !bypass) return;
     hasInjected = true;
     
+    injectScript(func);
+  }
+  function injectScript(func) {
     var script = document.createElement("script");
-    var p = document.body || document.head || document.documentElement;
-    if (!p) {
-      setTimeout(bind(null, inject, func, true), 0);
+    var parent = document.body || document.head || document.documentElement;
+    if (!parent) {
+      setTimeout(bind(null, injectScript, func, true), 0);
       return;
     }
     script.setAttribute("type", "text/javascript");
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 528);\n//# sourceURL=YouTubeCenter.js"));
-    p.appendChild(script);
-    p.removeChild(script);
+    script.appendChild(document.createTextNode("(" + func + ")(true, 4, true, 529);\n//# sourceURL=YouTubeCenter.js"));
+    parent.appendChild(script);
+    parent.removeChild(script);
   }
   
   function bind(scope, func) {
@@ -11020,7 +11023,6 @@
             if (propAdded) return;
             propAdded = true;
             addPropertyWrapper(uw.yt, "player.Application.create", function(instance){
-              console.log("yt.player.Application.create has been called");
               playerInstance = instance;
               uw.myPlayerInstance = playerInstance;
               fixPlayerSize();
@@ -13749,8 +13751,6 @@
         
         var oldScroll = ytcenter.utils.scrollTop();
         var viewPort = ytcenter.utils.getViewPort();
-        
-        console.log(oldScroll, viewPort, targetPos);
         
         ytcenter.utils.scrollTop(targetPos.y - (viewPort.height - wrapper.offsetHeight)/2);
         
@@ -25800,14 +25800,12 @@
           }
           ytcenter.title.update();
           
-          console.log("onStateChange", state);
           ytcenter.html5PlayWrapper.setReady(true);
           ytcenter.player.fixThumbnailOverlay(state);
         });
         
         var tmpFixRepeatAtEnd = false;
         ytcenter.player.listeners.addEventListener("onStateChange", function(state, b) {
-          console.log("onStateChange", state);
           ytcenter.player.fixThumbnailOverlay(state);
           
           if (state === 1) {
@@ -26155,7 +26153,6 @@
       var storage = chrome.storage.local;
       var value = null;
       if (support.localStorage && (value = localStorage.getItem(key) || null) !== null) {
-        console.log("[Chrome] Moving settings from old method to new method for " + key);
         var details = {};
         details[key] = value;
         
@@ -26186,7 +26183,6 @@
       var storage = chrome.storage.local;
       var value = null;
       if (support.localStorage && (value = localStorage.getItem(key) || null) !== null) {
-        console.log("[Chrome] Moving settings from old method to new method for " + key);
         var details = {};
         details[key] = value;
         
@@ -26731,6 +26727,7 @@
         inject(main_function);
       }
     } else {
+	  injectScript(function(){ window.matchMedia = null; });
       console.log("default");
       /* Continue normally */
       initListeners();
