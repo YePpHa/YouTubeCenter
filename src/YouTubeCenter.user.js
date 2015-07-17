@@ -92,7 +92,8 @@
     
     injectScript(func);
   }
-  function injectScript(func) {
+  function injectScript(func, filename) {
+	  filename = filename || "YouTubeCenter.js";
     var script = document.createElement("script");
     var parent = document.body || document.head || document.documentElement;
     if (!parent) {
@@ -103,7 +104,7 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@, @devbuild@, @devnumber@);\n//# sourceURL=YouTubeCenter.js"));
+    script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@, @devbuild@, @devnumber@);\n//# sourceURL=" + filename));
     parent.appendChild(script);
     parent.removeChild(script);
   }
@@ -4881,6 +4882,14 @@
         }
         return null;
       }
+	  function inArray_(arr, item) {
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].wrapper === item.wrapper) {
+				return true;
+			}
+		}
+		return false;
+	  }
       function getVideoThumbs() {
         var userHeader = document.getElementById("watch7-user-header"); // Improved performance by moving this part out of the for loop
         var arr = ytcenter.utils.toArray(document.getElementsByClassName("video-thumb")).concat(ytcenter.utils.toArray(document.getElementsByClassName("yt-uix-simple-thumb-wrap")));
@@ -4890,7 +4899,9 @@
         for (var i = 0, len = arr.length; i < len; i++) {
           if (ytcenter.utils.inArray(playlistVideoThumbs, arr[i]) || (userHeader && ytcenter.utils.isParent(userHeader, arr[i]))) continue;
           var data = handleVideoThumbs(arr[i], arr[i].parentNode);
-          if (data) videos.push(data);
+		  if (data && !inArray_(videos, data)) {
+			videos.push(data);
+		  }
         }
         return videos;
       }
@@ -5671,6 +5682,7 @@
         }
       }
       function processItems(items) {
+		if (!items || items.length === 0) return;
         if (!ytcenter.settings.videoThumbnailRatingsCount && !ytcenter.settings.videoThumbnailRatingsBar) return;
         var options = [ "hover_thumbnail", "scroll_into_view", "page_start" ];
         var optionIndex = -1;
@@ -5699,7 +5711,7 @@
             }
           });
         } else if (option === "scroll_into_view") {
-          ytcenter.domEvents.addEvent(items, "enterview", function(items){
+          ytcenter.domEvents.addEvent(items.slice(), "enterview", function(items){
             loadRatings(items, function(items){
               for (var i = 0; i < items.length; i++) {
                 if (countEnabled) {
@@ -5790,17 +5802,17 @@
         }
       }
       function compareDifference(newData, oldData) {
-        var a = false;
+		  function inArray(arr, item) {
+			  for (var i = 0; i < arr.length; i++) {
+				  if (arr[i].wrapper === item.wrapper) {
+					  return true;
+				  }
+			  }
+			  return false;
+		  }
         var arr = [];
         for (var i = 0, len = newData.length; i < len; i++) {
-          a = false;
-          for (var j = 0, lenj = oldData.length; j < lenj; j++) {
-            if (oldData[j].wrapper === newData[i].wrapper) {
-              a = true;
-              break;
-            }
-          }
-          if (!a) {
+          if (!inArray(oldData, newData[i])) {
             arr.push(newData[i]);
           }
         }
@@ -11551,6 +11563,10 @@
     * @return {Boolean} Returns true if the child element is a child of the parent element.
     **/
     ytcenter.utils.isParent = function(parent, child){
+		if (parent && child && typeof parent.contains === "function") {
+			return parent.contains(child);
+		}
+		
       var children = parent.getElementsByTagName(child.tagName);
       for (var i = 0, len = children.length; i < len; i++) {
         if (children[i] === child) {
@@ -26727,7 +26743,7 @@
         inject(main_function);
       }
     } else {
-	  injectScript(function(){ window.matchMedia = null; });
+	  injectScript(function(){ window.matchMedia = null; }, "matchMediaOverride.js");
       console.log("default");
       /* Continue normally */
       initListeners();
