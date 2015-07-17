@@ -964,10 +964,6 @@ body > #page {
 }
 
 /* Front Page Feed - Not signed in */
-.flex-width-enabled .lohp-large-shelf-container {
-  width: 371px!important;
-}
-
 .ytcenter-hide-guide-count .guide-count {
   display: none !important;
 }
