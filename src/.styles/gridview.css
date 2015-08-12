@@ -2,6 +2,10 @@
 	position: absolute;
 }
 
+.ytcenter-gridview .yt-section-hover-container:hover .yt-uix-button-action-menu {
+	display: table;
+}
+
 .ytcenter-gridview .shelf-item .shelf-title-table .shelf-title-row .menu-container {
 	left: 0 !important;
 }
@@ -66,8 +70,8 @@
 }
 .ytcenter-gridview .feed-item-container {
   display: inline-block;
-  margin-right: 10px;
-  margin-bottom: 20px;
+  margin-right: 10px!important;
+  margin-bottom: 20px!important;
   vertical-align: top;
 }
 
