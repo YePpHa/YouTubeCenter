@@ -1,9 +1,7 @@
-.ytcenter-gridview .shelf-title-table {
+.ytcenter-gridview .shelf-item  .shelf-title-table {
 	position: absolute;
-}
-
-.ytcenter-gridview .yt-section-hover-container:hover .yt-uix-button-action-menu {
-	display: table;
+	right: 0;
+	width: auto;
 }
 
 .ytcenter-gridview .shelf-item .shelf-title-table .shelf-title-row .menu-container {

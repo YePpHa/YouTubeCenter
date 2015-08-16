@@ -92,7 +92,7 @@
     
     injectScript(func);
   }
-  function injectScript(func, filename) {
+  function injectScript(func, filename, noArgs) {
 	  filename = filename || "YouTubeCenter.js";
     var script = document.createElement("script");
     var parent = document.body || document.head || document.documentElement;
@@ -104,7 +104,13 @@
     if (typeof func === "string") {
       func = "function(){" + func + "}";
     }
-    script.appendChild(document.createTextNode("(" + func + ")(true, @identifier@, @devbuild@, @devnumber@);\n//# sourceURL=" + filename));
+	var fn = "(" + func + ")";
+	if (noArgs) {
+		fn += "()";
+	} else {
+		fn += "(true, @identifier@, @devbuild@, @devnumber@)";
+	}
+    script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
     parent.removeChild(script);
   }
