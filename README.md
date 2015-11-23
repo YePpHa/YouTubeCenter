@@ -1,5 +1,5 @@
 # YouTube Center [![Crowdin](https://d322cqt584bo4o.cloudfront.net/youtube-center/localized.png)](https://crowdin.net/project/youtube-center)
-YouTube Center is an extension for the browser that will enhance the experience on YouTube by adding tons of new and useful features.
+YouTube Center is an extension for the browser that will enhance the experience on YouTube by adding tons of new and useful features. See the wiki for details on how to install the extension and how it works: [https://github.com/YePpHa/YouTubeCenter/wiki](https://github.com/YePpHa/YouTubeCenter/wiki)
 
 ## Contribute
 You can contribute to YouTube Center by different means. You can help find bugs (and report them in the [issue tracker](https://github.com/YePpHa/YouTubeCenter/issues)), help with the translation to different languages or you can try and implement new things yourself.
@@ -10,7 +10,7 @@ YouTube Center uses Crowdin to better manage the translations. If you want to he
 ## Build
 YouTube Center is using the build system [Ant](http://ant.apache.org/).
 
-### Base requirements
+### Base requirements (you don't need these to run the extension)
  * Desktop Computer
  * [Java SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
  * [Ant](http://ant.apache.org/)
