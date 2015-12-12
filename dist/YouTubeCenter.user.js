@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         534
+// @version         535
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -108,7 +108,7 @@
 	if (noArgs) {
 		fn += "()";
 	} else {
-		fn += "(true, 0, true, 534)";
+		fn += "(true, 0, true, 535)";
 	}
     script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
@@ -1622,7 +1622,7 @@
 		try {
 			var e = document.createEvent('CustomEvent');
 			if (detail) {
-				e.initCustomEvent(type, true, true, { "detail": detail });
+				e.initCustomEvent(type, true, true, detail);
 			} else {
 				e.initCustomEvent(type, true, true);
 			}
@@ -6208,7 +6208,8 @@
       return exports;
     })();
     ytcenter.domEvents = (function(){
-      function onViewUpdate() {
+      function onViewUpdate(e) {
+		if (e && e.detail === "ytcenter") return;
         if (uw.self !== uw.top && !offset && !windowDim)
           return;
         onEnterViewUpdate();
@@ -23050,7 +23051,8 @@
       });
       ytcenter.utils.addEventListener(window, "resize", (function(){
         var timer = null;
-        return function(){
+        return function(e){
+          if (e && e.detail === "ytcenter") return;
           if (!ytcenter.settings.enableResize) return;
           if (timer !== null) uw.clearTimeout(timer);
           timer = uw.setTimeout(function(){
@@ -23227,7 +23229,7 @@
         document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
         document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
 		
-		window.dispatchEvent(ytcenter.utils.createCustomEvent("resize"));
+		window.dispatchEvent(ytcenter.utils.createCustomEvent("resize", "ytcenter"));
       }
 
       function getPlayerDimension(width, height) {
