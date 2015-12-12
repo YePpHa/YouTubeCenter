@@ -1618,6 +1618,23 @@
     ytcenter.ltr = true; 
     
     ytcenter.utils = {};
+	ytcenter.utils.createCustomEvent = function(type, detail) {
+		try {
+			var e = document.createEvent('CustomEvent');
+			if (detail) {
+				e.initCustomEvent(type, true, true, { "detail": detail });
+			} else {
+				e.initCustomEvent(type, true, true);
+			}
+			return e;
+		} catch (e) {
+			var e = new CustomEvent(type);
+			if (detail) {
+				e.detail = detail;
+			}
+			return e;
+		}
+	};
     ytcenter.utils.ie = (function(){
       for (var v = 3, el = document.createElement('b'), all = el.all || []; el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];);
       return v > 4 ? v : !!document.documentMode;
@@ -23209,6 +23226,8 @@
         document.documentElement.setAttribute("data-ytc-player-size-calc-width", playerWidth); // The calculated width of the player in pixels.
         document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
         document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
+		
+		window.dispatchEvent(ytcenter.utils.createCustomEvent("resize"));
       }
 
       function getPlayerDimension(width, height) {
