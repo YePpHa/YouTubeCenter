@@ -1622,7 +1622,7 @@
 		try {
 			var e = document.createEvent('CustomEvent');
 			if (detail) {
-				e.initCustomEvent(type, true, true, { "detail": detail });
+				e.initCustomEvent(type, true, true, detail);
 			} else {
 				e.initCustomEvent(type, true, true);
 			}
@@ -6208,7 +6208,8 @@
       return exports;
     })();
     ytcenter.domEvents = (function(){
-      function onViewUpdate() {
+      function onViewUpdate(e) {
+		if (e && e.detail === "ytcenter") return;
         if (uw.self !== uw.top && !offset && !windowDim)
           return;
         onEnterViewUpdate();
@@ -23050,7 +23051,8 @@
       });
       ytcenter.utils.addEventListener(window, "resize", (function(){
         var timer = null;
-        return function(){
+        return function(e){
+          if (e && e.detail === "ytcenter") return;
           if (!ytcenter.settings.enableResize) return;
           if (timer !== null) uw.clearTimeout(timer);
           timer = uw.setTimeout(function(){
@@ -23227,7 +23229,7 @@
         document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
         document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
 		
-		window.dispatchEvent(ytcenter.utils.createCustomEvent("resize"));
+		window.dispatchEvent(ytcenter.utils.createCustomEvent("resize", "ytcenter"));
       }
 
       function getPlayerDimension(width, height) {
