@@ -108,7 +108,7 @@
 	if (noArgs) {
 		fn += "()";
 	} else {
-		fn += "(true, 0, true, 536)";
+		fn += "(true, 0, true, 537)";
 	}
     script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
