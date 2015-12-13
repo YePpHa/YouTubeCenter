@@ -23312,7 +23312,7 @@
       }
       
       function isExperimentalPlayer() {
-        return (ytcenter.utils.hasClass(document.body, "exp-watch-controls-overlay"));
+        return true;
       }
 
       function getPlayerBarHeight() {
