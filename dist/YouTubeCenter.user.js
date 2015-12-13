@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         535
+// @version         536
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -108,7 +108,7 @@
 	if (noArgs) {
 		fn += "()";
 	} else {
-		fn += "(true, 0, true, 535)";
+		fn += "(true, 0, true, 536)";
 	}
     script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
@@ -3118,14 +3118,10 @@
       function enterComplete() {
         if (inTransition) {
           ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top");
-          /*if (ytcenter.settings.topScrollPlayerHideScrollbar) {
-            ytcenter.utils.addClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-          } else {
-            ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-noscrollbar");
-          }*/
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-player-pre");
           
           uw.setTimeout(function(){ inTransition = false; }, 500);
+		  window.dispatchEvent(ytcenter.utils.createCustomEvent("resize", "ytcenter"));
         }
       }
       function exitComplete() {
@@ -3134,6 +3130,8 @@
           ytcenter.utils.removeClass(document.body, "ytcenter-scrolled-top-disable-animation");
           
           inTransition = false;
+		  
+		  window.dispatchEvent(ytcenter.utils.createCustomEvent("resize", "ytcenter"));
         }
       }
       function onTransitionEnd() {
@@ -3161,6 +3159,7 @@
             inTransitionTimer = uw.setTimeout(function(){ exitComplete(); inTransitionTimer = null; }, 500);
           }
         }
+		window.dispatchEvent(ytcenter.utils.createCustomEvent("resize", "ytcenter"));
       }
       function onTransitionEndListener() {
         if (activated) {
@@ -3206,8 +3205,10 @@
               onTransitionEnd();
               count = 0;
               exports.stopTimer();
+			  setTimeout(function(){ ytcenter.utils.scrollTop(0); }, 7);
             }
           } else if (scrollUpExit) {
+			setTimeout(function(){ ytcenter.utils.scrollTop(0); }, 7);
             //ytcenter.utils.scrollTop(1);
           }
         } else {
@@ -3228,6 +3229,7 @@
               onTransitionEnd();
               count = 0;
               exports.stopTimer();
+			  setTimeout(function(){ ytcenter.utils.scrollTop(0); }, 7);
             }
           } else if (scrollTop === 0 && ytcenter.settings.topScrollPlayerCountIncreaseBefore) {
             exports.bumpCount();
@@ -23089,6 +23091,8 @@
       var defaultPlayerMaxWidth = 1066;
 
       var sidebarWidth = 426;
+	  
+	  var lastPlayerSize = { width: null, height: null };
 
       function resize(width, height, large) {
         var innerWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -23229,7 +23233,11 @@
         document.documentElement.setAttribute("data-ytc-player-size-calc-height", playerHeight); // The calculated height of the player in pixels.
         document.documentElement.setAttribute("data-ytc-player-size-large", large); // Whether the player is regarded as a large (or medium) sized player by YouTube.
 		
-		window.dispatchEvent(ytcenter.utils.createCustomEvent("resize", "ytcenter"));
+        if (lastPlayerSize.width !== playerWidth || lastPlayerSize.height !== playerHeight) {
+          lastPlayerSize.width = playerWidth;
+          lastPlayerSize.height = playerHeight;
+          window.dispatchEvent(ytcenter.utils.createCustomEvent("resize", "ytcenter"));
+        }
       }
 
       function getPlayerDimension(width, height) {
