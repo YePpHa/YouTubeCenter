@@ -4936,6 +4936,12 @@
         } else {
           var spflink = true,
             url = "//www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : "");
+		  var headers = {};
+		  if (window.ytspf && window.ytspf.config && window.ytspf.config["experimental-request-headers"]) {
+			  headers = window.ytspf.config["experimental-request-headers"];
+		  }
+		  headers["X-SPF-previous"] = window.location.href;
+		  headers["X-SPF-referer"] = window.location.href;
           if (loc.href.indexOf("https://") === 0) {
             url = "https:" + url;
           } else {
@@ -4944,6 +4950,7 @@
           ytcenter.utils.xhr({
             url: url,
             method: "GET",
+			headers: headers,
             onload: function(r){
               var cfg = null;
               var errorType = "unknown";

@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         537
+// @version         538
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -108,7 +108,7 @@
 	if (noArgs) {
 		fn += "()";
 	} else {
-		fn += "(true, 4, true, 537)";
+		fn += "(true, 4, true, 538)";
 	}
     script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
@@ -4936,6 +4936,12 @@
         } else {
           var spflink = true,
             url = "//www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : "");
+		  var headers = {};
+		  if (window.ytspf && window.ytspf.config && window.ytspf.config["experimental-request-headers"]) {
+			  headers = window.ytspf.config["experimental-request-headers"];
+		  }
+		  headers["X-SPF-previous"] = window.location.href;
+		  headers["X-SPF-referer"] = window.location.href;
           if (loc.href.indexOf("https://") === 0) {
             url = "https:" + url;
           } else {
@@ -4944,6 +4950,7 @@
           ytcenter.utils.xhr({
             url: url,
             method: "GET",
+			headers: headers,
             onload: function(r){
               var cfg = null;
               var errorType = "unknown";
