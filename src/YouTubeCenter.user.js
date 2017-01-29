@@ -3979,17 +3979,18 @@
         var detail = {};
         detail.element = element;
         detail.entryElement = element.parentNode;
-        detail.contentElement = element.getElementsByClassName("content")[0];
+        detail.contentElement = element.getElementsByClassName("comment-renderer-content")[0];
         
-        detail.headerElement = detail.contentElement.getElementsByClassName("comment-header")[0];
-        detail.textElement = detail.contentElement.getElementsByClassName("comment-text")[0];
+        detail.headerElement = detail.contentElement.getElementsByClassName("comment-renderer-header")[0];
+        detail.textElement = detail.contentElement.getElementsByClassName("comment-renderer-text")[0];
         
-        detail.isReply = ytcenter.utils.hasClass(element, "reply");
+        var repliesRenderer = element.parentNode.parentNode.parentNode;
+        detail.isReply = ytcenter.utils.hasClass(repliesRenderer, "comment-replies-renderer");
         detail.hasSource = element.getElementsByClassName("comment-source").length > 0;
         
         detail.parentComment = null;
         if (detail.isReply) {
-          detail.parentComment = exports.getCommentByElement(element.parentNode.previousElementSibling);
+          detail.parentComment = exports.getCommentByElement(repliesRenderer.previousElementSibling);
         }
         
         detail.url = element.getElementsByTagName("a")[0].getAttribute("href");
@@ -4057,7 +4058,7 @@
         exports.comments.push(commentObject);
       };
       exports.loadComments = function(){
-        var comments = document.getElementsByClassName("comment-item");
+        var comments = document.getElementsByClassName("comment-renderer");
         for (var i = 0; i < comments.length; i++) {
           try {
             exports.addCommentObject(exports.getCommentObject(comments[i]));
