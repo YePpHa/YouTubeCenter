@@ -1639,6 +1639,10 @@
       for (var v = 3, el = document.createElement('b'), all = el.all || []; el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];);
       return v > 4 ? v : !!document.documentMode;
     }());
+	
+	function getAPIKey() {
+		return ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
+	}
     
     /**
      * UAParser.js v0.7.3
@@ -3975,17 +3979,18 @@
         var detail = {};
         detail.element = element;
         detail.entryElement = element.parentNode;
-        detail.contentElement = element.getElementsByClassName("content")[0];
+        detail.contentElement = element.getElementsByClassName("comment-renderer-content")[0];
         
-        detail.headerElement = detail.contentElement.getElementsByClassName("comment-header")[0];
-        detail.textElement = detail.contentElement.getElementsByClassName("comment-text")[0];
+        detail.headerElement = detail.contentElement.getElementsByClassName("comment-renderer-header")[0];
+        detail.textElement = detail.contentElement.getElementsByClassName("comment-renderer-text")[0];
         
-        detail.isReply = ytcenter.utils.hasClass(element, "reply");
+        var repliesRenderer = element.parentNode.parentNode.parentNode;
+        detail.isReply = ytcenter.utils.hasClass(repliesRenderer, "comment-replies-renderer");
         detail.hasSource = element.getElementsByClassName("comment-source").length > 0;
         
         detail.parentComment = null;
         if (detail.isReply) {
-          detail.parentComment = exports.getCommentByElement(element.parentNode.previousElementSibling);
+          detail.parentComment = exports.getCommentByElement(repliesRenderer.previousElementSibling);
         }
         
         detail.url = element.getElementsByTagName("a")[0].getAttribute("href");
@@ -4053,7 +4058,7 @@
         exports.comments.push(commentObject);
       };
       exports.loadComments = function(){
-        var comments = document.getElementsByClassName("comment-item");
+        var comments = document.getElementsByClassName("comment-renderer");
         for (var i = 0; i < comments.length; i++) {
           try {
             exports.addCommentObject(exports.getCommentObject(comments[i]));
@@ -4594,8 +4599,8 @@
       return exports;
     })();
     ytcenter.getUserData = function(userId, callback) {
-		var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
-      ytcenter.utils.xhr({
+      var apikey = getAPIKey();
+      ytcenter.utils.browser_xhr({
         url: "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=" + encodeURIComponent(userId) + "&key=" + encodeURIComponent(apikey),
         method: "GET",
         onload: function(r) {
@@ -4603,15 +4608,29 @@
           try {
             data = JSON.parse(r.responseText);
           } catch (e) {
-            con.error(e);
+            con.error("[getUserData] Error:", e);
           }
-		  var country = null;
-		  if (data && data.items && data.items.length > 0 && data.items[0] && data.items[0].snippet) {
-			  country = data.items[0].snippet.country;
-		  }
+          
+          var country = null;
+          if (data) {
+            if (data.items && data.items.length > 0 && data.items[0] && data.items[0].snippet) {
+              country = data.items[0].snippet.country;
+              con.log("[getUserData] Success. userID: " + userId + " Country: " + country, data);
+            } else if (data.error) {
+              con.error("[getUserData] Error:", data.error)
+            }
+          }
+          
           callback(country);
         },
-        onerror: function(){
+        onerror: function(response){
+          try {
+            var data = JSON.parse(r.responseText);
+            con.error("[getUserData] Error:", data.error)
+          } catch (e) {
+            con.error("[getUserData] Error: " + response.responseText);
+          }
+		 
           callback(null);
         }
       });
@@ -5052,7 +5071,7 @@
         }
       }
       function loadRatings(items, callback) {
-        var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
+        var apikey = getAPIKey();
         var ids = [];
         var ids_item = [];
         
@@ -5138,7 +5157,7 @@
         if (item.likes && item.dislikes) {
           callback(item.likes, item.dislikes);
         } else if (item.id) {
-			var apikey = ytcenter.settings.google_apikey || "AIzaSyCO5gfGpEiqmc8XTknN9RyC3TCJz1-XyAI";
+			var apikey = getAPIKey();
 			var url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + encodeURIComponent(item.id) + "&key=" + encodeURIComponent(apikey);
           
           ytcenter.utils.browser_xhr({
@@ -20079,17 +20098,37 @@
     };
     ytcenter.user = {};
     ytcenter.user.callChannelFeed = function(username, callback){
-      ytcenter.utils.xhr({
+      var apikey = getAPIKey();
+      ytcenter.utils.browser_xhr({
         method: "GET",
-        url: 'https://gdata.youtube.com/feeds/api/channels?q=' + encodeURIComponent("\"" + username + "\"") + '&start-index=1&max-results=1&v=2&alt=json',
+        url: 'https://www.googleapis.com/youtube/v3/search?q=' + encodeURIComponent("\"" + username + "\"") + '&maxResults=1&part=snippet&type=channel&key=' + encodeURIComponent(apikey),
         headers: {
           "Content-Type": "text/plain"
         },
         onload: function(response){
           if (response.responseText) {
-            var j = JSON.parse(response.responseText);
-            if (j.feed && j.feed.entry && j.feed.entry.length > 0) {
-              callback.apply(j.feed.entry[0]);
+            try {  
+              var j = JSON.parse(response.responseText);
+              if (j.items && j.items.lengh > 0) {
+                callback.apply(j.items[0]);
+                con.log("[callChannelFeed] Success. Username: " + username, j.items[0]);
+              } else if (j.error) {
+                con.error("[callChannelFeed] Error. Username: " + username, j.error);
+              }
+            } catch (e) {
+              con.error("[callChannelFeed] Error. Username: " + username, e);
+            }
+          }
+        },
+        onerror: function(response){
+          if (response.responseText) {
+            try {
+              var j = JSON.parse(response.responseText);
+              if (j.error) {
+                con.error("[callChannelFeed] Error. Username: " + username, j.error);
+              }
+            } catch (e) {
+              con.error("[callChannelFeed] Error: " + + response.responseText + " Username: " + username);
             }
           }
         }
@@ -21939,13 +21978,13 @@
           try {
             var txt = response.responseText;
             if (txt) {
-              txt = txt.split("<published>");
-              if (txt && txt.length > 1) {
-                txt = txt[1].split("</published>");
-                if (txt && txt.length > 0) {
-                  txt = txt[0];
-                  ytcenter.video.published = new Date(txt);
-                }
+              var data = JSON.parse(response.responseText);
+              if (data.items && data.items.length > 0) {
+                var dateText = data.items[0].snippet.publishedAt;
+                ytcenter.video.published = new Date(dateText);
+                con.log("[Video Publish Date] Success: " + dateText);
+              } else if (data.error) {
+                con.error("[Video Publish Date] Error:", data.error)
               }
             }
           } catch (e) {
@@ -21954,9 +21993,10 @@
           //ytcenter.events.performEvent("ui-refresh");
         };
         if (config.args.video_id) {
-          ytcenter.utils.xhr({
+  	      var apikey = getAPIKey();
+          ytcenter.utils.browser_xhr({
             method: "GET",
-            url: "https://gdata.youtube.com/feeds/api/videos/" + config.args.video_id + "?v=2",
+            url: "https://www.googleapis.com/youtube/v3/videos?id=" + config.args.video_id + "&part=snippet&key=" + encodeURIComponent(apikey),
             headers: {
               "Content-Type": "text/plain"
             },
@@ -25413,7 +25453,7 @@
           if (ytcenter.video.author) {
             ytcenter.user.callChannelFeed(ytcenter.video.author, function(){
               ytcenter.video._channel = this;
-              ytcenter.video.channelname = this.title['$t'];
+              ytcenter.video.channelname = this.snippet.title;
             });
           }
         } else if (page === "channel") {
