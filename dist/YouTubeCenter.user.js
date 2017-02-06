@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         538
+// @version         540
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -108,7 +108,7 @@
 	if (noArgs) {
 		fn += "()";
 	} else {
-		fn += "(true, 0, true, 538)";
+		fn += "(true, 0, true, 540)";
 	}
     script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
