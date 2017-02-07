@@ -20932,9 +20932,9 @@
       }
 
       function onChange() {
-		  if (autoplayCheckbox && autoplayCheckbox.checked !== toggled) {
-			toggled = !toggled;
-		  }
+        if (autoplayCheckbox && autoplayCheckbox.checked !== toggled) {
+          toggled = !toggled;
+        }
       }
 
       function isChecked() {
@@ -20943,10 +20943,10 @@
 
       function setChecked(checked) {
         if (autoplayCheckbox) {
-			if (autoplayCheckbox.checked !== !!checked) {
-				autoplayCheckbox.click();
-			}
-			toggled = !!checked;
+          if (autoplayCheckbox.checked !== checked) {
+            autoplayCheckbox.click();
+          }
+          toggled = !!checked;
         }
       }
 
