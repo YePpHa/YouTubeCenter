@@ -7,5 +7,6 @@
 # Some NODEJS
 /node_modules
 
-/bin
-!README.md
+#/bin
+buildcrx_winnt_*
+buildcrx_linux_*
