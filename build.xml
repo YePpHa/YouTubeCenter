@@ -53,7 +53,7 @@
   <property name="name.styles" value=".styles" />
   <property name="src.styles" value="${src}/${name.styles}" />
   
-  <property name="sdk.maxthon" value="${basedir}/SDK/maxthon.exe" />
+  <property name="sdk.maxthon" value="${basedir}/bin/mxpack.py" />
   <property name="sdk.yuicompressor" value="${basedir}/SDK/yuicompressor-2.4.7.jar" />
   <property name="sdk.buildcrx" value="${basedir}/bin/buildcrx_linux_x86_64" />
   <property name="sdk.buildcrx.windows-x86" value="${basedir}/bin/buildcrx_winnt_x86.exe" />
@@ -272,7 +272,8 @@
   </target>
   
   <target name="maxthon" depends="preinit, copy-maxthon">
-    <exec executable="${sdk.maxthon}">
+    <exec executable="python">
+      <arg value="${sdk.maxthon}" />
       <arg value="${buildDir}" />
       <arg value="${dist}/${name}.mxaddon" />
     </exec>
