@@ -20130,7 +20130,7 @@
           if (response.responseText) {
             try {  
               var j = JSON.parse(response.responseText);
-              if (j.items && j.items.lengh > 0) {
+              if (j.items && j.items.length > 0) {
                 callback.apply(j.items[0]);
                 con.log("[callChannelFeed] Success. Username: " + username, j.items[0]);
               } else if (j.error) {
