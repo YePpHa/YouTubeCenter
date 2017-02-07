@@ -1,4 +1,4 @@
-<project name="YouTubeCenter" default="all" basedir=".">
+<project name="YouTubeCenter" default="all-linux-x86_64" basedir=".">
   <description>
     Compiling script to different browsers.
   </description>
@@ -55,7 +55,10 @@
   
   <property name="sdk.maxthon" value="${basedir}/SDK/maxthon.exe" />
   <property name="sdk.yuicompressor" value="${basedir}/SDK/yuicompressor-2.4.7.jar" />
-  <property name="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe" />
+  <property name="sdk.buildcrx" value="${basedir}/bin/buildcrx_linux_x86_64" />
+  <property name="sdk.buildcrx.windows-x86" value="${basedir}/bin/buildcrx_winnt_x86.exe" />
+  <property name="sdk.buildcrx.linux-x86" value="${basedir}/bin/buildcrx_linux_x86" />
+  <property name="sdk.buildcrx.linux-x86_64" value="${basedir}/bin/buildcrx_linux_x86_64" />
   <property name="sdk.uhura-full-path" value="${basedir}/SDK/uhura" />
   
   <property name="build.safari" value="${basedir}/ant-build-safari.sh" />
@@ -71,8 +74,10 @@
   <property name="indentifier.scriptish" value="7" />
   <property name="indentifier.chrome-webstore" value="8" />
   
-  <target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, opera, safari, clean" />
-  <target name="all-linux" depends="preinit, userscript, userscript-meta, chrome-webstore, firefox, opera, clean" />
+  <!--<target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, opera, safari, clean" />-->
+  <target name="all-windows-x86" depends="preinit, userscript, userscript-meta, chrome-windows-x86, chrome-webstore, firefox, opera, clean" />
+  <target name="all-linux-x86" depends="preinit, userscript, userscript-meta, chrome-linux-x86, chrome-webstore, firefox, opera, clean" />
+  <target name="all-linux-x86_64" depends="preinit, userscript, userscript-meta, chrome-linux-x86_64, chrome-webstore, firefox, opera, clean" />
   <target name="all-no-cert" depends="preinit, userscript, userscript-meta, chrome-webstore, maxthon, firefox, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />
@@ -184,7 +189,9 @@
     <antcall target="clean" />
   </target>
   
-  <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx" />
+  <target name="chrome-windows-x86" depends="preinit, copy-chrome, chrome-zip, chrome-crx-windows-x86" />
+  <target name="chrome-linux-x86" depends="preinit, copy-chrome, chrome-zip, chrome-crx-linux-x86" />
+  <target name="chrome-linux-x86_64" depends="preinit, copy-chrome, chrome-zip, chrome-crx-linux-x86_64" />
   <target name="chrome-webstore" depends="preinit, copy-chrome-webstore, chrome-webstore-zip" />
   <target name="chrome-zip">
     <zip destfile="${buildDir}/chrome.zip" basedir="${buildDir}" />
@@ -194,9 +201,42 @@
     <antcall target="clean" />
   </target>
   
-  <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
-    <exec executable="${sdk.buildcrx}">
-      <arg value="-crx" />
+  <target name="chrome-crx-windows-x86" depends="chrome-keycheck, build-chrome-key">
+    <exec executable="${sdk.buildcrx.windows-x86}">
+      <arg value="${buildDir}/chrome.zip" />
+      <arg value="${cert.chrome}" />
+      <arg value="${dist}/${name}.crx" />
+    </exec>
+    <antcall target="clean" />
+    
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <antcall target="chrome-update" />
+      </then>
+    </if>
+  </target>
+  
+  <target name="chrome-crx-linux-x86" depends="chrome-keycheck, build-chrome-key">
+    <exec executable="${sdk.buildcrx.linux-x86}">
+      <arg value="${buildDir}/chrome.zip" />
+      <arg value="${cert.chrome}" />
+      <arg value="${dist}/${name}.crx" />
+    </exec>
+    <antcall target="clean" />
+    
+    <loadproperties srcFile="${build.prop}"/>
+    <if>
+      <equals arg1="${@devbuild@}" arg2="true" />
+      <then>
+        <antcall target="chrome-update" />
+      </then>
+    </if>
+  </target>
+  
+  <target name="chrome-crx-linux-x86_64" depends="chrome-keycheck, build-chrome-key">
+    <exec executable="${sdk.buildcrx.linux-x86_64}">
       <arg value="${buildDir}/chrome.zip" />
       <arg value="${cert.chrome}" />
       <arg value="${dist}/${name}.crx" />

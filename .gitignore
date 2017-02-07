@@ -6,3 +6,6 @@
 
 # Some NODEJS
 /node_modules
+
+/bin
+!README.md
