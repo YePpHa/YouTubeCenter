@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         540
+// @version         541
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -108,7 +108,7 @@
 	if (noArgs) {
 		fn += "()";
 	} else {
-		fn += "(true, 1, true, 540)";
+		fn += "(true, 1, true, 541)";
 	}
     script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
@@ -12307,8 +12307,8 @@
       //ytcenter.utils.updateSignatureDecipher = function(){}; // I'm just cheating a little bit ...
       if (ytcenter && ytcenter.player && ytcenter.player.config && ytcenter.player.config.assets && ytcenter.player.config.assets.js) {
         var js = (loc.href.indexOf("https") === 0 ? "https:" : "http:") + ytcenter.player.config.assets.js,
-            regex = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(.*?)return a\.join\(""\)}/g,
-            regex2 = /function [a-zA-Z$0-9]+\(a\){a=a\.split\(""\);(((a=([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a=a\.slice\([0-9]+\);)|(a=a\.reverse\(\);)|(var b=a\[0\];a\[0\]=a\[[0-9]+%a\.length\];a\[[0-9]+\]=b;)))*return a\.join\(""\)}/g;
+            regex = /function( [a-zA-Z$0-9]+|)\(a\){a=a\.split\((""|'')\);(.*?)return a\.join\((""|'')\)}/g,
+            regex2 = /function( [a-zA-Z$0-9]+|)\(a\){a=a\.split\(""\);(((a=([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a=a\.slice\([0-9]+\);)|(a=a\.reverse\(\);)|(var b=a\[0\];a\[0\]=a\[[0-9]+%a\.length\];a\[[0-9]+\]=b;)))*return a\.join\(""\)}/g;
         con.log("[updateSignatureDecipher] Contacting " + js);
         ytcenter.utils.xhr({
           method: "GET",
