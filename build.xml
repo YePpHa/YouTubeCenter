@@ -75,9 +75,9 @@
   <property name="indentifier.chrome-webstore" value="8" />
   
   <!--<target name="all" depends="preinit, userscript, userscript-meta, chrome, chrome-webstore, maxthon, firefox, opera, safari, clean" />-->
-  <target name="all-windows-x86" depends="preinit, userscript, userscript-meta, chrome-windows-x86, chrome-webstore, firefox, opera, clean" />
-  <target name="all-linux-x86" depends="preinit, userscript, userscript-meta, chrome-linux-x86, chrome-webstore, firefox, opera, clean" />
-  <target name="all-linux-x86_64" depends="preinit, userscript, userscript-meta, chrome-linux-x86_64, chrome-webstore, firefox, opera, clean" />
+  <target name="all-windows-x86" depends="preinit, userscript, userscript-meta, chrome-windows-x86, chrome-webstore, maxthon, firefox, opera, clean" />
+  <target name="all-linux-x86" depends="preinit, userscript, userscript-meta, chrome-linux-x86, chrome-webstore, maxthon, firefox, opera, clean" />
+  <target name="all-linux-x86_64" depends="preinit, userscript, userscript-meta, chrome-linux-x86_64, chrome-webstore, maxthon, firefox, opera, clean" />
   <target name="all-no-cert" depends="preinit, userscript, userscript-meta, chrome-webstore, maxthon, firefox, opera, clean" />
   <target name="preinit">
     <mkdir dir="${cert}" />

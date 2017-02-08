@@ -24,7 +24,7 @@
 // @id              YouTubeCenter
 // @name            YouTube Center Developer Build
 // @namespace       http://www.facebook.com/YouTubeCenter
-// @version         542
+// @version         543
 // @author          Jeppe Rune Mortensen <jepperm@gmail.com>
 // @description     YouTube Center Developer Build contains all kind of different useful functions which makes your visit on YouTube much more entertaining.
 // @icon            https://raw.github.com/YePpHa/YouTubeCenter/master/assets/icon48.png
@@ -108,7 +108,7 @@
 	if (noArgs) {
 		fn += "()";
 	} else {
-		fn += "(true, 0, true, 542)";
+		fn += "(true, 0, true, 543)";
 	}
     script.appendChild(document.createTextNode(fn + ";\n//# sourceURL=" + filename));
     parent.appendChild(script);
@@ -12304,10 +12304,14 @@
       return a.join(",");
     };
     ytcenter.utils.updateSignatureDecipher = function(){
-      //ytcenter.utils.updateSignatureDecipher = function(){}; // I'm just cheating a little bit ...
       if (ytcenter && ytcenter.player && ytcenter.player.config && ytcenter.player.config.assets && ytcenter.player.config.assets.js) {
-        var js = (loc.href.indexOf("https") === 0 ? "https:" : "http:") + ytcenter.player.config.assets.js,
-            regex = /function( [a-zA-Z$0-9]+|)\(a\){a=a\.split\((""|'')\);(.*?)return a\.join\((""|'')\)}/g,
+        var js = ytcenter.player.config.assets.js;
+        var jsEl = document.createElement("a");
+        jsEl.href = js;
+        
+        js = jsEl.href;
+        
+        var regex = /function( [a-zA-Z$0-9]+|)\(a\){a=a\.split\((""|'')\);(.*?)return a\.join\((""|'')\)}/g,
             regex2 = /function( [a-zA-Z$0-9]+|)\(a\){a=a\.split\(""\);(((a=([a-zA-Z$0-9]+)\(a,([0-9]+)\);)|(a=a\.slice\([0-9]+\);)|(a=a\.reverse\(\);)|(var b=a\[0\];a\[0\]=a\[[0-9]+%a\.length\];a\[[0-9]+\]=b;)))*return a\.join\(""\)}/g;
         con.log("[updateSignatureDecipher] Contacting " + js);
         ytcenter.utils.xhr({
@@ -12338,7 +12342,7 @@
               }
             } else if (response.responseText.match(regex)) {
               con.log("[updateSignatureDecipher] Using regex 2");
-              a = regex.exec(response.responseText)[1];
+              a = regex.exec(response.responseText)[3];
               if (a.match(/a=([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\(a,([0-9]+)\)/g)) {
                 var commonObject = null;
                 var arr = a.split(";");
@@ -12415,8 +12419,7 @@
                 }
                 
                 for (var i = 0, len = uniqueMethods.length; i < len; i++) {
-                  if (i > 0) prefix += "|";
-                  prefix += "(([a-zA-Z0-9]+):function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}[,]?)";
+                  prefix += "(([a-zA-Z0-9]+):function\\(([a-zA-Z0-9,]+)\\)\\{(.*?)\\}[\r\n]*[,]?[\r\n]*)";
                 }
                 
                 prefix += ")\\}";
@@ -20932,9 +20935,9 @@
       }
 
       function onChange() {
-		  if (autoplayCheckbox && autoplayCheckbox.checked !== toggled) {
-			toggled = !toggled;
-		  }
+        if (autoplayCheckbox && autoplayCheckbox.checked !== toggled) {
+          toggled = !toggled;
+        }
       }
 
       function isChecked() {
@@ -20943,10 +20946,10 @@
 
       function setChecked(checked) {
         if (autoplayCheckbox) {
-			if (autoplayCheckbox.checked !== !!checked) {
-				autoplayCheckbox.click();
-			}
-			toggled = !!checked;
+          if (autoplayCheckbox.checked !== checked) {
+            autoplayCheckbox.click();
+          }
+          toggled = !!checked;
         }
       }
 
