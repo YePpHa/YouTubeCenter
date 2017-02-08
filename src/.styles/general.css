@@ -992,3 +992,8 @@ body > #page {
 .site-center-aligned.ytcenter-hide-recommended-channels .browse-list-item-container:hover .compact-shelf .yt-uix-button-shelf-slider-pager {
   width: 25px !important;
 }
+
+.ytcenter-hide-resume-playback-bar .resume-playback-background,
+.ytcenter-hide-resume-playback-bar .resume-playback-progress-bar {
+  display: none;
+}

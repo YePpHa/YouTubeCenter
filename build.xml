@@ -90,6 +90,8 @@
     <mkdir dir="${src.maxthon}" />
     <mkdir dir="${cert.chromePath}" />
   </target>
+  
+  <!-- Downloads the translated languages and compiles into a ready format for compiling -->
   <target name="language">
     <loadfile property="crowdin.key" srcFile="${crowdin.path.key}" />
     
@@ -106,6 +108,7 @@
       <arg value="-o" /><arg value="${crowdin.output}" />
     </exec>
   </target>
+  <!-- Sends the English base language to Crowdin. -->
   <target name="language-update">
     <loadfile property="crowdin.key" srcFile="${crowdin.path.key}" />
     
