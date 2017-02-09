@@ -105,8 +105,7 @@ body.static-yt-logo #yt-masthead .doodle-removed #logo {
 }
 
 .watch8 #watch7-views-info {
-  bottom: initial !important;
-  top: -6px !important;
+  bottom: 100%;
 }
 
 #watch-description .ypc-offer-thumbnail {
