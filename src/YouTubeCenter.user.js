@@ -4948,18 +4948,24 @@
         }
         return videos;
       }
-      function loadVideoConfig(item, callback) {
+      function loadVideoConfig(item, options, callback) {
+        if (typeof options === "function") {
+          callback = options;
+          options = {};
+        }
+        options.spflink = typeof options.spflink === "boolean" ? options.spflink : true;
+        
         if (item.stream && item.storyboard) {
           callback(item.stream, item.storyboard);
         } else {
-          var spflink = true,
-            url = "//www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : "");
-		  var headers = {};
-		  if (window.ytspf && window.ytspf.config && window.ytspf.config["experimental-request-headers"]) {
-			  headers = window.ytspf.config["experimental-request-headers"];
-		  }
-		  headers["X-SPF-previous"] = window.location.href;
-		  headers["X-SPF-referer"] = window.location.href;
+          var spflink = options.spflink,
+              url = "//www.youtube.com/watch?v=" + item.id + (spflink ? "&spf=navigate" : "");
+          var headers = {};
+          if (window.ytspf && window.ytspf.config && window.ytspf.config["experimental-request-headers"]) {
+            headers = window.ytspf.config["experimental-request-headers"];
+          }
+          headers["X-SPF-previous"] = window.location.href;
+          headers["X-SPF-referer"] = window.location.href;
           if (loc.href.indexOf("https://") === 0) {
             url = "https:" + url;
           } else {
@@ -4968,26 +4974,31 @@
           ytcenter.utils.xhr({
             url: url,
             method: "GET",
-			headers: headers,
-            onload: function(r){
+            headers: headers,
+            onload: function(r) {
               var cfg = null;
               var errorType = "unknown";
               try {
                 try {
                   if (spflink) {
                     var parts = JSON.parse(r.responseText);
-                    
-                    for (var i = 0, len = parts.length; i < len; i++) {
-                      var part = parts[i];
-                      if (part && part.data && part.data.swfcfg) {
-                        cfg = part.data.swfcfg;
-                        break;
+                    if (ytcenter.utils.isArray(parts)) {
+                      for (var i = 0, len = parts.length; i < len; i++) {
+                        var part = parts[i];
+                        if (part && part.data && part.data.swfcfg) {
+                          cfg = part.data.swfcfg;
+                          break;
+                        }
                       }
+                      
+                      if (!cfg) throw "Player configurations not found in spf.";
+                    } else if (parts["reload"] === "now") {
+                      loadVideoConfig(item, { spflink: false }, callback);
+                      return;
                     }
-                    
-                    if (!cfg) throw "Player configurations not found in spf.";
                   } else {
-                    cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0];
+                    cfg = r.responseText.split("<script>var ytplayer = ytplayer || {};ytplayer.config = ")[1].split(";</script>")[0].split(";ytplayer.load")[0];
+                    
                     cfg = JSON.parse(cfg);
                   }
                 } catch (e) {
