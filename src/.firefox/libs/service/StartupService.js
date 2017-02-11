@@ -24,29 +24,29 @@ function loadFile(scriptName) {
   request.open("GET", scriptName, true);
   request.overrideMimeType("text/plain");
   request.send(null);
-  
+
   return request.responseText;
 }
 
 function shimFileAccess(detail) {
   var fileaccess = require("fileaccess");
-  
+
   var data = detail.data;
-  
+
   var method = data.method;
   var args = data.args;
-  
+
   return fileaccess[method].apply(null, args);
 }
 
 function startup(aService) {
   if (startupRun) return;
   startupRun = true;
-  
+
   var messageManager = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
   messageManager.addMessageListener("fileaccess-shim", shimFileAccess);
   messageManager.loadFrameScript(frameScriptURL, true);
-  
+
   unload(function(){
     messageManager.removeMessageListener("fileaccess-shim", shimFileAccess);
   });
@@ -57,10 +57,10 @@ function elementInserted(aService, doc, win) {
   let chromeWindow = getChromeWinForContentWin(win);
   if (chromeWindow) {
     if (!doc || !win || !doc.location) return;
-    
+
     var {loadScript} = require("sandbox");
     file = file || loadFile(filename);
-    
+
     try {
       this.window.QueryInterface(Ci.nsIDOMChromeWindow);
       // Never ever inject scripts into a chrome context window.
@@ -84,12 +84,12 @@ function StartupService() {
 StartupService.prototype.init = function(){
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
   registrar.registerFactory(this.classID, this.classDescription, this.contractID, this);
-  
+
   let catMan = Cc['@mozilla.org/categorymanager;1'].getService(Ci.nsICategoryManager);
   for each (let category in this.xpcom_categories)
     catMan.addCategoryEntry(category, this.contractID, this.contractID, false, true);
-  
-  
+
+
   var observerService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
 
   observerService.addObserver(this, "document-element-inserted", true);
@@ -101,10 +101,10 @@ StartupService.prototype.unload = function(){
   Services.tm.currentThread.dispatch(function(){
     registrar.unregisterFactory(this.classID, this);
   }.bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
-  
+
   try {
     var observerService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
-    
+
     observerService.removeObserver(this, "document-element-inserted");
     observerService.removeObserver(this, "xpcom-category-entry-removed");
     observerService.removeObserver(this, "xpcom-category-cleared");
@@ -141,7 +141,7 @@ StartupService.prototype.observe = function(subject, topic, data, additional) {
       case "document-element-inserted":
         let doc = subject;
         let win = doc && doc.defaultView;
-        
+
         elementInserted(this, doc, win);
         break;
       case "xpcom-category-entry-removed":
