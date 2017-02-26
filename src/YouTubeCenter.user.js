@@ -19728,6 +19728,7 @@
               "links": [
                 {text: "Wiki", url: "https://github.com/YePpHa/YouTubeCenter/wiki"},
                 {text: "Facebook", url: "https://www.facebook.com/YouTubeCenter"},
+                {text: "Reddit", url: "https://www.reddit.com/r/YouTubeCenter/"},
                 {text: "Google+", url: "https://plus.google.com/111275247987213661483/posts"},
                 {text: "Firefox", url: "https://addons.mozilla.org/en-us/firefox/addon/youtube-center/"},
                 {text: "Opera", url: "https://addons.opera.com/en/extensions/details/youtube-center/"},
