@@ -45,4 +45,5 @@
 // @supportURL      https://github.com/YePpHa/YouTubeCenter/issues
 // @run-at          document-start
 // @priority        9001
+// @noframes
 // ==/UserScript==
