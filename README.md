@@ -16,7 +16,7 @@ To understand the details see YePpHa's comment:
 
 ## Temporary Workarounds
 
-From YePpHa/YouTubeCenter#2439
+From https://github.com/YePpHa/YouTubeCenter/issues/2439
 - Chrome: https://github.com/YePpHa/YouTubeCenter/issues/2439#issuecomment-326737057
   https://googlesystem.blogspot.de/2011/12/changing-user-agent-new-google-chrome.html#gsc.tab=0
 - FireFox Addon "Custom User-Agent String": https://github.com/YePpHa/YouTubeCenter/issues/2439#issuecomment-326182853
