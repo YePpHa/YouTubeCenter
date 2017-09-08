@@ -4,12 +4,11 @@
 
 First: All Thanks to YePpHa !!
 
-As Youtube changed their Framework in 2017-08 the Update ist very difficult:
-http://web.archive.org/web/20170902002259/https://www.youtube.com/new
+As [Youtube changed their Framework](http://web.archive.org/web/20170902002259/https://www.youtube.com/new) in 2017-08 the Update ist very difficult.
 
-Blame YouTube and Google, not YePpHa.
+Blame YouTube and Google (or their technological advance), not YePpHa.
 
-Or I suggest to support YePpHa's new project maia-yt: 
+Or I suggest to support his new project YePpHa/maia-yt :
 https://github.com/YePpHa/maia-yt
 
 To understand the details see YePpHa's comment:
@@ -17,20 +16,19 @@ To understand the details see YePpHa's comment:
 
 ## Temporary Workarounds
 
-From https://github.com/YePpHa/YouTubeCenter/issues/2439
+From YePpHa/YouTubeCenter#2439
 - Chrome: https://github.com/YePpHa/YouTubeCenter/issues/2439#issuecomment-326737057
   https://googlesystem.blogspot.de/2011/12/changing-user-agent-new-google-chrome.html#gsc.tab=0
 - FireFox Addon "Custom User-Agent String": https://github.com/YePpHa/YouTubeCenter/issues/2439#issuecomment-326182853
   https://addons.mozilla.org/en-US/firefox/addon/custom-user-agent-string/
 - FireFox portable: https://github.com/YePpHa/YouTubeCenter/issues/2439#issuecomment-326710928
 
-Link to Developer edition: https://github.com/YePpHa/YouTubeCenter/wiki/Developer-Version
+Link to YouTubeCenter Developer edition: https://github.com/YePpHa/YouTubeCenter/wiki/Developer-Version
 
 
 # Old ReadMe:
 # YouTube Center [![Crowdin](https://d322cqt584bo4o.cloudfront.net/youtube-center/localized.png)](https://crowdin.net/project/youtube-center)
 YouTube Center is an extension for the browser that will enhance the experience on YouTube by adding tons of new and useful features. See the wiki for details on how to install the extension and how it works: [https://github.com/YePpHa/YouTubeCenter/wiki](https://github.com/YePpHa/YouTubeCenter/wiki)
-
 
 ## Contribute
 You can contribute to YouTube Center by different means. You can help find bugs (and report them in the [issue tracker](https://github.com/YePpHa/YouTubeCenter/issues)), help with the translation to different languages or you can try and implement new things yourself.
