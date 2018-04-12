@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+  "name": "crunchyroll-html5",
+  "version": "0.3.0",
+  "description": "A fully fledged HTML5 player for Crunchyroll.",
+  "author": "Jeppe Rune Mortensen <jepperm@gmail.com>",
+  "background": {
+    "scripts": [
+      "vendor/browser-polyfill.min.js",
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.crunchyroll.com/*"
+      ],
+      "js": [
+        "vendor/browser-polyfill.min.js",
+        "patch-worker.js",
+        "content-script.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    "vendor/JavascriptSubtitlesOctopus/*",
+    "fonts/*"
+  ]
+}

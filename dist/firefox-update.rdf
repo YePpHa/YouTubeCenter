@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <rdf:Description rdf:about="urn:mozilla:extension:jid1-cwbvBTE216jjpg@jetpack">
+    <em:updates>
+      <rdf:Seq>
+        <rdf:li>
+          <rdf:Description>
+            <em:version>549</em:version>
+            <em:targetApplication>
+              <rdf:Description>
+                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                <em:minVersion>19.0</em:minVersion>
+                <em:maxVersion>26.*</em:maxVersion>
+                <em:updateLink>https://raw.github.com/YePpHa/YouTubeCenter/master/dist/YouTubeCenter.xpi</em:updateLink>
+              </rdf:Description>
+            </em:targetApplication>
+            <em:targetApplication>
+                <rdf:Description>
+                  <em:id>{aa3c5121-dab2-40e2-81ca-7ea25febc110}</em:id>
+                  <em:minVersion>19.0</em:minVersion>
+                  <em:maxVersion>20.*</em:maxVersion>
+                  <em:updateLink>https://raw.github.com/YePpHa/YouTubeCenter/master/dist/YouTubeCenter.xpi</em:updateLink>
+                </rdf:Description>
+            </em:targetApplication>
+          </rdf:Description>
+        </rdf:li>
+      </rdf:Seq>
+    </em:updates>
+  </rdf:Description>
+</rdf:RDF>
