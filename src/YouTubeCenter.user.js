@@ -11076,7 +11076,7 @@
       
       function fixPlayerSize() {
         /*if (isNewPlayer()) {*/
-          window.matchMedia = null;
+          window.matchMedia = function(){ return false; };
         /*} else {
           patchDetour();
         }*/
@@ -26869,7 +26869,7 @@
         inject(main_function);
       }
     } else {
-	  injectScript(function(){ window.matchMedia = null; }, "matchMediaOverride.js");
+	  injectScript(function(){ window.matchMedia = function(){ return false; }; }, "matchMediaOverride.js");
       console.log("default");
       /* Continue normally */
       initListeners();
